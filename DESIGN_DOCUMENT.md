@@ -168,8 +168,8 @@ not a shop). It can return later without a model change.
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  ╭──╮ Milo                                    [📈]  [⚙]        │
-│  ╰──╯ 🔥 5-day streak                                          │
+│  ╭──╮↻ Milo                                   [📈]  [⚙]        │
+│  ╰──╯ 🔥 5-day streak      ↻ tap the avatar to switch user     │
 │                                                                │
 │   ┌────────────────────────────────────────────────────────┐   │
 │   │  LEVEL 3   ████████████░░░░░░  15 / 27 stars           │   │
@@ -189,7 +189,6 @@ not a shop). It can return later without a model change.
 │   Badges ──────────────────────────────────────────────        │
 │   [🏆] [🎯] [🔥] [░░] [░░] [░░] [░░] [░░]  ▸                  │
 │                                                                │
-│   ╭──╮ Switch user                                             │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -248,7 +247,7 @@ what happens next. Scoring, badge checks, streak update and persistence all run 
 │                     │     78%     │                            │
 │                     │  Accuracy   │                            │
 │                     ╰─────────────╯                            │
-│              + 190 points   ·   Best yet at Level 3 ✨          │
+│              + 183 points   ·   Best yet at Level 3 ✨          │
 │                                                                │
 │           🏆  NEW BADGE: "Sharp Shooter"                       │
 │                                                                │
@@ -816,6 +815,15 @@ silently destroys a keepsake:
 
 ---
 
-*Document version: 1.1*
+## 18. Companion Documents
+
+`WIREFRAME_SPEC.md` — the Penpot handoff. Artboard sizes, spacing grid, colour and
+type tokens, component dimensions, the exact writing-surface geometry, a 35-frame
+inventory and sample content. It is the source of truth for every number that reaches
+`AppConstants.swift`; this document is the source of truth for behaviour.
+
+---
+
+*Document version: 1.2*
 *Last updated: 2026-08-27*
 *Status: approved for wireframing. Development begins after wireframe sign-off (Phase 0).*
