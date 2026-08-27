@@ -1,0 +1,40 @@
+name: TraceRight
+options:
+  bundleIdPrefix: ai.thebridgeto.education
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+settings:
+  base:
+    TARGETED_DEVICE_FAMILY: "2"
+    SWIFT_VERSION: "5.9"
+    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown"
+targets:
+  TraceRight:
+    type: application
+    platform: iOS
+    sources:
+      - path: TraceRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.thebridgeto.education.handwriting
+        CODE_SIGN_ENTITLEMENTS: TraceRight/TraceRight.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: TraceRight/Info.plist
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "TraceRight needs microphone access so you can dictate sentences to practice writing."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "TraceRight uses speech recognition to convert your voice into text for tracing practice."
+    scheme:
+      testTargets:
+        - TraceRightTests
+  TraceRightTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TraceRightTests
+    dependencies:
+      - target: TraceRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.thebridgeto.education.handwriting.tests
+        GENERATE_INFOPLIST_FILE: YES
