@@ -72,6 +72,46 @@ final class MaskRenderer {
         /// something the child can write, so it can never be graded or selected.
         var writableLines: Set<Int> { Set(scorableByLine.keys) }
 
+        /// The character index just past the last glyph on a line — where the record ends
+        /// when the child finishes that line (v2.5 §11.11).
+        func endCharIndex(ofLine line: Int) -> Int? {
+            let boxes = glyphBoxes.lazy.filter { $0.lineIndex == line }
+            return boxes.map(\.charIndex).max().map { $0 + 1 }
+        }
+
+        /// The first line carrying any character at or past `index` — how the canvas maps
+        /// the record/buffer boundary to a line. Everything before it is written.
+        func firstLine(atOrAfterChar index: Int) -> Int {
+            var best = lineCount
+            for box in glyphBoxes where box.charIndex >= index {
+                if box.lineIndex < best { best = box.lineIndex }
+            }
+            return best
+        }
+
+        /// The next line after `line` that has letters to write, if any.
+        func nextWritableLine(after line: Int) -> Int? {
+            scorableByLine.keys.filter { $0 > line }.min()
+        }
+
+        /// The word under a tap, with its character range and bounding box — what the
+        /// fix-a-word gesture resolves to (v2.5 §11.13).
+        func word(at point: CGPoint, slack: CGFloat = 10) -> (word: Int, range: ClosedRange<Int>, rect: CGRect)? {
+            var hit: Int?
+            var bestDistance = CGFloat.greatestFiniteMagnitude
+            for box in glyphBoxes where box.isScorable {
+                guard box.rect.insetBy(dx: -slack, dy: -slack).contains(point) else { continue }
+                let d = hypot(point.x - box.center.x, point.y - box.center.y)
+                if d < bestDistance { bestDistance = d; hit = box.wordIndex }
+            }
+            guard let word = hit else { return nil }
+            let boxes = glyphBoxes.filter { $0.wordIndex == word && $0.isScorable }
+            guard let lo = boxes.map(\.charIndex).min(), let hi = boxes.map(\.charIndex).max(),
+                  let first = boxes.first else { return nil }
+            let rect = boxes.dropFirst().reduce(first.rect) { $0.union($1.rect) }
+            return (word, lo...hi, rect)
+        }
+
         static let empty = Layout(baselines: [], glyphBoxes: [], frameRect: .zero,
                                   totalHeight: 0, contentHeight: 0, lineSpacing: 0,
                                   lineBands: [], scorableByLine: [:])
@@ -95,7 +135,8 @@ final class MaskRenderer {
                   canvasSize: CGSize,
                   inset: CGFloat = Tokens.Layout.surfaceInset,
                   topPadding: CGFloat = Tokens.Space.s7,
-                  screenScale: CGFloat = UIScreen.main.scale) -> Layout {
+                  screenScale: CGFloat = UIScreen.main.scale,
+                  layoutOnly: Bool = false) -> Layout {
 
         scale = screenScale
         width = max(0, Int(canvasSize.width * screenScale))
@@ -104,7 +145,7 @@ final class MaskRenderer {
         guard width > 0, height > 0, !text.isEmpty else {
             pixelData = []
             layout = .empty
-            guideCache = nil
+            guideCaches = [:]
             return layout
         }
 
@@ -126,8 +167,12 @@ final class MaskRenderer {
                               lineSpacing: Self.lineAdvance(for: setup))
 
         guideSource = GuideSource(text: text, setup: setup, frameRect: frameRect, canvasHeight: canvasSize.height)
-        guideCache = nil
-        renderBitmap(frame: ctFrame, canvasSize: canvasSize, topPadding: topPadding, screenScale: screenScale)
+        guideCaches = [:]
+        if !layoutOnly {
+            renderBitmap(frame: ctFrame, canvasSize: canvasSize, topPadding: topPadding, screenScale: screenScale)
+        } else {
+            pixelData = []
+        }
         return layout
     }
 
@@ -349,36 +394,47 @@ final class MaskRenderer {
     /// Built from the same text, setup and frame path as the mask, so the letters the
     /// child sees and the letters the scorer tests against cannot drift apart.
     ///
-    /// `alphaForLine` is how the three line states of WIREFRAME_SPEC.md §11.11 are drawn:
-    /// a graded line returns 0 and loses its guide entirely, a line mid-settle returns a
+    /// `alphaForLine` is how the line states of WIREFRAME_SPEC.md §11.11 are drawn: a
+    /// written line returns 0 and loses its guide entirely, a line mid-settle returns a
     /// fading value, and everything else returns 1.
     func drawGuide(in context: CGContext,
                    colour: UIColor,
                    alphaForLine: ((Int) -> CGFloat)? = nil) {
-        guard let source = guideSource, let guide = guideLines(colour: colour) else { return }
+        drawGuide(in: context) { line in
+            let alpha = alphaForLine?(line) ?? 1
+            return alpha > 0.004 ? (colour, alpha) : nil
+        }
+    }
+
+    /// v2.5 — every line carries its own colour as well as its own alpha, because the
+    /// page has two text tiers at once: `guide-text` on the line in hand and
+    /// `spoken-text` below it. Returning nil skips the line.
+    func drawGuide(in context: CGContext,
+                   style: (Int) -> (colour: UIColor, alpha: CGFloat)?) {
+        guard let source = guideSource else { return }
 
         context.saveGState()
         context.textMatrix = .identity
         context.translateBy(x: 0, y: source.canvasHeight)
         context.scaleBy(x: 1, y: -1)
         context.translateBy(x: 0, y: -topPadding)
-        for (i, line) in guide.lines.enumerated() {
-            let alpha = alphaForLine?(i) ?? 1
-            guard alpha > 0.004 else { continue }
+        for i in 0..<layout.lineCount {
+            guard let (colour, alpha) = style(i), alpha > 0.004,
+                  let guide = guideLines(colour: colour), i < guide.lines.count else { continue }
             context.saveGState()
             if alpha < 1 { context.setAlpha(alpha) }
             context.textPosition = CGPoint(x: source.frameRect.minX + guide.origins[i].x,
                                            y: guide.origins[i].y)
-            CTLineDraw(line, context)
+            CTLineDraw(guide.lines[i], context)
             context.restoreGState()
         }
         context.restoreGState()
     }
 
-    /// The guide is laid out once and reused. It is redrawn on every frame while a line
-    /// settles, and rebuilding a framesetter for a ten-line page at 60 fps is not free.
+    /// The guide is laid out once per colour and reused — the page draws two colours per
+    /// frame (guide and spoken), and rebuilding a framesetter at 60 fps is not free.
     private func guideLines(colour: UIColor) -> GuideCache? {
-        if let cached = guideCache, cached.colour == colour { return cached }
+        if let cached = guideCaches[colour.description] { return cached }
         guard let source = guideSource else { return nil }
         let attributed = Self.attributedString(text: source.text, setup: source.setup, colour: colour)
         let framesetter = CTFramesetterCreateWithAttributedString(attributed)
@@ -388,7 +444,7 @@ final class MaskRenderer {
         var origins = [CGPoint](repeating: .zero, count: lines.count)
         CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), &origins)
         let cache = GuideCache(colour: colour, frame: frame, lines: lines, origins: origins)
-        guideCache = cache
+        guideCaches[colour.description] = cache
         return cache
     }
 
@@ -398,7 +454,7 @@ final class MaskRenderer {
         let lines: [CTLine]
         let origins: [CGPoint]
     }
-    private var guideCache: GuideCache?
+    private var guideCaches: [String: GuideCache] = [:]
 
     private struct GuideSource {
         let text: String
@@ -434,9 +490,10 @@ final class MaskRenderer {
 
     /// Which letter the child was aiming at. Nearest scorable glyph whose box — inflated
     /// by `slack` — contains the point; ties break on distance to centre.
-    func glyphIndex(at point: CGPoint, slack: CGFloat = 12) -> Int? {
+    func glyphIndex(at point: CGPoint, slack: CGFloat = 12, onLine: Int? = nil) -> Int? {
         var best: (index: Int, distance: CGFloat)?
         for (i, box) in layout.glyphBoxes.enumerated() where box.isScorable {
+            if let onLine, box.lineIndex != onLine { continue }
             // Cheap vertical reject first: re-attributing a whole page after an append
             // walks every point past every glyph, and most of them are lines away.
             guard point.y >= box.rect.minY - slack, point.y <= box.rect.maxY + slack else { continue }

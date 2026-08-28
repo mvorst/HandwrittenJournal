@@ -1,90 +1,128 @@
 import SwiftUI
 import SwiftData
 
-/// Drives the write loop: speak → check → write → done.
+/// Drives the one-screen write flow (v2.5, DESIGN_DOCUMENT.md §4.4).
 ///
-/// There is no splitter, no review list and no sentence queue. The child speaks, the
-/// transcript is shown once for correction, and then it becomes one continuous page they
-/// work down at their own pace.
+/// The page is the whole thing: the mic lives in the footer, dictation lands on the page
+/// live as spoken text, fixing a misheard word happens in place, and writing commits the
+/// words line by line. There are no separate capture, review or confirm screens — the
+/// only stages left are the page, the results, and the two microphone edge cases.
 ///
-/// Saying more does not start a new page. The words are appended to the entry already
-/// open, the word total goes up, and the page scrolls to the first new word
-/// (WIREFRAME_SPEC.md §11.11) — an entry is a day's page, however many times the child
-/// spoke to fill it.
+/// **Text is spoken until it is written.** `basePageText` holds record + spoken buffer;
+/// `recordLength` marks the boundary. The record is derived from the ink — the unbroken
+/// run of fully-traced rows from the top of the page (`onRecordChange`) — and everything
+/// downstream — journal, exports, counts — reads only the record.
 @Observable
 @MainActor
 final class WriteSessionViewModel {
 
     enum Stage: Equatable {
         case explainPermission
-        case start
-        case recording
-        case cappedAtLimit
-        case confirm
         case writing
         case results
         case unavailable(String)
     }
 
-    var stage: Stage = .start
-    var draftTranscript = ""
+    enum MicState: Equatable {
+        case idle
+        case listening
+        /// Stopped itself at five minutes — a banner over the page, not a screen.
+        case capped
+    }
+
+    /// A spoken word under the fix-a-word gesture (§11.13).
+    struct EditingWord: Equatable {
+        let range: ClosedRange<Int>
+        let original: String
+        var draft: String
+    }
+
+    var stage: Stage = .writing
+    var mic: MicState = .idle
     var isEraserActive = false
+    var editing: EditingWord?
     var lastResult: ScoreResult?
     var newBadges: [BadgeDefinition] = []
 
     let speech = SpeechRecognitionService()
     var controller = TracingController()
 
-    /// The tracing already on this page. Restoring it is what makes resuming an entry, and
-    /// "Keep writing", carry on rather than start again — without it the next Done would
+    /// Record + spoken buffer, paragraphs separated by newlines. The canonical page.
+    private(set) var basePageText = ""
+    /// Character count of the record prefix of `basePageText`.
+    private(set) var recordLength = 0
+
+    /// The record's ink, put back when the page reopens — without it the next Done would
     /// record an empty page over the child's work.
     private(set) var restoredStrokes: [TracingStroke] = []
-    /// Where the page opens: the resume point, or the first word of a fresh dictation
-    /// appended to a page already part-written.
+    /// Where the page opens: the first unwritten word.
     private(set) var startWord = 0
 
     private(set) var session: WritingSession?
     private let profile: UserProfile
     private let context: ModelContext
-    private let isResuming: Bool
 
-    /// `startingOver` opens the entry with a blank page: DESIGN_DOCUMENT.md §4.7's
-    /// "Write This Again", which replaces the stored tracing rather than adding to it.
-    /// Resuming without it keeps the ink and carries on where the child stopped.
     init(profile: UserProfile, context: ModelContext,
          resuming session: WritingSession? = nil, startingOver: Bool = false) {
         self.profile = profile
         self.context = context
         self.session = session
-        self.isResuming = session != nil
         if let session {
-            // Set up before the first render — the writing page is built from these, and
-            // `prepare()` runs a beat too late to be the place for it.
-            stage = .writing
-            startWord = startingOver ? 0 : session.wordsWritten
-            restoredStrokes = startingOver ? [] : Self.decode(session.strokeArchive)
+            if startingOver {
+                // §4.7 "Write This Again": the words stay, the tracing is replaced. The
+                // whole entry returns to spoken and the record regrows as they write.
+                let everything = session.pageText
+                session.setPage(record: "", buffer: everything)
+                session.strokeArchive = nil
+                session.thumbnailData = nil
+            }
+            basePageText = session.pageText
+            recordLength = session.transcript.count
+            startWord = session.wordsWritten
+            restoredStrokes = Self.decode(session.strokeArchive)
         }
+        wireController()
     }
 
-    // MARK: - Derived
-
-    var setup: WritingSetup { session?.setup ?? profile.setup }
-    var transcript: String { session?.transcript ?? draftTranscript }
-    var totalWords: Int { session?.totalWords ?? WritingSession.wordCount(draftTranscript) }
-    var wordsWritten: Int { max(controller.wordsWritten, session?.wordsWritten ?? 0) }
+    private func wireController() {
+        controller.onRecordChange = { [weak self] newLength in self?.recordChanged(newLength) }
+        controller.onSelectRow = { [weak self] _ in self?.rowSelected() }
+        controller.onEditWord = { [weak self] range, word in self?.wordHeld(range, word) }
+    }
 
     private static func decode(_ archive: Data?) -> [TracingStroke] {
         guard let archive else { return [] }
         return (try? StrokeArchive.decode(archive)) ?? []
     }
 
+    // MARK: - Derived
+
+    var setup: WritingSetup { session?.setup ?? profile.setup }
+
+    /// What the canvas lays out. While listening, the live partial rides after the base —
+    /// tidied here, so folding it in at the end changes nothing the child is looking at.
+    var pageText: String {
+        guard mic == .listening else { return basePageText }
+        let live = Self.tidy(speech.transcript)
+        guard !live.isEmpty else { return basePageText }
+        return basePageText.isEmpty ? live : basePageText + "\n" + live
+    }
+
+    var totalWords: Int { WritingSession.wordCount(basePageText) }
+    var wordsWritten: Int { max(controller.wordsWritten, session?.wordsWritten ?? 0) }
+    var hasSpokenText: Bool { recordLength < basePageText.count }
+
     // MARK: - Permission
 
     func prepare() async {
-        // Resuming goes straight to the pen — the child already spoke these words.
-        if isResuming { stage = .writing; return }
+        // The page needs no permission — only the mic does, and it asks when tapped.
+    }
+
+    /// The footer mic (or the big one on an empty page).
+    func micTapped() {
+        guard mic == .idle, editing == nil else { return }
         switch speech.currentStatusWithoutPrompting() {
-        case .ready: stage = .start
+        case .ready: startListening()
         case .unknown: stage = .explainPermission
         case .microphoneDenied, .speechDenied: stage = .unavailable("The microphone is switched off")
         case .unavailable(let message): stage = .unavailable(message)
@@ -94,118 +132,178 @@ final class WriteSessionViewModel {
     func requestPermission() async {
         await speech.refreshAvailability()
         switch speech.availability {
-        case .ready: stage = .start
+        case .ready:
+            stage = .writing
+            startListening()
         case .unavailable(let message): stage = .unavailable(message)
         default: stage = .unavailable("The microphone is switched off")
         }
     }
 
+    /// Back to the page from the permission or unavailable screens.
+    func backToPage() { stage = .writing }
+
     // MARK: - Speaking
 
-    func startRecording() {
+    private func startListening() {
         do {
             try speech.start()
-            stage = .recording
+            mic = .listening
             Haptics.tap()
         } catch {
             stage = .unavailable("The microphone could not start")
         }
     }
 
-    func stopRecording() {
+    /// "I'm done talking", the five-minute cap, or a line being taken in hand.
+    func dictationEnded() {
+        guard mic == .listening else { return }
         speech.stop()
+        mic = speech.didReachCap ? .capped : .idle
+        appendDictation(Self.tidy(speech.transcript))
+        attachAudio()
         Haptics.tap()
-        draftTranscript = Self.tidy(speech.transcript)
-        stage = speech.didReachCap ? .cappedAtLimit : .confirm
     }
 
+    func dismissCapBanner() {
+        if mic == .capped { mic = .idle }
+    }
+
+    /// Typing is the same path as speaking with the mic removed — the words land as
+    /// spoken text and are no more real until they are written.
     func useTyped(_ text: String) {
-        speech.reset()
-        draftTranscript = Self.tidy(text)
-        stage = .confirm
+        appendDictation(Self.tidy(text))
+        stage = .writing
     }
 
-    /// Speech recognition drops capitals and full stops on young voices often enough that
-    /// tidying once here saves the child an edit they should not have to make.
+    private func appendDictation(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        // A new telling always starts its own paragraph, so committed lines can never
+        // absorb later words (§5.2).
+        basePageText = basePageText.isEmpty ? trimmed : basePageText + "\n" + trimmed
+        persist()
+        if let session {
+            session.rawTranscript += (session.rawTranscript.isEmpty ? "" : "\n") + trimmed
+        }
+    }
+
+    /// Speech recognition drops capitals and doubles spaces on young voices often enough
+    /// that tidying once here saves the child an edit they should not have to make.
     static func tidy(_ text: String) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return "" }
         var out = trimmed
-        out.replace(#/\s+/#, with: " ")
+        out.replace(#/[ \t]+/#, with: " ")
         let first = out.removeFirst()
         return String(first).uppercased() + out
     }
 
-    // MARK: - Writing
-
-    func beginWriting() {
-        let text = draftTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
-        if let open = session, !open.transcript.isEmpty {
-            append(text, to: open)
-        } else {
-            let created = session ?? WritingSession(setup: profile.setup, transcript: text)
-            created.updateTranscript(text)
-            created.author = profile
-            created.rawTranscript = speech.transcript.isEmpty ? text : speech.transcript
-            created.spokenDuration = speech.elapsed
-            if session == nil { context.insert(created) }
-            session = created
-            startWord = 0
-            restoredStrokes = []
-            attachAudio(to: created)
-        }
-        stage = .writing
-    }
-
-    /// Saying more adds to the page the child is on. Their writing stays exactly where it
-    /// is — greedy word wrap cannot move a word that is already laid out — and the page
-    /// opens at the first word they have not seen before.
-    private func append(_ addition: String, to session: WritingSession) {
-        let existing = session.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-        startWord = WritingSession.wordCount(existing)
-        session.updateTranscript(existing + " " + addition)
-        session.rawTranscript += " " + (speech.transcript.isEmpty ? addition : speech.transcript)
-        session.spokenDuration += speech.elapsed
-        restoredStrokes = Self.decode(session.strokeArchive)
-        lastResult = nil
-        newBadges = []
-        attachAudio(to: session)
-    }
-
-    /// One recording per entry: a second take is joined onto the end of the first rather
-    /// than replacing it or being kept as a separate clip (DESIGN_DOCUMENT.md §10.4).
-    private func attachAudio(to session: WritingSession) {
+    private func attachAudio() {
         guard let url = speech.recordingURL, speech.elapsed > 0 else { return }
         let take = 0...max(0.2, speech.elapsed)
+        guard let session else { return }
+        let duration = speech.elapsed
         Task { [weak self] in
             let existing = session.audioData
             let joined = await AudioSlicer.append(existing, recording: url, range: take)
             await MainActor.run {
                 if let joined { session.audioData = joined }
+                session.spokenDuration += duration
                 AudioSlicer.discardMaster(at: url)
                 self?.speech.reset()
             }
         }
     }
 
+    // MARK: - The page
+
+    /// The unbroken run of fully-traced rows grew or shrank — the record follows the ink.
+    private func recordChanged(_ newLength: Int) {
+        recordLength = min(newLength, basePageText.count)
+        persist()
+        // The record's ink is worth keeping every time it changes, not only at Done.
+        if let session, let archive = controller.archive() { session.strokeArchive = archive }
+    }
+
+    /// A row was selected: the mic stops, the cap banner clears, and the word under edit
+    /// (if any) is dropped.
+    private func rowSelected() {
+        if mic == .listening { dictationEnded() }
+        if mic == .capped { mic = .idle }
+        editing = nil
+    }
+
+    private func wordHeld(_ range: ClosedRange<Int>, _ word: String) {
+        guard mic == .idle, !word.isEmpty else { return }
+        editing = EditingWord(range: range, original: word, draft: word)
+        Haptics.tap()
+    }
+
+    /// §11.13 — the fix lands in place. Only the spoken tier can change, so nothing the
+    /// child has written ever reflows.
+    func commitEdit() {
+        guard let editing else { return }
+        self.editing = nil
+        let replacement = editing.draft
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacing(#/\s+/#, with: " ")
+        guard !replacement.isEmpty, replacement != editing.original else { return }
+        let characters = Array(basePageText)
+        guard editing.range.lowerBound >= recordLength,
+              editing.range.upperBound < characters.count else { return }
+        var out = characters
+        out.replaceSubrange(editing.range.lowerBound...editing.range.upperBound,
+                            with: Array(replacement))
+        basePageText = String(out)
+        persist()
+        Haptics.tap()
+    }
+
+    func cancelEdit() { editing = nil }
+
+    /// Splits the page at the record boundary and writes both sides to the session.
+    private func persist() {
+        ensureSession()
+        guard let session else { return }
+        let characters = Array(basePageText)
+        let record = String(characters.prefix(recordLength))
+        let rest = String(characters.dropFirst(recordLength))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        session.setPage(record: record, buffer: rest)
+    }
+
+    private func ensureSession() {
+        guard session == nil, !basePageText.isEmpty else { return }
+        let created = WritingSession(setup: profile.setup)
+        created.author = profile
+        context.insert(created)
+        session = created
+    }
+
+    // MARK: - Finishing
+
     /// Stopping part-way is ordinary, so this is the same action whether the child wrote
-    /// three words or all of them.
+    /// three words or all of them. Every row with any ink counts — they traced it — and
+    /// its untouched letters score zero.
     func finishWriting() {
-        guard let session, let result = controller.finish(streak: profile.currentStreak) else {
+        if mic == .listening { dictationEnded() }
+        editing = nil
+        guard let result = controller.finishEntry(streak: profile.currentStreak) else {
             stage = .results
             return
         }
-        // Never write an empty page over work that is already saved. Clearing the page and
-        // finishing is a real thing to do, but a restore that silently failed looks exactly
-        // the same from here, and losing the child's handwriting is the worse mistake.
-        guard controller.hasInk || !session.hasWriting else {
+        persist()
+        guard let session else {
             stage = .results
             return
         }
+        // Never write an empty archive over ink that is already saved — a restore that
+        // silently failed looks the same as a cleared page from here.
+        let strokes = controller.strokeCount > 0 ? controller.archive() : session.strokeArchive
         session.record(result,
-                       strokes: controller.archive(),
-                       thumbnail: controller.thumbnail(),
+                       strokes: strokes,
+                       thumbnail: controller.thumbnail() ?? session.thumbnailData,
                        canvas: controller.canvasSize)
         session.endedAt = .now
         lastResult = result
@@ -239,31 +337,36 @@ final class WriteSessionViewModel {
         profile.earnedBadgeIDs.append(contentsOf: earned.map(\.id))
     }
 
-    /// Back to the page, with what is already written put back on it.
-    func writeMore() {
+    /// Back to the page with the record's ink on it — the spoken remainder is waiting.
+    func keepWriting() {
         lastResult = nil
         newBadges = []
-        startWord = session?.wordsWritten ?? 0
-        restoredStrokes = Self.decode(session?.strokeArchive)
+        reloadFromSession()
         stage = .writing
     }
 
-    /// More to say about the same day — the words will join the page this entry already has.
+    /// More to say about the same day. The new words will join this page as spoken text.
     func sayMore() {
         lastResult = nil
         newBadges = []
-        draftTranscript = ""
-        speech.reset()
-        stage = .start
+        reloadFromSession()
+        stage = .writing
+        micTapped()
     }
 
-    /// A session with nothing in it should not clutter the journal.
+    private func reloadFromSession() {
+        guard let session else { return }
+        basePageText = session.pageText
+        recordLength = session.transcript.count
+        startWord = session.wordsWritten
+        restoredStrokes = Self.decode(session.strokeArchive)
+    }
+
+    /// An entry with nothing in it should not clutter the journal.
     func discardIfEmpty() {
-        guard let session, !session.hasWriting, session.transcript.isEmpty || !isResuming && session.wordsWritten == 0,
-              session.tracedAt == nil else { return }
-        if session.transcript.isEmpty {
-            context.delete(session)
-            self.session = nil
-        }
+        guard let session, session.transcript.isEmpty, session.spokenBuffer.isEmpty,
+              session.audioData == nil else { return }
+        context.delete(session)
+        self.session = nil
     }
 }

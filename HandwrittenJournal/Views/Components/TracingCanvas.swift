@@ -1,23 +1,32 @@
 import SwiftUI
 import UIKit
 
-/// The writing surface — one continuous scrolling page. WIREFRAME_SPEC.md §11.
+/// The writing surface — one continuous scrolling page, and the whole write flow.
+/// WIREFRAME_SPEC.md §11 (v2.6).
 ///
-/// Every line of the page is in exactly one of three states (§11.11):
+/// Every row of the page is in exactly one of three states:
 ///
-/// | State | Guide | Ink |
+/// | State | Letters | Ink |
 /// |---|---|---|
-/// | **Graded** — every letter written | removed | `ink-natural` |
-/// | **In hand** — being written now | shown | accuracy colours |
-/// | **Untraced** — not reached yet | shown | none |
+/// | **Traced** — has ink, not selected | faint grey | natural graphite |
+/// | **Selected** — the row being written | black | accuracy colours |
+/// | **Untraced** — waiting, not selected | light grey (`spoken-text`) | none |
 ///
-/// Dropping the guide out from under a finished line is what makes the page read as the
-/// child's own handwriting rather than a half-finished worksheet, and it is what makes
-/// tap-to-re-trace legible: a line with no guide under it is a line you have written.
+/// **Any row can be selected by tapping it, at any time.** Selecting a traced row brings
+/// its ink back into accuracy colours for fixing; deselecting a row settles it — guide
+/// fades to faint, ink turns graphite, in place. When the selected row's last letter gets
+/// ink, the next untraced row is selected automatically so the flow never needs a tap
+/// per line — the taps are for going back, skipping, or fixing.
+///
+/// **The record** — what the journal, exports and counts read — is the unbroken run of
+/// fully-traced rows from the top of the page. It is derived from the ink, never set:
+/// text becomes real by being written, and only by being written.
 final class TracingCanvasView: UIView {
 
     // MARK: - Configuration
 
+    /// The whole page: record + spoken buffer (+ the live partial while dictating),
+    /// paragraphs separated by newlines.
     var text: String = "" { didSet { if text != oldValue { rebuild() } } }
     var setup: WritingSetup = .default { didSet { if setup != oldValue { rebuild(force: true) } } }
     var showGuideLines = true { didSet { setNeedsDisplay() } }
@@ -27,16 +36,32 @@ final class TracingCanvasView: UIView {
     var isEraserActive = false {
         didSet {
             eraserCentre = nil
-            if isEraserActive { select(nil) }   // one mode at a time
             setNeedsDisplay()
         }
     }
+    /// While dictating the mask is skipped (nobody can trace yet — selecting a row stops
+    /// the mic) and a caret marks where the next word will land.
+    var isDictating = false {
+        didSet {
+            guard isDictating != oldValue else { return }
+            if !isDictating { rebuild(revalidate: true) }   // bring the mask back
+            setNeedsDisplay()
+        }
+    }
+    /// The character range of a spoken word being fixed — drawn as an action box.
+    var editingRange: ClosedRange<Int>? { didSet { setNeedsDisplay() } }
 
     var onProgress: ((_ liveAccuracy: Double, _ wordsWritten: Int, _ hasInk: Bool) -> Void)?
     /// Fires when the layout changes so the scroll view can resize its content.
     var onLayoutChange: ((CGFloat) -> Void)?
-    /// Fires when a graded line is cleared for re-tracing, so the page can scroll to it.
-    var onRetrace: ((Int) -> Void)?
+    /// The record boundary moved — the unbroken run of fully-traced rows grew or shrank.
+    /// Carries the record's length in characters of `text`.
+    var onRecordChange: ((Int) -> Void)?
+    /// A row was selected (by tap, pen-down or auto-advance) — the view model stops the
+    /// mic and the page scrolls to it.
+    var onSelectRow: ((Int) -> Void)?
+    /// An untraced word was held for fixing: its character range and current text.
+    var onEditWord: ((ClosedRange<Int>, String) -> Void)?
 
     // MARK: - State
 
@@ -44,26 +69,38 @@ final class TracingCanvasView: UIView {
     private(set) var tally = ScoringEngine.Tally(letterCount: 0)
     private let maskRenderer = MaskRenderer()
     private var current: TracingStroke?
-    private var committed: UIImage?
+    private var committedImage: UIImage?
     private var eraserCentre: CGPoint?
     private var builtForSize: CGSize = .zero
     private var builtForText = ""
     private var pendingRestore: [TracingStroke]?
 
-    /// Glyph index -> line, so a stroke point can be coloured without a lookup per segment.
+    /// Glyph index -> row, so a stroke point can be coloured without a lookup per segment.
     private var lineOfGlyph: [Int] = []
 
-    /// Lines whose every letter has ink. Not necessarily a prefix: re-tracing a line in
-    /// the middle of the page takes it out of this set while the lines after it stay in.
-    private(set) var gradedLines: Set<Int> = []
-    /// Lines mid-settle, 0…1. Their guide is fading and their ink is turning to graphite.
+    /// The row being written, if any. Ink lands here and nowhere else.
+    private(set) var selectedRow: Int?
+
+    /// End of the record in characters of `text` — derived from the ink (see above).
+    private(set) var recordEnd = 0
+    private var lastEmittedRecord = -1
+
+    /// Rows mid-settle, 0…1. Their guide is fading to faint and their ink to graphite.
     private var settling: [Int: CGFloat] = [:]
     private var settleLink: CADisplayLink?
     private var lastTick: CFTimeInterval = 0
 
-    private(set) var selectedLine: Int?
-    private var chipRect: CGRect = .zero
-    private var pendingTap: (line: Int, start: CGPoint)?
+    private struct PendingTap {
+        let row: Int
+        let start: CGPoint
+        let began: CFTimeInterval
+        let canDraw: Bool
+    }
+    private var pendingTap: PendingTap?
+
+    /// A settled row keeps this much of the guide — enough to read as letterforms under
+    /// the ink, faint enough that the ink is unmistakably the text now.
+    static let tracedGuideAlpha: CGFloat = 0.18
 
     private var widthRange: ClosedRange<CGFloat> {
         let scale = setup.size.size / 72
@@ -87,9 +124,8 @@ final class TracingCanvasView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        // Height matters as much as width: appending words makes the page taller, and the
-        // frame the mask is built in clips anything past its own bounds. Rebuilding only
-        // on a width change left the new lines laid out but unreachable.
+        // Height matters as much as width: dictation makes the page taller, and the frame
+        // the mask is built in clips anything past its own bounds.
         let widthChanged = abs(bounds.width - builtForSize.width) > 0.5
         let heightChanged = abs(bounds.height - builtForSize.height) > 0.5
         if widthChanged || heightChanged { rebuild(force: widthChanged) }
@@ -104,40 +140,80 @@ final class TracingCanvasView: UIView {
         return MaskRenderer.contentHeight(text: text, setup: setup, width: textWidth)
     }
 
-    /// `force` wipes the ink. Plain rebuilds keep it, because the common case is the
-    /// child saying more and the new words being appended to the page they are on.
-    private func rebuild(force: Bool = false) {
-        guard bounds.width > 0, bounds.height > 0, !text.isEmpty else { return }
+    /// `force` wipes the ink. Plain rebuilds keep it when the text under the existing ink
+    /// has not moved — appends, and edits past every inked row, which is every legal
+    /// change (edits are gated to rows with no inked row after them).
+    private func rebuild(force: Bool = false, revalidate: Bool = false) {
+        guard bounds.width > 0, bounds.height > 0, !text.isEmpty else {
+            if text.isEmpty { clearForEmptyText() }
+            return
+        }
 
-        // Greedy word wrap is prefix-stable: appending words cannot move a word that is
-        // already on the page, so every stroke stays exactly where the child drew it.
-        let isAppend = !force && !builtForText.isEmpty && text.hasPrefix(builtForText)
+        // Everything up to the end of the last inked row (and the selected row) is under
+        // ink or guide the child is using. If that prefix is untouched, every stroke
+        // stays valid: greedy word wrap is prefix-stable, and each dictation starts its
+        // own paragraph so earlier rows can never absorb later words.
+        let stableLength = stablePrefixLength()
+        let stablePrefix = String(builtForText.prefix(stableLength))
+        let keepInk = !force && !builtForText.isEmpty && text.hasPrefix(stablePrefix)
             && abs(bounds.width - builtForSize.width) < 0.5
-        builtForSize = bounds.size
-        builtForText = text
 
+        let textChanged = builtForText != text || builtForSize != bounds.size
+        if !revalidate || textChanged {
+            builtForSize = bounds.size
+            builtForText = text
+            regenerate(layoutOnly: isDictating)
+        } else {
+            regenerate(layoutOnly: false)   // dictation ended; only the mask was missing
+        }
+
+        if pendingRestore != nil {
+            applyRestore()
+        } else if !keepInk {
+            strokes.removeAll()
+            current = nil
+            selectedRow = nil
+            settling = [:]
+            stopSettleLink()
+        }
+        if let row = selectedRow, (maskRenderer.layout.scorableByLine[row] ?? []).isEmpty {
+            selectedRow = nil
+        }
+        retally()
+        onLayoutChange?(bounds.height)
+    }
+
+    private func regenerate(layoutOnly: Bool) {
         // A very long entry makes a very tall bitmap; drop to 1x rather than allocate
         // tens of megabytes for a mask nobody looks at closely.
         let pixels = bounds.width * bounds.height * 4
         let scale: CGFloat = pixels > 40_000_000 ? 1 : min(2, UIScreen.main.scale)
-
-        maskRenderer.generate(text: text, setup: setup, canvasSize: bounds.size, screenScale: scale)
+        maskRenderer.generate(text: text, setup: setup, canvasSize: bounds.size,
+                              screenScale: scale, layoutOnly: layoutOnly)
         lineOfGlyph = maskRenderer.layout.glyphBoxes.map(\.lineIndex)
+    }
 
-        if pendingRestore != nil {
-            applyRestore()
-        } else if isAppend {
-            reattribute()               // the mask is new; the ink must be re-scored against it
-        } else {
-            strokes.removeAll()
-            current = nil
-            gradedLines = []
-            settling = [:]
-            stopSettleLink()
+    private func clearForEmptyText() {
+        strokes.removeAll()
+        current = nil
+        selectedRow = nil
+        settling = [:]
+        builtForText = ""
+        recordEnd = 0
+        stopSettleLink()
+        setNeedsDisplay()
+    }
+
+    /// Characters whose layout the existing ink depends on.
+    private func stablePrefixLength() -> Int {
+        var end = recordEnd
+        for row in inkedRows() {
+            if let e = maskRenderer.layout.endCharIndex(ofLine: row) { end = max(end, e) }
         }
-        select(nil)
-        retally(animateSettle: false)
-        onLayoutChange?(bounds.height)
+        if let row = selectedRow, let e = maskRenderer.layout.endCharIndex(ofLine: row) {
+            end = max(end, e)
+        }
+        return end
     }
 
     var layout: MaskRenderer.Layout { maskRenderer.layout }
@@ -147,14 +223,67 @@ final class TracingCanvasView: UIView {
     func rect(forWord word: Int) -> CGRect? { maskRenderer.layout.rect(forWord: word) }
     func rect(forLine line: Int) -> CGRect? { maskRenderer.layout.rect(forLine: line) }
 
+    // MARK: - Row state
+
+    func rowHasAnyInk(_ row: Int) -> Bool {
+        guard let indices = maskRenderer.layout.scorableByLine[row] else { return false }
+        return indices.contains { tally.hasInk(letter: $0) }
+    }
+
+    func rowFullyInked(_ row: Int) -> Bool {
+        guard let indices = maskRenderer.layout.scorableByLine[row], !indices.isEmpty else { return false }
+        return indices.allSatisfy { tally.hasInk(letter: $0) }
+    }
+
+    private func inkedRows() -> [Int] {
+        maskRenderer.layout.scorableByLine.keys.filter { rowHasAnyInk($0) }
+    }
+
+    /// The row of a stroke — where its first point landed.
+    private func row(of stroke: TracingStroke) -> Int? {
+        stroke.points.first.flatMap { lineOf($0) }
+    }
+
+    private func lineOf(_ point: StrokePoint) -> Int? {
+        if point.letterIndex >= 0, point.letterIndex < lineOfGlyph.count {
+            return lineOfGlyph[point.letterIndex]
+        }
+        return maskRenderer.layout.lineIndex(at: point.location)
+    }
+
+    // MARK: - Selection
+
+    /// Selecting is the only mode there is: ink lands on the selected row, tools work on
+    /// the selected row, and leaving a row settles it.
+    func selectRow(_ row: Int?) {
+        guard row != selectedRow else { return }
+        if let row, (maskRenderer.layout.scorableByLine[row] ?? []).isEmpty { return }
+        let previous = selectedRow
+        selectedRow = row
+        if let previous, rowHasAnyInk(previous) { settle(previous) }
+        redrawCommitted()
+        reportProgress()
+        setNeedsDisplay()
+        if let row { onSelectRow?(row) }
+    }
+
+    /// When the selected row's last letter gets ink, the next untraced row comes up on
+    /// its own — the taps are for going back, not for going forward.
+    private func maybeAdvance() {
+        guard let row = selectedRow, rowFullyInked(row) else { return }
+        let next = maskRenderer.layout.scorableByLine.keys
+            .filter { $0 > row && !rowFullyInked($0) }
+            .min()
+        selectRow(next)
+    }
+
     // MARK: - Restoring an earlier sitting
 
-    /// Puts an archived tracing back on the page. Resuming an unfinished entry and
-    /// tapping "Keep writing" both come through here — without it, finishing a resumed
-    /// entry would record an empty page over the child's work.
+    /// Puts an archived tracing back on the page. The record re-derives from the ink, so
+    /// a restored page reports the same boundary it was saved with.
     func restore(_ archived: [TracingStroke]) {
         pendingRestore = archived
-        if !maskRenderer.layout.glyphBoxes.isEmpty { applyRestore(); retally(animateSettle: false) }
+        if !maskRenderer.layout.glyphBoxes.isEmpty { applyRestore(); retally() }
     }
 
     private func applyRestore() {
@@ -162,15 +291,13 @@ final class TracingCanvasView: UIView {
         pendingRestore = nil
         strokes = restored
         current = nil
-        gradedLines = []
+        selectedRow = nil
         settling = [:]
         reattribute()
     }
 
     /// Recomputes every point's letter and inside-ness against the current mask.
-    ///
-    /// Needed whenever the page changes under existing ink: restoring an archive, or
-    /// appending new dictation, which re-lays-out the frame the strokes were scored on.
+    /// Only needed on restore — appends and gated edits cannot move inked glyphs.
     private func reattribute() {
         for s in strokes.indices {
             for p in strokes[s].points.indices {
@@ -181,21 +308,18 @@ final class TracingCanvasView: UIView {
         }
     }
 
-    // MARK: - Actions
+    // MARK: - Finishing the entry
 
-    func undo() {
-        guard !strokes.isEmpty else { return }
-        strokes.removeLast()
-        retally()
+    /// "I'm finished" / Done. The score covers every row with any ink — the child traced
+    /// it, so it counts, and its untouched letters score zero.
+    func finishEntry(streak: Int) -> ScoreResult {
+        selectRow(nil)
+        let inked = Set(inkedRows())
+        let committed = maskRenderer.layout.glyphBoxes.map { inked.contains($0.lineIndex) }
+        return ScoringEngine.score(tally: tally, committed: committed,
+                                   totalWords: maskRenderer.layout.wordCount, streak: streak)
     }
 
-    func clearAll() {
-        strokes.removeAll()
-        current = nil
-        retally()
-    }
-
-    func finish(streak: Int) -> ScoreResult { ScoringEngine.score(tally: tally, streak: streak) }
     func archive() throws -> Data { try StrokeArchive.encode(strokes) }
 
     /// Always natural ink — a thumbnail is journal furniture, never a marked-up test.
@@ -217,46 +341,92 @@ final class TracingCanvasView: UIView {
         }.pngData()
     }
 
+    // MARK: - Tools (scoped to the selected row)
+
+    func undo() {
+        guard let row = selectedRow,
+              let index = strokes.lastIndex(where: { self.row(of: $0) == row }) else { return }
+        strokes.remove(at: index)
+        retally()
+    }
+
+    func clearSelected() {
+        guard let row = selectedRow else { return }
+        let remaining = strokes.filter { self.row(of: $0) != row }
+        guard remaining.count != strokes.count else { return }
+        strokes = remaining
+        current = nil
+        retally()
+    }
+
+    private func applyErase(at point: CGPoint) {
+        guard let row = selectedRow else { return }
+        let mine = strokes.filter { self.row(of: $0) == row }
+        guard !mine.isEmpty else { return }
+        let others = strokes.filter { self.row(of: $0) != row }
+        let result = StrokeEraser.erase(at: point, from: mine)
+        guard result.strokes.count != mine.count || !result.touchedLetters.isEmpty else { return }
+        strokes = others + result.strokes
+        retally()
+    }
+
+    var selectedRowHasInk: Bool {
+        guard let row = selectedRow else { return false }
+        return rowHasAnyInk(row)
+    }
+
     // MARK: - Touches
 
+    private func drawingTouch(_ touch: UITouch) -> Bool {
+        allowFinger || touch.type == .pencil
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, accepts(touch) else { return }
+        guard let touch = touches.first else { return }
         let point = touch.location(in: self)
 
-        if let line = selectedLine, chipRect.contains(point) {
-            beginRetrace(of: line)
-            return
-        }
-        if isEraserActive {
+        if isEraserActive, drawingTouch(touch) {
             eraserCentre = point
             applyErase(at: point)
             setNeedsDisplay()
             return
         }
-        // A finished line is not something you draw on — it is something you tap to redo.
-        if let line = maskRenderer.layout.lineIndex(at: point), gradedLines.contains(line) {
-            pendingTap = (line, point)
+
+        // Ink lands on the selected row. Its band is judged generously — descenders and
+        // a child's overshoot both cross the printed band.
+        if drawingTouch(touch), let row = selectedRow, pointIsOnBand(point, row: row) {
+            beginStroke(at: touch)
             return
         }
-        select(nil)
-        current = TracingStroke()
-        add(touch)
-        setNeedsDisplay()
+
+        // Anywhere else: a tap selects the row it lands on — any row, any time. A pen
+        // that starts moving becomes ink on that row; a held finger opens a word for
+        // fixing.
+        guard let row = maskRenderer.layout.lineIndex(at: point),
+              !(maskRenderer.layout.scorableByLine[row] ?? []).isEmpty else { return }
+        pendingTap = PendingTap(row: row, start: point, began: CACurrentMediaTime(),
+                                canDraw: drawingTouch(touch))
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, accepts(touch) else { return }
+        guard let touch = touches.first else { return }
+        let point = touch.location(in: self)
+
         if let pending = pendingTap {
-            // A drag that started on written work is a scroll attempt, not a tap.
-            let moved = hypot(touch.location(in: self).x - pending.start.x,
-                              touch.location(in: self).y - pending.start.y)
-            if moved > Self.tapSlop { pendingTap = nil }
+            if hypot(point.x - pending.start.x, point.y - pending.start.y) > Self.tapSlop {
+                pendingTap = nil
+                // A moving pen is writing, wherever it started — select and ink.
+                if pending.canDraw {
+                    selectRow(pending.row)
+                    beginStroke(at: touch)
+                }
+            }
             return
         }
-        if isEraserActive {
-            eraserCentre = touch.location(in: self)
-            applyErase(at: touch.location(in: self))
-        } else {
+        if isEraserActive, drawingTouch(touch) {
+            eraserCentre = point
+            applyErase(at: point)
+        } else if current != nil {
             for coalesced in event?.coalescedTouches(for: touch) ?? [touch] { add(coalesced) }
         }
         setNeedsDisplay()
@@ -265,8 +435,16 @@ final class TracingCanvasView: UIView {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let pending = pendingTap {
             pendingTap = nil
-            select(selectedLine == pending.line ? nil : pending.line)
-            Haptics.tap()
+            // A held touch on an editable word opens it for fixing; a tap selects.
+            if CACurrentMediaTime() - pending.began > 0.5,
+               wordIsEditable(onRow: pending.row),
+               let touch = touches.first,
+               let word = maskRenderer.layout.word(at: touch.location(in: self)) {
+                onEditWord?(word.range, wordText(word.range))
+            } else {
+                selectRow(pending.row)
+                Haptics.tap()
+            }
             return
         }
         endStroke()
@@ -279,7 +457,33 @@ final class TracingCanvasView: UIView {
 
     private static let tapSlop: CGFloat = 12
 
-    private func accepts(_ touch: UITouch) -> Bool { allowFinger || touch.type == .pencil }
+    private func pointIsOnBand(_ point: CGPoint, row: Int) -> Bool {
+        guard let band = maskRenderer.layout.rect(forLine: row) else { return false }
+        let spacing = maskRenderer.layout.lineSpacing
+        let top = band.minY - 14
+        let bottom = band.maxY + max(14, spacing * 0.2)
+        return point.y >= top && point.y <= bottom
+    }
+
+    /// A word can be fixed only while its text is not under anyone's ink: the row has no
+    /// ink, and no inked row sits below it — reflowing a traced row out from under its
+    /// strokes is the one thing an edit must never do.
+    private func wordIsEditable(onRow row: Int) -> Bool {
+        guard !rowHasAnyInk(row) else { return false }
+        return !maskRenderer.layout.scorableByLine.keys.contains { $0 > row && rowHasAnyInk($0) }
+    }
+
+    private func wordText(_ range: ClosedRange<Int>) -> String {
+        let characters = Array(text)
+        guard range.lowerBound >= 0, range.upperBound < characters.count else { return "" }
+        return String(characters[range.lowerBound...range.upperBound])
+    }
+
+    private func beginStroke(at touch: UITouch) {
+        current = TracingStroke()
+        add(touch)
+        setNeedsDisplay()
+    }
 
     private func add(_ touch: UITouch) {
         guard current != nil else { return }
@@ -287,7 +491,9 @@ final class TracingCanvasView: UIView {
         let force: CGFloat = touch.type == .pencil && touch.maximumPossibleForce > 0
             ? min(1, touch.force / touch.maximumPossibleForce)
             : 0.55
-        let letter = maskRenderer.glyphIndex(at: location) ?? -1
+        // Ink scores only against the selected row — a stray wobble two rows down must
+        // not put ink on a word the child has not reached.
+        let letter = maskRenderer.glyphIndex(at: location, onLine: selectedRow) ?? -1
         let inside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
         current?.append(StrokePoint(location: location, force: force, isInside: inside, letterIndex: letter))
         if letter >= 0 { tally.record(letter: letter, isInside: inside) }
@@ -299,81 +505,32 @@ final class TracingCanvasView: UIView {
         eraserCentre = nil
         if let finished, !finished.isEmpty {
             strokes.append(finished)
-            retally()          // a finished stroke may have finished a line
+            retally()
+            maybeAdvance()
             return
         }
         reportProgress()
         setNeedsDisplay()
     }
 
-    private func applyErase(at point: CGPoint) {
-        let result = StrokeEraser.erase(at: point, from: strokes)
-        guard result.strokes.count != strokes.count || !result.touchedLetters.isEmpty else { return }
-        strokes = result.strokes
-        retally()
-    }
-
-    // MARK: - Selecting a line to write again
-
-    /// Selecting is API rather than a private detail of touch handling: the page can be
-    /// driven from a controller, and it is the only way to exercise §11.12 in a test.
-    func selectLine(_ line: Int?) {
-        guard line == nil || gradedLines.contains(line!) else { return }
-        select(line)
-    }
-
-    /// Hands a graded line back to the child. The chip calls this; so can a test.
-    func writeLineAgain(_ line: Int) { beginRetrace(of: line) }
-
-    private func select(_ line: Int?) {
-        guard selectedLine != line else { return }
-        selectedLine = line
-        if line == nil { chipRect = .zero }
-        setNeedsDisplay()
-    }
-
-    /// Clears the line's ink and hands it back to the child in the in-hand state.
-    ///
-    /// The old tracing is discarded rather than archived: only the latest tracing is ever
-    /// kept (DESIGN_DOCUMENT.md §5.5), so this replaces, and the entry's accuracy is
-    /// recomputed from what is on the page now.
-    private func beginRetrace(of line: Int) {
-        guard let indices = maskRenderer.layout.scorableByLine[line], !indices.isEmpty else { return }
-        strokes = removingLine(line, from: strokes)
-        settling[line] = nil
-        select(nil)
-        retally(animateSettle: false)
-        onRetrace?(line)
-        Haptics.tap()
-    }
-
-    private func removingLine(_ line: Int, from list: [TracingStroke]) -> [TracingStroke] {
-        var out: [TracingStroke] = []
-        for stroke in list {
-            var run = TracingStroke()
-            for point in stroke.points {
-                if lineOf(point) == line {
-                    if !run.isEmpty { out.append(run) }
-                    run = TracingStroke()
-                } else {
-                    run.append(point)
-                }
+    /// Appends ink as if drawn — attributed against the selected row exactly the way a
+    /// touch would be. The programmatic path used by previews and tests.
+    func addInk(_ new: [TracingStroke]) {
+        for var stroke in new {
+            for i in stroke.points.indices {
+                let location = stroke.points[i].location
+                stroke.points[i].letterIndex = maskRenderer.glyphIndex(at: location, onLine: selectedRow) ?? -1
+                stroke.points[i].isInside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
             }
-            if !run.isEmpty { out.append(run) }
+            if !stroke.isEmpty { strokes.append(stroke) }
         }
-        return out
+        retally()
+        maybeAdvance()
     }
 
-    private func lineOf(_ point: StrokePoint) -> Int? {
-        if point.letterIndex >= 0, point.letterIndex < lineOfGlyph.count {
-            return lineOfGlyph[point.letterIndex]
-        }
-        return maskRenderer.layout.lineIndex(at: point.location)
-    }
+    // MARK: - Scoring and the record
 
-    // MARK: - Scoring and line state
-
-    private func retally(animateSettle: Bool = true) {
+    private func retally() {
         let boxes = maskRenderer.layout.glyphBoxes
         var fresh = ScoringEngine.Tally(wordOfLetter: boxes.map(\.wordIndex),
                                         scorable: boxes.map(\.isScorable),
@@ -384,47 +541,45 @@ final class TracingCanvasView: UIView {
             }
         }
         tally = fresh
-        refreshLineStates(animateSettle: animateSettle)
-    }
-
-    private func refreshLineStates(animateSettle: Bool) {
-        let graded = computeGradedLines()
-        let newly = graded.subtracting(gradedLines)
-        gradedLines = graded
-
-        // A line that lost its ink — erased, undone, or handed back for re-tracing —
-        // stops settling and gets its guide back.
-        for line in settling.keys where !graded.contains(line) { settling[line] = nil }
-
-        if animateSettle, !newly.isEmpty {
-            if UIAccessibility.isReduceMotionEnabled {
-                Haptics.settle()
-            } else {
-                for line in newly { settling[line] = 0 }
-                startSettleLink()
-                Haptics.settle()
-            }
-        }
-        if let selected = selectedLine, !graded.contains(selected) { select(nil) }
-
+        recomputeRecord()
         redrawCommitted()
         reportProgress()
         setNeedsDisplay()
     }
 
-    private func computeGradedLines() -> Set<Int> {
-        var out: Set<Int> = []
-        for (line, indices) in maskRenderer.layout.scorableByLine where !indices.isEmpty {
-            if indices.allSatisfy({ tally.hasInk(letter: $0) }) { out.insert(line) }
+    /// The record is the unbroken run of fully-traced rows from the top of the page —
+    /// derived from the ink, and re-derived identically from a restored archive.
+    private func recomputeRecord() {
+        var end = 0
+        for row in 0..<maskRenderer.layout.lineCount {
+            guard let indices = maskRenderer.layout.scorableByLine[row], !indices.isEmpty else { continue }
+            guard indices.allSatisfy({ tally.hasInk(letter: $0) }) else { break }
+            if let e = maskRenderer.layout.endCharIndex(ofLine: row) { end = max(end, e) }
         }
-        return out
+        recordEnd = end
+        if end != lastEmittedRecord {
+            lastEmittedRecord = end
+            onRecordChange?(end)
+        }
     }
 
     private func reportProgress() {
-        onProgress?(tally.liveAccuracy, tally.wordsWritten, !strokes.isEmpty)
+        // Words written = words with any ink, wherever they sit on the page.
+        var words: Set<Int> = []
+        for (i, box) in maskRenderer.layout.glyphBoxes.enumerated() where box.isScorable {
+            if tally.hasInk(letter: i) { words.insert(box.wordIndex) }
+        }
+        onProgress?(tally.liveAccuracy, words.count, selectedRowHasInk)
     }
 
-    // MARK: - The settle (§11.10)
+    // MARK: - The settle (§11.10 — on deselection, not on a sensor)
+
+    private func settle(_ row: Int) {
+        guard !UIAccessibility.isReduceMotionEnabled else { return }
+        settling[row] = 0
+        startSettleLink()
+        Haptics.settle()
+    }
 
     private func startSettleLink() {
         guard settleLink == nil else { return }
@@ -446,18 +601,18 @@ final class TracingCanvasView: UIView {
 
         var finished = false
         var touched: [CGRect] = []
-        for (line, progress) in settling {
-            if let band = maskRenderer.layout.rect(forLine: line) { touched.append(band) }
+        for (row, progress) in settling {
+            if let band = maskRenderer.layout.rect(forLine: row) { touched.append(band) }
             let next = progress + step
-            if next >= 1 { settling[line] = nil; finished = true } else { settling[line] = next }
+            if next >= 1 { settling[row] = nil; finished = true } else { settling[row] = next }
         }
-        if finished { redrawCommitted() }       // the line is graphite for good now
+        if finished { redrawCommitted() }       // the row is graphite for good now
         if settling.isEmpty { stopSettleLink() }
-        // Only the settling lines changed, and the page can be thousands of points tall.
-        for line in touched { setNeedsDisplay(line.insetBy(dx: 0, dy: -8)) }
+        // Only the settling rows changed, and the page can be thousands of points tall.
+        for band in touched { setNeedsDisplay(band.insetBy(dx: 0, dy: -8)) }
     }
 
-    // MARK: - Ink colour per line
+    // MARK: - Ink colour per row
 
     private struct Palette {
         let inside: UIColor
@@ -472,11 +627,9 @@ final class TracingCanvasView: UIView {
                 outside: UIColor(colourBlind ? Tokens.Colour.inkOutsideCB : Tokens.Colour.inkOutside))
     }
 
-    /// The palette for a line that is not mid-settle: graphite once graded, accuracy
-    /// colours while it is still in hand.
-    private func settledPalette(for line: Int?) -> Palette {
-        guard let line, gradedLines.contains(line) else { return accuracyPalette }
-        return Self.naturalPalette
+    private func settledPalette(for row: Int?) -> Palette {
+        guard let row else { return accuracyPalette }
+        return row == selectedRow ? accuracyPalette : Self.naturalPalette
     }
 
     private func blendedPalette(progress: CGFloat) -> Palette {
@@ -497,19 +650,19 @@ final class TracingCanvasView: UIView {
 
     // MARK: - Drawing
 
-    /// Everything except the lines currently settling, which are redrawn live so their
+    /// Everything except the rows currently settling, which are redrawn live so their
     /// colour can be interpolated frame by frame.
     private func redrawCommitted() {
         guard bounds.width > 0, bounds.height > 0 else { return }
         let format = UIGraphicsImageRendererFormat.default()
         format.opaque = false
         format.scale = min(2, UIScreen.main.scale)
-        let settlingLines = Set(settling.keys)
-        committed = UIGraphicsImageRenderer(bounds: bounds, format: format).image { ctx in
-            draw(strokes: strokes, in: ctx.cgContext) { [weak self] line in
+        let settlingRows = Set(settling.keys)
+        committedImage = UIGraphicsImageRenderer(bounds: bounds, format: format).image { ctx in
+            draw(strokes: strokes, in: ctx.cgContext) { [weak self] row in
                 guard let self else { return nil }
-                if let line, settlingLines.contains(line) { return nil }
-                return self.settledPalette(for: line)
+                if let row, settlingRows.contains(row) { return nil }
+                return self.settledPalette(for: row)
             }
         }
     }
@@ -519,20 +672,26 @@ final class TracingCanvasView: UIView {
         if showGuideLines { drawRuledLines(in: ctx, clip: rect) }
 
         if showGuideText {
-            // §11.11 — a graded line has no guide under it at all; a settling one fades.
-            maskRenderer.drawGuide(in: ctx, colour: UIColor(Tokens.Colour.guideText)) { [weak self] line in
-                guard let self else { return 1 }
-                if let progress = self.settling[line] { return 1 - progress }
-                return self.gradedLines.contains(line) ? 0 : 1
+            // The three row states: black on the selected row, faint grey under settled
+            // ink, light grey for everything still waiting.
+            let guide = UIColor(Tokens.Colour.guideText)
+            let spoken = UIColor(Tokens.Colour.spokenText)
+            let faint = Self.tracedGuideAlpha
+            maskRenderer.drawGuide(in: ctx) { [weak self] row in
+                guard let self else { return nil }
+                if let progress = self.settling[row] { return (guide, 1 - progress * (1 - faint)) }
+                if row == self.selectedRow { return (guide, 1) }
+                if self.rowHasAnyInk(row) { return (guide, faint) }
+                return (spoken, 1)
             }
         }
 
-        committed?.draw(at: .zero)
+        committedImage?.draw(at: .zero)
 
         if !settling.isEmpty {
             let settlingNow = settling
-            draw(strokes: strokes, in: ctx) { [weak self] line in
-                guard let self, let line, let progress = settlingNow[line] else { return nil }
+            draw(strokes: strokes, in: ctx) { [weak self] row in
+                guard let self, let row, let progress = settlingNow[row] else { return nil }
                 return self.blendedPalette(progress: progress)
             }
         }
@@ -542,7 +701,8 @@ final class TracingCanvasView: UIView {
             draw(strokes: [live], in: ctx) { _ in palette }
         }
 
-        if let line = selectedLine { drawSelection(line, in: ctx) }
+        if let range = editingRange { drawEditingBox(range, in: ctx) }
+        if isDictating { drawCaret(in: ctx) }
 
         if isEraserActive, let centre = eraserCentre {
             let circle = CGRect(x: centre.x - StrokeEraser.radius, y: centre.y - StrokeEraser.radius,
@@ -557,45 +717,28 @@ final class TracingCanvasView: UIView {
         }
     }
 
-    /// §11.12 — the band, the outline and the chip that resolves the selection.
-    private func drawSelection(_ line: Int, in ctx: CGContext) {
-        guard let band = maskRenderer.layout.rect(forLine: line) else { return }
-        let highlight = band.insetBy(dx: -8, dy: -6)
-        let path = UIBezierPath(roundedRect: highlight, cornerRadius: Tokens.Radius.chip)
-        ctx.setFillColor(UIColor(Tokens.Colour.action).withAlphaComponent(0.12).cgColor)
+    /// §11.13 — the spoken word being fixed.
+    private func drawEditingBox(_ range: ClosedRange<Int>, in ctx: CGContext) {
+        let boxes = maskRenderer.layout.glyphBoxes.filter { range.contains($0.charIndex) }
+        guard let first = boxes.first else { return }
+        let rect = boxes.dropFirst().reduce(first.rect) { $0.union($1.rect) }.insetBy(dx: -8, dy: -6)
+        let path = UIBezierPath(roundedRect: rect, cornerRadius: Tokens.Radius.chip)
+        ctx.setFillColor(UIColor(Tokens.Colour.action).withAlphaComponent(0.10).cgColor)
         ctx.addPath(path.cgPath)
         ctx.fillPath()
         ctx.setStrokeColor(UIColor(Tokens.Colour.action).cgColor)
         ctx.setLineWidth(Tokens.Stroke.emphasis)
         ctx.addPath(path.cgPath)
         ctx.strokePath()
+    }
 
-        let size = CGSize(width: 360, height: 60)
-        let top = min(highlight.maxY + 12, bounds.height - size.height - 4)
-        chipRect = CGRect(x: band.minX + 60, y: max(0, top), width: size.width, height: size.height)
-
-        // The chip sits over the line below, so it has to read as something floating on
-        // top of the page rather than as part of it.
-        let chip = UIBezierPath(roundedRect: chipRect, cornerRadius: Tokens.Radius.button)
-        ctx.saveGState()
-        ctx.setShadow(offset: CGSize(width: 0, height: 2), blur: 18,
-                      color: UIColor.black.withAlphaComponent(0.18).cgColor)
-        ctx.setFillColor(UIColor(Tokens.Colour.paperRaised).cgColor)
-        ctx.addPath(chip.cgPath)
-        ctx.fillPath()
-        ctx.restoreGState()
-        ctx.setStrokeColor(UIColor(Tokens.Colour.action).cgColor)
-        ctx.setLineWidth(Tokens.Stroke.emphasis)
-        ctx.addPath(chip.cgPath)
-        ctx.strokePath()
-
-        let label = NSAttributedString(string: "Write this line again", attributes: [
-            .font: UIFont.systemFont(ofSize: 22, weight: .semibold),
-            .foregroundColor: UIColor(Tokens.Colour.action),
-        ])
-        let labelSize = label.boundingRect(with: chipRect.size, options: .usesLineFragmentOrigin, context: nil)
-        label.draw(at: CGPoint(x: chipRect.midX - labelSize.width / 2,
-                               y: chipRect.midY - labelSize.height / 2))
+    /// While listening, the next word will land here.
+    private func drawCaret(in ctx: CGContext) {
+        guard let last = maskRenderer.layout.glyphBoxes.last else { return }
+        let rect = CGRect(x: last.rect.maxX + 8, y: last.rect.minY + 4, width: 3,
+                          height: max(20, last.rect.height - 8))
+        ctx.setFillColor(UIColor(Tokens.Colour.action).cgColor)
+        ctx.fill(rect)
     }
 
     /// §11.2 — three rules per line, only the baseline solid. The child aims for the
@@ -613,7 +756,8 @@ final class TracingCanvasView: UIView {
         ctx.setStrokeColor(UIColor(Tokens.Colour.ruleLine).cgColor)
         ctx.setLineWidth(1)
 
-        let advance = max(1, maskRenderer.layout.lineSpacing)
+        let measured = maskRenderer.layout.lineSpacing
+        let advance = measured > 1 ? measured : MaskRenderer.lineAdvance(for: setup)
         var baseline = maskRenderer.layout.baselines.first ?? (Tokens.Space.s7 + size.ascent)
         var index = 0
         while baseline + size.descent < bounds.height {
@@ -641,7 +785,7 @@ final class TracingCanvasView: UIView {
         ctx.strokePath()
     }
 
-    /// `palette` is asked once per segment, given the line that segment sits on.
+    /// `palette` is asked once per segment, given the row that segment sits on.
     /// Returning nil skips the segment, which is how a pass draws only some of the page.
     private func draw(strokes list: [TracingStroke],
                       in ctx: CGContext,

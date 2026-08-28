@@ -22,13 +22,15 @@ struct ScoreResult {
 
 /// DESIGN_DOCUMENT.md §8.1 — accuracy is graded per letter.
 ///
-/// The rule has one refinement now that the page is a continuous scrolling document:
-/// **only words the child actually started are scored.** A word they have not reached yet
-/// is not written, not failed — otherwise stopping half way through a long entry would
-/// score like failure, and stopping half way has to stay an ordinary thing to do.
+/// v2.5: **the scored population is the record** — every scorable letter on a line the
+/// child finished. Words they never wrote are not in the record at all, so there is
+/// nothing to score and nothing to excuse; stopping part-way stays ordinary by
+/// construction. Inside a line they *did* finish, a skipped letter still scores zero —
+/// finishing a line is a choice, not a certificate, and that anti-skip property is what
+/// made per-letter grading worth doing in the first place.
 ///
-/// Inside a word they did start, a skipped letter still scores zero. That is the
-/// anti-skip property that made per-letter grading worth doing in the first place.
+/// The older started-words rule (`score(tally:streak:)`) survives for the live figure and
+/// its tests; the app's final score goes through `score(tally:committed:...)`.
 enum ScoringEngine {
 
     static let sessionBonus = 30
@@ -139,6 +141,39 @@ enum ScoringEngine {
         return 0
     }
 
+    /// v2.5 — score the record. `committed` is per glyph, true when the glyph sits on a
+    /// line the child finished. Untouched committed letters score zero; uncommitted
+    /// glyphs are simply not in the population.
+    static func score(tally: Tally, committed: [Bool], totalWords: Int, streak: Int) -> ScoreResult {
+        let accuracies = tally.letterAccuracies
+        var sum = 0.0, count = 0, unfinished = 0
+        var writtenWords: Set<Int> = []
+        for i in tally.wordOfLetter.indices where i < committed.count && committed[i] && tally.scorable[i] {
+            sum += accuracies[i]
+            count += 1
+            if !tally.hasInk(letter: i) { unfinished += 1 }
+            writtenWords.insert(tally.wordOfLetter[i])
+        }
+        let accuracy = count > 0 ? sum / Double(count) : 0
+        let stars = stars(forAccuracy: accuracy)
+        let base = Int((accuracy * 100).rounded())
+        let starBonus = count > 0 ? stars * starValue : 0
+        let streakBonus = count > 0 ? min(streak, streakCap) * streakStep : 0
+        return ScoreResult(
+            accuracy: accuracy,
+            letterAccuracies: accuracies,
+            unfinishedLetters: unfinished,
+            wordsWritten: writtenWords.count,
+            totalWords: totalWords,
+            stars: stars,
+            basePoints: base,
+            starBonus: starBonus,
+            streakBonus: streakBonus,
+            sessionBonus: count > 0 ? sessionBonus : 0,
+            totalPoints: count > 0 ? base + starBonus + streakBonus + sessionBonus : 0
+        )
+    }
+
     /// §8.3. Worked from §14: 78 + 50 + 25 + 30 = 183; 94 + 75 + 25 + 30 = 224.
     static func score(tally: Tally, streak: Int) -> ScoreResult {
         let accuracy = tally.finalAccuracy
@@ -168,7 +203,7 @@ enum ScoringEngine {
                 ? "1 letter was skipped."
                 : "\(result.unfinishedLetters) letters were skipped."
         }
-        if result.finishedEverything { return "You wrote the whole thing — nice work." }
+        if result.finishedEverything { return "You wrote everything you said — nice work." }
         return "Every letter you wrote was finished."
     }
 }

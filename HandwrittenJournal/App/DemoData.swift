@@ -30,13 +30,13 @@ enum DemoData {
         ada.setup = WritingSetup(faceID: "jua", sizeID: "xl", mode: .trace)
         context.insert(ada)
 
-        // Entries, oldest first.
-        let fixtures: [(days: Int, hour: Int, text: String, accuracy: Double, fraction: Double)] = [
-            (7, 16, "I want to be an astronaut and go all the way to the moon", 0.88, 1.0),
-            (5, 18, "The dog has a cold nose and he pushed it into my hand", 0.66, 1.0),
-            (3, 10, "My tower fell down but I built it again even taller", 0.90, 1.0),
-            (1, 17, "We made pancakes with Grandma and mine was the biggest one", 0.81, 1.0),
-            (0, 16, "I saw a red bird in the yard. It was on the fence by the gate and it sang for a long time", 0.94, 1.0),
+        // Entries, oldest first. Complete entries: the whole telling is record.
+        let fixtures: [(days: Int, hour: Int, text: String, accuracy: Double)] = [
+            (7, 16, "I want to be an astronaut and go all the way to the moon", 0.88),
+            (5, 18, "The dog has a cold nose and he pushed it into my hand", 0.66),
+            (3, 10, "My tower fell down but I built it again even taller", 0.90),
+            (1, 17, "We made pancakes with Grandma and mine was the biggest one", 0.81),
+            (0, 16, "I saw a red bird in the yard. It was on the fence by the gate and it sang for a long time", 0.94),
         ]
 
         for fixture in fixtures {
@@ -48,7 +48,6 @@ enum DemoData {
             session.accuracy = fixture.accuracy
             session.stars = ScoringEngine.stars(forAccuracy: fixture.accuracy)
             session.points = Int(fixture.accuracy * 100) + session.stars * 25 + 25 + 30
-            session.wordsWritten = Int(Double(session.totalWords) * fixture.fraction)
             session.canvasWidth = 754
             session.canvasHeight = 900
             let strokes = synthesise(text: fixture.text, setup: milo.setup, accuracy: fixture.accuracy)
@@ -56,22 +55,24 @@ enum DemoData {
             context.insert(session)
         }
 
-        // An entry stopped part-way — the resume card and "Still to write" section.
+        // An entry with spoken words still waiting — the resume card and the "Still to
+        // write" section. Under v2.5 the record holds only what was written; the rest of
+        // the telling sits in the spoken buffer.
         let unfinishedStart = Calendar.current.date(byAdding: .hour, value: -2, to: .now) ?? .now
         let unfinished = WritingSession(
             setup: milo.setup,
             startedAt: unfinishedStart,
-            transcript: "Today we went to the park and I saw a big dog. The dog wanted to play with me and we threw a ball for it until it got tired."
+            transcript: "Today we went to the park and I saw a big dog.",
+            spokenBuffer: "The dog wanted to play with me and we threw a ball for it until it got tired."
         )
         unfinished.author = milo
         unfinished.tracedAt = unfinishedStart
         unfinished.accuracy = 0.91
         unfinished.stars = 3
-        unfinished.wordsWritten = 9
         unfinished.canvasWidth = 754
         unfinished.canvasHeight = 900
         unfinished.strokeArchive = try? StrokeArchive.encode(
-            synthesise(text: "Today we went to the park", setup: milo.setup, accuracy: 0.91)
+            synthesise(text: "Today we went to the park and I saw a big dog.", setup: milo.setup, accuracy: 0.91)
         )
         context.insert(unfinished)
     }

@@ -21,6 +21,9 @@ enum Tokens {
 
         // 5.3 Guide layer
         static let guideText = Color(hex: 0x000000).opacity(0.80)
+        /// Dictated words waiting to be written — cooler as well as lighter than the
+        /// guide, so "not yet real" reads at a glance (WIREFRAME_SPEC.md §5.3, v2.5).
+        static let spokenText = Color(hex: 0x5B6B8C).opacity(0.42)
         static let ruleLine  = Color(hex: 0xE5E5EA)
 
         // 5.4 Text

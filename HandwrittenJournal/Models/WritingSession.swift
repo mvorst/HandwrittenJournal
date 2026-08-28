@@ -1,12 +1,14 @@
 import Foundation
 import SwiftData
 
-/// DESIGN_DOCUMENT.md §5.2. A session is one sitting: the child talks once, and the whole
-/// transcript becomes one continuous page they trace through.
+/// DESIGN_DOCUMENT.md §5.2–§5.4 (v2.5). One entry is one page, and **the transcript is
+/// the record**: it holds only text the child has written. Everything they said but have
+/// not yet written lives in `spokenBuffer` — provisional, editable, and absent from the
+/// journal, exports and every count.
 ///
-/// There is no sentence entity. The transcript is a single scrolling document — splitting
-/// it into pieces made the child's own words feel like exercises, and made the app carry a
-/// splitter, a review list and a queue that earned nothing.
+/// Separate dictations are separated by a newline in both fields, so a new telling always
+/// starts a fresh line on the page and committed lines can never reflow underneath the
+/// child's ink.
 @Model
 final class WritingSession {
     var id: UUID = UUID()
@@ -19,9 +21,11 @@ final class WritingSession {
     var sizeKey: String = "l"
     var modeRaw: Int = WritingMode.trace.rawValue
 
-    /// What gets traced — the confirmed transcript.
+    /// THE RECORD — only text the child has written. Grows one finished line at a time.
     var transcript: String = ""
-    /// What the recogniser originally heard, before anyone fixed it.
+    /// Said but not yet written. Not part of the record.
+    var spokenBuffer: String = ""
+    /// Everything the recogniser heard, verbatim.
     var rawTranscript: String = ""
     var spokenDuration: Double = 0
 
@@ -44,14 +48,17 @@ final class WritingSession {
 
     var author: UserProfile?
 
-    init(setup: WritingSetup = .default, startedAt: Date = .now, transcript: String = "") {
+    init(setup: WritingSetup = .default, startedAt: Date = .now,
+         transcript: String = "", spokenBuffer: String = "") {
         self.startedAt = startedAt
         self.transcript = transcript
+        self.spokenBuffer = spokenBuffer
         self.rawTranscript = transcript
         self.fontKey = setup.face.id
         self.sizeKey = setup.size.id
         self.modeRaw = setup.mode.rawValue
-        self.totalWords = Self.wordCount(transcript)
+        self.wordsWritten = Self.wordCount(transcript)
+        self.totalWords = Self.wordCount(transcript) + Self.wordCount(spokenBuffer)
     }
 
     // MARK: - Derived
@@ -62,10 +69,19 @@ final class WritingSession {
 
     var hasWriting: Bool { strokeArchive != nil && wordsWritten > 0 }
 
-    /// A session the child stopped part-way through. This is what a "draft" is now.
-    var isComplete: Bool { totalWords > 0 && wordsWritten >= totalWords }
+    /// A "draft" is an entry with spoken words still waiting (§5.4). The record itself is
+    /// always fully written, whatever the buffer holds.
+    var isComplete: Bool { totalWords > 0 && spokenBuffer.isEmpty }
 
-    var wordsRemaining: Int { max(0, totalWords - wordsWritten) }
+    var wordsRemaining: Int { Self.wordCount(spokenBuffer) }
+
+    /// What the writing page lays out: the record, then the spoken buffer, each telling on
+    /// its own paragraph. The hard break is what keeps committed lines from reflowing.
+    var pageText: String {
+        if transcript.isEmpty { return spokenBuffer }
+        if spokenBuffer.isEmpty { return transcript }
+        return transcript + "\n" + spokenBuffer
+    }
 
     var progress: Double {
         totalWords > 0 ? Double(wordsWritten) / Double(totalWords) : 0
@@ -80,21 +96,32 @@ final class WritingSession {
     var title: String { customTitle ?? firstLine }
 
     var firstLine: String {
-        let words = transcript.split(separator: " ").prefix(8).joined(separator: " ")
-        return words.isEmpty ? "Empty entry" : (words.count < transcript.count ? words + "…" : words)
+        let source = transcript.isEmpty ? spokenBuffer : transcript
+        let words = source.split(whereSeparator: \.isWhitespace).prefix(8).joined(separator: " ")
+        return words.isEmpty ? "Empty entry" : (words.count < source.count ? words + "…" : words)
     }
 
-    /// Where the child got to, in words — used to scroll a resumed session to the right
-    /// place and to label the resume card.
+    /// The next few unwritten words — the resume card quotes the buffer, the one piece of
+    /// UI that ever shows spoken text outside the page itself.
     var nextWords: String {
-        let words = transcript.split(separator: " ")
-        guard wordsWritten < words.count else { return "" }
-        return words[wordsWritten...].prefix(6).joined(separator: " ")
+        spokenBuffer.split(whereSeparator: \.isWhitespace).prefix(6).joined(separator: " ")
     }
 
-    func updateTranscript(_ text: String) {
-        transcript = text
-        totalWords = Self.wordCount(text)
+    /// The record/buffer boundary moved — a line was finished, a word was fixed, or more
+    /// was said. Counts follow the text; they are never set independently.
+    func setPage(record: String, buffer: String) {
+        transcript = record
+        spokenBuffer = buffer
+        wordsWritten = Self.wordCount(record)
+        totalWords = wordsWritten + Self.wordCount(buffer)
+    }
+
+    /// A new telling always starts its own paragraph (§5.2).
+    func appendDictation(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        setPage(record: transcript,
+                buffer: spokenBuffer.isEmpty ? trimmed : spokenBuffer + "\n" + trimmed)
     }
 
     func record(_ result: ScoreResult, strokes: Data?, thumbnail: Data?, canvas: CGSize, at date: Date = .now) {
@@ -103,8 +130,6 @@ final class WritingSession {
         stars = result.stars
         points = result.totalPoints
         letterAccuracies = result.letterAccuracies
-        wordsWritten = result.wordsWritten
-        totalWords = max(totalWords, result.totalWords)
         strokeArchive = strokes
         thumbnailData = thumbnail
         canvasWidth = canvas.width

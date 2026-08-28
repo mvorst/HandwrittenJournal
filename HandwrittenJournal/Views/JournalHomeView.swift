@@ -172,7 +172,7 @@ struct JournalHomeView: View {
             if recent.isEmpty {
                 EmptyStateView(systemImage: "pencil.line",
                                heading: "Nothing written yet",
-                               message: "Tap New Entry, say a sentence, then trace it.")
+                               message: "Tap New Entry and tell me about your day.")
                     .padding(.vertical, Tokens.Space.s7)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {

@@ -26,8 +26,9 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | 8 · Export (page **and** book), Settings, accessibility pass | ✅ page + book; accessibility pass outstanding |
 | — · Calendar view (frame 13) | ⛔ not built |
 | — · Three line states, settle in place, tap to write a line again (v2.4) | ✅ |
+| — · One screen; spoken-until-written record; commit-on-finish; fix-a-word (v2.5) | ✅ |
 
-**42 tests across 8 suites, all passing.**
+**50 tests across 8 suites, all passing.**
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -98,15 +99,58 @@ appears in the picker.
 
 ---
 
-## v2.5 is drawn, not built
+## v2.5 — one screen, spoken until written (built)
 
-The wireframes and design documents moved to **v2.5** (one unified Write screen; text is
-*spoken* — provisional, editable, outside the record — until the child finishes writing
-its line). The app deliberately still implements v2.4 while v2.5 awaits approval. Once
-approved, the build work is: the mic/listening/fix-a-word states folded into
-`WriteSessionView`'s writing stage, a `spokenBuffer` alongside `transcript` on
-`WritingSession`, the spoken text tier and end-of-line check in `TracingCanvasView`, and
-commit-on-finish replacing the automatic settle.
+The approved v2.5 design is implemented end to end.
+
+**The model.** `WritingSession.transcript` is now **the record** — only text the child has
+written — and `spokenBuffer` holds everything said but unwritten. `setPage(record:buffer:)`
+keeps the counts derived from the text; `isComplete` means the buffer is empty; `nextWords`
+quotes the buffer. Dictations are newline-separated paragraphs in both fields, which is
+what makes committed lines immovable: a new telling always starts a fresh layout line, so
+greedy wrap can never pull later words up under the child's ink.
+
+**The canvas** (`TracingCanvasView`) carries the whole flow:
+
+- `text` is the page (record + buffer + live partial); `recordLength` is the boundary.
+  Lines before `firstSpokenLine` draw as graphite with no guide; the active line draws
+  guide + accuracy ink + the end-of-line check; everything below draws in `spoken-text`.
+- **Commit is a gesture, not a sensor.** `takeNextLine()` / `finishActiveLine()` implement
+  §11.11: tapping the next spoken line finishes the line in hand (if it has ink) and takes
+  the tapped one; the check finishes in place — or, with no ink, un-takes the line. The
+  settle animation runs at commit. `finishEntry` commits an inked line in hand, returns an
+  un-inked one to spoken, and scores exactly the record
+  (`ScoringEngine.score(tally:committed:totalWords:streak:)`).
+- **The record's ink is frozen.** Strokes below `frozenStrokeCount` can't be undone,
+  cleared or erased; the toolbar tools operate on the active line only. `writeLineAgain`
+  clears one written line's strokes for redoing without touching its words.
+- **Dictation streams onto the page.** While listening the canvas skips the mask bitmap
+  (`generate(layoutOnly:)`) and re-lays text per partial result; the scroll view follows
+  the tail; a caret marks where the next word lands. Taking a line stops the mic.
+- **Fix-a-word**: a tap on a spoken word reports its character range; the view model
+  presents an editor bar (the word stays boxed on the page) and splices the fix into the
+  buffer. Only the spoken tier is editable, so nothing written can ever reflow.
+
+**The view model** lost four stages — start, recording, capped, confirm are all states of
+`.writing` now (`MicState.idle/listening/capped`, plus the editing overlay). The
+permission explainer and mic-unavailable screens remain, shown only when the mic is
+tapped. Typing is the same path as speaking with the mic removed.
+
+### Implementation notes (resolutions the wireframes left open)
+
+1. **Advancing requires ink.** Tapping the next line with an un-inked line in hand does
+   nothing — no trace, no record, and a child tapping around cannot zero-commit lines.
+2. **The check with no ink un-takes the line** rather than committing zeros, which also
+   re-opens its text for fixing.
+3. **A slow press (>0.5 s) on the next takeable line edits its word** instead of advancing
+   — the only way to fix a word on the very next line before its text locks. Ordinary taps
+   on any other spoken line edit directly; taps on the next line advance.
+4. **After the check, the next line comes in hand automatically** so the flow never needs
+   two taps per line; tapping the next line directly also works with one.
+5. **Word-edit UI is an editor bar above the keyboard** with the word boxed on the page —
+   not the wireframe's pure in-place caret. Recorded as a deliberate simplification.
+6. **Old-schema entries** (pre-`spokenBuffer`) load with the whole transcript as record and
+   an empty buffer — they read as complete entries, which for DEBUG-only data is fine.
 
 ## Bringing the app up to the v2.4 wireframes
 
@@ -168,12 +212,12 @@ silently fell back to the system face.
    tracing toolbar.
 3. **Scroll, pen and tap now share the writing surface, and that is the thing to watch in
    testing.** One finger draws and two scroll when finger tracing is on; the chevron button
-   at the foot scrolls with no gesture at all, and that is meant to be the primary route for
-   a young child. The tap is separated by *where* rather than by touch count — it only
-   resolves on a graded line, which is the one region where neither drawing nor scrolling is
-   the obvious intent, and a drag from there cancels it. Whether a five-year-old reaches for
-   the chevron, and whether the tap fires during ordinary writing, are real open questions
-   that only a device answers.
+   scrolls with no gesture at all. v2.5 adds tap targets per tier — written lines select
+   for redo, the next spoken line advances, other spoken words open for fixing, the check
+   finishes — plus the slow-press edit on the next line. Each region is one where neither
+   drawing nor scrolling is the obvious intent, drags cancel taps, and strokes only start
+   on the active line's band; but this gesture stack is the densest thing in the app and
+   only a device with a real five-year-old answers whether it disappears into the paper.
 4. **The re-trace chip is drawn by the canvas, not composed in SwiftUI.** It has to sit at a
    line's position inside a scroll view, and drawing it is far simpler than publishing the
    rect and tracking the offset. It means the chip does not get SwiftUI's button semantics —

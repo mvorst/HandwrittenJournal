@@ -205,6 +205,6 @@ struct LineStateTests {
 
         let result = ScoringEngine.score(tally: tally, streak: 0)
         #expect(result.finishedEverything)
-        #expect(ScoringEngine.finishMessage(for: result).contains("whole thing"))
+        #expect(ScoringEngine.finishMessage(for: result).contains("everything you said"))
     }
 }

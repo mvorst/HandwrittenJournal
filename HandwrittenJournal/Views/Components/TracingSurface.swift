@@ -3,15 +3,13 @@ import UIKit
 
 /// The scrolling writing page.
 ///
-/// A scroll gesture and a pen stroke are hard to tell apart, so the two are separated by
-/// touch count rather than by guesswork:
-///
-/// - **Finger tracing off** — one finger scrolls, only the pencil draws. Unambiguous.
-/// - **Finger tracing on** — one finger draws, two fingers scroll. This is what Notes and
-///   Procreate do, and it is learnable, but two fingers is a lot to ask of a five-year-old,
-///   so the "next" button below the page scrolls without any gesture at all.
+/// **The pencil never scrolls** — its touches are excluded from the pan gesture outright,
+/// so a pen on the page is always ink. Fingers scroll: one finger when finger tracing is
+/// off, two when it is on (the Notes / Procreate split), and the chevron button below the
+/// page scrolls with no gesture at all.
 struct TracingSurface: UIViewRepresentable {
 
+    /// The whole page: record + spoken buffer + the live partial while dictating.
     let text: String
     let setup: WritingSetup
     var showGuideLines = true
@@ -19,8 +17,10 @@ struct TracingSurface: UIViewRepresentable {
     var colourBlind = false
     var allowFinger = true
     var isEraserActive = false
-    /// Word index to scroll to — the resume point, and the first new word after the child
-    /// says more and it is appended to the page.
+    var isDictating = false
+    /// The spoken word being fixed, if any — drawn boxed on the page.
+    var editingRange: ClosedRange<Int>? = nil
+    /// Word index to scroll to when the page first appears (resuming an entry).
     var startAtWord: Int = 0
     /// An earlier tracing of this same page, put back so the child carries on rather than
     /// starting again.
@@ -30,17 +30,27 @@ struct TracingSurface: UIViewRepresentable {
 
     func makeUIView(context: Context) -> ScrollingCanvas {
         let view = ScrollingCanvas()
-        view.apply(text: text, setup: setup)
+        // The archive must be staged before the text lands: the canvas derives the record
+        // from the ink, and a text without its ink would briefly report an empty record.
         if !restoring.isEmpty { view.canvas.restore(restoring) }
+        view.apply(text: text, setup: setup)
         view.canvas.onProgress = { accuracy, words, hasInk in
             Task { @MainActor in
                 controller.liveAccuracy = accuracy
                 controller.wordsWritten = words
                 controller.hasInk = hasInk
+                controller.refresh()
             }
         }
-        view.canvas.onRetrace = { [weak view] line in
-            view?.scrollToLine(line, animated: true)
+        view.canvas.onRecordChange = { newLength in
+            Task { @MainActor in controller.onRecordChange?(newLength) }
+        }
+        view.canvas.onSelectRow = { [weak view] row in
+            view?.scrollToLine(row, animated: true)
+            Task { @MainActor in controller.onSelectRow?(row) }
+        }
+        view.canvas.onEditWord = { range, word in
+            Task { @MainActor in controller.onEditWord?(range, word) }
         }
         Task { @MainActor in
             controller.attach(view)
@@ -57,7 +67,11 @@ struct TracingSurface: UIViewRepresentable {
         view.canvas.colourBlind = colourBlind
         view.canvas.allowFinger = allowFinger
         view.canvas.isEraserActive = isEraserActive
-        view.setFingerDraws(allowFinger)
+        view.canvas.editingRange = editingRange
+        let wasDictating = view.canvas.isDictating
+        view.canvas.isDictating = isDictating
+        if isDictating, !wasDictating || view.textJustGrew { view.followTail() }
+        view.setFingerDraws(allowFinger && !isDictating)
     }
 }
 
@@ -68,6 +82,7 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     private var appliedText = ""
     private var appliedSetup: WritingSetup?
     private var focusedWord: Int?
+    private(set) var textJustGrew = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -75,6 +90,12 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         alwaysBounceVertical = true
         showsVerticalScrollIndicator = true
         contentInsetAdjustmentBehavior = .never
+        // The pencil never scrolls — a pen on the page is always ink, so only direct
+        // touches (and trackpad pointers) can pan.
+        panGestureRecognizer.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.direct.rawValue),
+            NSNumber(value: UITouch.TouchType.indirectPointer.rawValue),
+        ]
         addSubview(canvas)
         delegate = self
     }
@@ -86,7 +107,8 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     }
 
     func apply(text: String, setup: WritingSetup) {
-        guard text != appliedText || setup != appliedSetup else { return }
+        guard text != appliedText || setup != appliedSetup else { textJustGrew = false; return }
+        textJustGrew = text.count > appliedText.count
         appliedText = text
         appliedSetup = setup
         canvas.text = text
@@ -111,11 +133,20 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         scroll(to: rect, animated: animated)
     }
 
-    /// Puts a line near the top of the window — where the child re-traces it from.
+    /// Puts a line near the top of the window — where the child writes it from.
     func scrollToLine(_ line: Int, animated: Bool = true) {
         layoutIfNeeded()
         guard let rect = canvas.rect(forLine: line) else { return }
         scroll(to: rect, animated: animated)
+    }
+
+    /// While dictating, the newest words stay in view.
+    func followTail() {
+        layoutIfNeeded()
+        let target = max(0, contentSize.height - bounds.height)
+        if abs(contentOffset.y - target) > 4 {
+            setContentOffset(CGPoint(x: 0, y: target), animated: false)
+        }
     }
 
     private func scroll(to rect: CGRect, animated: Bool) {
@@ -123,8 +154,8 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         setContentOffset(CGPoint(x: 0, y: target), animated: animated)
     }
 
-    /// Scrolls to a word once per change. Called on resume and again when new dictation
-    /// is appended, so the child lands on the first word they have not written.
+    /// Scrolls to a word once per change. Called on resume, so the child lands on the
+    /// first word they have not written.
     func focus(word: Int, animated: Bool) {
         guard focusedWord != word else { return }
         let isFirst = focusedWord == nil
@@ -150,20 +181,35 @@ final class TracingController {
     var liveAccuracy: Double = 0
     var wordsWritten: Int = 0
     var hasInk: Bool = false
+    /// Mirrored canvas state the footer hint reads. Updated alongside every progress
+    /// report so observation actually fires.
+    private(set) var hasSelection = false
+
+    var onRecordChange: ((Int) -> Void)?
+    var onSelectRow: ((Int) -> Void)?
+    var onEditWord: ((ClosedRange<Int>, String) -> Void)?
 
     private weak var scroller: ScrollingCanvas?
     private var canvas: TracingCanvasView? { scroller?.canvas }
 
     func attach(_ scroller: ScrollingCanvas) { self.scroller = scroller }
 
-    /// Lines the child has finished — the footer hint changes once there is one to tap.
-    var gradedLineCount: Int { canvas?.gradedLines.count ?? 0 }
-    var selectedLine: Int? { canvas?.selectedLine }
+    func refresh() {
+        hasSelection = canvas?.selectedRow != nil
+    }
+
+    var selectedRow: Int? { canvas?.selectedRow }
 
     func undo() { canvas?.undo() }
-    func clear() { canvas?.clearAll() }
-    func finish(streak: Int) -> ScoreResult? { canvas?.finish(streak: streak) }
+    func clear() { canvas?.clearSelected() }
+    func selectRow(_ row: Int?) { canvas?.selectRow(row); refresh() }
+    func finishEntry(streak: Int) -> ScoreResult? {
+        let result = canvas?.finishEntry(streak: streak)
+        refresh()
+        return result
+    }
     func archive() -> Data? { try? canvas?.archive() }
+    var strokeCount: Int { canvas?.strokes.count ?? 0 }
     func thumbnail() -> Data? { canvas?.thumbnail() }
     var canvasSize: CGSize { canvas?.bounds.size ?? .zero }
     var totalWords: Int { canvas?.layout.wordCount ?? 0 }
@@ -171,7 +217,6 @@ final class TracingController {
     func scrollToWord(_ word: Int, animated: Bool = false) { scroller?.scrollToWord(word, animated: animated) }
     func scrollToLine(_ line: Int, animated: Bool = true) { scroller?.scrollToLine(line, animated: animated) }
     func nextLines() { scroller?.scrollByLines(2) }
-    func scrollToNextUnwritten() { scroller?.scrollToWord(wordsWritten, animated: true) }
 }
 
 // MARK: - Replay

@@ -116,12 +116,45 @@ struct PerLetterScoringTests {
         #expect(tally.letterAccuracies[1] == 1.0)
     }
 
+    @Test("v2.5 — the committed score covers exactly the record")
+    func committedScoreCoversTheRecord() {
+        // Two words of three letters, then a third word the child never wrote. The first
+        // two words' lines are committed; the third is spoken and outside the population.
+        let wordOf = [0, 0, 0, 1, 1, 1, 2, 2, 2]
+        var tally = ScoringEngine.Tally(wordOfLetter: wordOf, totalWords: 3)
+        for letter in 0..<5 {                    // five of six committed letters inked
+            for i in 0..<10 { tally.record(letter: letter, isInside: i < 8) }
+        }
+        let committed = [true, true, true, true, true, true, false, false, false]
+        let result = ScoringEngine.score(tally: tally, committed: committed, totalWords: 3, streak: 0)
+
+        #expect(result.wordsWritten == 2)
+        #expect(result.totalWords == 3)
+        #expect(result.wordsRemaining == 1)
+        #expect(result.unfinishedLetters == 1, "the skipped letter on a committed line counts")
+        // five letters at 80% plus one at zero, over six committed letters
+        #expect(abs(result.accuracy - (5.0 * 0.8) / 6.0) < 0.0001)
+        #expect(!result.finishedEverything)
+    }
+
+    @Test("v2.5 — an empty record scores nothing and earns nothing")
+    func emptyRecordScoresNothing() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 1, 1], totalWords: 2)
+        tally.record(letter: 0, isInside: true)   // ink in hand, but nothing committed
+        let result = ScoringEngine.score(tally: tally,
+                                         committed: [false, false, false, false],
+                                         totalWords: 2, streak: 5)
+        #expect(result.wordsWritten == 0)
+        #expect(result.accuracy == 0)
+        #expect(result.totalPoints == 0, "no record, no points — not even bonuses")
+    }
+
     @Test("Finish message names skipped letters, and celebrates a finished page")
     func finishMessage() {
         var whole = ScoringEngine.Tally(wordOfLetter: [0, 0], totalWords: 1)
         whole.record(letter: 0, isInside: true); whole.record(letter: 1, isInside: true)
         #expect(ScoringEngine.finishMessage(for: ScoringEngine.score(tally: whole, streak: 0))
-                    .contains("whole thing"))
+                    .contains("everything you said"))
 
         var skipped = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
         skipped.record(letter: 0, isInside: true)
