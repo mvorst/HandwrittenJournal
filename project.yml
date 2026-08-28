@@ -1,0 +1,42 @@
+name: HandwrittenJournal
+options:
+  bundleIdPrefix: com.mattvorst.education
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    TARGETED_DEVICE_FAMILY: "2"
+    SWIFT_VERSION: "5.0"
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown"
+targets:
+  HandwrittenJournal:
+    type: application
+    platform: iOS
+    sources:
+      - path: HandwrittenJournal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mattvorst.education.handwrittenjournal
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "Journal"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad."
+        INFOPLIST_KEY_NSCameraUsageDescription: "Take a photo for your profile. Photos stay on this iPad."
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+    scheme:
+      testTargets:
+        - HandwrittenJournalTests
+  HandwrittenJournalTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: HandwrittenJournalTests
+    dependencies:
+      - target: HandwrittenJournal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mattvorst.education.handwrittenjournal.tests
+        GENERATE_INFOPLIST_FILE: YES

@@ -1,13 +1,14 @@
 # Handwritten Journal
 
-## Design Document v2.2
+## Design Document v2.5
 
-An iPad journal for a child who is learning to write. The child says a sentence, the app
-transcribes it, the child traces it in their own hand, and the traced sentence joins the
-page. Do that a few times and there is a page. Do it for a year and there is a journal in
-the child's own handwriting.
+An iPad journal for a child who is learning to write. The child talks about their day, the
+app transcribes it, and the words appear on a ruled page for them to write over. Each line
+they finish stops being a guide and becomes their own handwriting, right where they wrote
+it. Do that for a day and there is a page. Do it for a year and there is a journal in the
+child's own hand.
 
-Companion: `WIREFRAME_SPEC.md` v2.0 (measurements, tokens, frame inventory).
+Companion: `WIREFRAME_SPEC.md` v2.5 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
 
 ---
@@ -42,6 +43,77 @@ Retired frame numbers: 8, 16, 35.
 
 Considered and rejected: read-aloud playback of journal text (the child using this app can
 read), stroke replay animation, and writing prompts — this is a journal, not a teacher.
+
+## 0.5 What Changed in v2.5
+
+**One screen, and nothing is in the journal until it is in their handwriting.**
+
+| Was (v2.4) | Now |
+|---|---|
+| Four screens on the way to the pen: start, recording, check-what-I-said, then the page | **One screen.** The mic, the live transcript, the fixing and the writing are all the page |
+| Dictation was reviewed in a text field, then committed wholesale as guide text | **Dictation lands on the page as *spoken* text** — pale, editable in place, and provisional |
+| The whole transcript became the entry the moment the child tapped "Start writing" | **A line's words join the record only when the child finishes writing it** — by tapping the check at the end of the line, or tapping the next line to take it in hand |
+| A line settled automatically when its last letter got ink | **Finishing a line is the child's own act.** The settle is the commit, so nothing commits by sensor |
+| An unfinished entry was a half-written record | **The record is always fully written.** "Unfinished" means spoken words are still waiting — they are not in the journal, exports, or any count |
+
+**Why it is better.** The old flow made a five-year-old cross three screens of adult
+ceremony — record here, proofread there, write somewhere else — before touching the pen.
+Now the words appear where they will be written, in the face they will be written in, and
+the child's first act can be the one they came for. And the provisional tier fixes a
+quiet dishonesty: v2.4 called the transcript "the entry" before a single letter was the
+child's. Now the journal *is* the handwriting, by construction — a transcript the
+recogniser got wrong simply never becomes the record, because the child fixes it or never
+writes it.
+
+**What it costs.** The page now carries a fourth interaction (edit) beside pen, scroll and
+tap, and the renderer draws a third text tier. The check screen's one virtue — forcing a
+look at the whole transcript — is given up in favour of fixing what you notice when you
+notice it.
+
+## 0.4 What Changed in v2.4
+
+**The page is the whole screen, and finished writing stays where it was written.**
+
+| Was (v2.3) | Now |
+|---|---|
+| A finished line shrank to half size and flew into a "writing so far" panel at the top | **It settles in place.** Its guide fades and its ink turns from red-and-green to graphite. Nothing moves. |
+| Two surfaces: a read-only panel above, an active surface below | **One page**, edge to edge, from the toolbar to the footer |
+| Re-tracing meant re-opening the entry from the journal | **Tap any finished line to write it again**, in the middle of writing |
+| Saying more started a new page | **Saying more appends** to the page you are on |
+| Results and Entry Detail listed the session's sentences | **One entry, one result** — one accuracy, one word count, one recording |
+
+**Why it is better.** The v2 settle animation copied the child's work somewhere else to
+prove it counted. Once the page scrolls, that is unnecessary and slightly dishonest: the
+line is already in the right place, on the right paper, at the right size. Letting the
+guide fall away underneath it is the same emotional beat with none of the machinery, and it
+leaves the page above the child's hand reading as continuous handwriting.
+
+It also makes re-tracing obvious. A line with no guide under it is a line you have written,
+and tapping it to write it again needs no explaining.
+
+**What it costs.** The writing surface now has a tap gesture as well as a pen and a scroll
+(§4.4), and the renderer has to draw three line states instead of one.
+
+## 0.3 What Changed in v2.3
+
+**The transcript is no longer broken into sentences.** It is one continuous scrolling page.
+
+| Was | Now |
+|---|---|
+| Split the transcript into sentence-sized pieces that each fit the surface | **One page.** The whole transcript is laid out and the child works down it, scrolling. |
+| A review screen with edit / split / join per sentence | **One text field** showing everything, for fixing what the recogniser misheard |
+| A "Sentence 3 of 8" queue and a writing-so-far panel | **A word-progress bar.** The page above is the child's own writing; there is nothing separate to show. |
+| `Sentence` entity, one archive and audio clip per sentence | **The session holds it all** — one transcript, one stroke archive, one recording |
+
+Deleted outright: `TranscriptSplitter` and its tests, the `Sentence` model, the review
+list, the queue chip, the writing-so-far panel, and the per-sentence audio slicing.
+
+**Why it is better.** Splitting made the child's own words feel like a set of exercises,
+and it made the app carry a splitter, a fit rule, a review UI and a queue — a lot of
+machinery whose only job was to undo the fact that a writing surface is smaller than a
+story. Making the surface scroll removes the problem instead of managing it.
+
+**What it costs.** A scrolling surface and a pen are in tension — see §4.4.
 
 ## 0.2 What Changed in v2.2
 
@@ -115,15 +187,19 @@ Profile Picker ──(PIN if set)──▶ Journal Home
                      New Entry               My Journal ──▶ Entry Detail
                           │                                       │
                           ▼                                       └──▶ Export (entry or book)
-              ┌──── WRITING SESSION ────────────────┐
+              ┌──── THE PAGE (one screen) ──────────┐
               │                                     │
-              │   Speak ──▶ Confirm ──▶ Trace       │
-              │     ▲                      │        │
-              │     │                      ▼        │
-              │     └───── Reveal ◀── sentence      │
-              │           "write another"  settles  │
-              │              │            into the  │
-              │              │            page      │
+              │  speak ─▶ words land as SPOKEN text │
+              │             │  (fix a word in place)│
+              │             ▼                       │
+              │  write the line in hand             │
+              │             │                       │
+              │  finish it (✓ or tap the next line) │
+              │             ▼                       │
+              │  it settles — its words join the    │
+              │  record; tap it later to redo it    │
+              │     ▲                               │
+              │     └── "say more" appends spoken   │
               │        "I'm finished"               │
               └──────────────┼──────────────────────┘
                              ▼
@@ -134,13 +210,14 @@ Profile Picker ──(PIN if set)──▶ Journal Home
               Write more          See My Journal
 ```
 
-**The loop is the design.** Speak → confirm → trace → the sentence shrinks and rises into
-the page above → speak again. The child watches their page fill up in real time. Everything
-else in the app is in service of that loop.
+**The loop is the design.** Speak and watch the words land pale on the page → write down
+it, finishing each line with a tap and watching it turn into handwriting → say more when
+the spoken words run out. One screen, no ceremony between talking and writing, and nothing
+in the journal that is not in the child's own hand. Everything else in the app is in
+service of that loop.
 
-A session ends when the child taps "I'm finished". Results summarise **only what was added
-in that session** — not lifetime totals, which would make each sitting feel smaller than
-the last.
+An entry ends when the child taps "I'm finished". Results summarise **only that entry** —
+not lifetime totals, which would make each sitting feel smaller than the last.
 
 ---
 
@@ -209,72 +286,115 @@ Delete Profile is destructive and marked "Grown-ups only". **It is not gated** �
 └────────────────────────────────────┘
 ```
 
-**When a session is unfinished, a resume card takes the primary slot** — the next sentence
-in quotes, a progress bar, *"3 of 8 written · said at 5:30 PM"*, and **Keep writing** as the
-primary action with *Start something new instead* below it. This is the single most
-important piece of the long-form design: without it, speaking for four minutes and writing
-three sentences feels like failing.
+**When an entry is unfinished, a resume card takes the primary slot** — the next few
+unwritten words in quotes, a progress bar, *"32 of 48 words · said at 5:30 PM"*, and
+**Keep writing** as the primary action with *Start something new instead* below it. This is
+the single most important piece of the long-form design: without it, speaking for four
+minutes and writing a third of it feels like failing.
 
 The **"Your writing" card** replaces v1's level card. It states the three settings in
 plain words and opens Settings. It is informational, not a progress bar — nothing here is
 being filled up.
 
-Session cards show the **handwriting thumbnail** of the first sentence, not typed text, and
-a `+N` chip when the session holds more than one. The journal should look like a journal at
-a glance.
+Entry cards show the **handwriting thumbnail** of the top of the page, not typed text, and
+a `+N words` chip when the entry runs longer than the thumbnail can show. The journal
+should look like a journal at a glance.
 
-### 4.4 Writing a session
+### 4.4 Writing an entry — one screen
 
-One screen, four states, all sharing the same frame (`WIREFRAME_SPEC.md` §11.1):
+Everything happens on the page (`WIREFRAME_SPEC.md` §11.13). There is no session-start
+screen, no recording screen, no review screen: the mic, the live transcript, the fixing
+and the writing share one surface.
 
 ```
-┌────────────────────────────────────┐
-│  Close        Wednesday, March 4   │  ← toolbar
-│  Your writing so far               │
-│  ┌──────────────────────────────┐  │
-│  │ I saw a red bird in the yard │  │  ← accepted, natural ink,
-│  │                              │  │    half size, SCROLLS
-│  └──────────────────────────────┘  │
-│  Now trace this      Jua · Large   │
-│ ┌────────────────────────────────┐ │
-│ │ It was on the fence by         │ │  ← guide + live ink,
-│ │ the gate                       │ │    accuracy colours,
-│ └────────────────────────────────┘ │    does NOT scroll
-│  Live accuracy: 88%    [ Done ✓ ]  │
-└────────────────────────────────────┘
+┌──────────────────────────────────────┐
+│ I'm finished   Wednesday, March 4  ◆↺🗑│  ← toolbar
+│                                      │
+│  Today we went to the park and I     │  ← WRITTEN: their ink,
+│  saw a big dog. The dog wanted       │    graphite — the record
+│                                      │
+│  to play with me and we threw a ✓    │  ← IN HAND: guide + live
+│                                      │    red/green + the check
+│  ball for it until it got tired.     │  ← SPOKEN: pale, editable,
+│  Then we had ice cream on the way    │    not yet real
+│                     ⋮                │    the whole page SCROLLS
+├──────────────────────────────────────┤
+│ 🎤  So far: 88%  [███░░] 15 of 48 ⌄ [Done]│  ← mic lives here
+└──────────────────────────────────────┘
 ```
 
-**Speak** — `SFSpeechRecognizer`, on-device, `en-US`, live partial results. The child talks
-for **as long as they like, up to five minutes**: a big mic, an elapsed timer, an input
-level meter, and the transcript accumulating in a scrolling panel beneath. Nothing is
-committed until they tap *I'm done talking*. **The audio is recorded and kept** (§5.3).
+**Speak** — the mic is a round button in the footer, drawn big in the centre while the page
+is empty. `SFSpeechRecognizer`, on-device, `en-US`, live partial results, up to **five
+minutes**. The words land on the page *as the child says them* — in the journal face, on
+the ruled lines, in the pale spoken tier — so the page is the live transcript. While
+listening, the footer becomes a level meter, the elapsed time, and *I'm done talking*.
+**The audio is recorded and kept** (§10.4).
 
-At the five-minute cap recording stops itself and the copy stays warm — *"That's a whole lot
-of story! I stopped listening so we can start writing."* The cap exists because the
-recogniser drifts on long takes, not to hurry the child.
-
-**Review** — the transcript is split into sentences (§7.5) and shown as a numbered list. Any
-row can be edited, deleted, split at the cursor, or joined to the next. A sentence too long
-for the current size is labelled *"written in 2 parts"* rather than treated as an error.
-The screen states the workload plainly — *"8 pieces to write"* — and says outright: *"You
-don't have to write them all today."*
+At the five-minute cap recording stops itself and a warm banner slides over the page —
+*"That's a whole lot of story! I stopped listening so we can start writing."* The cap
+exists because the recogniser drifts on long takes, not to hurry the child.
 
 Microphone permission is preceded by a **child-legible explainer** (frame 40) so the first
 thing a five-year-old sees is not an adult system dialog. If permission is refused or
-recognition is unavailable, the keyboard becomes the primary path (frame 41) — the app
-never dead-ends. The accepted page stays visible above the mic, so the
-child can see what they are adding to.
+recognition is unavailable (frame 41), *Type it instead* puts the keyboard straight onto
+the page — the app never dead-ends, and typing is the same path as speaking with the mic
+removed.
 
-**Confirm** — the transcript appears in the profile's face on ruled paper with the caption
-*"Is that right? Tap to fix it."* Speech recognition is unreliable for six-year-olds, and
-tracing a mis-heard sentence is demoralising. Buttons: **Try Again** (re-record), **Write
-It** (proceed). The sentence is saved as a draft at this point, so it can be queued and
-traced later.
+**Three tiers, and when text becomes real.** Every line of the page is in one of three
+states, distinguishable at a glance:
 
-**Trace** — the pieces are worked through in order, with a **"Sentence 3 of 8" queue chip**
-on every writing screen. Guide text and ruled lines in the profile's face and size. Ink is drawn in
-green/red per segment **always**; there is no toggle, because during writing the colours
-*are* the feedback.
+| State | Text | Ink | Part of the record |
+|---|---|---|---|
+| **Written** — finished | none — their ink *is* the text | natural graphite | **yes** |
+| **In hand** — being written | guide, locked | red / green per segment | not yet |
+| **Spoken** — said, waiting | pale and cool, editable | none | **no** |
+
+**The child finishes a line by saying so**: tapping the check that sits at the end of the
+line in hand, or tapping the next spoken line to take it in hand. That is the settle —
+guide fades, ink turns graphite, in place — and it is also the **commit**: only then do
+that line's words join the record. Writing goes in order; only the next spoken line can be
+taken in hand, because a record assembled line by line must stay contiguous. Letters
+skipped on a line the child chose to finish score zero (§8.1) — finishing is a choice, not
+a certificate.
+
+**Fixing a misheard word** happens in place: tap a spoken word, it opens under a small
+action-coloured box, the keyboard rises, done. Spoken text is the only editable tier — the
+in-hand line's guide must not move under the pen, and written lines are the record. There
+is no bulk proofread step; the child fixes what they notice while the words are still
+words, and a mistake they never notice is caught the moment it becomes awkward to trace.
+Since edits can only touch the spoken tier, nothing the child has written ever reflows.
+
+**Tap a written line to write it again.** The line highlights, a *"Write this line again"*
+chip appears beneath it, and tapping the chip clears that line's strokes and returns it to
+the in-hand state. The words stay in the record — only the ink is redone, and only the
+latest tracing is kept (§5.5). A child who goes back over a line they rushed watches their
+percentage go up, which is the whole reason it exists.
+
+**Saying more appends to this page.** Tapping the footer mic again adds the new words to
+the spoken tier after the last existing word and scrolls to them. An entry is a day's
+page, however many times the child spoke to fill it — and the new words are no more real
+than the first ones were until they too are written.
+
+**Scrolling and the pen are separated by touch count, not by guesswork:**
+
+| Finger tracing | One finger | Two fingers |
+|---|---|---|
+| Off | scrolls | — |
+| On | draws | scrolls |
+
+With finger tracing off, only the pencil draws and a finger scrolls — unambiguous. With it
+on, the split is what Notes and Procreate do. Two fingers is a lot to ask of a five-year-old
+holding a pencil, so **a chevron button at the foot of the page scrolls without any gesture
+at all**. That button is the primary mechanism; the gestures are for whoever finds them.
+
+Taps are the third input, and each tap target is unambiguous about which tier it landed
+on: a written line selects for re-tracing, the next spoken line advances, a spoken word
+opens for fixing, the check finishes the line. None of those regions is one where drawing
+or scrolling is the obvious intent, and a tap that lands nowhere meaningful clears the
+selection and does nothing.
+
+Ink is drawn in green/red per segment **always**; there is no toggle, because during
+writing the colours *are* the feedback.
 
 Three tools in the toolbar:
 
@@ -282,37 +402,30 @@ Three tools in the toolbar:
 |---|---|
 | **Eraser** | Rubs out every point inside a 72 pt circle and re-scores the letters it touched. Selected state fills the button. |
 | **Undo** | Removes the last whole stroke, in order. |
-| **Clear** | Wipes the sentence. Nothing is scored until Done. |
+| **Clear** | Wipes the page's ink. Nothing is scored until Done. |
 
 The eraser and undo are not redundant: undo is chronological, the eraser is spatial. A
 child who overshoots the *a* in a ten-letter word wants to fix the *a*, not unwind
 everything after it.
 
-The readout beneath reads **"So far: 78%"** with **"16 letters still to go"** below it — see
-§8.1 for why the live number and the final number are not the same.
+The readout in the footer reads **"So far: 88%"** with a one-line hint below it — see §8.1
+for why the live number and the final number are not the same.
 
-**Reveal** — the guide fades over 0.5 s leaving only the child's ink, then the sentence
-shrinks to half size and rises into the page above over 0.45 s. **This animation is the
-emotional core of the app** and is worth building carefully.
-
-The final score appears here, with the per-letter penalty applied and stated plainly —
-*"Every letter was finished — nice work."* or *"2 letters were not finished."* Three ways
-out: *Next sentence*, *Try that again* (replaces this tracing), and ***Finish for now — 5
-saved for later***.
-
-**Stopping part-way must be unremarkable.** A child who writes three of eight has done a
-good day's work, and the app must not imply otherwise. The exit is on every screen, the
-count of what is saved is always in the label, and the unfinished session is the *first*
-thing on Journal Home the next time they open the app (§4.3). No warning, no "are you
-sure", no lost-progress language.
+**Stopping part-way must be unremarkable.** A five-minute story is far more than a child
+will write in one sitting, so stopping part-way is the *normal* case, not the exception.
+*I'm finished* commits the line in hand if it has any ink (they traced it, so it counts —
+skipped letters at zero) and returns it to spoken if it has none. The spoken remainder
+stays with the entry as what is still to write — visible on the resume card, absent from
+the journal, exports and every count. No warning, no "are you sure", no lost-progress
+language: nothing real can be lost, because only what is written is real.
 
 ### 4.5 Results
 
-Summarises the session only:
+Summarises the entry — one entry, one result:
 
 ```
         Great job, Milo!
-     You added 2 sentences today
+     You wrote all 48 words today
             ★ ★ ★
          ╭───────────╮
          │    91%    │
@@ -321,16 +434,29 @@ Summarises the session only:
           + 224 points
    Best yet with Jua at Large ✨
 
-  This session ────────────────────
-  "I saw a red bird in the yard" ★★★ 94%
-  "It was on the fence by the gate" ★★☆ 88%
-            Jua · Large · Trace
+  What you wrote ──────────────────
+  ┌────────────┐  48 of 48 words
+  │ Today we   │  You finished the whole thing —
+  │ went to    │  nothing left over.
+  └────────────┘  Jua · Large · Trace
 
      🏆 NEW BADGE: Sharp Shooter
 
-        [ Write more ]
+        [ Say something new ]
         [ See My Journal ]
 ```
+
+The panel is a thumbnail of the page in the child's own hand plus the two numbers that
+matter. There is no per-sentence breakdown, because there are no sentences — and a list of
+line scores would turn a journal entry back into a marked test.
+
+**The word count carries "how far", the percentage carries "how well" — and both describe
+only the record.** Stopped part-way, the subtitle reads *"You wrote 32 words today"*, the
+note reads *"16 words you said are still spoken — waiting on the page for next time"*, and
+the primary button becomes **Keep writing**. The accuracy is over written words only, which
+is no longer a special rule: unwritten words are not in the record at all (§8.1). None of
+this language treats stopping as a failure, because at five minutes of dictation it isn't
+one — the rest stays spoken, not unwritten.
 
 "Best yet with *font* at *size*" replaces v1's "Best yet at Level N". The comparison must
 be **setting-matched** or it is dishonest: 88% at Extra Large is not better than 84% at
@@ -338,41 +464,42 @@ Small.
 
 ### 4.6 Journal List
 
-Sectioned by month, newest first. **Each row is a session**, showing the first sentence's
-thumbnail, date and time, the first sentence quoted, and metadata reading *"2 sentences ·
-91% · Jua Large"* — the session's mean accuracy.
+Sectioned by month, newest first. **Each row is an entry**, showing a thumbnail of the
+handwriting, date and time, the opening words, and metadata reading *"48 words · 91% ·
+Jua Large"*.
 
-**Unfinished sessions sit in a "Still to write" section at the top**, with a progress bar,
-the next sentence quoted and a *Keep writing ›* button. There is no separate drafts
-concept: a draft is simply a session with sentences left untraced.
+**Unfinished entries sit in a "Still to write" section at the top**, with a progress bar,
+the next few unwritten words quoted and a *Keep writing ›* button. There is no separate
+drafts concept: a draft is simply an entry with words left unwritten.
 
 Search matches transcript text. Calendar view shows a month grid with a dot on every day
-that has a session. Filter by star rating, font or size.
+that has an entry. Filter by star rating, font or size.
 
 ### 4.7 Entry Detail — the toggle
 
-Still the heart of the app, now showing a **session page** rather than a single sentence:
+Still the heart of the app, showing the **whole entry as one page**:
 
-- **Typed** renders every sentence in the session on ruled paper in the profile's face — so
-  the two states are visually comparable, not one plain and one pretty.
+- **Typed** renders the entry on ruled paper in the profile's face — so the two states are
+  visually comparable, not one plain and one pretty.
 - **Handwritten** renders the archived strokes on the same paper in **natural graphite**,
   always. A journal should read like handwriting, not like a marked-up test.
 - Switching uses a horizontal 3-D flip (0.35 s), which reads to a child as "turning the
   page over". Reduce Motion replaces it with a cross-fade.
-- Below the page, one row per sentence: text, **"Hear it"** (plays the recording the child
-  made when they said it), stars, accuracy. There is no attempt count and nothing to drill
-  into — only the latest tracing is kept.
-- **The page scrolls.** A long session overflows the surface; the journal is not truncated.
-- **⋯ menu:** Rename · Export as PNG/PDF · Delete.
-- **Trace This Again** replaces the stored tracing. The confirmation copy must say so:
-  *"This will replace what you wrote."*
+- Below the page, **one stats row for the entry**: accuracy, stars, word count, and
+  **"Hear what I said"** — the recording the child made when they dictated it. One entry has
+  one recording, so there is nothing to slice and nothing to list.
+- **The page scrolls.** A long entry is never truncated.
+- **⋯ menu:** Write this again · Hear what I said · Share as PDF · Delete.
+- **Write This Again** replaces the stored tracing. The confirmation copy must say so:
+  *"This will replace what you wrote."* Inside a writing session the same thing is done per
+  line by tapping it (§4.4); from the journal it applies to the whole entry.
 
 ### 4.8 Export
 
 Two scopes from the same screen:
 
 - **One entry** — a single PDF page: the handwriting, the date, the typed words as a caption.
-- **The whole journal** — one page per session, oldest first, with a cover carrying the
+- **The whole journal** — one page per entry, oldest first, with a cover carrying the
   child's name, the date range and the totals. ~38 pages and ~6 MB for a first year.
 
 Toggles for *include the typed words* and *include accuracy scores* — a grandparent wants
@@ -392,7 +519,7 @@ The book is the reason the app keeps five years of ink. Do not leave it to v2.
               ▲Large    ▲Andika
 
   By mode and font
-  Setting              Mode   Best  Avg  Sentences
+  Setting              Mode   Best  Avg  Entries 
   Jua · Extra Large    Trace   97%  88%   31
 ✓ Jua · Large          Trace   94%  84%   38
   Andika · Large       Trace   91%  80%   12
@@ -405,7 +532,7 @@ tell a child they are getting worse at the moment a grown-up made the task harde
 Therefore:
 
 1. Font- and size-change dates are marked on the time axis.
-2. The line is a 5-sentence rolling average.
+2. The line is a 5-entry rolling average.
 3. **The per-setting table is the honest comparison** and gets equal visual weight.
 4. Trend copy is computed within the current setting only.
 
@@ -457,7 +584,7 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
     var currentStreak: Int = 0
     var longestStreak: Int = 0
     var lastWroteOn: Date?
-    var totalSentences: Int = 0
+    var totalWordsWritten: Int = 0
     var totalTracings: Int = 0
     var earnedBadgeIDs: [String] = []
 
@@ -489,85 +616,67 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
     var sizeKey: String = "l"
     var modeRaw: Int = WritingMode.trace.rawValue
 
-    // What the child said, before it was split (§7.5)
+    // Everything the child said, verbatim
     var rawTranscript: String = ""
-    var spokenDuration: Double = 0        // seconds, ≤ 300
+    var spokenDuration: Double = 0        // seconds, ≤ 300 per dictation
 
     var author: UserProfile?
 
-    @Relationship(deleteRule: .cascade, inverse: \Sentence.session)
-    var sentences: [Sentence]?
+    // The page itself — see §5.3
 }
 ```
 
-A session is **one sitting**. It opens when the child taps New Entry and closes when they
-tap "I'm finished" (or the app is backgrounded for more than 30 minutes). Two sittings on
-one day are two sessions, which is why the journal list shows a time alongside the date.
+A session is **one entry — a page**. It opens when the child taps New Entry and closes when
+they tap "I'm finished" (or the app is backgrounded for more than 30 minutes). Speaking
+again during the same sitting appends to the same page rather than opening a new one
+(§4.4); two separate sittings on one day are two entries, which is why the journal list
+shows a time alongside the date.
 
 Denormalising font/size/mode onto the session — rather than reading it from the profile —
 is deliberate. Progress compares like with like, and a child who moves from Large to Medium
 must not have their old sessions silently relabelled.
 
-### 5.3 Sentence
+### 5.3 There is no Sentence entity — and the transcript is the record
 
-There is no separate attempt entity. **Only the latest tracing is kept**, so it lives
-directly on the sentence.
+A session holds one record, one spoken buffer, one stroke archive and one recording.
+Splitting the transcript into rows bought nothing once the page scrolled, and it cost a
+model, a relationship and an ordering column.
 
 ```swift
-@Model final class Sentence {
-    var id: UUID = UUID()
-    var createdAt: Date = Date.now
-    var order: Int = 0               // position within the session
-    var text: String = ""            // confirmed transcript — what gets traced
-    var rawTranscript: String = ""   // what the recognizer originally heard
+// on WritingSession
+var transcript: String            // THE RECORD — only text the child has written (v2.5)
+var spokenBuffer: String          // said but not yet written; provisional, editable
+var rawTranscript: String         // everything the recogniser heard, verbatim
+@Attribute(.externalStorage) var audioData: Data?      // the whole telling
 
-    // This sentence's slice of the session recording (§10.4)
-    @Attribute(.externalStorage) var audioData: Data?     // AAC, ~30 KB
-    var audioDuration: Double = 0
-
-    // Where the splitter put it (§7.5)
-    var partIndex: Int = 0                // 0 unless one spoken sentence needed several pieces
-    var partCount: Int = 1
-
-    // The latest — and only — tracing
-    var tracedAt: Date?
-    var accuracy: Double = 0         // mean of letterAccuracies, §8.1
-    var stars: Int = 0
-    var points: Int = 0
-    var letterAccuracies: [Double] = []   // one per glyph in `text`, 0…1
-    var unfinishedLetters: Int = 0
-
-    // Geometry the strokes were captured at, for faithful replay
-    var canvasWidth: Double = 0
-    var canvasHeight: Double = 0
-    @Attribute(.externalStorage) var strokeArchive: Data?   // §6
-    @Attribute(.externalStorage) var thumbnailData: Data?
-
-    var session: WritingSession?
-}
+var tracedAt: Date?
+var accuracy: Double              // §8.1, over the record's letters
+var letterAccuracies: [Double]    // aligned to `transcript`
+var wordsWritten: Int             // == wordCount(transcript), by construction
+var totalWords: Int               // record + buffer: what "of 48 words" means
+@Attribute(.externalStorage) var strokeArchive: Data?
+@Attribute(.externalStorage) var thumbnailData: Data?
 ```
 
-`letterAccuracies` is kept rather than recomputed because the mask is expensive to rebuild
-and because it is the only durable record of *which* letters a child struggles with. It is
-a small array — one double per character.
+**`transcript` grows one finished line at a time** (§4.4): finishing the line in hand moves
+its words from `spokenBuffer` into `transcript`. Everything downstream — journal rows,
+search, Entry Detail's Typed page, exports, `totalWordsWritten`, badges — reads
+`transcript` and never the buffer. The buffer exists so a child who spoke for four minutes
+and wrote for six does not have to say it again tomorrow; it is scratch, not record, and
+the resume card is the only UI that quotes it.
 
-**Re-tracing overwrites.** `TraceAttempt` from v2.0 is deleted; there is no history table
-and no migration to write, because nothing has shipped.
+### 5.4 There is no Draft entity either
 
-### 5.4 There is no Draft entity
-
-A draft is **a session with untraced sentences**. `Sentence.tracedAt == nil` is the whole
-test. The journal's "Still to write" section lists sessions where any sentence is untraced,
-and `WritingSession.isComplete` is a computed `sentences.allSatisfy { $0.tracedAt != nil }`.
-
-This falls out of long-form dictation: speaking produces N sentences at once, and the child
-writes as many as they feel like. Anything left over is, by definition, a draft.
+A draft is **an entry with spoken words still waiting**: `!spokenBuffer.isEmpty`. The
+journal's "Still to write" section lists exactly those, and the resume card offers the most
+recent one, quoting the next few words of the buffer. The entry's own record is complete
+whatever the buffer holds — a "draft" is unfinished *telling*, never unfinished record.
 
 ### 5.5 Reproducing a tracing
 
-The session carries font, size and mode; the sentence carries `text` and the canvas
-dimensions. Together those reproduce the *exact* guide layout at any time — the mask
-renderer is deterministic given those inputs. That keeps an "ink over guide" review state,
+The session carries font, size, mode, `transcript` and the canvas width. Together those
+reproduce the *exact* guide layout at any time — the mask renderer is deterministic given
+those inputs, so a line's glyph boxes can be recovered to re-score it or to re-trace it. That keeps an "ink over guide" review state,
 or a re-score under a revised algorithm, available without a migration.
 
 Progress reads font/size/mode from the **session**, so a settings change never relabels
@@ -577,9 +686,9 @@ history. Index `WritingSession.fontKey`, `sizeKey` and `modeRaw`.
 
 ## 6. Stroke Persistence
 
-Strokes are archived as a compact binary blob, not JSON. A two-line sentence traced by a
-child runs 3,000–8,000 sample points; JSON would be roughly 400 KB per attempt, which is
-unacceptable when the goal is to keep every attempt forever and eventually sync it.
+Strokes are archived as a compact binary blob, not JSON. A ten-line page traced by a child
+runs 15,000–40,000 sample points; JSON would be several megabytes per entry, which is
+unacceptable when the goal is to keep every page forever and eventually sync it.
 
 ### 6.1 Format `HJST` v1
 
@@ -601,10 +710,11 @@ Per stroke
 
 The blob is then compressed with `Compression` / LZFSE.
 
-**Measured expectation:** 6,000 points → 60 KB raw → ~18–24 KB compressed. One archive per
-sentence, not per attempt. A child writing daily for five years produces on the order of
-15 MB of ink, plus roughly 25 MB of voice at ~200 KB per sentence. Both are viable
-keepsakes and viable iCloud payloads.
+**Measured expectation:** 6,000 points → 60 KB raw → ~18–24 KB compressed, so a ten-line
+page lands around 120 KB. **One archive per entry, not per attempt** — re-tracing a line
+rewrites the entry's archive rather than adding to it. A child writing daily for five years
+produces on the order of 200 MB of ink, plus voice. Both are viable keepsakes and viable
+iCloud payloads.
 
 **The eraser edits the archive.** Erasing removes points from the in-memory stroke set
 before encoding; a stroke that loses its middle becomes two strokes. Nothing is written
@@ -677,40 +787,18 @@ Font size and line spacing, from the table in `WIREFRAME_SPEC.md` §7.3. Nothing
 1.5–5.0 pt at Large, scaled linearly by `size / 72`. The quoted range is a Large-size
 figure; applied literally at review or thumbnail scale it produces blobs.
 
-### 7.4 Splitting a transcript into traceable pieces
+### 7.4 Laying out the page
 
-The child speaks for up to five minutes; the writing surface holds one sentence. Between
-those two facts sits the splitter.
+The child speaks for up to five minutes and the result is laid out as one continuous page.
+`MaskRenderer.contentHeight(text:setup:width:)` measures how tall that page needs to be —
+with the real face at the real size, never a character count, because the five bundled
+faces differ by up to 40% in advance width.
 
-**In order of preference:**
+The page is then a `UIScrollView` whose content is one tall canvas. Nothing is truncated
+and nothing is split; a longer entry is simply a longer page.
 
-1. **Punctuation** from the recogniser (`addsPunctuation = true`). Reliable for adults,
-   patchy for a five-year-old who says "and then and then".
-2. **Pause detection** — gaps over ~700 ms between `SFTranscriptionSegment.timestamp`
-   values. This is the one that actually works on children.
-3. **The fit rule**, applied last and always: a piece must fit the writing surface.
-
-**The fit rule is size-dependent and it bites.** Measured against the 754 pt surface:
-
-| Size | pt | Lines | Fits |
-|---|---|---|---|
-| Extra Large | 96 | 3 | **~56 characters** |
-| Large | 72 | 4 | ~99 |
-| Medium | 56 | 6 | ~192 |
-| Small | 42 | 8 | ~341 |
-| Extra Small | 30 | 11 | ~658 |
-
-At Extra Large an ordinary spoken sentence will not fit. The overflow is broken at the last
-word boundary that fits and becomes a second `Sentence` with `partIndex = 1`; the review
-screen labels it *"written in 2 parts"* rather than treating it as a problem.
-
-**Measure with real font metrics, not character counts.** The five faces differ by up to
-40% in advance width — Sniglet is 1.4× Jua. Lay the candidate out with `CTFramesetter` in
-the profile's actual face and size and ask how many lines it takes.
-
-**Re-tracing at a larger size may no longer fit.** A sentence written at Small and
-re-traced at Extra Large can overflow. Split it again at that point; the journal keeps the
-sentence text, which is the durable thing.
+There is no fit rule and no splitter any more. Both existed only because the surface used
+to be fixed-height.
 
 ### 7.5 Copy mode — a warning before it is scheduled
 
@@ -750,25 +838,40 @@ Progress already breaks down by mode.
 letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
                     (0 if the child never touched glyph i)
 
-sentenceAccuracy  = mean(letterAccuracy) over every glyph, spaces excluded
+entryAccuracy     = mean(letterAccuracy) over every scored glyph, spaces excluded
 ```
 
-A letter with no ink scores **0%**. That single rule is what makes the number honest: it
-turns "traced four letters of twenty-eight and tapped Done" from ~95% into ~14%.
+A letter with no ink scores **0%** — but only on lines the child chose to finish.
+
+v2.4 needed a special rule here ("words never reached are not scored") to keep stopping
+part-way from reading as collapse. v2.5 gets the same outcome structurally: unwritten
+words are not in the record at all (§5.3), so there is nothing to score and nothing to
+excuse. The scored population is simply the record.
+
+Inside a line the child *did* finish, a skipped letter still scores zero — finishing a
+line is a choice, not a certificate, and the anti-skip property is what made per-letter
+grading worth doing:
+
+```
+scored letters  = every letter of the record (finished lines), spaces excluded
+accuracy        = mean(letterAccuracy) over scored letters
+progress        = wordsWritten / totalWords     — record over record-plus-spoken
+```
 
 **Live and final differ on purpose.**
 
 | | Denominator |
 |---|---|
-| **Live** — shown while writing as *"So far: NN%"* | Only letters the child has started |
-| **Final** — computed at Done | Every letter, unstarted ones at 0% |
+| **Live** — shown while writing as *"So far: NN%"* | Only letters actually attempted |
+| **Final** — computed at Done | Every letter in every word that was started |
 
-If the live figure applied the penalty it would begin at 0% and crawl upward for the whole
-sentence, which reads as continuous failure. The unfinished count is surfaced separately —
-*"16 letters still to go"* — so the child is warned without being scored down in real time.
+If the live figure applied the skip-penalty it would lurch downward each time the child
+moved to a new letter, which reads as being punished for progress. The page reports
+*"9 of 30 words"* alongside it, so how far they have got is never confused with how well
+they did.
 
-Reveal states the outcome plainly: *"Every letter was finished"* or *"2 letters were not
-finished."*
+The end of the session states the outcome plainly: *"You wrote the whole thing"*, or
+*"2 letters were skipped"*, or how many words are still waiting.
 
 ### 8.2 Stars
 
@@ -807,14 +910,14 @@ None reference levels.
 
 | ID | Name | Earned when |
 |---|---|---|
-| `first_entry` | First Entry | First traced sentence |
+| `first_entry` | First Entry | First entry written |
 | `sharp_shooter` | Sharp Shooter | Any tracing at 90% or better |
 | `streak_5` | 5-Day Streak | Streak reaches 5 |
-| `ten_sessions` | Ten Sessions | 10 completed sessions |
+| `ten_entries` | Ten Entries | 10 completed entries |
 | `perfect_week` | Perfect Week | Wrote on 7 consecutive days |
-| `hundred_sentences` | 100 Sentences | 100 sentences traced |
+| `thousand_words` | 1,000 Words | 1,000 words written |
 | `every_font` | Every Font | At least one tracing in each of the five faces |
-| `neat_writer` | Neat Writer | Five consecutive sentences at 85% or better |
+| `neat_writer` | Neat Writer | Five consecutive entries at 85% or better |
 
 `every_font` exists partly to make a child try Andika, which many of them read more easily
 than they read Jua.
@@ -849,26 +952,29 @@ the keyboard, refusing the camera leaves the photo library and the initial-lette
 
 ### 10.4 The child's voice
 
-The whole session is recorded before it is transcribed. **The master recording is then
-sliced into per-sentence clips** using the recogniser's segment timestamps, the clips are
-kept (`Sentence.audioData`, AAC mono, ~30 KB each), and the master is discarded.
+Each dictation is recorded before it is transcribed, and **the recording is kept whole**
+(`WritingSession.audioData`, AAC mono 32 kbps, external storage). There is nothing to slice
+any more: one entry has one recording, and *"Hear what I said"* sits on the entry. The
+recording keeps the **whole telling**, including words that never get written — the voice
+is its own artefact (below), and the spoken-until-written rule (§4.4) governs text, not
+sound. Deleting the entry deletes it all.
 
-That last step matters. A five-minute master at 32 kbps is ~1.2 MB; kept daily for five
-years that is over 2 GB. Per-sentence clips for the same period come to roughly 250 MB, and
-they are what the interface actually needs — *"Hear it"* sits on a sentence, not on a
-session. If keeping the raw telling ever seems worth it, make it an explicit setting with
-the size stated, not a default.
+Size is the thing to watch. A five-minute take is ~1.2 MB, and a child who fills the cap
+every day for five years would accumulate over 2 GB. In practice entries are far shorter
+than the cap — the fixture entry is 41 seconds, ~160 KB — and a second dictation appended
+to the same page is concatenated into the same recording. If the totals ever become a
+problem, the fix is a retention setting with the size stated, not silent trimming.
 
 This is the most sensitive data the app holds, and it is worth being explicit about:
 
 - It **never leaves the iPad**. There is no network code.
 - It is covered by the same courtesy-lock caveat as everything else (§10.3): a PIN is not
   encryption.
-- Deleting a sentence deletes its recording. Deleting a profile deletes all of them.
+- Deleting an entry deletes its recording. Deleting a profile deletes all of them.
 - The explainer screen says so in words a child can read: *"Your voice stays on this iPad."*
 
 The reason to keep it is simple and it is not a feature request from the child: in three
-years, the sentence in their handwriting *paired with* their five-year-old voice saying it
+years, the page in their handwriting *paired with* their five-year-old voice saying it
 is the artefact. You cannot record 2026 retroactively — capture from day one even if
 playback UI comes later.
 
@@ -901,8 +1007,8 @@ for accuracy. Light only; the app is a paper journal.
 ### 11.2 Typography
 
 UI chrome in SF Pro Rounded. Journal content in the profile's chosen face at the profile's
-chosen size (`WIREFRAME_SPEC.md` §7.2–7.3). Accepted sentences render at half size in the
-writing-so-far panel.
+chosen size (`WIREFRAME_SPEC.md` §7.2–7.3), at that size everywhere — a finished line is
+never redrawn smaller. Thumbnails are the one exception (§10.6 of the spec).
 
 ### 11.3 Motion
 
@@ -911,7 +1017,8 @@ writing-so-far panel.
 | Standard transition | 0.30 s ease-in-out |
 | Typed ↔ Handwritten | 0.35 s 3-D flip, y-axis |
 | Guide fade on reveal | 0.50 s |
-| **Sentence settles into the page** | **0.45 s shrink-and-rise, then scroll to bottom** |
+| **A line settles** — on the child's finish-tap, never automatically | **0.45 s cross-fade in place: guide out, ink to graphite** |
+| Spoken words landing during dictation | 0.15 s fade-in per word, no movement |
 | Badges, stars | spring, response 0.4, damping 0.7 |
 
 Reduce Motion replaces the flip and the settle with cross-fades.
@@ -935,23 +1042,21 @@ Reduce Motion replaces the flip and the settle with cross-fades.
 ```
 HandwrittenJournal/
   App/            HandwrittenJournalApp, ContentView, NavigationState, AppConstants
-  Models/         UserProfile, WritingSession, Sentence, Badge
+  Models/         UserProfile, WritingSession, WritingSettings, TracingStroke
   Services/       MaskRenderer (per-glyph), StrokeColorizer, ScoringEngine, BadgeEngine,
                   StrokeArchive, StrokeEraser, SpeechRecognitionService,
-                  TranscriptSplitter, VoiceRecorder, AudioSlicer, AudioService,
-                  HapticsService, PDFBookBuilder
+                  AudioSlicer, AudioService, HapticsService, FontRegistry,
+                  PDFBookBuilder
   ViewModels/     ProfileViewModel, SessionViewModel, DictationViewModel,
                   TracingViewModel, ProgressViewModel
   Views/          ProfilePickerView, ProfileEditorView, PinPadView, AvatarCaptureView,
                   JournalHomeView, JournalListView, CalendarView, EntryDetailView,
                   ExportView, JournalBookExportView,
-                  WriteSessionView (dictate → review → trace → reveal),
-                  SentenceReviewView, SentenceEditView,
+                  WriteSessionView (dictate → check → write),
                   ResultsView, ProgressView, SettingsView, FontPickerView, SizePickerView
-    Components/   WritingSoFarPanel, WritingSurface, RuledLinesView, EraserCursor,
-                  QueueChip, LevelMeter, StarRatingView, ProgressRingView, BadgeView,
-                  StreakView, SessionCard, SessionRow, UnfinishedRow, SentenceRow,
-                  SentenceReviewRow, AudioPlayButton
+    Components/   TracingCanvas, TracingSurface (scrolling page), InkReplayView,
+                  LevelMeter, WritingProgressBar, DesignSystem (buttons, avatars,
+                  stars, rings, segmented control)
   Resources/      Fonts (Jua, Andika, Baloo2, Sniglet, ComicNeue), Assets
 ```
 
@@ -968,17 +1073,17 @@ Ported from TraceRight: `ScoringEngineTests`, `MaskRendererTests`, `StrokeColori
 New:
 
 - `StrokeArchiveTests` — round-trip fidelity, size expectations, corrupt-blob handling.
-- `SessionTests` — append ordering, session close on background, resuming an unfinished
-  session at the right sentence.
-- `TranscriptSplitterTests` — the important one alongside per-letter scoring. Punctuation,
-  pause and fit paths; a sentence that needs three parts; the same transcript splitting
-  differently at Extra Large and Extra Small; word boundaries never broken mid-word;
-  measurement uses the profile's real face.
+- `SessionTests` — appending a second dictation to an open page, session close on
+  background, and resuming an unfinished entry scrolled to the right word.
+- `PageLayoutTests` — page height grows with text and with size; every bundled face lays
+  the same words out without dropping glyphs; word indices march forward and match the
+  transcript; a word can be located on the page so a resumed entry scrolls to it.
 - `MaskRendererFontTests` — the mask matches the visible guide for **every face on the
   list**, at every size. This is the test that catches a badly chosen font.
-- `PerLetterScoringTests` — the important one. An untouched glyph scores 0; a sentence with
-  four of twenty-eight letters traced scores near 14%, not near 95%; the live figure
-  excludes unstarted letters while the final figure includes them; spaces are not scored.
+- `PerLetterScoringTests` — the important one. An untouched glyph scores 0; a word with
+  four of twenty-eight letters traced scores near 14%, not near 95%; words never started are
+  excluded from the denominator entirely; the live figure excludes unstarted letters while
+  the final figure includes them for started words; spaces are not scored.
 - `EraserTests` — points inside the circle are removed, a stroke split in the middle becomes
   two strokes, and the touched letters are re-scored while the others are untouched.
 - `ProgressBreakdownTests` — per-setting aggregation, and that a settings change does not
@@ -991,8 +1096,8 @@ New:
 | Phase | Contents |
 |---|---|
 | **1** | Profiles, PIN, SwiftData model, Journal Home shell |
-| **2** | Long-form dictation → split → review → trace → reveal, Trace mode only. The splitter, the eraser and per-letter scoring all land here — none of them are polish. |
-| **3** | **The append loop**: writing-so-far panel, settle animation, the sentence queue, resuming an unfinished session, Results |
+| **2** | Long-form dictation → check → write, Trace mode only. The scrolling page, the eraser and per-letter scoring all land here — none of them are polish. |
+| **3** | Word progress, resuming an unfinished entry where the child left off, Results |
 | **4** | Journal list, calendar, Entry Detail with the typed/handwritten flip |
 | **5** | Stroke archive, thumbnails, voice capture and playback |
 | **6** | Font and size pickers, per-glyph masks, mask verification across faces |
@@ -1010,14 +1115,14 @@ defer it.
 |---|---|
 | **Copy mode is not a mode flag** (§7.4) | Ship it unscored first, or budget for a real matching algorithm |
 | **Destructive actions are ungated** (§10.3) | Accepted for now; recommend a hold-to-confirm before shipping |
-| Speech recognition on young voices | Confirmation step, editable transcript, keyboard fallback |
+| Speech recognition on young voices | Spoken words stay editable in place until written; a mishearing never has to enter the record; keyboard fallback |
 | A chosen font traces badly | Curated list only, plus `MaskRendererFontTests` |
 | **Per-glyph masks are a real engine change** | Budget for it in phase 2; `CTLine` glyph runs give the bounding boxes |
 | **Latest-only means a bad re-trace destroys a good one** | "Trace This Again" must say *"This will replace what you wrote"* |
-| **Five minutes of speech is ~20 minutes of tracing** | Stopping part-way is the easy path: exit on every screen, resume card first on Home, no warning language |
-| **The splitter is the least testable part of the app** | `TranscriptSplitterTests` with real child-speech transcripts, not adult ones |
-| **The review screen asks a five-year-old to do editorial work** | It is forgiving by default — every row is already correct-enough to trace; edit/split/join are for a grown-up who wants them |
-| Voice recordings are the most sensitive data here | On-device only, deleted with the sentence, stated plainly in child-legible copy (§10.4) |
+| **Five minutes of speech is a lot of writing** | Stopping part-way is the easy path: "I'm finished" is always in the toolbar, the resume card is first on Home, no warning language anywhere |
+| **Scrolling a surface you are drawing on** | Touch-count separation plus a button that scrolls with no gesture at all (§4.4). Watch this in testing — it is the one interaction a five-year-old could genuinely fight |
+| **A very long entry makes a very tall mask bitmap** | The renderer drops to 1× above ~40 MP rather than allocating tens of megabytes |
+| Voice recordings are the most sensitive data here | On-device only, deleted with the entry, stated plainly in child-legible copy (§10.4) |
 | Scroll gesture vs. pencil stroke | Writing surface never scrolls; only the read-only panel does |
 | Stroke archive growth | Measured at ~20 KB/attempt; 40 MB over five years |
 | A child changes their own font/size constantly | Settings are per profile and reachable; accepted — the Progress table stays honest either way |
@@ -1044,11 +1149,11 @@ defer it.
 
 ## 18. Companion Documents
 
-- `WIREFRAME_SPEC.md` v2.2 — measurements, tokens, component library, frame inventory
+- `WIREFRAME_SPEC.md` v2.5 — measurements, tokens, component library, frame inventory
 - `PENPOT_HANDOFF.md` — what the built Penpot file does differently and why
 - `Original Traceright App/` — the working tracing engine this is ported from
 
 ---
 
-*Document version: 2.2*
+*Document version: 2.5*
 *Last updated: 2026-08-27*

@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v2.2
+## Penpot handoff, v2.5
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -40,6 +40,48 @@ from §5–§9 of this file.
   joinable (frame 22).
 - **A queue** — "Sentence 3 of 8" — runs through the writing screens.
 - **Drafts are gone as an entity.** An unfinished session *is* the draft.
+
+**What changed in v2.3 — one continuous page:**
+
+- **The transcript is not split.** It is laid out as one scrolling page and the child works
+  down it (§11.9). No splitter, no fit rule, no review list, no sentence queue.
+- **Progress is words**, not pieces — a bar at the foot of the page.
+- **Scrolling and the pen** are separated by touch count, with a button that scrolls
+  without any gesture (§11.6).
+- Retired with it: `Row / Sentence review`, `Queue chip`, `Writing so far` panel, and
+  frames 22's review list and 23's split/join controls.
+
+**What changed in v2.4 — the page is the whole screen:**
+
+- **The writing-so-far panel is gone.** Finished lines are not copied into a separate
+  panel; they stay exactly where they were written and simply stop being guide text. The
+  page above the child's hand *is* the record (§11.11).
+- **Three line states on one page** — graded (their ink, guide removed), in hand (guide
+  plus live accuracy colours), and untraced (guide alone).
+- **Tap a graded line to write it again** (§11.12). This is the only re-trace mechanism;
+  there is no attempt history behind it, so the new tracing replaces the old.
+- **New dictation appends to the current page** rather than starting a new one. The page
+  scrolls to the first new word.
+- **One entry, one result.** Results and Entry Detail report the whole entry — one
+  accuracy, one word count, one recording. Per-sentence rows are retired.
+
+**What changed in v2.5 — one screen, and nothing is real until it's written:**
+
+- **Speaking, checking, fixing and writing are one screen.** The session-start, recording
+  and check-what-I-said screens are gone as screens. The mic lives in the footer (and
+  centre-page while the page is empty), dictation lands on the page live, and fixing a
+  misheard word happens in place with the keyboard (§11.13). Frames 20, 21, 22 and 42 now
+  name *states of the page*, not screens.
+- **Text is spoken until it is written.** The third line state changes meaning: what used
+  to be "untraced guide text" is now **spoken** text — pale, cool (`spoken-text`, §5.3),
+  editable, and **not part of the record**. Only the line in hand carries true guide text.
+- **Finishing a line is what commits its words.** The child finishes a line by tapping the
+  check at its end or by tapping the next line to take it in hand (§11.11). That is the
+  settle moment (§11.10) and the moment the line's text joins the record. Nothing settles
+  automatically any more.
+- **The record is the child's hand, by construction.** The journal, search, exports and
+  every word count read only written text. An "unfinished entry" is an entry with spoken
+  words still waiting — the record itself is always fully written.
 
 ---
 
@@ -115,7 +157,7 @@ Nothing tappable may enter that band — i.e. nothing below **y 1170**.
 | Standard transition | 0.30 s ease-in-out | |
 | Page-flip (typed ↔ handwritten) | 0.35 s | `rotation3DEffect`, y-axis |
 | Guide fade on reveal | 0.50 s | |
-| Sentence settle (traced line rises into the page above) | 0.45 s | See §11.6 |
+| Line settle (guide fades, ink turns natural, in place) | 0.45 s | See §11.10 |
 | Spring (badges, stars) | response 0.4, damping 0.7 | |
 
 ---
@@ -148,7 +190,8 @@ names in `AppConstants.swift`.
 
 | Token | Hex | Use |
 |---|---|---|
-| `guide-text` | `#000000` @ 80% | The letters being traced |
+| `guide-text` | `#000000` @ 80% | The letters being traced — **only the line in hand** (§11.11) |
+| `spoken-text` | `#5B6B8C` @ 42% | Dictated words waiting to be written. Deliberately cooler as well as lighter than `guide-text`, so "not yet real" reads at a glance and survives a squint |
 | `rule-line` | `#E5E5EA` | Baselines, ascender and descender rules |
 
 ### 5.4 Text
@@ -261,11 +304,20 @@ the child down a size when tracing is comfortable (Progress suggests when — §
 **Draw all journal frames at Jua / Large.** Draw one Extra Large and one Extra Small
 variant of the writing frame so the extremes are validated (frames 26, 27).
 
+**Line spacing is a floor, not a promise.** Every face carries its own line advance —
+ascent, descent and built-in leading — and two of the five bundled faces need more room
+than the table asks for. Andika at Large advances 116 pt, not 96. The page is measured with
+the real face and uses whichever is larger, so an Andika page is simply taller; the ruled
+lines follow the measured baselines rather than the table, so the letters always sit on
+them. **Never size a page from the table alone** — a page measured short does not scroll,
+it silently drops its last line, and the child cannot write what is not there.
+
 ### 7.4 Review scale
 
-Accepted sentences shown in the **writing-so-far** panel render at **0.5 ×** the writing
-size and line spacing, in `ink-natural`. At Large that is 36 / 48. Stroke widths scale with
-it (§11.4).
+**Retired in v2.4.** There is no review panel: a finished line stays at writing size, in
+place, and only changes colour and loses its guide. The one place handwriting is redrawn
+smaller is the `Thumbnail` component (§10.6), which sizes its own em to ~10% of the
+thumbnail width. Stroke widths scale with glyph size in every case (§11.5).
 
 ---
 
@@ -379,18 +431,20 @@ attempt history.
 
 | Component | Spec |
 |---|---|
-| `Card / Session` (home) | 200 × 240, `radius-card`, `paper-raised`, `shadow-card`. Thumbnail 200 × 140 filling the top with the top corners rounded; date `caption`; `Stars / Compact`. When the session holds more than one sentence, a `+N` chip: 42 × 24, `radius-pill`, `paper-sunk`, `caption-sm` in `text-secondary`. |
-| `Row / Session` (list) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, first sentence `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N sentences · NN% · Font Size"* — the session's mean accuracy, since there is only one tracing per sentence; `Stars / Row` trailing, vertically centred. |
-| `Row / Sentence` (entry detail) | h 64, `paper-sunk`, `radius-chip`, 12 pt apart. Text `body` leading; `speaker.wave.2.fill` 22 pt + "Hear it" `caption` in `action`; `Stars / Compact`; accuracy `body-em` trailing. **No attempt count and no chevron** — there is nothing to drill into. |
-| `Row / Unfinished` | A session the child stopped part-way. Same frame, 2 pt dashed `star-off` stroke instead of shadow. Thumbnail of the first written sentence; date + time; *Next: "…"*; a progress bar with "3 of 8 written"; trailing `Button / Secondary` labelled "Keep writing ›". |
-| `Row / Sentence review` | h 76, `paper-sunk`, `radius-chip`. 28 pt number disc, text, an optional "written in N parts" chip in `paper-raised`, then `pencil.line` and `xmark` trailing. |
-| `Queue chip` | 260 × 30, `radius-pill`. `paper-sunk` track, `action` fill at 25% opacity to the proportion done, label "Sentence N of M" in `caption` / `text-primary` centred across the **whole** chip — not across the fill, or it wraps. |
-| `Level meter` | 420 × 40. 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
+| `Card / Session` (home) | 200 × 240, `radius-card`, `paper-raised`, `shadow-card`. Thumbnail 200 × 140 filling the top with the top corners rounded; date `caption`; `Stars / Compact`. When the entry runs longer than the thumbnail can show, a `+N words` chip: 84 × 24, `radius-pill`, `paper-sunk`, `caption-sm` in `text-secondary`. |
+| `Row / Session` (list) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing, vertically centred. |
+| `Card / Entry stats` (entry detail) | Full content width × 96, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Compact`; word count `body-em` with a one-line note `caption` beneath; `speaker.wave.2.fill` 24 pt + "Hear what I said" `body-em` in `action` trailing. **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback. |
+| `Row / Unfinished` | A session the child stopped part-way. Same frame, 2 pt dashed `star-off` stroke instead of shadow. Thumbnail of what is written so far; date + time; *Next: "…"* showing the next few unwritten words; a progress bar with "32 of 48 words"; trailing `Button / Secondary` labelled "Keep writing ›". |
+| `Writing progress` | Full width of the footer. `paper-sunk` capsule track 8 pt tall, `action` fill to `wordsWritten / totalWords`, caption "15 of 48 words" beneath in `text-secondary`. Replaces the sentence queue. In the footer it is 190 pt wide, not full width — the accuracy hint sits to its left. |
+| `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
+| `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action`. Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. Drawn large — 176 pt — in the centre of an empty page (frame 20). |
+| `Listening bar` | Replaces the footer while recording: `Level meter` 280 wide leading, elapsed `numeral-l` over "of 5:00" `caption`, `Button / Primary` "I'm done talking" 260 × 64 trailing. |
+| `End-of-line check` | 44 pt circle, 2.5 pt `action` stroke, `checkmark` 20 pt, sitting 46 pt past the last letter of the line in hand. Outlined until every letter has ink; `action`-filled with a white check after. Tapping it finishes the line (§11.11). |
+| `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). |
 | `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em. **Never accuracy colours.** |
-| `Writing so far` | The live journal page on every writing screen. `paper` fill, 1 pt `divider`, `radius-card`, 24 pt padding. Accepted sentences flow continuously at the review scale (§7.4) over ruled lines, newest last. Scrollbar 4 pt on the right inset 14 pt. Empty state: two centred lines of `body` / `caption` in `text-secondary`. |
 | `Toggle / TypedHandwritten` | 420 × 56, `radius-pill`, `paper-sunk` track. Two 210 pt segments. Selected: `paper-raised` inset 4 pt, `shadow-card`, `button-sm` in `text-primary`. Unselected `button-sm` in `text-secondary`. |
 | `Cell / Calendar` | 88 × 88. Day numeral `body` centred. Entry dot 8 pt in `action`, 8 pt below the numeral. Today: 2 pt `action` ring. |
-| `Font option` | Full content width × 176, `radius-card`. Selected: `paper-raised`, `shadow-card`, 3 pt `action` stroke, `checkmark` 24 pt trailing. Unselected: `paper-sunk`. Name `headline`, reason `caption`, then a live preview of the sample sentence at 46 / 60 on one ruled line. |
+| `Font option` | Full content width × 176, `radius-card`. Selected: `paper-raised`, `shadow-card`, 3 pt `action` stroke, `checkmark` 24 pt trailing. Unselected: `paper-sunk`. Name `headline`, reason `caption`, then a live preview of the sample line at 46 / 60 on one ruled line. |
 | `Size option` | Full content width, height = size × 1.5 + 56. Same selected treatment. Label `body-em`, "NN pt" `caption` trailing, then a live preview at the real size. |
 
 ### 10.7 Badges
@@ -425,21 +479,23 @@ because the guide text and the mask bitmap are generated from these numbers.
 
 ### 11.1 Geometry (portrait, 834 × 1194)
 
+The page is the screen. There is no second surface and no panel — one scrolling page runs
+edge to edge between the toolbar and the footer.
+
 ```
   0       24  40                                   794 810  834
   ├────────┼───┼─────────────────────────────────────┼───┼───┤
-  │                 Toolbar  h 72                            │  y 0
+  │  I'm finished   Wednesday, March 4    ◆  ↺  🗑          │  y 0
   ├──────────────────────────────────────────────────────────┤  y 72
-  │   "Your writing so far"                                  │  y 92
-  │   ┌──────────────────────────────────────────────────┐   │
-  │   │        WRITING SO FAR   786 × 300  (scrolls)     │   │  y 124
-  │   └──────────────────────────────────────────────────┘   │  y 424
-  │   "Now trace this"                    Jua · Large        │  y 448
-  │ ┌────────────────────────────────────────────────────┐   │
-  │ │           WRITING SURFACE  754 × 530               │   │  y 480
-  │ │              (does NOT scroll)                     │   │
-  │ └────────────────────────────────────────────────────┘   │  y 1010
-  │   Live accuracy: 78%                    [  Done ✓  ]     │  y 1040
+  │ ┌──────────────────────────────────────────────────────┐ │
+  │ │                                                      │ │
+  │ │            THE PAGE   834 × 958   (scrolls)          │ │
+  │ │                                                      │ │
+  │ │   graded lines · the line in hand · untraced guide   │ │
+  │ │                 text inset 40 either side            │ │
+  │ │                                                      │ │
+  │ └──────────────────────────────────────────────────────┘ │  y 1030
+  │  So far: 88%      [███░░░░]  15 of 48 words   ⌄  [Done]  │
   ├──────────────────────────────────────────────────────────┤  y 1170
   │                  Home indicator  24                      │
   └──────────────────────────────────────────────────────────┘  y 1194
@@ -447,12 +503,24 @@ because the guide text and the mask bitmap are generated from these numbers.
 
 | Value | Number |
 |---|---|
-| Left / right inset | **40 pt** (engine constant — do not change) |
-| Surface width | 754 pt |
-| Top edge | y = 480 |
-| Surface height | 530 pt |
-| Fill | `paper` |
-| Writing-so-far panel | 786 × 300 at (24, 124), 24 pt padding, `radius-card` |
+| Left / right text inset | **40 pt** (engine constant — do not change) |
+| Text width | 754 pt |
+| Page top edge | y = 72 |
+| Page height (viewport) | 958 pt |
+| Page top padding, first baseline offset | `space-7` = 40 pt |
+| Page fill | `paper` |
+| Footer | y = 1030, 1 pt `divider` hairline along its top edge |
+
+**Page height is content height, not viewport height.** The page view is as tall as the
+transcript needs at the current face and size, and the scroll view shows a 958 pt window
+onto it. At Extra Small a 48-word entry is shorter than the window; at Extra Large it is
+roughly three windows tall. Ruled lines fill the whole window even where there is no text
+yet, because more dictation can always be appended (§11.11).
+
+**Footer contents**, left to right: live accuracy `body` with a one-line hint in `caption`
+beneath it (250 pt wide, never wider or it collides with the bar); `Writing progress`
+(§10.6) centred at x = 310, 190 pt wide; the scroll chevron `Button / Toolbar` at x = 530;
+`Button / Primary` "Done ✓" 220 × 64 trailing.
 
 ### 11.2 Ruled lines
 
@@ -469,18 +537,30 @@ not a caption. Toggled off entirely when the profile's "guide lines" setting is 
 
 ### 11.3 Capacity
 
-The 200-character transcript cap keeps any one sentence inside the surface at every size —
-see §7.3. Text is **never** scrolled during tracing.
+**There is no capacity limit.** The 200-character cap and the v2.2 size-aware fit rule are
+both retired: a page that scrolls has nothing to overflow. The only bound is the
+five-minute dictation cap (§11.9), and that bounds talking, not writing.
+
+Capacity still matters for *layout* — at Extra Large roughly 56 characters fit a line, at
+Extra Small roughly 150 — so the page must always be measured with the real face at the
+real size before it is drawn. A character count will not do: the five bundled faces differ
+by up to 40% in advance width.
 
 ### 11.4 Accuracy is graded per letter
 
-The mask is built **per glyph**, not per sentence. Each letter gets its own accuracy — the
-proportion of the child's points inside *that* letter — and the sentence score is the mean
-across every letter in it.
+The mask is built **per glyph**, not per line. Each letter gets its own accuracy — the
+proportion of the child's points inside *that* letter — and the entry score is the mean
+across every letter that counts.
 
-**A letter with no ink scores 0%.** This is the whole point: it makes an unfinished
-sentence score like an unfinished sentence. Under the old sentence-wide measure, a child
-who carefully traced four letters and tapped Done scored ~95%; now they score ~20%.
+**A letter with no ink scores 0%.** This is the whole point: it makes an unfinished entry
+score like an unfinished entry. Under the old line-wide measure, a child who carefully
+traced four letters and tapped Done scored ~95%; now they score ~20%.
+
+**Scoring is word-aware, because the page is now longer than the sitting.** A child who
+writes 32 of 48 words has not failed the last 16 — they have not reached them. So words
+the child never started are **not scored at all**, while letters skipped inside a word they
+did start score zero. The result reads *"32 of 48 words · 78%"*: the count carries how far
+they got, the percentage carries how well they did on the way.
 
 Coverage as a separate metric is **retired** — per-letter grading subsumes it.
 
@@ -489,10 +569,10 @@ Coverage as a separate metric is **retired** — per-letter grading subsumes it.
 | | What it counts |
 |---|---|
 | **Live**, on the writing screen | Only letters the child has started. Reads *"So far: 78%"*, with a hint below: *"16 letters still to go"*. |
-| **Final**, at Done | Every letter, unstarted ones at 0%. |
+| **Final**, at Done | Every letter of every **started** word, unstarted ones at 0%. Words never reached are excluded. |
 
 If the live readout applied the zero penalty it would start at 0% and crawl upward for the
-whole sentence, which feels like failing continuously. The hint carries the warning
+whole entry, which feels like failing continuously. The hint carries the warning
 instead, and the Reveal screen says plainly whether anything was left unfinished.
 
 ### 11.5 Ink
@@ -510,51 +590,34 @@ review or thumbnail scale the quoted range produces illegible blobs.
 A scroll gesture and a pencil stroke are hard to tell apart, and finger tracing makes it
 worse. Therefore:
 
-- **The writing-so-far panel scrolls.** It is read-only, so a drag inside it is unambiguous.
-- **The active writing surface never scrolls.** It is sized to fit one sentence.
 - Journal, list, settings and progress screens scroll normally.
 - If a surface ever must scroll during writing, it takes **two fingers** — one finger is
   always ink.
-- **The Entry Detail page surface scrolls.** A long session overflows 560 pt; the scrollbar
-  is drawn on frames 14, 15 and 18.
+- **The writing page scrolls, and it is the one place a gesture could fight the pen.**
+  The two are separated by touch count: with finger tracing off, one finger scrolls and
+  only the pencil draws; with it on, one finger draws and two scroll. Because two fingers
+  is a lot to ask of a five-year-old holding a pencil, **a chevron button at the foot of
+  the page scrolls with no gesture at all** — that is the primary mechanism.
+- **The Entry Detail page scrolls too.** A long entry is never truncated.
 
-### 11.9 Long-form dictation and the fit rule
+### 11.9 Long-form dictation, on the page
 
-The child talks for as long as they like, up to **five minutes**. Nothing is written down
-until they tap *I'm done talking*. The transcript is then split into **traceable pieces**.
+The child talks for as long as they like, up to **five minutes**, and the words land on the
+page *as they say them* — in the journal face, on the ruled lines, in `spoken-text`. The
+page is the live transcript; there is no separate recording screen and no review screen.
+While listening, the footer becomes the **listening bar** (§13.3): level meter, elapsed of
+5:00, and *I'm done talking*.
 
-**Splitting, in order of preference:**
+There is no splitter and no fit rule. Page height is measured with the real face at the
+real size (§7.3's floor rule) — the five bundled faces differ by up to 40% in advance
+width, so a character count will not do.
 
-1. **Punctuation** from the recogniser (`addsPunctuation`). Reliable for adults, patchy for
-   a five-year-old who says "and then and then".
-2. **Pauses** — `SFTranscriptionSegment.timestamp` gaps over ~700 ms.
-3. **The fit rule**, always applied last: a piece must fit the writing surface. Anything
-   longer is broken at the last word boundary that fits, and becomes two pieces.
-
-**The fit rule is size-dependent and it bites.** Measured against the 754 pt surface:
-
-| Size | pt | Lines | Chars/line | Fits |
-|---|---|---|---|---|
-| Extra Large | 96 | 3 | 18 | **~56** |
-| Large | 72 | 4 | 24 | ~99 |
-| Medium | 56 | 6 | 32 | ~192 |
-| Small | 42 | 8 | 42 | ~341 |
-| Extra Small | 30 | 11 | 59 | ~658 |
-
-At Extra Large a perfectly ordinary spoken sentence will not fit and *must* split. Do not
-treat the split as an error state — the review screen labels it plainly ("written in
-2 parts") and moves on.
-
-The splitter must measure with the **real font metrics** at the profile's size, not a
-character count — the five faces differ by up to 40% in width (`PENPOT_HANDOFF.md` §3).
-
-**Five minutes is far more than a child will write.** Forty seconds of talking produced
-eight pieces in the fixture; five minutes produces around fourteen, which is 20+ minutes of
-tracing. The cap exists because the recogniser drifts on long takes, not to hurry the
-child. **Stopping part-way must be the easy, obvious, unpunished path** — every writing
-screen carries "Finish for now", the count of what is saved is always visible, and an
-unfinished session is the first thing on Journal Home (frame 9 variant) and the top section
-of the journal list.
+**Five minutes is far more than a child will write in one sitting, and that is fine.**
+Stopping part-way must be completely unremarkable: *I'm finished* is always in the toolbar,
+the word-progress bar shows what is written, and an entry with spoken words still waiting
+is the first thing on Journal Home and the top section of the journal list. No warning
+language anywhere. At the cap, recording stops itself and a warm **banner** slides over the
+top of the page (frame 42) — not a screen.
 
 ### 11.7 The eraser
 
@@ -567,14 +630,108 @@ touched**. It is not undo: undo removes a whole stroke in order, the eraser remo
 region regardless of when it was drawn. Both exist because a child who wanders outside one
 letter should not have to redraw the four before it.
 
-Clear still wipes the sentence. Nothing is scored until Done.
+Clear still wipes the whole page's ink. Nothing is scored until Done.
 
 ### 11.10 The settle animation
 
-When `Done` is tapped: the guide fades over 0.5 s (§4), then the ink shrinks to the review
-scale and rises into the writing-so-far panel over 0.45 s, and the panel scrolls to the
-bottom. This is the moment the child sees their page grow, and it is the emotional core of
-the writing loop. Reduce Motion replaces it with a cross-fade.
+**A line settles where it was written — when the child finishes it, not when a sensor
+thinks they have.** Finishing a line (§11.11: the end-of-line check, or tapping the next
+line) cross-fades its guide text out over 0.45 s (§4) and its ink from accuracy colours to
+`ink-natural`. The settle no longer fires automatically on the last inked letter, because
+the settle is now also the *commit*: the moment the line's words join the record has to be
+the child's own act. Nothing moves, shrinks, or travels: the line the child was
+tracing simply becomes a line they have written, and the page above their hand fills up in
+their own handwriting.
+
+This replaces the v2 rise-into-the-panel animation, and it is a better version of the same
+emotional beat — the child sees the finished page grow in place rather than watching a copy
+of their work fly somewhere else. Reduce Motion replaces the cross-fade with a hard swap.
+
+### 11.11 The page in three states, and when text becomes real
+
+At any moment every line of the page is in exactly one of three states.
+
+| State | Text | Ink | Part of the record |
+|---|---|---|---|
+| **Written** — finished and scored | none (their ink *is* the text) | `ink-natural` | **Yes** |
+| **In hand** — being written now | `guide-text`, locked | `ink-inside` / `ink-outside`, plus the end-of-line check | Not yet |
+| **Spoken** — said, waiting | `spoken-text`, editable | None | **No** |
+
+Removing the guide from written lines is what makes the page read as the child's own
+handwriting rather than a worksheet they are half way through — and the pale spoken tier
+below makes the boundary between "mine" and "not yet mine" visible at a glance.
+
+**Finishing a line is the commit.** A line's words join the record the moment the child
+finishes writing it, one of two ways:
+
+1. **Tap the end-of-line check** — a 44 pt circled check sitting just past the line's last
+   letter. Outlined until every letter has ink, filled once it does; tappable either way —
+   it is a nudge, not a gate. Letters skipped on a confirmed line score zero (§11.4).
+2. **Tap the next spoken line** — which finishes the line in hand and takes the tapped
+   line in hand in one gesture.
+
+Writing goes **in order**: only the next spoken line can be taken in hand. Tapping a
+spoken line further down does nothing — a record assembled line by line must stay
+contiguous, or the entry stops reading as a sentence. Taking a line in hand also stops the
+mic if it is still listening.
+
+**Spoken text is editable; everything else is locked.** Tapping a spoken word opens it for
+fixing in place (§11.13). The in-hand line's text is already locked — the guide the child
+is writing over must not move under their pen. Fixing what the recogniser misheard
+therefore happens *before* a line is taken in hand, which is exactly when the child is
+looking at it as text rather than as a tracing task.
+
+***I'm finished* respects the same rule.** If the line in hand has any ink, finishing the
+entry commits it (skipped letters at zero — they traced it, so it counts); if it has none,
+it returns to spoken. Spoken text is never silently promoted: it stays with the open entry
+as what is still to write, but it is not in the journal, not in exports, and not in any
+count of words written.
+
+**New dictation appends to this page** as spoken text after the last existing word — the
+word total goes up and the page scrolls to the first new word. An entry is a day's page,
+however many times the child spoke to fill it.
+
+### 11.12 Writing a line again
+
+**Tapping a written line selects it**: an `action` band at 12% opacity behind the line, a
+2 pt `action` outline around it, and a chip immediately beneath reading *"Write this line
+again"*. Tapping anywhere else, or the chip, resolves the selection — the chip clears that
+line's strokes, returns it to the in-hand state, and scrolls it to the top of the window.
+
+Only written lines respond this way. The line in hand is already being written, and a tap
+on a spoken line either takes it in hand (the next one, §11.11) or opens a word for fixing
+(§11.13).
+
+**The old tracing is gone, not archived.** This follows the v2.1 decision that only the
+latest tracing is kept: there is no attempt history, so re-tracing overwrites, and the
+entry's accuracy is recomputed from what is on the page now. A child who re-traces a line
+they rushed sees their entry percentage go up, which is the entire reason the feature
+exists. Writing a line again does not un-commit its words — the text stays in the record;
+only the ink is redone.
+
+### 11.13 One screen
+
+Speaking, seeing, fixing and writing all happen on the page. There is no other surface.
+
+- **The mic** is a 64 pt round `action` button in the footer, always available — tapping it
+  mid-entry is how "saying more" works. While the page is empty it is *also* drawn large in
+  the centre with the invitation (frame 20); same control, bigger target when there is
+  nothing else to aim at.
+- **Listening** replaces the footer with the listening bar and streams the words onto the
+  page in `spoken-text` as they are recognised, caret at the end (frame 21). The reassurance
+  line — *"Nothing goes in your journal until you write it."* — sits centred above the bar.
+- **Fixing a word**: tapping a spoken word draws a 2 pt `action` box over it with a 10%
+  tint, raises the keyboard over the footer, and edits it in place (frame 22). The line
+  reflows within the spoken region; written lines above cannot move because edits cannot
+  reach them. There is no bulk review step — the child fixes what they notice, when they
+  notice it.
+- **Typing instead** is the same path with no mic: *Type it instead* puts the caret at the
+  end of the spoken text and the keyboard types onto the page.
+- **The five-minute cap** is a banner over the top of the page (frame 42), not a screen.
+
+What died to make this: the session-start screen, the recording screen with its separate
+transcript panel, and the check-what-I-said screen. Each existed to show the child text
+somewhere other than where they would write it.
 
 ---
 
@@ -599,39 +756,47 @@ the writing loop. Reduce Motion replaces it with a cross-fade.
 | # | Frame | Notes |
 |---|---|---|
 | 9 | Journal Home — populated | "Your writing" card replaces the level card; 5 session cards |
-| 9 | Journal Home — unfinished session waiting | The resume card takes the primary slot; "3 of 8 written" |
+| 9 | Journal Home — unfinished entry waiting | The resume card takes the primary slot; "9 of 30 words" |
 | 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey |
 | 11 | Journal List — populated | "Still to write" section (unfinished sessions) + two month sections |
 | 12 | Journal List — search active | Query "grandma", 2 results, keyboard up |
 | 13 | Journal Calendar | March grid, dots on written days |
 | 14 | Entry Detail — Typed | A session page; toggle on "Typed" |
-| 15 | Entry Detail — Handwritten | Same page in `ink-natural`; per-sentence rows with "Hear it" |
-| 18 | Entry Detail — overflow menu open | Rename / Export / Delete |
-| 19 | Export preview — one entry | Scope selector, one PDF page |
+| 15 | Entry Detail — Handwritten | Same page in `ink-natural`; one `Card / Entry stats` beneath |
+| 18 | Entry Detail — overflow menu open | Write again / Hear what I said / Share as PDF / Delete |
+| 19 | Export preview — one entry | Scope selector, one PDF page, the entry as one continuous flow |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, size and options |
 
 ### `04 · Write`
 
+Every frame here is a **state of the same screen** (§11.13).
+
 | # | Frame | Notes |
 |---|---|---|
-| 20 | Write — session start | Empty writing-so-far panel, large mic, "Tell me about your day" |
-| 21 | Write — recording | Long form: elapsed timer, level meter, scrolling live transcript |
-| 22 | Write — review sentences | The list of 7, one flagged as needing 2 parts, edit and delete |
-| 23 | Write — editing a sentence | Field focused, keyboard up, Split / Join / Delete |
-| 24 | Write — tracing, first sentence | Guide text, ruled lines, no ink; queue chip "Sentence 1 of 8" |
-| 25 | Write — tracing, in progress | ~40% traced, live accuracy colours, "So far: 78%" |
-| 25 | Write — eraser active | Eraser selected, dashed cursor over the ink it will remove |
-| 26 | Write — tracing, Extra Large font | 96 pt, two lines |
-| 27 | Write — tracing, Extra Small font | 30 pt, a long sentence |
-| 28 | Write — reveal, ink only | Guide gone, "Write another sentence" / "I'm finished" |
-| 29 | Results — one sentence, 2 stars | Session summary, 78%, +183 points |
-| 30 | Results — two sentences, 3 stars + new badge | 91% session average, +224 points |
-| 36 | Write — tracing, third of eight | Two finished sentences above, the third being traced |
+| 20 | Write — the page, nothing said yet | Empty rules, centre mic invitation, "Type it instead"; Done disabled |
+| 21 | Write — the page, listening | Words land as `spoken-text` live, caret at the end; listening bar footer |
+| 22 | Write — fixing a word I misheard | One spoken word boxed in `action`, keyboard over the footer |
+| 24 | Write — everything said, nothing written yet | Whole telling as spoken text; "Tap the first line to start writing" |
+| 25 | Write — the page, part written | 3 written, 1 in hand at 55% with the check, spoken below; 15 of 48 |
+| 26 | Write — the page at Extra Large | 96 pt; fewer words per line, a much taller page |
+| 27 | Write — the page at Extra Small | 30 pt; the whole 48-word entry fits one window |
+| 29 | Results — the whole entry written, 3 stars | 91%, everything said was written, +224 points |
+| 30 | Results — stopped part way, 2 stars + new badge | 78%, 32 words written, 16 still spoken, +183 points |
 | 40 | Write — microphone access | Child-legible explainer shown *before* the iOS prompt |
-| 41 | Write — microphone unavailable | Denied or unsupported; the keyboard becomes the primary path |
-| 42 | Write — recording stopped at five minutes | Auto-stopped at the cap; 14 sentences ≈ 20 minutes of writing, said warmly |
+| 41 | Write — microphone unavailable | Denied or unsupported; typing onto the page becomes the primary path |
+| 42 | Write — recording stopped at five minutes | A banner over the page, said warmly; 112 words ≈ 20 minutes of writing |
+| 44 | Write — tapping written text to write it again | Line 1 selected: tinted band, 2 pt outline, "Write this line again" chip |
+| 45 | Write — more said, added to the page | Scrolled; 10 written lines above, new spoken text below, 48 of 58 words |
+| 46 | Write — no guide lines | §16 variant: ruled lines off |
+| 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
+| 48 | Write — left-handed layout | §16 variant: toolbar and footer actions mirrored |
 
-**§16 variants** live on this page too, named as states of frames 24 and 25.
+Frames 23, 28 and 36 are **retired**: 23 was the splitter, 28 the ink-only reveal (the page
+now reveals a line at a time, in place, §11.10) and 36 the append screen, which frames 25
+and 45 cover between them. Frames 20, 21, 22 and 42 keep their numbers but are **no longer
+screens** — they are states of the page (v2.5).
+
+**§16 variants** are frames 46–48, built as states of frame 25.
 
 ### `05 · Progress & Settings`
 
@@ -682,17 +847,42 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 | "Badges" `title-2` | 24 | 980 | — |
 | Badge strip: 64 pt circles, 20 pt gaps, no labels | centred | 1030 | 652 × 64 |
 
-### 13.3 Frame 36 — Write, appending *(the defining screen of v2)*
+### 13.3 Frame 25 — Write, the page part written *(the defining screen of v2.5)*
 
 | Element | x | y | Size |
 |---|---|---|---|
-| `Toolbar` — "Close" leading, date centred, eraser + undo + clear trailing at 52 pt pitch | 0 | 0 | 834 × 72 |
-| "Your writing so far" `body-em` `text-secondary` | 24 | 92 | — |
-| `Writing so far` panel | 24 | 124 | 786 × 300 |
-| "Now trace this" `body-em` · "Jua · Large" `caption` trailing | 24 | 448 | — |
-| Writing surface (§11) | 40 | 480 | 754 × 530 |
-| "So far: 88%" `body`, with "14 letters still to go" `caption` beneath | 24 | 1030 | — |
-| `Button / Primary` "Done ✓" | 530 | 1040 | 280 × 64 |
+| `Toolbar` — "I'm finished" leading, date centred, eraser + undo + clear trailing at 60 pt pitch | 0 | 0 | 834 × 72 |
+| The page, `paper`, full bleed, scrolls | 0 | 72 | 834 × 958 |
+| — written lines, `ink-natural`, **no guide** | 40 | 112 | 754 wide |
+| — the line in hand, `guide-text` with accuracy ink over it, `End-of-line check` 46 pt past the last letter | 40 | — | 754 wide |
+| — spoken lines, `spoken-text` only | 40 | — | 754 wide |
+| Footer hairline, 1 pt `divider` | 0 | 1030 | 834 × 1 |
+| `Mic / Footer` (§10.6) | 24 | 1060 | 64 × 64 |
+| "So far: 88%" `body`, hint `caption` beneath, 218 pt wide | 108 | 1062 | 218 |
+| `Writing progress` (§10.6) with "15 of 48 words" | 340 | 1074 | 166 |
+| `Button / Toolbar` `chevron.down` — scrolls a line with no gesture | 530 | 1060 | 44 × 44 |
+| `Button / Primary` "Done ✓" | 590 | 1060 | 220 × 64 |
+
+Frames 24, 26, 27 and 44–48 are the same layout with a different page state, size or
+variant; only the page contents and the footer numbers change.
+
+**Frame 20** (nothing said yet) hides the progress numbers, disables Done, and adds the
+centre invitation: `Mic / Footer` at 176 pt centred at y ≈ 512, "Tell me about your day,
+Milo" `title-1`, a two-line `body` caption, and "Type it instead" as a text button.
+
+**Frame 21** (listening) swaps the footer for the `Listening bar` (§10.6) and centres
+*"Nothing goes in your journal until you write it."* in `caption` just above it.
+
+**Frame 22** (fixing a word) draws the `Word being fixed` treatment and the keyboard over
+the bottom 320 pt; the footer is behind it.
+
+**Frame 42** (the cap) lays a 660 × 116 `paper-raised` banner over the page at y = 100 —
+muted mic well, "That's a whole lot of story!" `headline`, one `body` line beneath — and
+mutes the footer mic.
+
+**Frame 44** adds the selection: an `action` band at 12% behind the tapped line running the
+full text width, a 2 pt `action` outline around it, and a "Write this line again" chip
+(360 × 60, `radius-chip`, `action` label) 12 pt beneath the band at x = 100.
 
 ### 13.4 Frames 14 / 15 — Entry Detail
 
@@ -700,12 +890,12 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 |---|---|---|---|
 | `Toolbar` — back leading, "Wednesday, March 4" centred `title-1`, `ellipsis.circle` trailing | 0 | 0 | 834 × 72 |
 | `Toggle / TypedHandwritten`, centred | 207 | 96 | 420 × 56 |
-| Page surface, `paper`, 1 pt `divider`, `radius-card` | 24 | 176 | 786 × 560 |
-| — the session's sentences flow continuously, 32 pt inner padding, ruled | | | |
-| "Sentences" `body-em` · "Jua · Large · Trace" `caption` trailing | 24 | 760 | — |
-| Sentence rows, `Row / Sentence`, 12 pt apart | 24 | 794 | 786 × 64 |
-| — text · "Hear it" · `Stars / Compact` · "NN%" | | | |
-| `Button / Secondary` "Trace This Again" | 137 | 1074 | 268 × 56 |
+| Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 176 | 786 × 620 |
+| — the entry flows continuously, 32 pt inner padding, ruled; scrollbar when it overflows | | | |
+| "How it went" `body-em` + rule | 24 | 820 | — |
+| `Card / Entry stats` (§10.6) | 24 | 858 | 786 × 96 |
+| "Jua · Large · Trace" `caption` trailing | 24 | 976 | — |
+| `Button / Secondary` "Write This Again" | 137 | 1074 | 268 × 56 |
 | `Button / Secondary` "Share" | 429 | 1074 | 268 × 56 |
 
 Frames 14 and 15 must be **pixel-identical apart from the page surface contents and the
@@ -735,36 +925,54 @@ Use these fixtures verbatim across every frame.
 | Ada | no | Andika | Extra Large | 0 | Younger sibling; **no photo** — shows her initial |
 | Dad | yes | Comic Neue | Extra Small | 0 | Parent profile |
 
-**Sessions** (Milo) — a session is one sitting and may hold several sentences
+**Entries** (Milo) — one entry is one day's page, however many times the child spoke to fill it
 
-| Date | Time | Sentences | Session | Stars |
+| Date | Time | Words | Accuracy | Stars |
 |---|---|---|---|---|
-| Mar 4 | 4:12 PM | "I saw a red bird in the yard" (94%) · "It was on the fence by the gate" (88%) | 91% | ★★★ |
-| Mar 3 | 5:40 PM | "We made pancakes with Grandma" (81%) | 81% | ★★☆ |
-| Mar 1 | 10:05 AM | "My tower fell down but I built it again" (90%) | 90% | ★★★ |
-| Feb 27 | 6:20 PM | "The dog has a cold nose" (66%) | 66% | ★☆☆ |
-| Feb 25 | 4:48 PM | "I want to be an astronaut" (88%) | 88% | ★★☆ |
+| Mar 4 | 4:12 PM | 48 of 48 — *"Today we went to the park…"* | 91% | ★★★ |
+| Mar 3 | 5:40 PM | 29 of 29 — *"We made pancakes with Grandma…"* | 81% | ★★☆ |
+| Mar 1 | 10:05 AM | 39 of 39 — *"My tower fell down but I built it again…"* | 90% | ★★★ |
+| Feb 27 | 6:20 PM | 23 of 23 — *"The dog has a cold nose…"* | 66% | ★☆☆ |
+| Feb 25 | 4:48 PM | 25 of 25 — *"I want to be an astronaut…"* | 88% | ★★☆ |
 
-**A long-form dictation** (frame 20–23, 42) — 41 seconds, seven sentences, 294 characters:
+**The canonical transcript** — used on every Write and Results frame, and on Entry Detail
+and the one-entry export. 48 words; **10 lines at Jua Large**, 7 at Medium, 5 at Extra
+Small, 21 at Extra Large:
+
+> Today we went to the park and I saw a big dog. The dog wanted to play with me and we
+> threw a ball for it until it got tired. Then we had ice cream on the way home and Dad let
+> me have chocolate sauce on mine.
+
+Frame 21 has the first **22 words** of it on the page mid-dictation, caret after "threw a".
+Frame 22 has the whole telling spoken with **"park" (line 2, word 1) being fixed**.
+Frame 25 has **3 lines written, the 4th in hand at 55%** with the check outlined, the rest
+spoken; 15 of 48 words, live 88%.
+Frame 44 has 4 lines written with **line 1 selected**, 20 of 48 words, live 91%.
+Frame 45 appends a second dictation: 10 lines written, new spoken text below, **48 of 58
+words** — the frame that shows an entry growing.
+
+**A long-form dictation at the cap** (frames 21, 42) — five minutes, 112 words:
 
 > Today we went to the park and I saw a big dog. It was brown and white and it had a little
 > silver bell that jingled when it ran across the grass. The dog wanted to play with me. We
 > threw a ball for it. Then we had ice cream on the way home. Dad let me have chocolate. I
-> want to go back tomorrow.
+> want to go back tomorrow. We saw a squirrel too and it ran up a tree really fast and then
+> it looked at us from a branch and Mum said it was probably looking for nuts to bury for
+> the winter.
 
-The second sentence is 96 characters, which does not fit Large (99 is the limit and the
-splitter leaves a line spare), so it becomes **two pieces — eight in total**. This is the
-fixture that exercises the fit rule.
+There is no splitter and no fit rule, so this fixture no longer exercises anything except
+the page's height: at Large it is 23 lines, about two and a half windows.
 
-**An unfinished session** (frames 9 variant, 11) — Mar 4, 5:30 PM, 3 of 8 written, next up
-*"We threw a ball for it"*.
+**An unfinished entry** (frames 9 variant, 11) — Mar 4, 5:30 PM, 32 of 48 words, next up
+*"until it got tired."*
 
 **Frame 12 only:** an older result for the query "grandma" — Jan 18, 3:15 PM, "Grandma read
-me a story", 85%, Jua Extra Large.
+me a story", 22 words, 85%, Jua Extra Large.
 
-**Canonical Results numbers.** Frame 29: one sentence, accuracy 78, 2 stars, 78 + 50 star
-bonus + 25 streak + 30 session = **183 points**. Frame 30: two sentences averaging 91,
-3 stars, 94 + 75 + 25 + 30 = **224 points**.
+**Canonical Results numbers.** Frame 29 (finished): 48 of 48 words, accuracy 91, 3 stars,
+91 + 75 star bonus + 25 streak + 30 session = **224 points** (rounded to 224). Frame 30
+(stopped part way): 32 of 48 words, accuracy 78, 2 stars, 78 + 50 + 25 + 30 = **183
+points**.
 
 ---
 
@@ -773,7 +981,7 @@ bonus + 25 streak + 30 session = **183 points**. Frame 30: two sentences averagi
 Several frames live or die on whether the ink looks like a seven-year-old traced it. A
 clean vector path will not do.
 
-**Method.** Set the target sentence in the profile's face at the frame's size on a locked
+**Method.** Set the target line in the profile's face at the frame's size on a locked
 layer at 30% opacity. Draw over it with Penpot's freehand path tool in a single gesture per
 letter stroke, following the letterform but permitting real error: overshoot the baseline,
 round off the corners, let the second half of a long word drift upward. Then delete the
@@ -789,8 +997,9 @@ guide layer (writing frames keep it; journal frames do not).
   descenders on *g*, *y*, *p* fall short, and the letters at the end of a line lean.
 - **Colour by geometry, not by taste.** A segment is `ink-outside` only where it genuinely
   sits outside the traced letterform. Roughly 20–25% red at 78%, under 10% at 94%.
-- **Frame 17 must show real improvement.** 61% → 79% → 94% on the same sentence is the
-  entire argument for keeping attempt history; make it unmistakable.
+- **Graded lines and the line in hand must read differently at a glance.** A graded line
+  is `ink-natural` with no guide beneath it; the line in hand is guide plus red-and-green.
+  If a reviewer has to look twice to tell which is which, the page has failed (§11.11).
 - **If you change the face, re-measure.** Each face has a different advance width; ink drawn
   for Jua will not sit on Andika. The built file calibrates against the real face
   (`PENPOT_HANDOFF.md` §3).
@@ -805,22 +1014,24 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] New profile — no sessions, no streak, all badges grey (frame 10)
 - [ ] Wrong PIN (frame 4)
 - [ ] Profile with no photo — initial-letter avatar, distinct from the add tile (frame 1)
-- [ ] A session stopped part-way — resume card on Home, "Still to write" row in the list
-- [ ] A sentence too long for the current size — split into parts (frame 22)
-- [ ] Recording stopped at the five-minute cap (frame 42)
-- [ ] First sentence of a session — writing-so-far panel empty (frame 24)
-- [ ] Appending — panel populated, active sentence below (frame 36)
-- [ ] Session with more than one sentence — `+N` chip, multi-sentence page (frames 9, 15)
+- [ ] An entry stopped part-way — resume card on Home, "Still to write" row in the list
+- [ ] Recording stopped at the five-minute cap — banner over the page (frame 42)
+- [ ] The page with nothing said yet — empty rules, centre mic (frame 20)
+- [ ] Listening — words landing on the page live (frame 21)
+- [ ] A spoken word being fixed in place, keyboard up (frame 22)
+- [ ] Everything said, nothing written — all spoken text (frame 24)
+- [ ] The page part written — written above, in hand with the check, spoken below (frame 25)
+- [ ] A written line tapped for re-tracing — band, outline, chip (frame 44)
+- [ ] More dictation appended to an existing page (frame 45)
+- [ ] An entry long enough to scroll both the writing page and Entry Detail (frames 25, 45, 14, 15)
 - [ ] Search with results (frame 12)
 - [ ] Eraser selected, mid-correction (frame 25 variant)
 - [ ] Microphone not yet granted (frame 40) and refused (frame 41)
-- [ ] Transcript at the 200-character cap (frame 42)
-- [ ] A session long enough to scroll the Entry Detail page (frames 14, 15)
 - [ ] Whole-journal export (frame 43)
 - [ ] Progress with fewer than 5 tracings at one setting (frame 32)
-- [ ] Guide lines toggled off — writing variant
-- [ ] Colorblind ink scheme — writing variant
-- [ ] Left-handed layout — toolbar actions mirrored, writing variant
+- [ ] Guide lines toggled off (frame 46)
+- [ ] Colourblind ink scheme (frame 47)
+- [ ] Left-handed layout — toolbar and footer actions mirrored (frame 48)
 - [ ] Extra Large and Extra Small size extremes (frames 26, 27)
 
 Not required for v1 wireframes: dark mode, iPhone, landscape, offline or error states, Copy
@@ -841,6 +1052,6 @@ Development then starts at Phase 1 in `DESIGN_DOCUMENT.md` §15.
 
 ---
 
-*Document version: 2.2*
+*Document version: 2.5*
 *Last updated: 2026-08-27*
-*Companion to DESIGN_DOCUMENT.md v2.2*
+*Companion to DESIGN_DOCUMENT.md v2.5*

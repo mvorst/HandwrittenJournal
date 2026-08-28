@@ -1,9 +1,9 @@
 # Penpot Wireframes — Handoff Notes
 
-Companion to `WIREFRAME_SPEC.md` v2.2. Answers §17.2: *"a list of anything you changed
+Companion to `WIREFRAME_SPEC.md` v2.5. Answers §17.2: *"a list of anything you changed
 from §5–§11."*
 
-Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1 and v2.2 on 2026-08-27.
+Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.5 on 2026-08-27.
 
 ---
 
@@ -14,12 +14,12 @@ Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1 and v2.2 on 20
 | `00 · Foundations` | 23 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, 25-icon sheet | 5 |
 | `01 · Components` | §10.1–§10.8 | 8 |
 | `02 · Profiles` | Frames 1–7 | 7 |
-| `03 · Journal` | Frames 9–15, 18, 19, 43 + the unfinished-session variant | 11 |
-| `04 · Write` | Frames 20–30, 36, 40–42 + 4 state variants | 19 |
+| `03 · Journal` | Frames 9–15, 18, 19, 43 + the unfinished-entry variant | 11 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–42, 44–48 — every one a state of the single v2.5 screen | 17 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 | 6 |
 
-**43 artboards, all portrait 834 × 1194** — 38 numbered frames plus 5 variant states —
-every one verified for overflow and carrying a PNG @2× export preset.
+**41 artboards, all portrait 834 × 1194** — every one verified for overflow and carrying a
+PNG @2× export preset.
 
 **Library:** 23 colors, 20 typographies, 31 components.
 
@@ -36,18 +36,23 @@ every one verified for overflow and carrying a PNG @2× export preset.
 
 | # | Frame | Why it exists |
 |---|---|---|
-| 36 | Write — tracing, appending | The defining screen of v2: sentence one sits above, sentence two is being traced |
 | 38 | Settings — font picker | You cannot choose a typeface from a name; this shows five live previews |
 | 39 | Settings — font size picker | Same, plus the "ready to move down a size" nudge |
 | 40 | Write — microphone access | Child-legible explainer shown *before* the iOS prompt |
 | 41 | Write — microphone unavailable | Refused or unsupported; the keyboard takes over |
-| 42 | Write — at the 200-character limit | Recording stops itself, copy stays warm |
+| 42 | Write — recording stopped at five minutes | Recording stops itself, copy stays warm |
 | 43 | Export preview — the whole journal | The book: fanned stack, 38 pages, size and options |
+| 44 | Write — tapping written text to write it again | The v2.4 re-trace gesture, drawn |
+| 45 | Write — more dictation added to the page | Proves an entry grows rather than forking |
+| 46–48 | Write — §16 variants | Guide lines off, colourblind ink, left-handed |
 
-### New variant states
+### Frames retired in v2.3 / v2.4 — do not reuse the numbers
 
-`25 — Write — eraser active` sits alongside the three §16 variants (guide lines off,
-colorblind ink, left-handed) as states of frames 24 and 25.
+| # | Was | Why |
+|---|---|---|
+| 23 | Write — split / join a long sentence | No splitter (v2.3) |
+| 28 | Write — reveal, ink only | A line now reveals in place as it is finished (v2.4 §11.10) |
+| 36 | Write — tracing, appending | Frames 25 and 45 cover it; there is no second surface to append to |
 
 ---
 
@@ -107,7 +112,7 @@ gesture, so the ink is generated:
   | Sniglet | 1183 pt | 1.397 |
   | Comic Neue | 863 pt | 1.019 |
 
-  This is why the ink in frames 25 and 36 sits exactly on the guide letters beneath it, and
+  This is why the ink in frames 25 and 44 sits exactly on the guide letters beneath it, and
   why the font picker previews wrap the same way the real app will.
 - Per-letter jitter that **increases along the line**, baseline overshoot, short descenders,
   a whole-line lean.
@@ -125,14 +130,16 @@ the red fraction lands on §15's target for that accuracy: 6.3% at 94%, 23.4% at
 
 - **Frame 1** — each profile shows its font and size under the name, and Ada is drawn with
   an **initial-letter avatar** to cover the "no photo" case without looking like the Add tile.
-- **Frame 17** — the three-tracing comparison strip (61% → 79% → 94%) is mine, not the spec's.
-  Stepping a pager one attempt at a time hid the improvement; showing them together is the
-  argument for keeping attempt history.
+- **Frame 44** — the re-trace selection treatment (band, outline, chip) is mine, not the
+  spec's. You asked for tapping graded text to re-trace it; nothing in §10 covered selecting
+  a *line* rather than a component, so §11.12 and §13.3 were written from this frame.
 - **Frame 39** — the "Milo has been above 90% for two weeks — Small might be ready to try"
   line. It is the only thing in v2 that replaces level progression, and it is addressed to a
   grown-up, not the child.
 - **Frame 34** — a second plain-language note saying destructive actions are not gated (§5).
-- **Frames 29 / 30** — the score breakdown line, so §14's 183 and 224 are checkable.
+- **Frames 29 / 30** — the score breakdown line, so §14's 224 and 183 are checkable, and the
+  split into "finished the whole entry" / "stopped part way" rather than "one sentence" /
+  "two sentences".
 - **Frame 12** — one fixture not in §14: *"Grandma read me a story"*, Jan 18, 85%. §12 asks
   for 2 results and only one §14 session contains the word.
 
@@ -188,16 +195,87 @@ will do in a sitting. The design answer is not a shorter cap but making *stoppin
 
 **Frame 42 changed meaning.** It was "you hit the 200-character cap"; it is now "you talked
 for five minutes". The copy stays warm — *"That's a whole lot of story!"* — and it states
-the workload honestly: *"14 sentences · about 20 minutes of writing."*
+the workload honestly: *"112 words · about 20 minutes of writing."*
 
 **Drafts stopped existing as a thing.** An unfinished session *is* the draft, so
 `Row / Draft` became `Row / Unfinished` with a progress bar, and the `Draft` model is
 deleted from the design document.
 
 **Audio storage changed shape.** Recording a whole session rather than a sentence means a
-5-minute master at ~1.2 MB; daily for five years is over 2 GB. The design now slices the
-master into per-sentence clips using the recogniser's segment timestamps and discards the
-master — ~250 MB over the same period, and it is what "Hear it" needs anyway.
+5-minute master at ~1.2 MB; daily for five years is over 2 GB. v2.2 sliced the master into
+per-sentence clips; **v2.4 keeps it whole**, because with no sentences there is nothing to
+slice and *"Hear what I said"* sits on the entry.
+
+---
+
+## 5.4 v2.5 Notes — one screen, spoken until written
+
+**What you asked for:** one screen for speech capture, viewing, editing and tracing; and
+text that is not finalised until the child taps the next line to trace, or an icon at the
+end of the current line — *"the text doesn't become part of the record until they trace
+it."*
+
+**How it resolved.** The mic moved onto the page (footer, plus centre-stage when the page
+is empty), dictation streams onto the ruled lines live, and fixing a misheard word is a tap
+plus the keyboard, in place. Frames 20, 21, 22 and 42 kept their numbers but became states
+of the page; nothing else was left to unify.
+
+The finalisation rule became a third text tier: **spoken** (`spoken-text`, cool and pale) is
+everything said-but-unwritten, **guide text now exists only on the line in hand**, and the
+icon you asked for is the **end-of-line check** — outlined until every letter has ink,
+filled after, tappable either way. Finishing a line (check, or tapping the next line) is
+both the settle animation and the commit of that line's words to the record.
+
+**Judgement calls made while drawing, worth your eye:**
+
+- **In-order writing only.** Only the *next* spoken line can be taken in hand — a record
+  assembled line by line has to stay contiguous or the entry stops reading as prose.
+- **"I'm finished" commits the line in hand if it has any ink** (they traced it, so it
+  counts; skipped letters score zero) and returns it to spoken if it has none.
+- **The spoken buffer is kept but is not record.** It survives with the open entry so a
+  child never has to re-say four minutes of story, but journal, search, exports and word
+  counts read only written text.
+- **Spoken text is the only editable tier.** The in-hand guide must not move under the
+  pen; written lines are the record. Edits therefore can never reflow anything traced.
+- **`spoken-text` is cooler as well as lighter than `guide-text`** (#5B6B8C @ 42% vs black
+  @ 80%) so the two tiers separate even at a squint. This must be checked on a real panel.
+
+**Retired as screens, kept as numbers:** 20 (start), 21 (recording), 22 (check — now
+"fixing a word"), 42 (cap — now a banner). The review field is gone entirely; its job is
+done word by word on the page.
+
+## 5.3 v2.4 Notes — the page is the whole screen
+
+**What you asked for:** previously written text at the top of the screen, new dictation
+appearing in the traceable area and scrolling as it fills, and tapping graded text to
+re-trace it.
+
+**How it resolved.** The first part sounded like the v2 writing-so-far panel, but building
+it that way would have put the child's finished work in one surface and their live work in
+another, with a hard edge between them. Since the page already scrolls, the finished text is
+*already* at the top of the screen — it just needed to stop looking like guide text. So a
+finished line keeps its position, drops its guide, and turns from red-and-green to graphite.
+The panel is gone and the page above the child's hand reads as continuous handwriting.
+
+This also makes the third part legible without instruction: **a line with no guide under it
+is a line you have written**, so tapping it to write it again is discoverable. Frame 44
+draws the selected state — an `action` band at 12%, a 2 pt outline, and a "Write this line
+again" chip beneath.
+
+**Three line states** are now drawn on every Write frame (§11.11): graded, in hand,
+untraced. Getting the middle one right matters most — it is guide text *plus* live accuracy
+ink, which is the only state where both layers are visible at once.
+
+**Frame 45 exists to prove appending.** It shows the page scrolled down with ten graded
+lines above and fresh guide text below, at 48 of 58 words. Without it, "saying more adds to
+this page" is a claim rather than a drawing.
+
+**Results and Entry Detail lost their per-sentence lists.** Both now show one thumbnail of
+the page plus one accuracy, one word count, one recording. `Row / Sentence` is retired and
+replaced by `Card / Entry stats`.
+
+**Frame 22 was rebuilt** as a single editable field holding the whole transcript, with a
+caret at the end — no list, no split/join controls, nothing to review row by row.
 
 ---
 
@@ -237,22 +315,49 @@ vertical centring when a height was given without a width. 32 labels re-centred.
    owns the list and the earn conditions — reconcile if you disagree with any of them.
 4. **The Progress chart data is illustrative**, not derived. The per-setting table and the
    four counters use real figures.
-5. **Scroll affordances are static.** The writing-so-far panel shows a scrollbar; the fade
-   at the clipped edge that a real implementation wants is not drawn.
+5. **Scroll affordances are static.** Frames 45 and 15 draw a scrollbar; the fade at the
+   clipped edge that a real implementation wants is not drawn, and the chevron button does
+   not show its disabled state at the bottom of the page.
 6. **The Components page has not been re-laid-out for portrait**, and it has not been
-   updated for v2.1 — it still shows `Pager / Attempt` and the old sentence row. The
-   components used in the frames are current; the catalogue page lags.
-7. **Penpot's export service is unreliable** and got worse across these revisions. All 43
-   boards are verified structurally (size, no overflow, content density); roughly a third
-   have been rendered and looked at. The rest are verified by inspection.
-8. **The review screen (frame 22) asks a five-year-old to do editorial work.** Edit, split
-   and join are all there, but a child will tap "Start writing" and ignore them. That is
-   the right default — every row is already good enough to trace — but the screen is
-   really a grown-up surface wearing child clothes. Worth watching in testing.
+   updated since v2.1 — it still shows `Pager / Attempt`, the old sentence row and the
+   writing-so-far panel. The components used in the frames are current; the catalogue page
+   lags, and `Row / Sentence`, `Queue chip` and `Writing so far` should all be deleted from
+   the assets panel along with the items in §2.3.
+7. **Penpot's export service is unreliable** and got worse across these revisions, and it
+   serves stale renders — a board exported immediately after an edit sometimes comes back
+   as the previous version. Verify against the shape tree, not only the PNG. All boards are
+   verified structurally; the v2.4 Write and Results frames were also rendered and looked
+   at.
+8. **Frame 22 still asks a five-year-old to proofread.** It is now one field rather than a
+   list, which is much less work, but a child will tap "Start writing" and ignore it. That
+   is the right default — a misheard word is still traceable — but the screen is really a
+   grown-up surface wearing child clothes. Worth watching in testing.
+9. **Tap, pen and scroll now share the writing surface.** The wireframes cannot prove the
+   gesture separation works; only a device can. If tapping a graded line turns out to fire
+   during ordinary writing, the fallback is a explicit "fix a line" toolbar mode rather
+   than loosening the tap target.
+10. **The left-handed variant (frame 48) mirrors the toolbar and footer but not the text.**
+   Text stays left-aligned, which is correct for English; only the controls move away from
+   the writing hand.
 
 ---
 
 ## 7. Penpot API Notes For Whoever Scripts This File Next
+
+**A script that throws part-way still commits what it did.** `execute_code` is not
+transactional. A helper that built a board, appended children, and then hit an error left
+two orphaned boards and two empty text shapes sitting at the page root — invisible in the
+canvas, but they show up as page children and they survive a later `remove()` pass that
+only matches frame names. After any failed call, re-list `penpot.currentPage.root.children`
+and clean up before retrying.
+
+**Boards placed by a slot helper can land on top of each other.** Two frames were assigned
+the same grid slot and overlapped exactly; nothing warned. Check for duplicate `(x, y)`
+pairs across page children after any bulk placement.
+
+**Renaming does not follow content.** Shape names are set at creation, so a text shape whose
+`characters` you later edit keeps its old name (`Text · 91% · 2 sentences`). Search
+`characters`, never `name`, when auditing copy.
 
 1. **`penpot.group()` destroys imported SVG children** when grouped with any other shape
    type — renders blank while every property still reports correct values. Every composite
