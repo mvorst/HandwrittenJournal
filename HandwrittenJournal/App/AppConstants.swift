@@ -19,6 +19,10 @@ enum Tokens {
         static let inkInsideCB   = Color(hex: 0x007AFF)
         static let inkOutsideCB  = Color(hex: 0xFF9500)
 
+        /// The practice sheet's stroke-order path — purple, the one hue with no other
+        /// meaning in the app (green/red = ink, blue = action, orange = CB outside).
+        static let practicePath = Color(hex: 0xAF52DE)
+
         // 5.3 Guide layer
         static let guideText = Color(hex: 0x000000).opacity(0.80)
         /// Dictated words waiting to be written — cooler as well as lighter than the

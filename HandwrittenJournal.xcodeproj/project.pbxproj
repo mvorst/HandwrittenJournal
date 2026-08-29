@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,11 +12,13 @@
 		1606432C16081F214C748082 /* WritingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6511FA804CE4B985F4F5567 /* WritingSession.swift */; };
 		1A774BF381169FE23F7677F5 /* ProgressReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539559855DA545D4C9EF448B /* ProgressReportView.swift */; };
 		227E5247202726BD7CDA4CB2 /* LineStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */; };
+		25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA678BED1B99E37DA5D78365 /* PracticeView.swift */; };
 		392485F16B6177B12C3D33C1 /* FontSizePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */; };
 		3CADFE0FDF4D0D5D3BE657EC /* WritingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E40118E8CBE3D6A801D7C6 /* WritingSettings.swift */; };
 		3E6C59AE1B586776C434C004 /* WriteSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB39DFFE7B12D859C47064F /* WriteSessionView.swift */; };
 		3F75CA4CA2CC6541C38DC011 /* MaskRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */; };
 		4456A50056AC82A50B1A65B7 /* PageLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */; };
+		44CCE18F8EF830451A8C58C7 /* LetterFormations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FC8914863613ACF75C8F46 /* LetterFormations.swift */; };
 		45EA6883E082A63E5234D6C3 /* Sniglet-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */; };
 		5B8BF4C662D2BCB01B404035 /* StrokeEraser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */; };
 		606BE3939F3E4BAD2F9298F2 /* PDFBookBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932FCC7677040CEB62719752 /* PDFBookBuilder.swift */; };
@@ -31,6 +33,8 @@
 		8216FCB39BD51B0295C0AD31 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3033F0B636553128B47F4A /* AppConstants.swift */; };
 		84191D67968C7A843016FF81 /* SettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C88AFDA0126B8062E8265A /* SettingsViews.swift */; };
 		884A75A67585757E9D4AFE3E /* LevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */; };
+		8DE8F9234DC0953EC86E8539 /* FormationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA62A4FC0D722C71522254 /* FormationTests.swift */; };
+		8DE8F9234DC0953EC86E8540 /* DictationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA62A4FC0D722C71522255 /* DictationTests.swift */; };
 		A7DFD42C044E86217A7C9501 /* TracingCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */; };
 		AC82591A30AB1A1A61476F03 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556A107FFF646240E5A9E99 /* ExportView.swift */; };
 		B559FA1425DAEE503E2DF976 /* ArchiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83203735DA55F589A277AF90 /* ArchiveTests.swift */; };
@@ -43,6 +47,7 @@
 		C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */; };
 		C59E67BB86F195FAA5B274B5 /* TracingStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0C2B2EC71FF3BF52EB64DB /* TracingStroke.swift */; };
 		C6DCA43DCEF2EA65B713A198 /* AudioSlicer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD36CDAC298CDD793313BF66 /* AudioSlicer.swift */; };
+		CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF65435FDC814C776ACC456 /* PracticeCanvas.swift */; };
 		CC0392E6540B6B7A7A5348F1 /* PageRenderCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */; };
 		CCC557FF30FC7B4A9A912634 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD28F6BA541DAD897935A6B5 /* SpeechRecognitionService.swift */; };
 		D4AFB7C6D77C5CD4D931596B /* FontRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95491F9A2EF3940543FC21A8 /* FontRegistry.swift */; };
@@ -51,7 +56,6 @@
 		DDB5C8B17A767122950C2DB1 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA34850BB29742A4A5C0721F /* UserProfile.swift */; };
 		EAA76775C7B7AD5ADF80EDBC /* MaskRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317224CDD6345354B4506405 /* MaskRenderer.swift */; };
 		ED8DCFB404D2D028FDB651C8 /* ScoringEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750C9E16A516838BFA7898E6 /* ScoringEngine.swift */; };
-		EF7D282AB856761828E561AF /* JournalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234EEA2FD7FD61316D027951 /* JournalListView.swift */; };
 		F13A8D7D93E78C7B04B2B3B1 /* MaskDiagnosticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */; };
 		FBF4A7C3AEAD6A436EEC318A /* WriteSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD94206AE769E5F55B9D982 /* WriteSessionViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -73,15 +77,17 @@
 		15F239F77FF2512FC3A68268 /* Andika-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Andika-Bold.ttf"; sourceTree = "<group>"; };
 		1EB39DFFE7B12D859C47064F /* WriteSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteSessionView.swift; sourceTree = "<group>"; };
 		1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
-		234EEA2FD7FD61316D027951 /* JournalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalListView.swift; sourceTree = "<group>"; };
 		2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sniglet-ExtraBold.ttf"; sourceTree = "<group>"; };
 		317224CDD6345354B4506405 /* MaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskRenderer.swift; sourceTree = "<group>"; };
+		36FC8914863613ACF75C8F46 /* LetterFormations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterFormations.swift; sourceTree = "<group>"; };
 		376D4EEB2D8D809E08A27F93 /* LICENSES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSES.md; sourceTree = "<group>"; };
 		39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingSurface.swift; sourceTree = "<group>"; };
 		4547D52B725113BA1F2962C1 /* BadgeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngine.swift; sourceTree = "<group>"; };
 		47228A13921D57051339E56C /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
 		49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePickerView.swift; sourceTree = "<group>"; };
 		4A3033F0B636553128B47F4A /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		4CEA62A4FC0D722C71522254 /* FormationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationTests.swift; sourceTree = "<group>"; };
+		4CEA62A4FC0D722C71522255 /* DictationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationTests.swift; sourceTree = "<group>"; };
 		539559855DA545D4C9EF448B /* ProgressReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressReportView.swift; sourceTree = "<group>"; };
 		5909697354F2BA075B6E4371 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageLayoutTests.swift; sourceTree = "<group>"; };
@@ -96,12 +102,14 @@
 		83203735DA55F589A277AF90 /* ArchiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveTests.swift; sourceTree = "<group>"; };
 		841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeEraser.swift; sourceTree = "<group>"; };
 		8AC3DC1E3E58E0F1F4EB8077 /* Jua-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Jua-Regular.ttf"; sourceTree = "<group>"; };
+		8CF65435FDC814C776ACC456 /* PracticeCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeCanvas.swift; sourceTree = "<group>"; };
 		8FDEC48C96B648AECEE701DE /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		932FCC7677040CEB62719752 /* PDFBookBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFBookBuilder.swift; sourceTree = "<group>"; };
 		93955B0529C5D3E25C94DCC4 /* ProgressReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressReport.swift; sourceTree = "<group>"; };
 		95491F9A2EF3940543FC21A8 /* FontRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontRegistry.swift; sourceTree = "<group>"; };
 		98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskDiagnosticTests.swift; sourceTree = "<group>"; };
 		9996378CBCE5386BEFC9E0F4 /* VarelaRound-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "VarelaRound-Regular.ttf"; sourceTree = "<group>"; };
+		AA678BED1B99E37DA5D78365 /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		ACED7D009F8A919086DBC977 /* StrokeArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeArchive.swift; sourceTree = "<group>"; };
 		B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ComicNeue-Bold.ttf"; sourceTree = "<group>"; };
 		BBCA763945DCDBA5F4F37930 /* EntryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryDetailView.swift; sourceTree = "<group>"; };
@@ -162,6 +170,8 @@
 			isa = PBXGroup;
 			children = (
 				83203735DA55F589A277AF90 /* ArchiveTests.swift */,
+				4CEA62A4FC0D722C71522254 /* FormationTests.swift */,
+				4CEA62A4FC0D722C71522255 /* DictationTests.swift */,
 				7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */,
 				98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */,
 				7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */,
@@ -177,6 +187,7 @@
 			children = (
 				8FDEC48C96B648AECEE701DE /* DesignSystem.swift */,
 				D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */,
+				8CF65435FDC814C776ACC456 /* PracticeCanvas.swift */,
 				C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */,
 				39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */,
 			);
@@ -199,6 +210,7 @@
 				4547D52B725113BA1F2962C1 /* BadgeEngine.swift */,
 				95491F9A2EF3940543FC21A8 /* FontRegistry.swift */,
 				5909697354F2BA075B6E4371 /* HapticsService.swift */,
+				36FC8914863613ACF75C8F46 /* LetterFormations.swift */,
 				317224CDD6345354B4506405 /* MaskRenderer.swift */,
 				932FCC7677040CEB62719752 /* PDFBookBuilder.swift */,
 				750C9E16A516838BFA7898E6 /* ScoringEngine.swift */,
@@ -250,7 +262,7 @@
 				D556A107FFF646240E5A9E99 /* ExportView.swift */,
 				13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */,
 				14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */,
-				234EEA2FD7FD61316D027951 /* JournalListView.swift */,
+				AA678BED1B99E37DA5D78365 /* PracticeView.swift */,
 				1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */,
 				49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */,
 				539559855DA545D4C9EF448B /* ProgressReportView.swift */,
@@ -311,6 +323,7 @@
 				LastUpgradeCheck = 1430;
 			};
 			buildConfigurationList = 7A6D54D66103A7DBE1ACEAC7 /* Build configuration list for PBXProject "HandwrittenJournal" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -319,8 +332,6 @@
 			);
 			mainGroup = 7EC017424B3EC607B28AA081;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
-			productRefGroup = 0210CAB5BD3A64D4C0283AC9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -363,10 +374,12 @@
 				BC33664C09D44176C2766DAF /* HandwrittenJournalApp.swift in Sources */,
 				B7988DB6D05CB7264CB6370D /* HapticsService.swift in Sources */,
 				D87E5020369D6A0A6D4B3CC4 /* JournalHomeView.swift in Sources */,
-				EF7D282AB856761828E561AF /* JournalListView.swift in Sources */,
+				44CCE18F8EF830451A8C58C7 /* LetterFormations.swift in Sources */,
 				884A75A67585757E9D4AFE3E /* LevelMeter.swift in Sources */,
 				EAA76775C7B7AD5ADF80EDBC /* MaskRenderer.swift in Sources */,
 				606BE3939F3E4BAD2F9298F2 /* PDFBookBuilder.swift in Sources */,
+				CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */,
+				25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */,
 				C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */,
 				B8567A1D230BCBA81A66954D /* ProfilePickerView.swift in Sources */,
 				BCF37E40D06CAE7AE9945527 /* ProgressReport.swift in Sources */,
@@ -393,6 +406,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B559FA1425DAEE503E2DF976 /* ArchiveTests.swift in Sources */,
+				8DE8F9234DC0953EC86E8539 /* FormationTests.swift in Sources */,
+				8DE8F9234DC0953EC86E8540 /* DictationTests.swift in Sources */,
 				227E5247202726BD7CDA4CB2 /* LineStateTests.swift in Sources */,
 				F13A8D7D93E78C7B04B2B3B1 /* MaskDiagnosticTests.swift in Sources */,
 				3F75CA4CA2CC6541C38DC011 /* MaskRendererTests.swift in Sources */,

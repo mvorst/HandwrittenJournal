@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v2.5
+## Design Document v2.7
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,52 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.5 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.7 What Changed in v2.7
+
+**The practice sheet** — a letter-formation worksheet (§4.11), reached from *Practice my
+letters* on the main screen.
+
+1. All 52 letters as Aa–Zz pairs plus the digits 0–9, on the same ruled paper as the
+   journal, traced with the same green/red engine.
+2. **Touch a letter and it shows you how it is written**: each stroke draws itself in
+   order as a thin purple line with an arrowhead. When the demo ends the arrowheads
+   leave and the thin lines stay, solid, as an inner guide — no numbers, no clutter;
+   the animation itself carries the order.
+   Then it is the child's turn — trace it, and enough good ink flips the cell green.
+   Starting the next letter clears the last one.
+3. **Pure sandbox.** Nothing is saved or scored: no entries, no stars, no streak, no
+   badges. It exists to demonstrate how letters should be written.
+4. **Jua only.** The 62 stroke-order formations are hand-fitted to Jua's letterforms
+   (`LetterFormations.swift`); the other faces differ enough — bowls, hooks, tails —
+   that one set of paths cannot be honest for all five.
+
+---
+
+## 0.6 What Changed in v2.6
+
+The main screen is now **badges, then every entry, newest first** — and an entry is no
+longer a task with a state.
+
+1. **The resume card and every "Keep writing" are gone.** The home card, the "Still to
+   write" section, and the mid-session Results button. Unfinished work is not a mode the
+   app tracks and offers back; it is just a page with words still on it.
+2. **The separate journal list screen is deleted.** The main screen carries the whole
+   journal, so search and export moved to its toolbar. `JournalListView.swift` is removed.
+3. **Tapping an entry opens it to read; Edit carries on writing it.** The Typed ↔
+   Handwritten toggle stays exactly where it was — it is still the point of the app — and
+   Edit is now the primary button beneath it rather than a secondary one.
+4. **The "Your writing" settings card is gone** from the main screen. The gear reaches the
+   same settings.
+5. **The Handwritten reading now looks like the editor** — ruled paper and a faint guide
+   under the ink, instead of strokes on blank white (§4.7).
+
+What did *not* change is the model. `WritingSession.spokenBuffer` (said but not yet
+written) versus `transcript` (the record) is load-bearing for the write flow — a child
+dictates more than they write in one sitting by design, and §5.3 still holds. Only the UI
+that framed the leftover as unfinished business was removed.
 
 ---
 
@@ -255,50 +301,50 @@ Each opens its own picker with **live previews at the real size in the real face
 
 Delete Profile is destructive and marked "Grown-ups only". **It is not gated** — see §10.3.
 
-### 4.3 Journal Home
+### 4.3 Journal Home — the main screen
 
 ```
 ┌────────────────────────────────────┐
+│  [↑]              [🔍 Search    ]  │
 │  ╭──╮↻ Milo              [📈] [⚙]  │
 │  ╰──╯ 🔥 5-day streak              │
-│                                    │
-│  ┌──────────────────────────────┐  │
-│  │ YOUR WRITING                 │  │
-│  │ Jua · Large · Trace  Change ›│  │
-│  └──────────────────────────────┘  │
 │                                    │
 │        ┌──────────────────┐        │
 │        │  ✎  New Entry    │        │
 │        └──────────────────┘        │
 │                                    │
-│  Recent ─────────────  [See all ›] │
-│  ┌────┐ ┌────┐ ┌────┐              │
-│  │~~~~│ │~~~~│ │~~~~│              │
-│  │Mar4│ │Mar3│ │Mar1│              │
-│  │★★★+1│ │★★☆│ │★★★│              │
-│  └────┘ └────┘ └────┘              │
-│      ┌────┐ ┌────┐                 │
-│      │~~~~│ │~~~~│                 │
-│      └────┘ └────┘                 │
-│                                    │
 │  Badges ─────────────────────────  │
 │  [🏆][🎯][🔥][░][░][░][░][░]       │
+│                                    │
+│  My Journal ─────────────────────  │
+│  ┌────┬───────────────────────┬──┐ │
+│  │~~~~│ Aug 28 · 9:56 PM      │★★★│ │
+│  │~~~~│ "I saw a red bird…"   │  │ │
+│  │    │ 23 words · 94% · Jua  │  │ │
+│  └────┴───────────────────────┴──┘ │
+│  ┌────┬───────────────────────┬──┐ │
+│  │~~~~│ Aug 28 · 7:56 PM      │★★★│ │
+│  └────┴───────────────────────┴──┘ │
+│              … every entry …       │
 └────────────────────────────────────┘
 ```
 
-**When an entry is unfinished, a resume card takes the primary slot** — the next few
-unwritten words in quotes, a progress bar, *"32 of 48 words · said at 5:30 PM"*, and
-**Keep writing** as the primary action with *Start something new instead* below it. This is
-the single most important piece of the long-form design: without it, speaking for four
-minutes and writing a third of it feels like failing.
+**Badges first, then every entry, newest first.** There is no second journal screen: the
+main screen *is* the journal, so search and export live in its toolbar and the list is
+never truncated.
 
-The **"Your writing" card** replaces v1's level card. It states the three settings in
-plain words and opens Settings. It is informational, not a progress bar — nothing here is
-being filled up.
+**There is no resume card and no "Keep writing".** An entry is not a task with a state —
+it is a page you either open or don't. Tapping a row opens it to read (§4.7), and **Edit**
+there carries on writing it. A child who spoke more than they wrote finds those words
+waiting on the page when they open it again, which is the same outcome the resume card
+bought at the cost of a mode.
 
-Entry cards show the **handwriting thumbnail** of the top of the page, not typed text, and
-a `+N words` chip when the entry runs longer than the thumbnail can show. The journal
-should look like a journal at a glance.
+Rows show the **handwriting thumbnail**, not typed text — the journal should look like a
+journal at a glance. Metadata reads *"23 words · 94% · Jua Large"*, or *"23 words · not
+written yet"* when there is no tracing.
+
+There is no "Your writing" settings card. The gear reaches the same settings, and the main
+screen is for entries.
 
 ### 4.4 Writing an entry — one screen
 
@@ -329,6 +375,16 @@ minutes**. The words land on the page *as the child says them* — in the journa
 the ruled lines, in the pale spoken tier — so the page is the live transcript. While
 listening, the footer becomes a level meter, the elapsed time, and *I'm done talking*.
 **The audio is recorded and kept** (§10.4).
+
+**A pause ends an utterance, not the take.** `SFSpeechRecognizer` hands back one utterance
+at a time and numbers each from zero, so its latest hypothesis is only ever the *tail* of
+what has been said — and it ends its task at every silence. A take therefore keeps the
+finished utterances beside the live one and starts a fresh recognition task on the same
+audio each time one ends; the microphone, the recording and the five-minute clock run
+underneath, untouched. Taking the hypothesis as the transcript overwrote everything said
+before the first pause, and tearing the engine down on the first final result stopped the
+microphone mid-story while the page still showed it listening. A five-year-old telling a
+story stops for breath constantly, so a take that cannot survive a pause is not a take.
 
 At the five-minute cap recording stops itself and a warm banner slides over the page —
 *"That's a whole lot of story! I stopped listening so we can start writing."* The cap
@@ -451,29 +507,32 @@ matter. There is no per-sentence breakdown, because there are no sentences — a
 line scores would turn a journal entry back into a marked test.
 
 **The word count carries "how far", the percentage carries "how well" — and both describe
-only the record.** Stopped part-way, the subtitle reads *"You wrote 32 words today"*, the
-note reads *"16 words you said are still spoken — waiting on the page for next time"*, and
-the primary button becomes **Keep writing**. The accuracy is over written words only, which
-is no longer a special rule: unwritten words are not in the record at all (§8.1). None of
-this language treats stopping as a failure, because at five minutes of dictation it isn't
-one — the rest stays spoken, not unwritten.
+only the record.** Stopped part-way, the subtitle reads *"You wrote 32 words today"* and the
+note reads *"16 words you said are still spoken — waiting on the page for next time"*. The
+accuracy is over written words only, which is no longer a special rule: unwritten words are
+not in the record at all (§8.1). None of this language treats stopping as a failure, because
+at five minutes of dictation it isn't one — the rest stays spoken, not unwritten.
+
+**When words are still waiting the only way on is out** — *See My Journal*. "Say something
+new" would add to a pile the child has not finished, so it appears only once the page is
+fully written. Carrying on is done by reopening the entry and tapping **Edit** (§4.7).
 
 "Best yet with *font* at *size*" replaces v1's "Best yet at Level N". The comparison must
 be **setting-matched** or it is dishonest: 88% at Extra Large is not better than 84% at
 Small.
 
-### 4.6 Journal List
+### 4.6 Journal List — folded into the main screen
 
-Sectioned by month, newest first. **Each row is an entry**, showing a thumbnail of the
-handwriting, date and time, the opening words, and metadata reading *"48 words · 91% ·
-Jua Large"*.
+**There is no separate journal list screen.** It existed to hold the full history, month
+grouping, search and export while the main screen showed a five-entry carousel. The main
+screen now carries the whole journal (§4.3), so a second screen listing the same rows was
+one tap of pure ceremony.
 
-**Unfinished entries sit in a "Still to write" section at the top**, with a progress bar,
-the next few unwritten words quoted and a *Keep writing ›* button. There is no separate
-drafts concept: a draft is simply an entry with words left unwritten.
+Search moved to the main screen's toolbar and matches transcript text — what the child
+said, not how they wrote it. Export moved to the same toolbar (§4.8).
 
-Search matches transcript text. Calendar view shows a month grid with a dot on every day
-that has an entry. Filter by star rating, font or size.
+Month section headers are a future addition, wanted once a journal runs to a few hundred
+entries; they are not needed to browse a first year.
 
 ### 4.7 Entry Detail — the toggle
 
@@ -481,18 +540,38 @@ Still the heart of the app, showing the **whole entry as one page**:
 
 - **Typed** renders the entry on ruled paper in the profile's face — so the two states are
   visually comparable, not one plain and one pretty.
-- **Handwritten** renders the archived strokes on the same paper in **natural graphite**,
-  always. A journal should read like handwriting, not like a marked-up test.
+- **Handwritten** renders the page the way the editor showed it: **ruled paper, the words
+  faint underneath, and the child's strokes on top in natural graphite**. Not ink floating
+  on blank white — a child looking at their own writing should see what they were aiming at,
+  and a parent should be able to read a wobbly word by the guide beneath it. The guide uses
+  the *same* faintness constant the editor uses beneath finished ink, so the two cannot
+  drift apart.
+- **Alignment is by construction, not by agreement.** The rules, the guide and the ink are
+  drawn through one transform scaled from the width the page was captured at, so the
+  original line breaks and baselines are reproduced rather than recomputed. Laying the text
+  out at the review page's own width would re-wrap it and the words would slide out from
+  under the strokes that belong to them.
+- The replay is sized to the **text**, not to the captured canvas. The writing page keeps
+  ruling itself far below the last word so more can be dictated onto it; reproducing all of
+  that here would bury a three-line entry under a screen of empty paper.
 - Switching uses a horizontal 3-D flip (0.35 s), which reads to a child as "turning the
   page over". Reduce Motion replaces it with a cross-fade.
 - Below the page, **one stats row for the entry**: accuracy, stars, word count, and
   **"Hear what I said"** — the recording the child made when they dictated it. One entry has
   one recording, so there is nothing to slice and nothing to list.
 - **The page scrolls.** A long entry is never truncated.
-- **⋯ menu:** Write this again · Hear what I said · Share as PDF · Delete.
-- **Write This Again** replaces the stored tracing. The confirmation copy must say so:
-  *"This will replace what you wrote."* Inside a writing session the same thing is done per
-  line by tapping it (§4.4); from the journal it applies to the whole entry.
+- **⋯ menu:** Edit · Hear what I said · Write it all again · Share as PDF · Rename · Delete.
+- **Edit** is the primary button below the page, and it is how every entry is changed —
+  this screen is what a tap on the main screen opens, so Edit is one tap from the journal.
+  **It opens the page exactly as it stands** — the words, the record and the child's ink —
+  finished or not, with no warning, because nothing is being destroyed. A line is written
+  again by tapping it inside the session (§4.4), which is the only re-tracing a child ever
+  needs.
+- **Replacing the whole tracing is its own action**, *Write it all again* in the ⋯ menu,
+  and it says so first: *"This will replace what you wrote. The words stay the same."*
+  Making that the meaning of Edit — as v2.6 briefly did, keyed on `isComplete` — threw a
+  finished page away every time a child opened it to add one more line, and put the
+  per-line re-trace of §4.4 out of reach on exactly the entries most worth going back to.
 
 ### 4.8 Export
 
@@ -554,6 +633,64 @@ App-wide: iCloud sync (disabled, "Coming soon"), about, and two plain-language n
 saying PINs are a courtesy lock, one saying destructive actions are not gated.
 
 ---
+
+### 4.11 Practice sheet
+
+```
+┌────────────────────────────────────┐
+│ ‹ Back    Practice Letters   ↩  🗑 │
+│                                    │
+│  Aa Bb Cc Dd Ee                    │
+│  Ff G̶g̶ Hh Ii Jj Kk   ← one letter │
+│  Ll Mm Nn Oo Pp        highlighted,│
+│  Qq Rr Ss Tt Uu        thin purple │
+│  Vv Ww Xx Yy Zz        stroke lines│
+│  0 1 2 3 4 5 6 7 8 9               │
+│                                    │
+├────────────────────────────────────┤
+│ Your turn — trace big G!      94%  │
+└────────────────────────────────────┘
+```
+
+A worksheet, not a journal page. The full alphabet in capital–lowercase pairs plus the
+digits, ruled like the writing page, rendered in **Jua at a size the sheet computes for
+itself** — the largest type at which the widest row still fits the screen, so the letters
+fill the page edge to edge on any iPad.
+
+**The loop:** touch a letter → its formation demo plays — each stroke draws itself as a
+**thin purple line** (`practice-path`, the one hue with no other meaning in the app) at a
+followable pace, an arrowhead landing at each end. Stroke order is carried by the
+animation alone — no numbered badges cluttering the letter; a child who wants the order
+again taps the letter again. When the demo ends **the arrowheads leave and the thin lines
+stay, solid**, an inner guide running down the middle of each stroke, and the footer says
+*"Your turn."* The child's ink always renders **above** the guide — the guide is part of
+the paper, the ink is the pen.
+
+**The pencil is a pen, the finger is a pointer.** A pencil touch inks immediately, from
+the exact point it lands — no tap-slop dead zone, no scroll-view touch delay, and a
+pencil arriving after a resting palm takes the stroke over from it. A pencil tap on a
+*new* letter still plays the demo (landed, lifted, wrote nothing = a tap); on the
+already-selected letter it leaves a dot, which is how the dot of an i gets traced.
+Finger taps always play the demo; finger strokes buffer their first samples through the
+tap-detection phase so their ink also begins at first contact. The
+child traces with the live green/red ink of the writing page. Enough good ink — measured
+as **pen-travel inside the letter against the formation's own length**, so a fast
+confident trace earns the same credit as a slow careful one — flips the cell green with a
+success haptic: *"Nice G! Pick another letter."* Touching the next letter clears the
+last one; touching the same letter replays its demo. A pen that simply starts writing on
+another letter switches to it without the demo — they are already tracing.
+
+**Sandbox rules:** no persistence, no score kept, no streak or badge effect. Undo and
+clear live in the toolbar; live accuracy shows in the footer while ink is down.
+
+**Why Jua only:** the stroke-order guides are hand-authored per letterform
+(`LetterFormations.swift`, 62 characters × 1–4 strokes, in glyph-ink-box coordinates,
+fitted to the glyph's real outline via CoreText at render time and inset by half of
+Jua's stroke width, so the guide runs down the middle of the stroke rather than along
+its edge). Single- versus
+double-story letters and differing hooks make one data set dishonest across faces;
+locking the sheet to the default face keeps every arrow truthful. Reduce Motion skips
+the animation and shows the numbered guide immediately.
 
 ## 5. Data Model
 
@@ -662,15 +799,21 @@ var totalWords: Int               // record + buffer: what "of 48 words" means
 its words from `spokenBuffer` into `transcript`. Everything downstream — journal rows,
 search, Entry Detail's Typed page, exports, `totalWordsWritten`, badges — reads
 `transcript` and never the buffer. The buffer exists so a child who spoke for four minutes
-and wrote for six does not have to say it again tomorrow; it is scratch, not record, and
-the resume card is the only UI that quotes it.
+and wrote for six does not have to say it again tomorrow; it is scratch, not record. Since
+v2.6 no list or card quotes it — it is seen only on the page itself, when the entry is
+opened for editing.
 
 ### 5.4 There is no Draft entity either
 
-A draft is **an entry with spoken words still waiting**: `!spokenBuffer.isEmpty`. The
-journal's "Still to write" section lists exactly those, and the resume card offers the most
-recent one, quoting the next few words of the buffer. The entry's own record is complete
-whatever the buffer holds — a "draft" is unfinished *telling*, never unfinished record.
+A draft is **an entry with spoken words still waiting**: `!spokenBuffer.isEmpty`. The entry's
+own record is complete whatever the buffer holds — a "draft" is unfinished *telling*, never
+unfinished record.
+
+Since v2.6 this distinction has **no UI of its own**. Such an entry is an ordinary row in
+the journal whose metadata reads *"N words · not written yet"*; opening it and tapping Edit
+puts the waiting words back on the page. The flag still drives the Results copy (§4.5) and the
+entry-detail line that reads *"You finished the whole thing."* — it is a property of an
+entry, not a state the app asks the child to resolve, and it never gates Edit (§4.7).
 
 ### 5.5 Reproducing a tracing
 
@@ -1044,17 +1187,20 @@ HandwrittenJournal/
   App/            HandwrittenJournalApp, ContentView, NavigationState, AppConstants
   Models/         UserProfile, WritingSession, WritingSettings, TracingStroke
   Services/       MaskRenderer (per-glyph), StrokeColorizer, ScoringEngine, BadgeEngine,
+                  LetterFormations (stroke-order data, Jua-fitted),
                   StrokeArchive, StrokeEraser, SpeechRecognitionService,
                   AudioSlicer, AudioService, HapticsService, FontRegistry,
                   PDFBookBuilder
   ViewModels/     ProfileViewModel, SessionViewModel, DictationViewModel,
                   TracingViewModel, ProgressViewModel
   Views/          ProfilePickerView, ProfileEditorView, PinPadView, AvatarCaptureView,
-                  JournalHomeView, JournalListView, CalendarView, EntryDetailView,
+                  PracticeView (letter formation worksheet),
+                  JournalHomeView (badges + full journal), CalendarView, EntryDetailView,
                   ExportView, JournalBookExportView,
                   WriteSessionView (dictate → check → write),
                   ResultsView, ProgressView, SettingsView, FontPickerView, SizePickerView
-    Components/   TracingCanvas, TracingSurface (scrolling page), InkReplayView,
+    Components/   TracingCanvas, TracingSurface (scrolling page), PageReplayView,
+                  PracticeCanvas (worksheet + stroke-order demo overlay),
                   LevelMeter, WritingProgressBar, DesignSystem (buttons, avatars,
                   stars, rings, segmented control)
   Resources/      Fonts (Jua, Andika, Baloo2, Sniglet, ComicNeue), Assets
@@ -1155,5 +1301,5 @@ defer it.
 
 ---
 
-*Document version: 2.5*
-*Last updated: 2026-08-27*
+*Document version: 2.7*
+*Last updated: 2026-08-28*

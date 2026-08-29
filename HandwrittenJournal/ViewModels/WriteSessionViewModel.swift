@@ -337,14 +337,6 @@ final class WriteSessionViewModel {
         profile.earnedBadgeIDs.append(contentsOf: earned.map(\.id))
     }
 
-    /// Back to the page with the record's ink on it — the spoken remainder is waiting.
-    func keepWriting() {
-        lastResult = nil
-        newBadges = []
-        reloadFromSession()
-        stage = .writing
-    }
-
     /// More to say about the same day. The new words will join this page as spoken text.
     func sayMore() {
         lastResult = nil

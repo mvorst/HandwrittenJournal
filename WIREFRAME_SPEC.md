@@ -431,10 +431,8 @@ attempt history.
 
 | Component | Spec |
 |---|---|
-| `Card / Session` (home) | 200 × 240, `radius-card`, `paper-raised`, `shadow-card`. Thumbnail 200 × 140 filling the top with the top corners rounded; date `caption`; `Stars / Compact`. When the entry runs longer than the thumbnail can show, a `+N words` chip: 84 × 24, `radius-pill`, `paper-sunk`, `caption-sm` in `text-secondary`. |
-| `Row / Session` (list) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing, vertically centred. |
+| `Row / Session` (**the main screen's journal list**) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing, vertically centred. |
 | `Card / Entry stats` (entry detail) | Full content width × 96, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Compact`; word count `body-em` with a one-line note `caption` beneath; `speaker.wave.2.fill` 24 pt + "Hear what I said" `body-em` in `action` trailing. **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback. |
-| `Row / Unfinished` | A session the child stopped part-way. Same frame, 2 pt dashed `star-off` stroke instead of shadow. Thumbnail of what is written so far; date + time; *Next: "…"* showing the next few unwritten words; a progress bar with "32 of 48 words"; trailing `Button / Secondary` labelled "Keep writing ›". |
 | `Writing progress` | Full width of the footer. `paper-sunk` capsule track 8 pt tall, `action` fill to `wordsWritten / totalWords`, caption "15 of 48 words" beneath in `text-secondary`. Replaces the sentence queue. In the footer it is 190 pt wide, not full width — the accuracy hint sits to its left. |
 | `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
 | `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action`. Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. Drawn large — 176 pt — in the centre of an empty page (frame 20). |
@@ -755,15 +753,13 @@ somewhere other than where they would write it.
 
 | # | Frame | Notes |
 |---|---|---|
-| 9 | Journal Home — populated | "Your writing" card replaces the level card; 5 session cards |
-| 9 | Journal Home — unfinished entry waiting | The resume card takes the primary slot; "9 of 30 words" |
+| 9 | Journal Home — populated | **The main screen**: New Entry, then badges, then every entry newest first as `Row / Session`. No resume card, no "Your writing" card. |
 | 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey |
-| 11 | Journal List — populated | "Still to write" section (unfinished sessions) + two month sections |
-| 12 | Journal List — search active | Query "grandma", 2 results, keyboard up |
+| 12 | Journal Home — search active | Query "grandma", 2 results, keyboard up. Search lives in this screen's toolbar. |
 | 13 | Journal Calendar | March grid, dots on written days |
 | 14 | Entry Detail — Typed | A session page; toggle on "Typed" |
 | 15 | Entry Detail — Handwritten | Same page in `ink-natural`; one `Card / Entry stats` beneath |
-| 18 | Entry Detail — overflow menu open | Write again / Hear what I said / Share as PDF / Delete |
+| 18 | Entry Detail — overflow menu open | Edit / Hear what I said / Share as PDF / Rename / Delete |
 | 19 | Export preview — one entry | Scope selector, one PDF page, the entry as one continuous flow |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, size and options |
 
@@ -895,7 +891,7 @@ full text width, a 2 pt `action` outline around it, and a "Write this line again
 | "How it went" `body-em` + rule | 24 | 820 | — |
 | `Card / Entry stats` (§10.6) | 24 | 858 | 786 × 96 |
 | "Jua · Large · Trace" `caption` trailing | 24 | 976 | — |
-| `Button / Secondary` "Write This Again" | 137 | 1074 | 268 × 56 |
+| `Button / Primary` "Edit" | 137 | 1070 | 268 × 64 |
 | `Button / Secondary` "Share" | 429 | 1074 | 268 × 56 |
 
 Frames 14 and 15 must be **pixel-identical apart from the page surface contents and the
@@ -1014,7 +1010,7 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] New profile — no sessions, no streak, all badges grey (frame 10)
 - [ ] Wrong PIN (frame 4)
 - [ ] Profile with no photo — initial-letter avatar, distinct from the add tile (frame 1)
-- [ ] An entry stopped part-way — resume card on Home, "Still to write" row in the list
+- [ ] An entry stopped part-way — a normal row reading "N words · not written yet"; opening it and tapping Edit carries on
 - [ ] Recording stopped at the five-minute cap — banner over the page (frame 42)
 - [ ] The page with nothing said yet — empty rules, centre mic (frame 20)
 - [ ] Listening — words landing on the page live (frame 21)

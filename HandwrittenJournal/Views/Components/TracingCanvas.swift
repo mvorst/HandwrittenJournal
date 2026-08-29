@@ -289,6 +289,11 @@ final class TracingCanvasView: UIView {
     private func applyRestore() {
         guard let restored = pendingRestore else { return }
         pendingRestore = nil
+        // Re-attribution tests every point against the mask bitmap, and while dictating the
+        // mask is skipped because nobody can trace yet. Reopening a finished page and
+        // tapping the mic does both at once, so without this every restored point would
+        // read as outside its letter and the whole entry would score zero.
+        if !maskRenderer.hasBitmap { regenerate(layoutOnly: false) }
         strokes = restored
         current = nil
         selectedRow = nil

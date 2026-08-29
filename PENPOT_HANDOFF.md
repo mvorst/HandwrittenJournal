@@ -189,9 +189,12 @@ will do in a sitting. The design answer is not a shorter cap but making *stoppin
 
 - "Finish for now — 5 saved for later" on the reveal screen, on every sentence.
 - A "Sentence 3 of 8" queue chip so the child always knows where they are.
-- A **resume card** that takes the primary slot on Journal Home (frame 9 variant), and a
-  "Still to write" section at the top of the journal list.
 - No warning language anywhere. Stopping is not an abandon.
+
+**Superseded in v2.6.** This section originally called for a resume card on Journal Home and
+a "Still to write" section in the journal list. Both are gone: an entry is not a task with a
+state. An unfinished entry is an ordinary row reading *"N words · not written yet"*, and
+opening it and tapping **Edit** carries on. See `DESIGN_DOCUMENT.md` §0.6.
 
 **Frame 42 changed meaning.** It was "you hit the 200-character cap"; it is now "you talked
 for five minutes". The copy stays warm — *"That's a whole lot of story!"* — and it states
@@ -199,7 +202,8 @@ the workload honestly: *"112 words · about 20 minutes of writing."*
 
 **Drafts stopped existing as a thing.** An unfinished session *is* the draft, so
 `Row / Draft` became `Row / Unfinished` with a progress bar, and the `Draft` model is
-deleted from the design document.
+deleted from the design document. *(v2.6: `Row / Unfinished` is retired too — an unfinished
+entry is now an ordinary row.)*
 
 **Audio storage changed shape.** Recording a whole session rather than a sentence means a
 5-minute master at ~1.2 MB; daily for five years is over 2 GB. v2.2 sliced the master into

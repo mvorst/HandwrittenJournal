@@ -90,6 +90,9 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         alwaysBounceVertical = true
         showsVerticalScrollIndicator = true
         contentInsetAdjustmentBehavior = .never
+        // Same rule as the practice sheet: touches reach the canvas immediately, or a
+        // fast pen loses its stroke head to the scroll view's touch delay.
+        delaysContentTouches = false
         // The pencil never scrolls — a pen on the page is always ink, so only direct
         // touches (and trackpad pointers) can pan.
         panGestureRecognizer.allowedTouchTypes = [
@@ -221,40 +224,154 @@ final class TracingController {
 
 // MARK: - Replay
 
-/// Renders an archived tracing. Aspect-fit from the captured canvas so writing done on one
-/// device reads correctly on another — letterboxed, never stretched.
-struct InkReplayView: View {
+/// Renders a finished entry the way the editor showed it: ruled paper, the words the
+/// child traced faint underneath, and their ink on top.
+///
+/// **Everything is drawn through one transform taken from the captured page**, which is
+/// what keeps the guide under the ink. Laying the text out at the review page's own width
+/// would re-wrap it — different line breaks, different baselines — and the words would
+/// drift out from under the strokes that belong to them. So the context is scaled to the
+/// width the child actually wrote at and the original layout is reproduced, never
+/// recomputed.
+///
+/// Scaling is by width alone. A page is a vertical thing: it keeps its width and grows
+/// downwards, and the caller sizes the view to match.
+struct PageReplayView: UIViewRepresentable {
     let strokes: [TracingStroke]
-    let capturedSize: CGSize
+    /// The record — the words that have ink on them. Because a session's spoken remainder
+    /// is always appended after a hard break, laying out the record alone reproduces the
+    /// record's own lines exactly as they were written.
+    let text: String
+    /// Width of the canvas the strokes were captured on.
+    let capturedWidth: CGFloat
     var setup: WritingSetup = .default
+    var showGuideText = true
+    var showRules = true
     var accuracyColours = false
     var colourBlind = false
 
-    var body: some View {
-        Canvas { context, size in
-            guard capturedSize.width > 0, capturedSize.height > 0 else { return }
-            let scale = min(size.width / capturedSize.width, size.height / capturedSize.height)
-            let dx = (size.width - capturedSize.width * scale) / 2
-            let dy = (size.height - capturedSize.height * scale) / 2
-            let widthScale = setup.size.size / 72 * scale
+    func makeUIView(context: Context) -> ReplayPageView { ReplayPageView() }
+
+    func updateUIView(_ view: ReplayPageView, context: Context) {
+        view.strokes = strokes
+        view.text = text
+        view.capturedWidth = capturedWidth
+        view.setup = setup
+        view.showGuideText = showGuideText
+        view.showRules = showRules
+        view.accuracyColours = accuracyColours
+        view.colourBlind = colourBlind
+        view.setNeedsDisplay()
+    }
+
+    final class ReplayPageView: UIView {
+        var strokes: [TracingStroke] = []
+        var text = ""
+        var capturedWidth: CGFloat = 0
+        var setup = WritingSetup.default
+        var showGuideText = true
+        var showRules = true
+        var accuracyColours = false
+        var colourBlind = false
+
+        private let renderer = MaskRenderer()
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = UIColor(Tokens.Colour.paper)
+            contentMode = .redraw
+        }
+        required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+        override func draw(_ rect: CGRect) {
+            guard let ctx = UIGraphicsGetCurrentContext(),
+                  capturedWidth > 0, bounds.width > 0, bounds.height > 0 else { return }
+
+            let scale = bounds.width / capturedWidth
+            ctx.saveGState()
+            ctx.scaleBy(x: scale, y: scale)
+
+            // From here the context *is* the page as it was written.
+            let pageSize = CGSize(width: capturedWidth, height: bounds.height / scale)
+
+            if !text.isEmpty {
+                // layoutOnly: the mask bitmap is for scoring, and nothing is being scored.
+                renderer.generate(text: text, setup: setup, canvasSize: pageSize, layoutOnly: true)
+                if showRules { drawRules(in: ctx, pageSize: pageSize) }
+                if showGuideText {
+                    // The same faintness the editor uses beneath finished ink, from the
+                    // same constant, so the two readings cannot drift apart.
+                    renderer.drawGuide(in: ctx,
+                                       colour: UIColor(Tokens.Colour.guideText),
+                                       alphaForLine: { _ in TracingCanvasView.tracedGuideAlpha })
+                }
+            }
+
+            drawInk(in: ctx)
+            ctx.restoreGState()
+        }
+
+        /// Ruled like the writing page — dashed ascender and descender, solid baseline —
+        /// from the baselines CoreText actually produced, so the rules sit under the
+        /// letters by construction rather than by two calculations agreeing.
+        private func drawRules(in ctx: CGContext, pageSize: CGSize) {
+            let size = setup.size
+            let inset = Tokens.Layout.surfaceInset
+            let width = pageSize.width - inset * 2
+            guard width > 0 else { return }
+
+            ctx.setStrokeColor(UIColor(Tokens.Colour.ruleLine).cgColor)
+            ctx.setLineWidth(1)
+
+            let measured = renderer.layout.lineSpacing
+            let advance = measured > 1 ? measured : MaskRenderer.lineAdvance(for: setup)
+            var baseline = renderer.layout.baselines.first ?? (Tokens.Space.s7 + size.ascent)
+            var index = 0
+            while baseline + size.descent < pageSize.height {
+                if index < renderer.layout.baselines.count {
+                    baseline = renderer.layout.baselines[index]
+                }
+                ctx.setLineDash(phase: 0, lengths: [6, 4])
+                rule(ctx, y: baseline - size.ascent, x: inset, width: width)
+                rule(ctx, y: baseline + size.descent, x: inset, width: width)
+                ctx.setLineDash(phase: 0, lengths: [])
+                rule(ctx, y: baseline, x: inset, width: width)
+
+                index += 1
+                if index >= renderer.layout.baselines.count { baseline += advance }
+            }
+            ctx.setLineDash(phase: 0, lengths: [])
+        }
+
+        private func rule(_ ctx: CGContext, y: CGFloat, x: CGFloat, width: CGFloat) {
+            ctx.move(to: CGPoint(x: x, y: y.rounded() + 0.5))
+            ctx.addLine(to: CGPoint(x: x + width, y: y.rounded() + 0.5))
+            ctx.strokePath()
+        }
+
+        /// Graphite by default — a journal should read like handwriting, not like a
+        /// marked-up test. Widths match the editor's range exactly.
+        private func drawInk(in ctx: CGContext) {
+            ctx.setLineCap(.round)
+            ctx.setLineJoin(.round)
+            let s = setup.size.size / 72
+            let low = 1.5 * s, high = 5.0 * s
 
             for stroke in strokes where stroke.points.count > 1 {
                 for i in 1..<stroke.points.count {
                     let a = stroke.points[i - 1], b = stroke.points[i]
-                    var path = Path()
-                    path.move(to: CGPoint(x: a.location.x * scale + dx, y: a.location.y * scale + dy))
-                    path.addLine(to: CGPoint(x: b.location.x * scale + dx, y: b.location.y * scale + dy))
                     let force = (a.force + b.force) / 2
                     let colour: Color = accuracyColours
                         ? (b.isInside ? (colourBlind ? Tokens.Colour.inkInsideCB : Tokens.Colour.inkInside)
                                       : (colourBlind ? Tokens.Colour.inkOutsideCB : Tokens.Colour.inkOutside))
                         : Tokens.Colour.inkNatural
-                    context.stroke(path, with: .color(colour),
-                                   style: StrokeStyle(lineWidth: max(0.4, (1.5 + 3.5 * force) * widthScale),
-                                                      lineCap: .round, lineJoin: .round))
+                    ctx.setLineWidth(low + (high - low) * force)
+                    ctx.setStrokeColor(UIColor(colour).cgColor)
+                    ctx.move(to: a.location)
+                    ctx.addLine(to: b.location)
+                    ctx.strokePath()
                 }
             }
         }
-        .allowsHitTesting(false)
     }
 }

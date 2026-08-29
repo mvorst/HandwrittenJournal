@@ -1,5 +1,6 @@
 import Testing
 import UIKit
+import SwiftData
 @testable import HandwrittenJournal
 
 /// Drives the v2.6 page through its real lifecycle — select a row, ink it, watch it
@@ -259,5 +260,96 @@ struct PageRenderCheck {
         let characters = Array(view.text)
         let text = String(characters[word.range.lowerBound...word.range.upperBound])
         #expect(!text.isEmpty && !text.contains(" "))
+    }
+
+    // MARK: - Restoring
+
+    @Test("Restoring a page while the mic is live keeps the ink on its letters")
+    func restoreWhileDictating() {
+        // Reopening a finished page and tapping the mic does both at once: the archive is
+        // staged on a canvas that has not been laid out, and that first layout skips the
+        // mask because the child is dictating. Re-attribution reads the mask, so without
+        // it every point lands outside its letter and the entry scores zero at the next
+        // Done. The mic-idle restore is the reference.
+        let reference = makeCanvas(tracedRows: 2)
+        let expected = reference.tally
+        #expect(expected.liveAccuracy > 0.5, "the reference ink is inside its letters")
+
+        FontRegistry.registerBundledFonts()
+        let setup = WritingSetup.default
+        let view = TracingCanvasView(frame: .zero)
+        view.setup = setup
+        view.restore(reference.strokes)         // TracingSurface.makeUIView stages this first
+        view.text = Self.page
+        view.isDictating = true                 // updateUIView, before the first layout
+        view.frame = reference.frame
+        view.layoutIfNeeded()
+
+        #expect(view.strokes.count == reference.strokes.count, "the ink came back")
+        #expect(view.recordEnd == view.layout.endCharIndex(ofLine: 1), "and so did the record")
+        #expect(view.tally.liveAccuracy == expected.liveAccuracy,
+                "every restored point found its letter, and is still inside it")
+    }
+}
+
+/// The journal side of the same page: opening a finished entry to edit it must not throw
+/// away what the child wrote.
+@MainActor
+struct EntryEditingTests {
+
+    static let page = "Today we went to the park and I saw a big dog. The dog wanted to "
+        + "play with me and we threw a ball for it until it got tired."
+
+    private func makeContext() throws -> ModelContext {
+        let container = try ModelContainer(
+            for: UserProfile.self, WritingSession.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        return ModelContext(container)
+    }
+
+    /// An entry the child wrote all the way through — what `finishWriting` leaves behind.
+    private func finishedEntry(in context: ModelContext) throws -> (UserProfile, WritingSession) {
+        FontRegistry.registerBundledFonts()
+        let profile = UserProfile(name: "Milo")
+        context.insert(profile)
+        let session = WritingSession(setup: profile.setup, transcript: Self.page)
+        session.author = profile
+        session.canvasWidth = 834
+        session.canvasHeight = 900
+        session.strokeArchive = try StrokeArchive.encode(
+            DemoData.synthesise(text: Self.page, setup: profile.setup, accuracy: 0.9))
+        context.insert(session)
+        #expect(session.isComplete, "the whole telling is written")
+        return (profile, session)
+    }
+
+    @Test("Editing a finished entry opens it as it stands — the ink and the record survive")
+    func editKeepsTheTracing() throws {
+        let context = try makeContext()
+        let (profile, session) = try finishedEntry(in: context)
+        let archive = session.strokeArchive
+
+        // What the Edit button does: open the page, replacing nothing.
+        let model = WriteSessionViewModel(profile: profile, context: context,
+                                          resuming: session, startingOver: false)
+
+        #expect(!model.restoredStrokes.isEmpty, "the child's ink is put back on the page")
+        #expect(model.recordLength == Self.page.count, "the record is still the whole page")
+        #expect(session.transcript == Self.page)
+        #expect(session.strokeArchive == archive)
+    }
+
+    @Test("Write it all again is the one path that replaces the tracing")
+    func startOverReplacesTheTracing() throws {
+        let context = try makeContext()
+        let (profile, session) = try finishedEntry(in: context)
+
+        let model = WriteSessionViewModel(profile: profile, context: context,
+                                          resuming: session, startingOver: true)
+
+        #expect(model.restoredStrokes.isEmpty)
+        #expect(session.strokeArchive == nil)
+        #expect(session.transcript.isEmpty, "the whole entry went back to spoken")
+        #expect(session.spokenBuffer == Self.page, "and the words are unchanged")
     }
 }

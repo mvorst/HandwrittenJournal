@@ -466,6 +466,10 @@ final class MaskRenderer {
 
     // MARK: - Queries
 
+    /// Whether the scoring bitmap is present. `generate(layoutOnly:)` produces the layout
+    /// without it, and every ink query below reads false until it is put back.
+    var hasBitmap: Bool { !pixelData.isEmpty }
+
     func isLetterPixel(x: Int, y: Int) -> Bool {
         guard x >= 0, x < width, y >= 0, y < height else { return false }
         let index = y * width + x

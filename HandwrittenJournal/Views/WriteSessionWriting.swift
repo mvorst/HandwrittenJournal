@@ -282,14 +282,17 @@ extension WriteSessionView {
 
                 VStack(spacing: Tokens.Space.s3) {
                     if let result = model.lastResult, !result.finishedEverything {
-                        PrimaryButton(title: "Keep writing", systemImage: "pencil.line",
-                                      minWidth: 340, height: 72) { model.keepWriting() }
+                        // Words are still waiting on the page. Saying more would only add
+                        // to the pile, so the way on is out — the entry reopens for editing
+                        // from the journal.
+                        PrimaryButton(title: "See My Journal", systemImage: "book.closed",
+                                      minWidth: 340, height: 72) { dismissSession() }
                     } else {
                         // More about the same day joins this page as spoken text.
                         PrimaryButton(title: "Say something new", systemImage: "mic.fill",
                                       minWidth: 340, height: 72) { model.sayMore() }
+                        SecondaryButton(title: "See My Journal", minWidth: 300) { dismissSession() }
                     }
-                    SecondaryButton(title: "See My Journal", minWidth: 300) { dismissSession() }
                 }
                 .padding(.top, Tokens.Space.s7)
                 .padding(.bottom, Tokens.Space.s8)

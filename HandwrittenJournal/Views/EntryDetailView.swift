@@ -21,6 +21,7 @@ struct EntryDetailView: View {
     @State private var renaming = false
     @State private var draftTitle = ""
     @State private var writing = false
+    @State private var startingOver = false
     @State private var confirmStartOver = false
 
     private var setup: WritingSetup { session.setup }
@@ -41,7 +42,7 @@ struct EntryDetailView: View {
                 .padding(.top, Tokens.Space.s5)
 
             HStack(spacing: Tokens.Space.s4) {
-                SecondaryButton(title: writeAgainTitle, systemImage: "pencil.line", minWidth: 268) {
+                PrimaryButton(title: "Edit", systemImage: "pencil.line", minWidth: 268, height: 64) {
                     startWriting()
                 }
                 SecondaryButton(title: "Share", systemImage: "square.and.arrow.up", minWidth: 268) {
@@ -58,12 +59,17 @@ struct EntryDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button { startWriting() } label: {
-                        Label(writeAgainTitle, systemImage: "pencil.line")
+                        Label("Edit", systemImage: "pencil.line")
                     }
                     if let audio = session.audioData {
                         Button { player.play(audio, id: session.id) } label: {
                             Label(player.playingID == session.id ? "Stop" : "Hear what I said",
                                   systemImage: "speaker.wave.2.fill")
+                        }
+                    }
+                    if session.hasWriting {
+                        Button { confirmStartOver = true } label: {
+                            Label("Write it all again", systemImage: "arrow.counterclockwise")
                         }
                     }
                     Button { showExport = true } label: {
@@ -82,14 +88,14 @@ struct EntryDetailView: View {
         .sheet(isPresented: $showExport) {
             ExportView(profile: session.author, session: session).presentationDetents([.large])
         }
-        .fullScreenCover(isPresented: $writing) {
+        .fullScreenCover(isPresented: $writing, onDismiss: { Task { await loadStrokes() } }) {
             if let author = session.author {
                 WriteSessionView(profile: author, context: context,
-                                 resuming: session, startingOver: session.isComplete)
+                                 resuming: session, startingOver: startingOver)
             }
         }
         .confirmationDialog("Write this entry again?", isPresented: $confirmStartOver, titleVisibility: .visible) {
-            Button("Write it again", role: .destructive) { writing = true }
+            Button("Write it again", role: .destructive) { startOver() }
             Button("Keep what I wrote", role: .cancel) {}
         } message: {
             Text("This will replace what you wrote. The words stay the same.")
@@ -119,9 +125,10 @@ struct EntryDetailView: View {
                     GuidePreview(text: session.transcript, setup: setup, showRules: true, inset: Tokens.Space.s5)
                         .frame(height: typedHeight)
                 } else if !strokes.isEmpty {
-                    InkReplayView(strokes: strokes,
-                                  capturedSize: CGSize(width: session.canvasWidth, height: session.canvasHeight),
-                                  setup: setup)
+                    PageReplayView(strokes: strokes,
+                                   text: session.transcript,
+                                   capturedWidth: session.canvasWidth,
+                                   setup: setup)
                         .frame(height: replayHeight)
                 } else {
                     Text(session.transcript)
@@ -141,20 +148,35 @@ struct EntryDetailView: View {
         return max(200, MaskRenderer.contentHeight(text: session.transcript, setup: setup, width: width))
     }
 
+    /// The replay is scaled from the width the child wrote at, so its height follows that
+    /// same ratio. It is sized to the *text*, not to the captured canvas: the writing page
+    /// keeps ruling itself far below the last word so more can be dictated onto it, and
+    /// reproducing all of that here would bury a three-line entry under a screen of empty
+    /// paper.
     private var replayHeight: CGFloat {
         guard session.canvasWidth > 0 else { return 300 }
         let width = UIScreen.main.bounds.width - Tokens.Layout.screenMargin * 2
-        return max(200, session.canvasHeight * (width / session.canvasWidth))
+        let scale = width / session.canvasWidth
+        let textWidth = session.canvasWidth - Tokens.Layout.surfaceInset * 2
+        guard textWidth > 0 else { return max(200, session.canvasHeight * scale) }
+        let content = MaskRenderer.contentHeight(text: session.transcript, setup: setup, width: textWidth)
+        return max(200, min(content, session.canvasHeight) * scale)
     }
 
-    /// A finished entry is written *again* — that replaces the tracing, so it asks first.
-    /// An unfinished one is simply carried on with, which needs no warning at all.
-    private var writeAgainTitle: String {
-        session.isComplete ? "Write This Again" : "Keep Writing"
-    }
-
+    /// Edit opens the page exactly as it stands — the words, the record and the child's
+    /// ink — whether or not the entry is finished. Nothing is destroyed on the way in: a
+    /// line is written again by tapping it inside the session (§4.4), and replacing the
+    /// whole tracing is the separate, deliberate choice below.
     private func startWriting() {
-        if session.isComplete { confirmStartOver = true } else { writing = true }
+        startingOver = false
+        writing = true
+    }
+
+    /// §4.7 "Write this again": the words stay, the tracing is replaced. It asks first,
+    /// because it is the one action on this screen that throws writing away.
+    private func startOver() {
+        startingOver = true
+        writing = true
     }
 
     /// One row for the whole entry: accuracy, words, and the recording the child made when
