@@ -352,4 +352,49 @@ struct EntryEditingTests {
         #expect(session.transcript.isEmpty, "the whole entry went back to spoken")
         #expect(session.spokenBuffer == Self.page, "and the words are unchanged")
     }
+
+    @Test("A tracing captured at another width is not put back, and costs nothing")
+    func foreignArchiveIsRefused() throws {
+        let context = try makeContext()
+        let (profile, session) = try finishedEntry(in: context)
+        let archive = session.strokeArchive
+        FontRegistry.registerBundledFonts()
+
+        // The entry was written on a narrower page — another iPad, or a resized window.
+        // At this width the words wrap differently, so the same points sit over letters
+        // they were never drawn on.
+        session.canvasWidth = 754
+        let model = WriteSessionViewModel(profile: profile, context: context, resuming: session)
+
+        let width: CGFloat = 1032
+        let height = MaskRenderer.contentHeight(text: Self.page, setup: profile.setup,
+                                                width: width - Tokens.Layout.surfaceInset * 2)
+        let view = TracingCanvasView(frame: .zero)
+        view.setup = profile.setup
+        view.restore(model.restoredStrokes, capturedWidth: model.restoredWidth)
+        view.text = model.pageText
+        view.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        view.layoutIfNeeded()
+
+        #expect(view.strokes.isEmpty, "ink that cannot be put back honestly is not put back")
+        #expect(session.transcript == Self.page, "and the record it could not account for stands")
+        #expect(session.strokeArchive == archive, "the archive itself is untouched")
+    }
+
+    @Test("A restore that never lands cannot rewrite the record to nothing")
+    func afailedRestoreLeavesTheRecordAlone() throws {
+        let context = try makeContext()
+        let (profile, session) = try finishedEntry(in: context)
+        session.canvasWidth = 754
+        let model = WriteSessionViewModel(profile: profile, context: context, resuming: session)
+        #expect(model.recordLength == Self.page.count)
+
+        // What an empty canvas reports: no ink, so no record. The entry keeps its own.
+        model.controller.onRecordChange?(0)
+        #expect(session.transcript == Self.page, "the child's writing survived a failed restore")
+        #expect(model.recordLength == Self.page.count)
+
+        model.setAsideInk()
+        #expect(session.strokeArchive != nil, "and nothing overwrote the archive on the way out")
+    }
 }

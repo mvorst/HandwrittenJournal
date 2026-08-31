@@ -1,69 +1,77 @@
 import SwiftUI
 
-// MARK: - The page (the one screen of v2.5), and the results after it
+// MARK: - Edit mode: the writing surface, and the results after it
 
-extension WriteSessionView {
+extension EntryPageView {
 
     /// One continuous scrolling page carrying all three text tiers — written, in hand,
     /// spoken — with the mic in the footer and everything else layered over the page:
     /// the empty-page invitation, the listening bar, the cap banner, the word editor.
     var writingStage: some View {
-        VStack(spacing: 0) {
-            toolbar
+        ZStack {
+            VStack(spacing: 0) {
+                chrome { tools }
 
-            ZStack(alignment: .top) {
-                TracingSurface(text: model.pageText,
-                               setup: model.setup,
-                               showGuideLines: profile.guideLinesEnabled,
-                               showGuideText: true,
-                               colourBlind: profile.colorBlindMode,
-                               allowFinger: profile.allowFingerTracing,
-                               isEraserActive: model.isEraserActive,
-                               isDictating: model.mic == .listening,
-                               editingRange: model.editing?.range,
-                               startAtWord: model.startWord,
-                               restoring: model.restoredStrokes,
-                               controller: $model.controller)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                ZStack(alignment: .top) {
+                    TracingSurface(text: model.pageText,
+                                   setup: model.setup,
+                                   showGuideLines: profile.guideLinesEnabled,
+                                   showGuideText: true,
+                                   colourBlind: profile.colorBlindMode,
+                                   allowFinger: profile.allowFingerTracing,
+                                   isEraserActive: model.isEraserActive,
+                                   isDictating: model.mic == .listening,
+                                   editingRange: model.editing?.range ?? model.replacing,
+                                   startAtWord: model.startWord,
+                                   restoring: model.restoredStrokes,
+                                   restoredWidth: model.restoredWidth,
+                                   restoredRemediatedChars: model.restoredRemediated,
+                                   controller: $model.controller)
+                        // Replacing a tracing means a page with no ink on it, and the surface
+                        // restores its archive once, when it is made.
+                        .id(model.surface)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                if model.pageText.isEmpty && model.mic == .idle { invitation }
-                if model.mic == .capped { capBanner }
+                    if model.pageText.isEmpty && model.mic == .idle { invitation }
+                    if model.mic == .capped { capBanner }
+                }
+
+                if let editing = model.editing {
+                    wordEditor(editing)
+                } else if model.mic == .listening {
+                    listeningBar
+                } else {
+                    footer
+                }
             }
 
-            if let editing = model.editing {
-                wordEditor(editing)
-            } else if model.mic == .listening {
-                listeningBar
-            } else {
-                footer
+            // §8.1b — a word was finished with letters in the wrong order. The modal
+            // sits over everything, chrome included, and only tracing the letter
+            // correctly closes it.
+            if let help = model.formationHelp {
+                FormationHelpOverlay(help: help,
+                                     setup: model.setup,
+                                     allowFinger: profile.allowFingerTracing,
+                                     colourBlind: profile.colorBlindMode) {
+                    model.completeFormationHelp()
+                }
+                .id(help)
+                .transition(.opacity)
             }
         }
     }
 
-    private var toolbar: some View {
-        HStack {
-            TextButton(title: "I'm finished") { finishAndMaybeClose() }
-            Spacer()
-            Text(today).font(.hjHeadline).foregroundStyle(Tokens.Colour.textPrimary)
-            Spacer()
-            HStack(spacing: Tokens.Space.s2) {
-                ToolbarIconButton(systemImage: "eraser.fill",
-                                  enabled: model.controller.hasInk,
-                                  active: model.isEraserActive) { model.isEraserActive.toggle() }
-                ToolbarIconButton(systemImage: "arrow.uturn.backward",
-                                  enabled: model.controller.hasInk) { model.controller.undo() }
-                ToolbarIconButton(systemImage: "trash",
-                                  enabled: model.controller.hasInk) { model.controller.clear() }
-            }
+    private var tools: some View {
+        HStack(spacing: Tokens.Space.s2) {
+            ToolbarIconButton(systemImage: "eraser.fill",
+                              enabled: model.controller.hasInk,
+                              active: model.isEraserActive) { model.isEraserActive.toggle() }
+            ToolbarIconButton(systemImage: "arrow.uturn.backward",
+                              enabled: model.controller.hasInk) { model.controller.undo() }
+            ToolbarIconButton(systemImage: "trash",
+                              enabled: model.controller.hasInk) { model.controller.clear() }
+            entryMenu
         }
-        .padding(.horizontal, Tokens.Layout.screenMargin)
-        .frame(height: Tokens.Layout.toolbarHeight)
-        .overlay(alignment: .bottom) { Rectangle().fill(Tokens.Colour.divider).frame(height: 1) }
-    }
-
-    private func finishAndMaybeClose() {
-        model.isEraserActive = false
-        if model.pageText.isEmpty { dismissSession() } else { model.finishWriting() }
     }
 
     // MARK: - Overlays
@@ -151,7 +159,8 @@ extension WriteSessionView {
 
                 PrimaryButton(title: "Done", systemImage: "checkmark", minWidth: 200, height: 64,
                               enabled: !model.pageText.isEmpty) {
-                    finishAndMaybeClose()
+                    model.isEraserActive = false
+                    if model.pageText.isEmpty { dismissSession() } else { model.finishWriting() }
                 }
             }
             .padding(.horizontal, Tokens.Layout.screenMargin)
@@ -164,7 +173,9 @@ extension WriteSessionView {
     private var listeningBar: some View {
         VStack(spacing: Tokens.Space.s2) {
             Rectangle().fill(Tokens.Colour.divider).frame(height: 1)
-            Text("Nothing goes in your journal until you write it.")
+            Text(model.replacing == nil
+                 ? "Nothing goes in your journal until you write it."
+                 : "Say it again — the new words take the old ones' place.")
                 .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                 .padding(.top, Tokens.Space.s1)
             HStack(alignment: .center, spacing: Tokens.Space.s5) {
@@ -186,13 +197,16 @@ extension WriteSessionView {
         }
     }
 
-    /// §11.13 — fixing a spoken word in place. The word sits boxed on the page above;
-    /// the keyboard rises under this bar.
+    /// §11.13 — fixing spoken words in place. A finger tap picks one word and a finger
+    /// drag picks a run of them; the pencil is never involved, because the pencil writes.
+    /// The words sit boxed on the page above and there are two ways to change them: type
+    /// over them, or say them again.
     private func wordEditor(_ editing: WriteSessionViewModel.EditingWord) -> some View {
         VStack(spacing: 0) {
             Rectangle().fill(Tokens.Colour.divider).frame(height: 1)
             HStack(spacing: Tokens.Space.s4) {
-                Text("Fix the word:").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
+                Text(editing.isRun ? "Fix these words:" : "Fix the word:")
+                    .font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                 TextField("Word", text: Binding(
                     get: { model.editing?.draft ?? editing.draft },
                     set: { model.editing?.draft = $0 }
@@ -205,9 +219,12 @@ extension WriteSessionView {
                 .frame(maxWidth: 320)
                 .focusedOnAppear()
                 .onSubmit { model.commitEdit() }
-                PrimaryButton(title: "Fix it", systemImage: "checkmark", minWidth: 160, height: 56,
+                PrimaryButton(title: "Fix it", systemImage: "checkmark", minWidth: 150, height: 56,
                               enabled: !(model.editing?.draft.isEmpty ?? true)) {
                     model.commitEdit()
+                }
+                SecondaryButton(title: "Say it again", systemImage: "mic.fill", minWidth: 190) {
+                    model.speakOverSelection()
                 }
                 TextButton(title: "Never mind") { model.cancelEdit() }
                 Spacer()
@@ -223,7 +240,11 @@ extension WriteSessionView {
         if model.isEraserActive { return "Rub out a letter to fix it — nothing else is lost" }
         if model.controller.hasSelection { return "Write over the dark letters" }
         if model.pageText.isEmpty { return "Tap the mic and tell me about your day" }
-        if model.hasSpokenText { return "Tap a line to write it" }
+        if model.hasSpokenText {
+            return profile.allowFingerTracing
+                ? "Write with your pencil — hold a word to fix it"
+                : "Write with your pencil — touch a word to fix it, drag for more"
+        }
         return "Tap the mic to say more — or a line to fix it"
     }
 
@@ -281,18 +302,17 @@ extension WriteSessionView {
                 }
 
                 VStack(spacing: Tokens.Space.s3) {
-                    if let result = model.lastResult, !result.finishedEverything {
-                        // Words are still waiting on the page. Saying more would only add
-                        // to the pile, so the way on is out — the entry reopens for editing
-                        // from the journal.
-                        PrimaryButton(title: "See My Journal", systemImage: "book.closed",
-                                      minWidth: 340, height: 72) { dismissSession() }
-                    } else {
+                    // Now that reading and writing are one screen, the way on from the
+                    // results is back to the page itself — as the entry, to look at.
+                    PrimaryButton(title: "See my page", systemImage: "book.closed",
+                                  minWidth: 340, height: 72) { finishedLooking() }
+                    if let result = model.lastResult, result.finishedEverything {
                         // More about the same day joins this page as spoken text.
-                        PrimaryButton(title: "Say something new", systemImage: "mic.fill",
-                                      minWidth: 340, height: 72) { model.sayMore() }
-                        SecondaryButton(title: "See My Journal", minWidth: 300) { dismissSession() }
+                        SecondaryButton(title: "Say something new", systemImage: "mic.fill", minWidth: 300) {
+                            model.sayMore()
+                        }
                     }
+                    SecondaryButton(title: "See My Journal", minWidth: 300) { dismissSession() }
                 }
                 .padding(.top, Tokens.Space.s7)
                 .padding(.bottom, Tokens.Space.s8)
@@ -327,18 +347,4 @@ extension WriteSessionView {
             }
         }
     }
-}
-
-/// Focuses a text field the moment it appears — the word editor exists to be typed into.
-private struct FocusOnAppear: ViewModifier {
-    @FocusState private var focused: Bool
-    func body(content: Content) -> some View {
-        content
-            .focused($focused)
-            .onAppear { focused = true }
-    }
-}
-
-extension View {
-    func focusedOnAppear() -> some View { modifier(FocusOnAppear()) }
 }

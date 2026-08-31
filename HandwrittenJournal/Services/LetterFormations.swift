@@ -246,6 +246,16 @@ final class FormationFitter {
         return box.rect.insetBy(dx: box.rect.width * 0.12, dy: box.rect.height * 0.2)
     }
 
+    /// Where formations land: the glyph's ink bounds pulled in by half of Jua's stroke
+    /// width, so the taught path runs down the **middle** of the letter's stroke instead
+    /// of hugging its outline. Formations describe the pen's path, not the letter's edge.
+    func formationRect(for box: MaskRenderer.GlyphBox) -> CGRect {
+        let inset = font.pointSize * 0.075
+        let rect = inkRect(for: box)
+        // Never collapse a thin glyph (l, i, 1) — cap the inset at a third of each side.
+        return rect.insetBy(dx: min(inset, rect.width / 3), dy: min(inset, rect.height / 3))
+    }
+
     /// Outline bounds relative to the pen position, y-up (CoreText's space).
     private func pathBounds(for character: Character) -> CGRect? {
         if let cached = cache[character] { return cached }

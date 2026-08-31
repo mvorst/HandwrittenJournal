@@ -30,11 +30,22 @@ final class WriteSessionViewModel {
         case capped
     }
 
-    /// A spoken word under the fix-a-word gesture (§11.13).
+    /// The spoken words under the fix-a-word gesture (§11.13) — one word from a tap, a run
+    /// of them from a drag.
     struct EditingWord: Equatable {
         let range: ClosedRange<Int>
         let original: String
         var draft: String
+
+        var isRun: Bool { original.contains(" ") }
+    }
+
+    /// §8.1b — the remediation modal: the finished word with its wrong-order letters,
+    /// and the one letter (picked at random) the child must trace correctly to go on.
+    struct FormationHelp: Hashable {
+        let wordText: String
+        let wrongOffsets: Set<Int>
+        let picked: FormationHelpRequest.Letter
     }
 
     var stage: Stage = .writing
@@ -43,6 +54,10 @@ final class WriteSessionViewModel {
     var editing: EditingWord?
     var lastResult: ScoreResult?
     var newBadges: [BadgeDefinition] = []
+    /// The remediation modal on screen, if any. Set only from the canvas's help
+    /// request; cleared only by `completeFormationHelp` — there is no other way out.
+    private(set) var formationHelp: FormationHelp?
+    private var helpQueue: [FormationHelpRequest] = []
 
     let speech = SpeechRecognitionService()
     var controller = TracingController()
@@ -55,8 +70,30 @@ final class WriteSessionViewModel {
     /// The record's ink, put back when the page reopens — without it the next Done would
     /// record an empty page over the child's work.
     private(set) var restoredStrokes: [TracingStroke] = []
+    /// The canvas width that ink was drawn at, so the page can tell whether it is able to
+    /// put it back at all.
+    private(set) var restoredWidth: CGFloat = 0
+    /// Letters remediated in earlier sittings (§8.1b), by character position — the
+    /// surface keeps their order discount lifted when the ink comes back.
+    private(set) var restoredRemediated: [Int] = []
+
+    /// How much record the page opened with, and whether the ink has accounted for it yet.
+    ///
+    /// **The record is derived from ink, so a restore that does not land looks exactly like
+    /// a child who erased everything.** Until the page has re-derived at least what it
+    /// opened with, a shorter answer is the restore failing, not the child changing their
+    /// mind, and it must not be written to the entry.
+    private var recordFloor = 0
+    private var inkAccountedFor = true
     /// Where the page opens: the first unwritten word.
     private(set) var startWord = 0
+    /// Bumped when the page has to be rebuilt from nothing. The writing surface restores
+    /// its archive once, when it is made, so replacing a tracing means making a new one.
+    private(set) var surface = 0
+
+    /// A span the next dictation replaces instead of appending to the page. Set by
+    /// *Say it again*: the child picks words and speaks over them (§11.13).
+    private(set) var replacing: ClosedRange<Int>?
 
     private(set) var session: WritingSession?
     private let profile: UserProfile
@@ -68,26 +105,87 @@ final class WriteSessionViewModel {
         self.context = context
         self.session = session
         if let session {
-            if startingOver {
-                // §4.7 "Write This Again": the words stay, the tracing is replaced. The
-                // whole entry returns to spoken and the record regrows as they write.
-                let everything = session.pageText
-                session.setPage(record: "", buffer: everything)
-                session.strokeArchive = nil
-                session.thumbnailData = nil
-            }
-            basePageText = session.pageText
-            recordLength = session.transcript.count
-            startWord = session.wordsWritten
-            restoredStrokes = Self.decode(session.strokeArchive)
+            if startingOver { Self.clearTracing(of: session) }
+            adopt(session)
         }
         wireController()
+    }
+
+    /// Everything the page needs from the entry it is opening.
+    private func adopt(_ session: WritingSession) {
+        basePageText = session.pageText
+        recordLength = session.transcript.count
+        startWord = session.wordsWritten
+        restoredStrokes = Self.decode(session.strokeArchive)
+        restoredWidth = session.canvasWidth
+        restoredRemediated = session.remediatedCharIndices
+        recordFloor = session.transcript.count
+        inkAccountedFor = restoredStrokes.isEmpty
+    }
+
+    /// §4.7 "Write This Again": the words stay, the tracing is replaced. The whole entry
+    /// returns to spoken and the record regrows as the child writes it.
+    private static func clearTracing(of session: WritingSession) {
+        let everything = session.pageText
+        session.setPage(record: "", buffer: everything)
+        session.strokeArchive = nil
+        session.thumbnailData = nil
+        // Remediations excuse ink that no longer exists (§8.1b).
+        session.remediatedCharIndices = []
+    }
+
+    /// The same thing, asked for from the page the child is already looking at.
+    func writeItAllAgain() {
+        guard let session else { return }
+        Self.clearTracing(of: session)
+        editing = nil
+        replacing = nil
+        lastResult = nil
+        newBadges = []
+        formationHelp = nil
+        helpQueue = []
+        reloadFromSession()
+        surface += 1
+        stage = .writing
     }
 
     private func wireController() {
         controller.onRecordChange = { [weak self] newLength in self?.recordChanged(newLength) }
         controller.onSelectRow = { [weak self] _ in self?.rowSelected() }
         controller.onEditWord = { [weak self] range, word in self?.wordHeld(range, word) }
+        controller.onFormationHelp = { [weak self] request in self?.formationHelpNeeded(request) }
+    }
+
+    // MARK: - Formation help (§8.1b)
+
+    /// A word was finished with letters drawn in the wrong order. One modal at a time;
+    /// a stroke that finishes two such words queues the second behind the first.
+    private func formationHelpNeeded(_ request: FormationHelpRequest) {
+        helpQueue.append(request)
+        presentNextFormationHelp()
+    }
+
+    private func presentNextFormationHelp() {
+        guard formationHelp == nil, !helpQueue.isEmpty else { return }
+        let request = helpQueue.removeFirst()
+        // More than one wrong letter: one of them, at random, is the lesson.
+        guard let picked = request.letters.randomElement() else { return }
+        formationHelp = FormationHelp(wordText: request.wordText,
+                                      wrongOffsets: request.wrongOffsets,
+                                      picked: picked)
+        Haptics.tap()
+    }
+
+    /// The child traced the letter correctly. Its order discount is lifted — for good,
+    /// on this entry — and the score re-derives. The other wrong letters in the word
+    /// keep their discount; the lesson was the picked letter.
+    func completeFormationHelp() {
+        guard let help = formationHelp else { return }
+        controller.markRemediated(letter: help.picked.glyph)
+        session?.remediatedCharIndices.append(help.picked.charIndex)
+        formationHelp = nil
+        Haptics.success()
+        presentNextFormationHelp()
     }
 
     private static func decode(_ archive: Data?) -> [TracingStroke] {
@@ -105,6 +203,9 @@ final class WriteSessionViewModel {
         guard mic == .listening else { return basePageText }
         let live = Self.tidy(speech.transcript)
         guard !live.isEmpty else { return basePageText }
+        // Speaking over a selection lands the words where the old ones were, so the child
+        // watches the fix happen in place rather than at the foot of the page.
+        if let range = replacing { return substituting(range, with: live) ?? basePageText }
         return basePageText.isEmpty ? live : basePageText + "\n" + live
     }
 
@@ -160,7 +261,13 @@ final class WriteSessionViewModel {
         guard mic == .listening else { return }
         speech.stop()
         mic = speech.didReachCap ? .capped : .idle
-        appendDictation(Self.tidy(speech.transcript))
+        let heard = Self.tidy(speech.transcript)
+        if let range = replacing {
+            replacing = nil
+            substitute(range, with: heard)
+        } else {
+            appendDictation(heard)
+        }
         attachAudio()
         Haptics.tap()
     }
@@ -220,6 +327,13 @@ final class WriteSessionViewModel {
 
     /// The unbroken run of fully-traced rows grew or shrank — the record follows the ink.
     private func recordChanged(_ newLength: Int) {
+        if !inkAccountedFor {
+            // The restored ink has not come back yet — on this page it may never, if it was
+            // drawn at a width that lays these words out differently. Either way the entry
+            // keeps the record it already had.
+            guard newLength >= recordFloor else { return }
+            inkAccountedFor = true
+        }
         recordLength = min(newLength, basePageText.count)
         persist()
         // The record's ink is worth keeping every time it changes, not only at Done.
@@ -248,19 +362,47 @@ final class WriteSessionViewModel {
         let replacement = editing.draft
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacing(#/\s+/#, with: " ")
-        guard !replacement.isEmpty, replacement != editing.original else { return }
-        let characters = Array(basePageText)
-        guard editing.range.lowerBound >= recordLength,
-              editing.range.upperBound < characters.count else { return }
-        var out = characters
-        out.replaceSubrange(editing.range.lowerBound...editing.range.upperBound,
-                            with: Array(replacement))
-        basePageText = String(out)
-        persist()
-        Haptics.tap()
+        guard replacement != editing.original else { return }
+        substitute(editing.range, with: replacement)
     }
 
-    func cancelEdit() { editing = nil }
+    /// *Say it again* — the mic aimed at the words the child picked. What they say next
+    /// takes the place of what they picked, rather than joining the end of the page.
+    func speakOverSelection() {
+        guard let editing, mic == .idle else { return }
+        self.editing = nil
+        replacing = editing.range
+        micTapped()
+        // The mic may have gone to the explainer or the unavailable page instead. The
+        // target survives either way, because the child comes back to the same words.
+    }
+
+    func cancelEdit() {
+        editing = nil
+        replacing = nil
+    }
+
+    /// Puts `text` where `range` was. Refuses anything that would move written words: the
+    /// record is the child's hand, and it never reflows under their ink.
+    @discardableResult
+    private func substitute(_ range: ClosedRange<Int>, with text: String) -> Bool {
+        let replacement = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !replacement.isEmpty, let out = substituting(range, with: replacement) else { return false }
+        basePageText = out
+        persist()
+        Haptics.tap()
+        return true
+    }
+
+    /// The page as it would read with `range` replaced, or nil if the span is not one the
+    /// child is allowed to change.
+    private func substituting(_ range: ClosedRange<Int>, with text: String) -> String? {
+        let characters = Array(basePageText)
+        guard range.lowerBound >= recordLength, range.upperBound < characters.count else { return nil }
+        var out = characters
+        out.replaceSubrange(range, with: Array(text))
+        return String(out)
+    }
 
     /// Splits the page at the record boundary and writes both sides to the session.
     private func persist() {
@@ -346,13 +488,31 @@ final class WriteSessionViewModel {
         micTapped()
     }
 
+    /// Leaving the writing surface — switching to reading, or the page closing. The
+    /// surface is rebuilt from the archive next time, so the archive has to be current
+    /// first, and the captured width has to match it or the reading page cannot lay the
+    /// guide back under the ink (§4.7).
+    func setAsideInk() {
+        guard let session, controller.strokeCount > 0, inkAccountedFor else { return }
+        if let archive = controller.archive() { session.strokeArchive = archive }
+        if let thumbnail = controller.thumbnail() { session.thumbnailData = thumbnail }
+        let canvas = controller.canvasSize
+        if canvas.width > 0 {
+            session.canvasWidth = canvas.width
+            session.canvasHeight = canvas.height
+        }
+        restoredStrokes = Self.decode(session.strokeArchive)
+        restoredWidth = session.canvasWidth
+        startWord = session.wordsWritten
+    }
+
     private func reloadFromSession() {
         guard let session else { return }
-        basePageText = session.pageText
-        recordLength = session.transcript.count
-        startWord = session.wordsWritten
-        restoredStrokes = Self.decode(session.strokeArchive)
+        adopt(session)
     }
+
+    /// The entry was deleted out from under the page.
+    func forgetSession() { session = nil }
 
     /// An entry with nothing in it should not clutter the journal.
     func discardIfEmpty() {

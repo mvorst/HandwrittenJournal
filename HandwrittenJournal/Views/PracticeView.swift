@@ -60,7 +60,11 @@ struct PracticeView: View {
         case .idle:                 return "Touch a letter to see how it's written"
         case .watching(let char):   return "Watch how you write \(display(char))…"
         case .yourTurn(let char):   return "Your turn — trace \(display(char))!"
-        case .traced(let char):     return "Nice \(display(char))! Pick another letter."
+        case .traced(let char):
+            // §8.1a — traced, but not the way the arrows showed: nudge, don't scold.
+            return controller.followedOrder
+                ? "Nice \(display(char))! Pick another letter."
+                : "Good \(display(char))! Try the strokes in the arrow order."
         }
     }
 

@@ -1,6 +1,28 @@
 import SwiftUI
 import UIKit
 
+/// §8.1b — a word was finished with letters drawn in the wrong order, and the child
+/// should be shown how those letters are written before carrying on.
+struct FormationHelpRequest: Hashable {
+    struct Letter: Hashable {
+        /// Index into the layout's glyph boxes — what `markRemediated` takes.
+        let glyph: Int
+        /// Index into the page text — what survives an entry being closed and reopened.
+        let charIndex: Int
+        /// Position within `wordText`, for the red highlight.
+        let offset: Int
+        let character: Character
+    }
+
+    let word: Int
+    /// The word as the page shows it, punctuation included.
+    let wordText: String
+    /// Every letter of the word that took the order discount, in reading order.
+    let letters: [Letter]
+
+    var wrongOffsets: Set<Int> { Set(letters.map(\.offset)) }
+}
+
 /// The writing surface — one continuous scrolling page, and the whole write flow.
 /// WIREFRAME_SPEC.md §11 (v2.6).
 ///
@@ -48,8 +70,10 @@ final class TracingCanvasView: UIView {
             setNeedsDisplay()
         }
     }
-    /// The character range of a spoken word being fixed — drawn as an action box.
-    var editingRange: ClosedRange<Int>? { didSet { setNeedsDisplay() } }
+    /// The character range of the spoken words being fixed — drawn as an action box. Set
+    /// by the view model once a selection lands; `dragRange` is what the finger is drawing
+    /// out right now, so the box never blinks between the two.
+    var editingRange: ClosedRange<Int>? { didSet { dragRange = nil; setNeedsDisplay() } }
 
     var onProgress: ((_ liveAccuracy: Double, _ wordsWritten: Int, _ hasInk: Bool) -> Void)?
     /// Fires when the layout changes so the scroll view can resize its content.
@@ -62,18 +86,37 @@ final class TracingCanvasView: UIView {
     var onSelectRow: ((Int) -> Void)?
     /// An untraced word was held for fixing: its character range and current text.
     var onEditWord: ((ClosedRange<Int>, String) -> Void)?
+    /// §8.1b — a word was just finished with letters drawn in the wrong order. Fired at
+    /// pen-up, once per word; the view model presents the remediation modal.
+    var onFormationHelpNeeded: ((FormationHelpRequest) -> Void)?
 
     // MARK: - State
 
     private(set) var strokes: [TracingStroke] = []
     private(set) var tally = ScoringEngine.Tally(letterCount: 0)
     private let maskRenderer = MaskRenderer()
+    /// §8.1a — judges each letter's ink against its taught formation. nil for every
+    /// face the formations are not fitted to, where no order discount applies.
+    private var orderJudge: FormationOrderJudge?
+    private var judgeSetup: WritingSetup?
+
+    // §8.1b — remediation. A letter the child has re-traced correctly in the help modal
+    // is forgiven its order discount for the life of the entry; a word prompts for help
+    // at most once per sitting; and words already complete when a page is restored never
+    // prompt — only a word finished under the child's own pen does.
+    private var remediatedLetters: Set<Int> = []
+    private var pendingRemediatedChars: [Int]?
+    private var promptedWords: Set<Int> = []
+    private var knownCompletedWords: Set<Int> = []
+    private var suppressHelpPrompts = false
     private var current: TracingStroke?
     private var committedImage: UIImage?
     private var eraserCentre: CGPoint?
     private var builtForSize: CGSize = .zero
     private var builtForText = ""
     private var pendingRestore: [TracingStroke]?
+    /// The canvas width the pending archive was drawn at, or 0 when it is not known.
+    private var restoreWidth: CGFloat = 0
 
     /// Glyph index -> row, so a stroke point can be coloured without a lookup per segment.
     private var lineOfGlyph: [Int] = []
@@ -97,6 +140,16 @@ final class TracingCanvasView: UIView {
         let canDraw: Bool
     }
     private var pendingTap: PendingTap?
+
+    /// The word the finger came down on, and the run it has been dragged over. Held here
+    /// rather than round-tripped through the view model so the highlight tracks the finger
+    /// frame by frame.
+    private var dragAnchor: ClosedRange<Int>?
+    private(set) var dragRange: ClosedRange<Int>?
+
+    /// The scroll view asks this before it cancels our touches: a selection in progress is
+    /// not a scroll that has not started yet.
+    var isSelectingText: Bool { dragAnchor != nil }
 
     /// A settled row keeps this much of the guide — enough to read as letterforms under
     /// the ink, faint enough that the ink is unmistakably the text now.
@@ -174,6 +227,9 @@ final class TracingCanvasView: UIView {
             current = nil
             selectedRow = nil
             settling = [:]
+            remediatedLetters = []
+            promptedWords = []
+            knownCompletedWords = []
             stopSettleLink()
         }
         if let row = selectedRow, (maskRenderer.layout.scorableByLine[row] ?? []).isEmpty {
@@ -191,6 +247,12 @@ final class TracingCanvasView: UIView {
         maskRenderer.generate(text: text, setup: setup, canvasSize: bounds.size,
                               screenScale: scale, layoutOnly: layoutOnly)
         lineOfGlyph = maskRenderer.layout.glyphBoxes.map(\.lineIndex)
+        // The judge survives re-layouts — its caches self-invalidate per glyph — but a
+        // setup change means a new face or size, and a fresh fit.
+        if judgeSetup != setup {
+            judgeSetup = setup
+            orderJudge = FormationOrderJudge(setup: setup)
+        }
     }
 
     private func clearForEmptyText() {
@@ -281,14 +343,28 @@ final class TracingCanvasView: UIView {
 
     /// Puts an archived tracing back on the page. The record re-derives from the ink, so
     /// a restored page reports the same boundary it was saved with.
-    func restore(_ archived: [TracingStroke]) {
+    ///
+    /// `capturedWidth` is the width the strokes were drawn at; pass 0 when it is not known.
+    func restore(_ archived: [TracingStroke], capturedWidth: CGFloat = 0) {
         pendingRestore = archived
+        restoreWidth = capturedWidth
         if !maskRenderer.layout.glyphBoxes.isEmpty { applyRestore(); retally() }
+    }
+
+    /// **An archive only means anything at the width it was captured at.** Greedy word wrap
+    /// puts different words on different lines at a different width, so the same points
+    /// land on letters they were never drawn over: the tracing reads as scribble, the
+    /// record re-derives as empty, and the child's writing is rewritten by ink that is not
+    /// theirs. Showing the page without the ink is the honest failure — the archive is
+    /// untouched, and the reading page still draws it correctly at its own width (§4.7).
+    private func canRestore() -> Bool {
+        restoreWidth <= 0 || abs(restoreWidth - bounds.width) < 0.5
     }
 
     private func applyRestore() {
         guard let restored = pendingRestore else { return }
         pendingRestore = nil
+        guard canRestore() else { return }
         // Re-attribution tests every point against the mask bitmap, and while dictating the
         // mask is skipped because nobody can trace yet. Reopening a finished page and
         // tapping the mic does both at once, so without this every restored point would
@@ -298,6 +374,8 @@ final class TracingCanvasView: UIView {
         current = nil
         selectedRow = nil
         settling = [:]
+        // Restored words are already written — they never prompt for help (§8.1b).
+        suppressHelpPrompts = true
         reattribute()
     }
 
@@ -386,6 +464,22 @@ final class TracingCanvasView: UIView {
         allowFinger || touch.type == .pencil
     }
 
+    /// **The pencil writes and the finger picks words.** That split is what lets a tap mean
+    /// one thing on a page that is both a text to fix and a surface to write on.
+    ///
+    /// Finger tracing gives the finger the job of writing instead — one finger cannot mean
+    /// two things — so there, picking words falls back to a hold.
+    private func selectsText(_ touch: UITouch) -> Bool {
+        touch.type != .pencil && !allowFinger
+    }
+
+    /// The word under a point, if its text can still be changed: spoken, on a row with no
+    /// ink, and with no inked row below it (§11.13).
+    private func editableWord(at point: CGPoint) -> (word: Int, range: ClosedRange<Int>, rect: CGRect)? {
+        guard let row = maskRenderer.layout.lineIndex(at: point), wordIsEditable(onRow: row) else { return nil }
+        return maskRenderer.layout.word(at: point)
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let point = touch.location(in: self)
@@ -404,9 +498,18 @@ final class TracingCanvasView: UIView {
             return
         }
 
+        // The finger picks words to fix: tap for one, drag for a run of them.
+        if selectsText(touch), let word = editableWord(at: point) {
+            dragAnchor = word.range
+            dragRange = word.range
+            Haptics.tap()
+            setNeedsDisplay()
+            return
+        }
+
         // Anywhere else: a tap selects the row it lands on — any row, any time. A pen
-        // that starts moving becomes ink on that row; a held finger opens a word for
-        // fixing.
+        // that starts moving becomes ink on that row; with finger tracing on, a held
+        // finger opens a word for fixing.
         guard let row = maskRenderer.layout.lineIndex(at: point),
               !(maskRenderer.layout.scorableByLine[row] ?? []).isEmpty else { return }
         pendingTap = PendingTap(row: row, start: point, began: CACurrentMediaTime(),
@@ -416,6 +519,18 @@ final class TracingCanvasView: UIView {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let point = touch.location(in: self)
+
+        // Dragging out a run of words. Anything the drag cannot reach — written text, the
+        // row in hand, the gaps between lines — simply leaves the run where it was.
+        if let anchor = dragAnchor {
+            if let word = editableWord(at: point) {
+                let low = min(anchor.lowerBound, word.range.lowerBound)
+                let high = max(anchor.upperBound, word.range.upperBound)
+                dragRange = low...high
+                setNeedsDisplay()
+            }
+            return
+        }
 
         if let pending = pendingTap {
             if hypot(point.x - pending.start.x, point.y - pending.start.y) > Self.tapSlop {
@@ -438,6 +553,11 @@ final class TracingCanvasView: UIView {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if dragAnchor != nil {
+            dragAnchor = nil
+            if let range = dragRange { onEditWord?(range, wordText(range)) }
+            return
+        }
         if let pending = pendingTap {
             pendingTap = nil
             // A held touch on an editable word opens it for fixing; a tap selects.
@@ -457,6 +577,8 @@ final class TracingCanvasView: UIView {
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         pendingTap = nil
+        dragAnchor = nil
+        dragRange = nil
         endStroke()
     }
 
@@ -537,6 +659,7 @@ final class TracingCanvasView: UIView {
 
     private func retally() {
         let boxes = maskRenderer.layout.glyphBoxes
+        adoptPendingRemediations(boxes: boxes)
         var fresh = ScoringEngine.Tally(wordOfLetter: boxes.map(\.wordIndex),
                                         scorable: boxes.map(\.isScorable),
                                         totalWords: maskRenderer.layout.wordCount)
@@ -545,11 +668,98 @@ final class TracingCanvasView: UIView {
                 fresh.record(letter: point.letterIndex, isInside: point.isInside)
             }
         }
+        applyFormationOrder(to: &fresh, boxes: boxes)
         tally = fresh
+        detectFormationHelp(boxes: boxes)
         recomputeRecord()
         redrawCommitted()
         reportProgress()
         setNeedsDisplay()
+    }
+
+    /// §8.1a — letters whose ink clearly took the wrong path (parts out of the taught
+    /// order, or against their taught direction) take the order discount. The judge
+    /// caches per-letter verdicts, so only letters whose ink changed are re-judged.
+    /// A letter the child remediated in the help modal (§8.1b) is not re-docked.
+    private func applyFormationOrder(to tally: inout ScoringEngine.Tally,
+                                     boxes: [MaskRenderer.GlyphBox]) {
+        guard let judge = orderJudge else { return }
+        for (letter, penPaths) in FormationOrderJudge.penPathsByLetter(in: strokes) {
+            guard boxes.indices.contains(letter), boxes[letter].isScorable,
+                  !remediatedLetters.contains(letter) else { continue }
+            let signature = FormationOrderJudge.signature(of: penPaths, box: boxes[letter])
+            if judge.followedFormation(penPaths: penPaths, glyph: letter,
+                                       box: boxes[letter], signature: signature) == false {
+                tally.markOrder(letter: letter, followed: false)
+            }
+        }
+    }
+
+    // MARK: - Formation help (§8.1b)
+
+    /// Fires the help request when a word crosses into fully-inked with letters that
+    /// took the order discount. The transition is what fires it — a word completed by
+    /// the child's own pen, never one that arrived complete from a restored archive —
+    /// and each word asks at most once per sitting.
+    private func detectFormationHelp(boxes: [MaskRenderer.GlyphBox]) {
+        guard orderJudge != nil else { return }
+        var glyphsOfWord: [Int: [Int]] = [:]
+        for (i, box) in boxes.enumerated() where box.isScorable {
+            glyphsOfWord[box.wordIndex, default: []].append(i)
+        }
+        let completed = Set(glyphsOfWord.filter { _, glyphs in
+            glyphs.allSatisfy { tally.hasInk(letter: $0) }
+        }.keys)
+        let newly = completed.subtracting(knownCompletedWords)
+        knownCompletedWords = completed
+        if suppressHelpPrompts { suppressHelpPrompts = false; return }
+
+        for word in newly.sorted() where !promptedWords.contains(word) {
+            guard let glyphs = glyphsOfWord[word] else { continue }
+            let letters = glyphs.enumerated().compactMap { offset, glyph -> FormationHelpRequest.Letter? in
+                guard !tally.followedOrder[glyph] else { return nil }
+                return FormationHelpRequest.Letter(glyph: glyph,
+                                                   charIndex: boxes[glyph].charIndex,
+                                                   offset: offset,
+                                                   character: boxes[glyph].character)
+            }
+            guard !letters.isEmpty else { continue }
+            promptedWords.insert(word)
+            let text = String(glyphs.map { boxes[$0].character })
+            onFormationHelpNeeded?(FormationHelpRequest(word: word, wordText: text, letters: letters))
+        }
+    }
+
+    /// The child traced this letter correctly in the help modal — its order discount is
+    /// lifted for the life of the entry, and the tally re-derives without it.
+    func markRemediated(letter: Int) {
+        remediatedLetters.insert(letter)
+        retally()
+    }
+
+    /// Remediations carried on the session, put back when the page reopens. Applied
+    /// once the layout exists, by character position — glyph indices are not stable
+    /// across sittings, character positions of the record are.
+    func restoreRemediated(charIndices: [Int]) {
+        guard !charIndices.isEmpty else { return }
+        pendingRemediatedChars = (pendingRemediatedChars ?? []) + charIndices
+        if !maskRenderer.layout.glyphBoxes.isEmpty { retally() }
+    }
+
+    private func adoptPendingRemediations(boxes: [MaskRenderer.GlyphBox]) {
+        guard let chars = pendingRemediatedChars, !boxes.isEmpty else { return }
+        pendingRemediatedChars = nil
+        let wanted = Set(chars)
+        for (i, box) in boxes.enumerated() where wanted.contains(box.charIndex) {
+            remediatedLetters.insert(i)
+        }
+    }
+
+    /// Where a glyph sits in the page text — what the session stores for a remediation.
+    func charIndex(ofGlyph glyph: Int) -> Int? {
+        let boxes = maskRenderer.layout.glyphBoxes
+        guard boxes.indices.contains(glyph) else { return nil }
+        return boxes[glyph].charIndex
     }
 
     /// The record is the unbroken run of fully-traced rows from the top of the page —
@@ -706,7 +916,7 @@ final class TracingCanvasView: UIView {
             draw(strokes: [live], in: ctx) { _ in palette }
         }
 
-        if let range = editingRange { drawEditingBox(range, in: ctx) }
+        if let range = dragRange ?? editingRange { drawEditingBox(range, in: ctx) }
         if isDictating { drawCaret(in: ctx) }
 
         if isEraserActive, let centre = eraserCentre {

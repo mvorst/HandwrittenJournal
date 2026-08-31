@@ -40,6 +40,10 @@ final class WritingSession {
     var letterAccuracies: [Double] = []
     var wordsWritten: Int = 0
     var totalWords: Int = 0
+    /// §8.1b — letters the child remediated in the help modal, by character position in
+    /// `pageText`. Their order discount stays lifted when the page reopens; replacing
+    /// the tracing clears them along with the ink they excused.
+    var remediatedCharIndices: [Int] = []
 
     var canvasWidth: Double = 0
     var canvasHeight: Double = 0

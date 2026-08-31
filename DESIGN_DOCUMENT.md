@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v2.7
+## Design Document v2.9
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,50 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.5 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.9 What Changed in v2.9
+
+**The remediation modal** — finishing a word with wrong-order letters now teaches the
+letter on the spot (§8.1b).
+
+1. The moment a word's last letter is inked and the pen lifts, if any of its letters
+   took the order discount, a modal covers the page: the word at the top with those
+   letters in red, and below it one of them — picked at random — taught with the
+   practice sheet's own demo-then-trace loop.
+2. **The only way out is through.** There is no close control. Tracing the letter
+   correctly — taught order, taught directions, every stroke covered — reveals the
+   button that closes it. A wrong attempt wipes the ink and replays the arrows; *Watch
+   again* replays them on request.
+3. **Success corrects that letter, and that letter only.** Its discount is lifted for
+   the life of the entry (recorded on the session by character position, so reopening
+   the entry keeps it); the word's other red letters keep theirs, and the modal does
+   not return for them — one lesson per word.
+4. A word prompts at most once per sitting, and only when finished under the child's
+   own pen: pages restored from an archive never prompt for words already written.
+
+---
+
+## 0.8 What Changed in v2.8
+
+**The order discount** — accuracy now measures *how* a letter was drawn, not only where
+the ink landed (§8.1a).
+
+1. A letter whose ink clearly took its parts out of the taught order, or drew a part
+   against its taught direction, keeps **80% of its score**. The taught order is the one
+   the practice sheet demonstrates (`LetterFormations.swift`): for an *a*, the circle
+   first starting at the top, then the right-hand line, also from the top.
+2. **Judged leniently, docked only when clear.** Pen lifts don't matter — an *a* drawn
+   in one motion that still goes circle-then-line passes. Go-overs are ignored. Ink that
+   barely lies along the formation is not judged at all; the inside/outside score
+   already speaks for it.
+3. **Jua only.** The formations are hand-fitted to Jua (§4.11), so the app only grades
+   an order it has actually demonstrated. The other four faces score exactly as before,
+   and Progress already compares per-setting.
+4. The practice sheet's live % takes the same discount — the sheet teaches the rule the
+   journal grades — and its footer says so when a traced letter ignored the arrows.
+   Characters with no formation (punctuation) are never docked.
 
 ---
 
@@ -413,8 +457,17 @@ taken in hand, because a record assembled line by line must stay contiguous. Let
 skipped on a line the child chose to finish score zero (§8.1) — finishing is a choice, not
 a certificate.
 
-**Fixing a misheard word** happens in place: tap a spoken word, it opens under a small
-action-coloured box, the keyboard rises, done. Spoken text is the only editable tier — the
+**Fixing misheard words happens in place, and the pencil and the finger do different
+jobs.** The pencil writes — putting it down on a row takes that row in hand and inks it.
+The finger picks text: a tap selects a word, and a drag runs the selection across as many
+as the child wants. That split is what lets a tap mean one thing on a page that is both a
+text to fix and a surface to write on. (Finger tracing gives the finger the job of writing
+instead, so there picking words falls back to a hold — one finger cannot mean two things.)
+
+Selected words can be changed two ways: **type over them**, or **say them again** — the mic
+aimed at the selection, so what the child says next takes the place of what they picked
+rather than joining the end of the page. The new words land where the old ones were as they
+are spoken. Spoken text is the only editable tier — the
 in-hand line's guide must not move under the pen, and written lines are the record. There
 is no bulk proofread step; the child fixes what they notice while the words are still
 words, and a mistake they never notice is caught the moment it becomes awkward to trace.
@@ -536,6 +589,22 @@ entries; they are not needed to browse a first year.
 
 ### 4.7 Entry Detail — the toggle
 
+**Reading an entry and writing it are one screen in two modes.** They used to be two
+screens with a modal between them, which made *look at what I wrote* and *write some more*
+feel like different places to be — and made every trip between them a chance to lose
+something. Now:
+
+| Mode | The page is | Opens this way |
+|---|---|---|
+| **Edit** | the writing surface: mic, ink, tools | a new entry, straight after the telling |
+| **View** | the entry as it reads, with its stats | an entry reopened from the journal |
+
+**The pencil changes mode by itself.** Putting the pen on a page you were reading *is* the
+ask to write on it, so the page hands over without the child finding a button first; the
+View/Edit switch in the toolbar is there for fingers. Nothing is destroyed on the way
+between them — it is one session and one canvas archive, and the ink is set aside on the
+way out of Edit so the surface can be rebuilt from it.
+
 Still the heart of the app, showing the **whole entry as one page**:
 
 - **Typed** renders the entry on ruled paper in the profile's face — so the two states are
@@ -561,12 +630,17 @@ Still the heart of the app, showing the **whole entry as one page**:
   one recording, so there is nothing to slice and nothing to list.
 - **The page scrolls.** A long entry is never truncated.
 - **⋯ menu:** Edit · Hear what I said · Write it all again · Share as PDF · Rename · Delete.
-- **Edit** is the primary button below the page, and it is how every entry is changed —
-  this screen is what a tap on the main screen opens, so Edit is one tap from the journal.
-  **It opens the page exactly as it stands** — the words, the record and the child's ink —
-  finished or not, with no warning, because nothing is being destroyed. A line is written
-  again by tapping it inside the session (§4.4), which is the only re-tracing a child ever
+- **Edit** opens the page exactly as it stands — the words, the record and the child's
+  ink — finished or not, with no warning, because nothing is being destroyed. A line is
+  written again by tapping it in Edit (§4.4), which is the only re-tracing a child ever
   needs.
+- **A tracing is only put back at the width it was captured at.** Greedy word wrap puts
+  different words on different lines at a different width, so the same points would land on
+  letters they were never drawn over: the tracing would read as scribble and the record,
+  being derived from ink, would re-derive as empty and overwrite what the child actually
+  wrote. Edit therefore shows such a page without its ink — honest, and reversible, because
+  the archive is untouched and View still draws it correctly at its own width. **The record
+  never shrinks below what the page opened with until the ink has accounted for it.**
 - **Replacing the whole tracing is its own action**, *Write it all again* in the ⋯ menu,
   and it says so first: *"This will replace what you wrote. The words stay the same."*
   Making that the meaning of Edit — as v2.6 briefly did, keyed on `isComplete` — threw a
@@ -681,7 +755,10 @@ last one; touching the same letter replays its demo. A pen that simply starts wr
 another letter switches to it without the demo — they are already tracing.
 
 **Sandbox rules:** no persistence, no score kept, no streak or badge effect. Undo and
-clear live in the toolbar; live accuracy shows in the footer while ink is down.
+clear live in the toolbar; live accuracy shows in the footer while ink is down. The
+footer % takes the order discount (§8.1a) exactly as the journal does — the sheet
+teaches the rule the journal grades — and when a traced letter ignored the arrows the
+"Nice G!" line becomes a nudge: *"Good G! Try the strokes in the arrow order."*
 
 **Why Jua only:** the stroke-order guides are hand-authored per letterform
 (`LetterFormations.swift`, 62 characters × 1–4 strokes, in glyph-ink-box coordinates,
@@ -1016,6 +1093,102 @@ they did.
 The end of the session states the outcome plainly: *"You wrote the whole thing"*, or
 *"2 letters were skipped"*, or how many words are still waiting.
 
+### 8.1a The order discount
+
+Accuracy also cares *how* the letter was drawn. Each inked letter is judged against its
+taught formation — the stroke order and per-stroke direction the practice sheet
+demonstrates (§4.11) — and a letter that clearly took the wrong path keeps only **80%**
+of its score:
+
+```
+letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
+                    × 0.8 if the ink did not follow the formation
+```
+
+The discount is per letter, so one backwards *a* on a forty-letter page costs half a
+percent, and a page of backwards letters costs the full twenty. It flows through
+everything derived from letter accuracy — the live figure, the final figure, stars,
+points — and the finish message names it the way it names skipped letters.
+
+**What counts as wrong.** The letter's parts must be *first traced* in the taught
+sequence (circle before line for an *a*), each part in its taught direction (top-down;
+a loop like *o* must also begin near its taught start). Everything else is forgiven by
+design:
+
+- **Pen lifts don't matter.** An *a* drawn in one motion that still goes
+  circle-then-line, each the right way, passes. The demo's stroke count is a teaching
+  device, not a rubric.
+- **Go-overs don't matter.** Only the first genuine visit to each part is judged;
+  darkening a finished part is not a fault.
+- **Unjudgeable ink passes.** Ink that barely lies along the formation is given the
+  benefit of the doubt — the inside/outside score already speaks for wild ink, and a
+  20% dock must never stack onto a letter the child plainly struggled with for a
+  different reason.
+- **No formation, no judgment.** Punctuation has no taught order and is never docked.
+
+**Jua only.** The formations are hand-fitted to Jua and the practice sheet demonstrates
+them in Jua (§4.11), so only Jua entries take the discount — the app does not grade an
+order it has never shown. The other faces score as §8.1 alone. If per-face formations
+are ever authored, the gate (`FormationOrderJudge.honestFaceID`) is where the decision
+lives.
+
+The judgment runs at pen-up, never mid-stroke, and re-runs when ink changes — undo,
+eraser, clear, or a restored archive (stroke order is chronological in the archive by
+construction, so an old entry re-scores identically).
+
+### 8.1b The remediation modal
+
+The discount is a nudge; the modal is the lesson. **When a word's last letter gets ink
+and the pen lifts**, if any of its letters took the order discount, a modal covers the
+whole page — chrome included:
+
+```
+┌──────────────────────────────────┐
+│       Let's practice little a!   │
+│                                  │
+│            d o g s               │  ← the word in the journal face;
+│            ▔red▔                 │    wrong-order letters in red
+│  The red letters were written in │
+│  a different order. Watch how    │
+│  little a is written…            │
+│  ┌────────────────────────────┐  │
+│  │      (the letter, big,     │  │  ← the practice sheet's own
+│  │   arrows play, then trace) │  │    demo → trace loop, one letter
+│  └────────────────────────────┘  │
+│          ↻ Watch again           │  ← after success, this becomes
+│                                  │    [ ✓ I did it — keep writing ]
+└──────────────────────────────────┘
+```
+
+- **One lesson, picked at random.** More than one red letter: one of them, at random,
+  is taught. The others stay red — their discount stands.
+- **The only way out is through.** No close control exists until the letter is traced
+  correctly, which here means the full bar: taught order, taught directions, every
+  stroke of the formation covered, and the practice sheet's good-ink threshold. A
+  wrong-order attempt wipes itself **at the pen-up that condemned it** and replays the
+  arrows — the verdict is sticky (first visits cannot be unmade by more ink), so a
+  deferred wipe would leave doomed ink on the sheet for the child's correct retrace to
+  merge into, and the retrace could then never complete. The reset is the canvas's own,
+  synchronous act; the modal only says *"Almost!"* over it. (This is the one deliberate
+  exception to "the app never dead-ends" — the demo replays forever, the bar is one
+  letter, and the lesson is the point.)
+- **A finger can dot an i here.** On the practice sheet a finger tap always replays the
+  demo, and the dot of an i is a pencil-only nicety — harmless there, because the
+  sheet's green flip never requires the dot. The modal requires the whole formation,
+  so on its sole-letter sheet a finger tap on the letter *once tracing has begun* inks
+  the dot instead; replays live on the *Watch again* button.
+- **Success corrects that letter only.** Its discount is lifted for the life of the
+  entry; the modal closes; the live figure rises. The remediation is recorded on the
+  session (`remediatedCharIndices`, by character position — glyph indices are not
+  stable across sittings) so reopening and re-finishing the entry keeps the correction.
+  *Write it all again* clears remediations with the ink they excused.
+- **Once per word, and only under the child's own pen.** A word prompts at most once
+  per sitting; a stroke that finishes two qualifying words queues the second modal
+  behind the first; and a page restored from its archive never prompts for words that
+  arrived already written — their discounts still apply, silently.
+- The trace in the modal does not replace the ink on the page — the page keeps what
+  the child wrote; only the order verdict is forgiven.
+
 ### 8.2 Stars
 
 | Accuracy | Stars |
@@ -1230,6 +1403,17 @@ New:
   four of twenty-eight letters traced scores near 14%, not near 95%; words never started are
   excluded from the denominator entirely; the live figure excludes unstarted letters while
   the final figure includes them for started words; spaces are not scored.
+- `FormationOrderTests` — §8.1a against the real Jua formation data. Circle-then-line
+  passes and line-then-circle fails; a bottom-up line fails; one continuous
+  circle-then-line motion passes (lifts don't matter); go-overs pass; a clockwise or
+  bottom-started *o* fails; dot-before-stem *i* fails; far-off ink is not judged; the
+  discount is 0.8× per letter, live and final, cleared by an erase, and named by the
+  finish message.
+- `FormationHelpTests` — §8.1b end to end on a real laid-out page. Finishing a word
+  with a wrong-order letter fires the help request once, naming exactly the wrong
+  letters; remediation lifts exactly the picked letter's discount and never re-prompts;
+  a page restored from an archive never prompts while its wrong-order ink still takes
+  the discount; and a remediation recorded by character position comes back.
 - `EraserTests` — points inside the circle are removed, a stroke split in the middle becomes
   two strokes, and the touched letters are re-scored while the others are untouched.
 - `ProgressBreakdownTests` — per-setting aggregation, and that a settings change does not
@@ -1301,5 +1485,5 @@ defer it.
 
 ---
 
-*Document version: 2.7*
-*Last updated: 2026-08-28*
+*Document version: 2.9*
+*Last updated: 2026-08-30*

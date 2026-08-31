@@ -5,6 +5,7 @@ struct ScoreResult {
     let accuracy: Double            // 0…1, mean over letters in words the child started
     let letterAccuracies: [Double]
     let unfinishedLetters: Int      // letters skipped *inside* words that were started
+    let outOfOrderLetters: Int      // inked letters that took the order discount (§8.1a)
     let wordsWritten: Int
     let totalWords: Int
     let stars: Int
@@ -38,6 +39,11 @@ enum ScoringEngine {
     static let streakStep = 5
     static let streakCap = 5
 
+    /// §8.1a — a letter clearly drawn against its taught formation (parts out of the
+    /// demonstrated order, or a part drawn against its demonstrated direction) keeps
+    /// only this fraction of its score: the 20% order discount.
+    static let orderDiscount = 0.8
+
     // MARK: - Tally
 
     struct Tally {
@@ -49,6 +55,9 @@ enum ScoringEngine {
         private(set) var scorable: [Bool]
         private(set) var inside: [Int]
         private(set) var total: [Int]
+        /// Per glyph, false when the ink took the letter's parts out of the taught
+        /// order or direction (§8.1a). True by default — only a clear violation docks.
+        private(set) var followedOrder: [Bool]
         let totalWords: Int
 
         init(wordOfLetter: [Int], scorable: [Bool]? = nil, totalWords: Int) {
@@ -57,6 +66,7 @@ enum ScoringEngine {
             self.totalWords = totalWords
             inside = Array(repeating: 0, count: wordOfLetter.count)
             total  = Array(repeating: 0, count: wordOfLetter.count)
+            followedOrder = Array(repeating: true, count: wordOfLetter.count)
         }
 
         init(letterCount: Int) {
@@ -74,14 +84,22 @@ enum ScoringEngine {
             if isInside { inside[index] += 1 }
         }
 
+        /// §8.1a — the canvas judges each letter's ink against its formation and
+        /// records the verdict here; `letterAccuracies` applies the discount.
+        mutating func markOrder(letter index: Int, followed: Bool) {
+            guard index >= 0, index < followedOrder.count else { return }
+            followedOrder[index] = followed
+        }
+
         mutating func reset(letter index: Int) {
             guard index >= 0, index < total.count else { return }
             total[index] = 0
             inside[index] = 0
+            followedOrder[index] = true
         }
 
         mutating func resetAll() {
-            for i in total.indices { total[i] = 0; inside[i] = 0 }
+            for i in total.indices { total[i] = 0; inside[i] = 0; followedOrder[i] = true }
         }
 
         /// Words with any ink at all.
@@ -108,8 +126,19 @@ enum ScoringEngine {
         /// Letters skipped inside words that were started.
         var unfinishedCount: Int { scoredIndices.filter { total[$0] == 0 }.count }
 
+        /// Inked letters in the scored population that took the order discount.
+        var outOfOrderCount: Int {
+            scoredIndices.filter { total[$0] > 0 && !followedOrder[$0] }.count
+        }
+
+        /// Per-letter accuracy with the order discount applied — every figure derived
+        /// from a letter's score, live or final, goes through here.
         var letterAccuracies: [Double] {
-            zip(inside, total).map { i, t in t > 0 ? Double(i) / Double(t) : 0 }
+            total.indices.map { i in
+                guard total[i] > 0 else { return 0 }
+                let raw = Double(inside[i]) / Double(total[i])
+                return followedOrder[i] ? raw : raw * ScoringEngine.orderDiscount
+            }
         }
 
         /// The number shown at Done.
@@ -125,9 +154,10 @@ enum ScoringEngine {
         /// If the live figure applied the skip-penalty it would lurch downward every time
         /// the child moved to a new letter, which reads as being punished for progress.
         var liveAccuracy: Double {
-            let started = zip(inside, total).filter { $0.1 > 0 }
-            guard !started.isEmpty else { return 0 }
-            return started.reduce(0.0) { $0 + Double($1.0) / Double($1.1) } / Double(started.count)
+            let attempted = total.indices.filter { total[$0] > 0 }
+            guard !attempted.isEmpty else { return 0 }
+            let accuracies = letterAccuracies
+            return attempted.reduce(0.0) { $0 + accuracies[$1] } / Double(attempted.count)
         }
     }
 
@@ -146,12 +176,16 @@ enum ScoringEngine {
     /// glyphs are simply not in the population.
     static func score(tally: Tally, committed: [Bool], totalWords: Int, streak: Int) -> ScoreResult {
         let accuracies = tally.letterAccuracies
-        var sum = 0.0, count = 0, unfinished = 0
+        var sum = 0.0, count = 0, unfinished = 0, outOfOrder = 0
         var writtenWords: Set<Int> = []
         for i in tally.wordOfLetter.indices where i < committed.count && committed[i] && tally.scorable[i] {
             sum += accuracies[i]
             count += 1
-            if !tally.hasInk(letter: i) { unfinished += 1 }
+            if !tally.hasInk(letter: i) {
+                unfinished += 1
+            } else if !tally.followedOrder[i] {
+                outOfOrder += 1
+            }
             writtenWords.insert(tally.wordOfLetter[i])
         }
         let accuracy = count > 0 ? sum / Double(count) : 0
@@ -163,6 +197,7 @@ enum ScoringEngine {
             accuracy: accuracy,
             letterAccuracies: accuracies,
             unfinishedLetters: unfinished,
+            outOfOrderLetters: outOfOrder,
             wordsWritten: writtenWords.count,
             totalWords: totalWords,
             stars: stars,
@@ -185,6 +220,7 @@ enum ScoringEngine {
             accuracy: accuracy,
             letterAccuracies: tally.letterAccuracies,
             unfinishedLetters: tally.unfinishedCount,
+            outOfOrderLetters: tally.outOfOrderCount,
             wordsWritten: tally.wordsWritten,
             totalWords: tally.totalWords,
             stars: stars,
@@ -202,6 +238,11 @@ enum ScoringEngine {
             return result.unfinishedLetters == 1
                 ? "1 letter was skipped."
                 : "\(result.unfinishedLetters) letters were skipped."
+        }
+        if result.outOfOrderLetters > 0 {
+            return result.outOfOrderLetters == 1
+                ? "1 letter was drawn in a different order — the practice page shows the way."
+                : "\(result.outOfOrderLetters) letters were drawn in a different order — the practice page shows the way."
         }
         if result.finishedEverything { return "You wrote everything you said — nice work." }
         return "Every letter you wrote was finished."

@@ -4,8 +4,8 @@ import SwiftData
 /// The main screen (v2.6): badges, then every entry newest first.
 ///
 /// There is no resume card and no separate journal list. An entry is not a task with a
-/// state — it is a page you either open or don't. Tapping one opens it to read, and the
-/// Edit button on that page carries on writing it.
+/// state — it is a page you either open or don't. Tapping one opens that page to read
+/// (§4.7); the same page carries on writing it, so there is nothing else to route to.
 struct JournalHomeView: View {
     @Environment(\.modelContext) private var context
     @Bindable var profile: UserProfile
@@ -13,7 +13,7 @@ struct JournalHomeView: View {
 
     @State private var writing = false
     @State private var practicing = false
-    @State private var editing: WritingSession?
+    @State private var opened: WritingSession?
     @State private var showSettings = false
     @State private var showProgress = false
     @State private var showExport = false
@@ -50,11 +50,13 @@ struct JournalHomeView: View {
                 }
             }
         }
+        // A new entry opens on the writing surface; one from the journal opens as
+        // something to read. Same screen either way (§4.4).
         .fullScreenCover(isPresented: $writing) {
-            WriteSessionView(profile: profile, context: context)
+            EntryPageView(profile: profile, context: context, mode: .edit)
         }
-        .fullScreenCover(item: $editing) { session in
-            WriteSessionView(profile: profile, context: context, resuming: session)
+        .fullScreenCover(item: $opened) { session in
+            EntryPageView(profile: profile, context: context, resuming: session, mode: .view)
         }
         .sheet(isPresented: $showSettings) {
             ProfileSettingsView(profile: profile, selected: $selected).presentationDetents([.large])
@@ -68,7 +70,7 @@ struct JournalHomeView: View {
         .task {
             #if DEBUG
             switch DemoData.screen {
-            case "trace":    editing = profile.orderedSessions.first
+            case "trace":    opened = profile.orderedSessions.first
             case "progress": showProgress = true
             case "settings": showSettings = true
             case "write":    writing = true
@@ -166,10 +168,8 @@ struct JournalHomeView: View {
                 emptyState
             } else {
                 ForEach(entries) { session in
-                    NavigationLink { EntryDetailView(session: session) } label: {
-                        EntryRow(session: session)
-                    }
-                    .buttonStyle(.plain)
+                    Button { opened = session } label: { EntryRow(session: session) }
+                        .buttonStyle(.plain)
                 }
             }
         }

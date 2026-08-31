@@ -25,6 +25,12 @@ struct TracingSurface: UIViewRepresentable {
     /// An earlier tracing of this same page, put back so the child carries on rather than
     /// starting again.
     var restoring: [TracingStroke] = []
+    /// The canvas width that tracing was drawn at. The strokes are only put back when this
+    /// page lays out the same way, because ink cannot be moved to letters it never covered.
+    var restoredWidth: CGFloat = 0
+    /// Letters remediated in the help modal in an earlier sitting (§8.1b), by character
+    /// position — their order discount stays lifted when the page reopens.
+    var restoredRemediatedChars: [Int] = []
 
     @Binding var controller: TracingController
 
@@ -32,7 +38,10 @@ struct TracingSurface: UIViewRepresentable {
         let view = ScrollingCanvas()
         // The archive must be staged before the text lands: the canvas derives the record
         // from the ink, and a text without its ink would briefly report an empty record.
-        if !restoring.isEmpty { view.canvas.restore(restoring) }
+        if !restoring.isEmpty { view.canvas.restore(restoring, capturedWidth: restoredWidth) }
+        if !restoredRemediatedChars.isEmpty {
+            view.canvas.restoreRemediated(charIndices: restoredRemediatedChars)
+        }
         view.apply(text: text, setup: setup)
         view.canvas.onProgress = { accuracy, words, hasInk in
             Task { @MainActor in
@@ -51,6 +60,9 @@ struct TracingSurface: UIViewRepresentable {
         }
         view.canvas.onEditWord = { range, word in
             Task { @MainActor in controller.onEditWord?(range, word) }
+        }
+        view.canvas.onFormationHelpNeeded = { request in
+            Task { @MainActor in controller.onFormationHelp?(request) }
         }
         Task { @MainActor in
             controller.attach(view)
@@ -107,6 +119,12 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     /// One finger draws and two scroll, or one finger scrolls and only the pencil draws.
     func setFingerDraws(_ fingerDraws: Bool) {
         panGestureRecognizer.minimumNumberOfTouches = fingerDraws ? 2 : 1
+    }
+
+    /// A finger dragging out a run of words is not a scroll that has not started yet, so
+    /// the scroll view must not take the touch off the canvas half way through it.
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        canvas.isSelectingText ? false : super.touchesShouldCancel(in: view)
     }
 
     func apply(text: String, setup: WritingSetup) {
@@ -191,6 +209,8 @@ final class TracingController {
     var onRecordChange: ((Int) -> Void)?
     var onSelectRow: ((Int) -> Void)?
     var onEditWord: ((ClosedRange<Int>, String) -> Void)?
+    /// §8.1b — a word was finished with letters drawn in the wrong order.
+    var onFormationHelp: ((FormationHelpRequest) -> Void)?
 
     private weak var scroller: ScrollingCanvas?
     private var canvas: TracingCanvasView? { scroller?.canvas }
@@ -212,6 +232,9 @@ final class TracingController {
         return result
     }
     func archive() -> Data? { try? canvas?.archive() }
+    /// §8.1b — lifts the order discount from a letter remediated in the help modal.
+    func markRemediated(letter: Int) { canvas?.markRemediated(letter: letter) }
+    func charIndex(ofGlyph glyph: Int) -> Int? { canvas?.charIndex(ofGlyph: glyph) }
     var strokeCount: Int { canvas?.strokes.count ?? 0 }
     func thumbnail() -> Data? { canvas?.thumbnail() }
     var canvasSize: CGSize { canvas?.bounds.size ?? .zero }
@@ -249,10 +272,15 @@ struct PageReplayView: UIViewRepresentable {
     var showRules = true
     var accuracyColours = false
     var colourBlind = false
+    /// A pencil touch on the finished page. Putting the pen down *is* the ask to write, so
+    /// the reading page hands over to the writing one rather than making the child find a
+    /// button first.
+    var onPencilTap: (() -> Void)?
 
     func makeUIView(context: Context) -> ReplayPageView { ReplayPageView() }
 
     func updateUIView(_ view: ReplayPageView, context: Context) {
+        view.onPencilTap = onPencilTap
         view.strokes = strokes
         view.text = text
         view.capturedWidth = capturedWidth
@@ -274,14 +302,21 @@ struct PageReplayView: UIViewRepresentable {
         var accuracyColours = false
         var colourBlind = false
 
+        var onPencilTap: (() -> Void)?
+
         private let renderer = MaskRenderer()
 
         override init(frame: CGRect) {
             super.init(frame: frame)
             backgroundColor = UIColor(Tokens.Colour.paper)
             contentMode = .redraw
+            let pencil = UITapGestureRecognizer(target: self, action: #selector(pencilTapped))
+            pencil.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.pencil.rawValue)]
+            addGestureRecognizer(pencil)
         }
         required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+        @objc private func pencilTapped() { onPencilTap?() }
 
         override func draw(_ rect: CGRect) {
             guard let ctx = UIGraphicsGetCurrentContext(),
