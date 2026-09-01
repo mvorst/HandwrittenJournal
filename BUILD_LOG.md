@@ -27,8 +27,9 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · Calendar view (frame 13) | ⛔ not built |
 | — · Three line states, settle in place, tap to write a line again (v2.4) | ✅ |
 | — · One screen; spoken-until-written record; commit-on-finish; fix-a-word (v2.5) | ✅ |
+| — · Free row selection; derived record; pencil never scrolls (v2.6) | ✅ |
 
-**50 tests across 8 suites, all passing.**
+**51 tests across 8 suites, all passing.**
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -98,6 +99,38 @@ appears in the picker.
 | Eraser re-tallies from scratch | Cheaper than unpicking, and it cannot drift from the strokes. |
 
 ---
+
+## v2.6 — free row selection (built)
+
+Three changes on top of v2.5, from direct feedback:
+
+**1. The pencil never scrolls.** Pen touches are excluded from the scroll view's pan
+gesture (`allowedTouchTypes` = direct + indirect pointer only), so a pen on the page is
+always ink. Fingers scroll as before (one finger with finger-tracing off, two with it on),
+and finger *taps* still reach the page in every mode.
+
+**2. The end-of-line check is gone, and selection is free.** Any row selects by tapping it
+at any time — traced rows included, which replaces the "Write this line again" chip
+entirely. A pen that starts moving on an unselected row selects it and begins the stroke.
+When the selected row's last letter gets ink, the next untraced row is selected
+automatically; leaving a row settles it (letterforms fade to `guide-faint` at 15%, ink to
+graphite, in place).
+
+**3. Three row states.** Traced rows keep faint letterforms under the graphite ink (they
+no longer lose the guide entirely); the selected row is black with accuracy ink; untraced
+rows are the light `spoken-text` grey.
+
+**The record is now derived, never declared**: the unbroken run of fully-traced rows from
+the top of the page, recomputed from the ink on every change (`onRecordChange`). It grows
+as rows fill, waits at gaps when rows are traced out of order, and shrinks if a record
+row's ink is cleared. Scoring covers every row with any ink, skipped letters there at
+zero. Tools — eraser, undo, clear — are scoped to the selected row; the rest of the page's
+ink is unreachable.
+
+**Resolutions this pass:** fix-a-word moved from tap to a **held finger** (taps always
+mean "select this row" now), gated to untraced rows with no traced row below them so an
+edit can never reflow ink out from under itself; a pencil tap with no movement selects
+without leaving a dot.
 
 ## v2.5 — one screen, spoken until written (built)
 

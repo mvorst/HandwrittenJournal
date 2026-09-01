@@ -1,9 +1,9 @@
 # Penpot Wireframes — Handoff Notes
 
-Companion to `WIREFRAME_SPEC.md` v2.5. Answers §17.2: *"a list of anything you changed
+Companion to `WIREFRAME_SPEC.md` v2.6. Answers §17.2: *"a list of anything you changed
 from §5–§11."*
 
-Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.5 on 2026-08-27.
+Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026-08-27.
 
 ---
 
@@ -211,6 +211,29 @@ per-sentence clips; **v2.4 keeps it whole**, because with no sentences there is 
 slice and *"Hear what I said"* sits on the entry.
 
 ---
+
+## 5.5 v2.6 Notes — free row selection
+
+**What you asked for:** pencil movements must never scroll; the end-of-line button goes;
+three row states — previously traced (faint grey letterforms with the trace vectors over
+them), selected (black lettering with green/red marks), untraced-unselected (light grey) —
+and any row selectable by tapping it at any time.
+
+**What changed in the file.** A new `guide-faint` token (#000 @ 15%); `04 · Write` frames
+24–27 and 44–48 rebuilt: traced rows now show faint letterforms *under* the graphite ink,
+exactly one row is black-with-accuracy-ink, the check icon is gone everywhere, and frame
+44 became "tapping a traced row to fix it" — the row re-selected with its ink back in
+accuracy colours, no band and no chip.
+
+**Resolutions the request left open** (mirrored in the app, BUILD_LOG.md):
+
+- Auto-advance survives: when the selected row's last letter gets ink, the next untraced
+  row is selected on its own. Free tapping is the override, not the only mechanism.
+- The record became *derived*: the unbroken run of fully-traced rows from the top. It can
+  shrink if a record row's ink is erased.
+- Fix-a-word moved to a **held finger** (taps now always mean "select this row"), and is
+  gated to untraced rows with no traced row below them, so an edit can never reflow ink.
+- Tools (eraser, undo, clear) are scoped to the selected row.
 
 ## 5.4 v2.5 Notes — one screen, spoken until written
 

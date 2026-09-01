@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v2.5
+## Penpot handoff, v2.6
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -82,6 +82,22 @@ from §5–§9 of this file.
 - **The record is the child's hand, by construction.** The journal, search, exports and
   every word count read only written text. An "unfinished entry" is an entry with spoken
   words still waiting — the record itself is always fully written.
+
+**What changed in v2.6 — free row selection, and the pencil never scrolls:**
+
+- **The end-of-line check is gone**, and with it the whole commit gesture. **Any row can
+  be selected by tapping it, at any time** — traced rows included (§11.11). When the
+  selected row's last letter gets ink, the next untraced row is selected automatically;
+  the taps are for going back, skipping, or fixing, not for going forward.
+- **Traced rows keep faint letterforms under the ink** (`guide-faint`, §5.3) instead of
+  losing the guide entirely — three legible tiers: faint grey under graphite, black under
+  accuracy colours, light grey waiting.
+- **The record is derived, never declared.** It is the unbroken run of fully-traced rows
+  from the top of the page, recomputed from the ink itself — it grows as rows fill and
+  shrinks if a record row's ink is cleared (§11.11).
+- **The pencil never scrolls** — pen touches are excluded from the scroll gesture
+  outright, so a pen on the page is always ink (§11.6).
+- The re-trace chip of §11.12 is retired: fixing a traced row is just tapping it.
 
 ---
 
@@ -192,6 +208,7 @@ names in `AppConstants.swift`.
 |---|---|---|
 | `guide-text` | `#000000` @ 80% | The letters being traced — **only the line in hand** (§11.11) |
 | `spoken-text` | `#5B6B8C` @ 42% | Dictated words waiting to be written. Deliberately cooler as well as lighter than `guide-text`, so "not yet real" reads at a glance and survives a squint |
+| `guide-faint` | `#000000` @ 15% | The letterforms left under a traced row's ink — legible enough to read, faint enough that the ink is unmistakably the text now (v2.6) |
 | `rule-line` | `#E5E5EA` | Baselines, ascender and descender rules |
 
 ### 5.4 Text
@@ -437,7 +454,7 @@ attempt history.
 | `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
 | `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action`. Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. Drawn large — 176 pt — in the centre of an empty page (frame 20). |
 | `Listening bar` | Replaces the footer while recording: `Level meter` 280 wide leading, elapsed `numeral-l` over "of 5:00" `caption`, `Button / Primary` "I'm done talking" 260 × 64 trailing. |
-| `End-of-line check` | 44 pt circle, 2.5 pt `action` stroke, `checkmark` 20 pt, sitting 46 pt past the last letter of the line in hand. Outlined until every letter has ink; `action`-filled with a white check after. Tapping it finishes the line (§11.11). |
+| ~~`End-of-line check`~~ | **Retired in v2.6** — finishing is automatic (the row fills) and selection is free (any row, any tap). Do not reuse. |
 | `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). |
 | `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em. **Never accuracy colours.** |
 | `Toggle / TypedHandwritten` | 420 × 56, `radius-pill`, `paper-sunk` track. Two 210 pt segments. Selected: `paper-raised` inset 4 pt, `shadow-card`, `button-sm` in `text-primary`. Unselected `button-sm` in `text-secondary`. |
@@ -585,17 +602,17 @@ review or thumbnail scale the quoted range produces illegible blobs.
 
 ### 11.6 Scrolling
 
-A scroll gesture and a pencil stroke are hard to tell apart, and finger tracing makes it
-worse. Therefore:
+**The pencil never scrolls.** Pen touches are excluded from the scroll gesture outright —
+a pen on the page is always ink, and a pen stroke can never be misread as a pan (v2.6).
+Everything else:
 
 - Journal, list, settings and progress screens scroll normally.
-- If a surface ever must scroll during writing, it takes **two fingers** — one finger is
-  always ink.
-- **The writing page scrolls, and it is the one place a gesture could fight the pen.**
-  The two are separated by touch count: with finger tracing off, one finger scrolls and
-  only the pencil draws; with it on, one finger draws and two scroll. Because two fingers
-  is a lot to ask of a five-year-old holding a pencil, **a chevron button at the foot of
-  the page scrolls with no gesture at all** — that is the primary mechanism.
+- **Fingers scroll the writing page**: one finger when finger tracing is off; two fingers
+  when it is on (one finger is ink then — the Notes / Procreate split). Because two
+  fingers is a lot to ask of a five-year-old holding a pencil, **a chevron button at the
+  foot of the page scrolls with no gesture at all** — that is the primary mechanism.
+- Finger *taps* still reach the page in every mode — taps select rows (§11.11); only drags
+  scroll.
 - **The Entry Detail page scrolls too.** A long entry is never truncated.
 
 ### 11.9 Long-form dictation, on the page
@@ -632,80 +649,71 @@ Clear still wipes the whole page's ink. Nothing is scored until Done.
 
 ### 11.10 The settle animation
 
-**A line settles where it was written — when the child finishes it, not when a sensor
-thinks they have.** Finishing a line (§11.11: the end-of-line check, or tapping the next
-line) cross-fades its guide text out over 0.45 s (§4) and its ink from accuracy colours to
-`ink-natural`. The settle no longer fires automatically on the last inked letter, because
-the settle is now also the *commit*: the moment the line's words join the record has to be
-the child's own act. Nothing moves, shrinks, or travels: the line the child was
-tracing simply becomes a line they have written, and the page above their hand fills up in
-their own handwriting.
+**A row settles where it was written — when selection leaves it.** Whether the child
+finished its last letter (auto-advance) or tapped away, the departing row cross-fades over
+0.45 s (§4): letterforms from black down to `guide-faint`, ink from accuracy colours to
+`ink-natural`. Selecting a traced row runs the same transition in reverse — its ink comes
+back up in accuracy colours for fixing. Nothing moves, shrinks, or travels: the row the
+child was writing simply becomes a row they have written, and the page above their hand
+fills up in their own handwriting.
 
 This replaces the v2 rise-into-the-panel animation, and it is a better version of the same
 emotional beat — the child sees the finished page grow in place rather than watching a copy
 of their work fly somewhere else. Reduce Motion replaces the cross-fade with a hard swap.
 
-### 11.11 The page in three states, and when text becomes real
+### 11.11 The page in three row states, and when text becomes real
 
-At any moment every line of the page is in exactly one of three states.
+At any moment every row of the page is in exactly one of three states.
 
-| State | Text | Ink | Part of the record |
+| State | Letters | Ink | Part of the record |
 |---|---|---|---|
-| **Written** — finished and scored | none (their ink *is* the text) | `ink-natural` | **Yes** |
-| **In hand** — being written now | `guide-text`, locked | `ink-inside` / `ink-outside`, plus the end-of-line check | Not yet |
-| **Spoken** — said, waiting | `spoken-text`, editable | None | **No** |
+| **Traced** — has ink, not selected | `guide-faint` | `ink-natural` | See below |
+| **Selected** — the row being written | `guide-text`, black | `ink-inside` / `ink-outside` | — |
+| **Untraced** — waiting, not selected | `spoken-text`, editable | None | **No** |
 
-Removing the guide from written lines is what makes the page read as the child's own
-handwriting rather than a worksheet they are half way through — and the pale spoken tier
-below makes the boundary between "mine" and "not yet mine" visible at a glance.
+The faint letterforms left under a traced row's ink keep the row legible as *text* while
+the ink reads unmistakably as the child's own; the pale untraced tier below keeps the
+boundary between "mine" and "not yet mine" visible at a glance.
 
-**Finishing a line is the commit.** A line's words join the record the moment the child
-finishes writing it, one of two ways:
+**Any row can be selected by tapping it, at any time.** A traced row, the row after next,
+the last row of the page — one tap. Selecting a traced row brings its ink back up in
+accuracy colours for fixing; leaving any row settles it (§11.10). A pen that starts moving
+on an unselected row selects it and begins the stroke in the same gesture — writing
+somewhere *is* selecting it. Selecting a row also stops the mic if it is listening.
 
-1. **Tap the end-of-line check** — a 44 pt circled check sitting just past the line's last
-   letter. Outlined until every letter has ink, filled once it does; tappable either way —
-   it is a nudge, not a gate. Letters skipped on a confirmed line score zero (§11.4).
-2. **Tap the next spoken line** — which finishes the line in hand and takes the tapped
-   line in hand in one gesture.
+**Nothing needs a tap to move forward.** When the selected row's last letter gets ink, the
+next untraced row is selected automatically. The taps are for going back, skipping ahead,
+or fixing — the ordinary flow is speak, then write straight down the page.
 
-Writing goes **in order**: only the next spoken line can be taken in hand. Tapping a
-spoken line further down does nothing — a record assembled line by line must stay
-contiguous, or the entry stops reading as a sentence. Taking a line in hand also stops the
-mic if it is still listening.
+**The record is derived, never declared.** What the journal, search, exports and every
+word count read is the **unbroken run of fully-traced rows from the top of the page** —
+recomputed from the ink itself. It grows as rows fill, runs through gaps only once they
+are filled, and shrinks if a record row's ink is erased or cleared. A row traced out of
+order is the child's work and is scored (§11.4), but the record — the story so far, in
+order — waits for the rows before it.
 
-**Spoken text is editable; everything else is locked.** Tapping a spoken word opens it for
-fixing in place (§11.13). The in-hand line's text is already locked — the guide the child
-is writing over must not move under their pen. Fixing what the recogniser misheard
-therefore happens *before* a line is taken in hand, which is exactly when the child is
-looking at it as text rather than as a tracing task.
+**Untraced text is editable; traced text is not.** Holding a finger on an untraced word
+opens it for fixing in place (§11.13) — provided no traced row sits below it, because an
+edit must never reflow a row out from under its ink. Ink is attributed only to the
+selected row, so a stray wobble can never put ink on a word the child has not reached.
 
-***I'm finished* respects the same rule.** If the line in hand has any ink, finishing the
-entry commits it (skipped letters at zero — they traced it, so it counts); if it has none,
-it returns to spoken. Spoken text is never silently promoted: it stays with the open entry
-as what is still to write, but it is not in the journal, not in exports, and not in any
-count of words written.
-
-**New dictation appends to this page** as spoken text after the last existing word — the
-word total goes up and the page scrolls to the first new word. An entry is a day's page,
+**New dictation appends to this page** as untraced text after the last existing word — the
+word total goes up and the page scrolls to the new words. An entry is a day's page,
 however many times the child spoke to fill it.
 
-### 11.12 Writing a line again
+### 11.12 Fixing a row you already wrote
 
-**Tapping a written line selects it**: an `action` band at 12% opacity behind the line, a
-2 pt `action` outline around it, and a chip immediately beneath reading *"Write this line
-again"*. Tapping anywhere else, or the chip, resolves the selection — the chip clears that
-line's strokes, returns it to the in-hand state, and scrolls it to the top of the window.
+**Tap it.** The row comes back selected — black letterforms, its ink in accuracy colours —
+and the pen, the eraser, undo and clear all work on it exactly as they did the first time.
+Tap another row (or finish the entry) and it settles again. There is no band, no chip and
+no confirmation: re-selection *is* the feature, and the v2.5 "Write this line again" chip
+is retired.
 
-Only written lines respond this way. The line in hand is already being written, and a tap
-on a spoken line either takes it in hand (the next one, §11.11) or opens a word for fixing
-(§11.13).
-
-**The old tracing is gone, not archived.** This follows the v2.1 decision that only the
-latest tracing is kept: there is no attempt history, so re-tracing overwrites, and the
-entry's accuracy is recomputed from what is on the page now. A child who re-traces a line
-they rushed sees their entry percentage go up, which is the entire reason the feature
-exists. Writing a line again does not un-commit its words — the text stays in the record;
-only the ink is redone.
+**Undo, clear and the eraser are scoped to the selected row.** The rest of the page's ink
+— the record's ink included — is unreachable by every tool. Only the latest tracing is
+kept (v2.1): redoing letters overwrites, and the entry's accuracy is recomputed from what
+is on the page now. A child who goes back over a row they rushed sees their percentage go
+up, which is the entire reason the feature exists.
 
 ### 11.13 One screen
 
@@ -718,11 +726,11 @@ Speaking, seeing, fixing and writing all happen on the page. There is no other s
 - **Listening** replaces the footer with the listening bar and streams the words onto the
   page in `spoken-text` as they are recognised, caret at the end (frame 21). The reassurance
   line — *"Nothing goes in your journal until you write it."* — sits centred above the bar.
-- **Fixing a word**: tapping a spoken word draws a 2 pt `action` box over it with a 10%
-  tint, raises the keyboard over the footer, and edits it in place (frame 22). The line
-  reflows within the spoken region; written lines above cannot move because edits cannot
-  reach them. There is no bulk review step — the child fixes what they notice, when they
-  notice it.
+- **Fixing a word**: holding a finger on an untraced word draws a 2 pt `action` box over
+  it with a 10% tint, raises the keyboard over the footer, and edits it in place (frame
+  22). A tap selects the row (§11.11); the hold opens the word. The line reflows within
+  the untraced region; traced rows cannot move because edits cannot reach them. There is
+  no bulk review step — the child fixes what they notice, when they notice it.
 - **Typing instead** is the same path with no mic: *Type it instead* puts the caret at the
   end of the spoken text and the keyboard types onto the page.
 - **The five-minute cap** is a banner over the top of the page (frame 42), not a screen.
@@ -772,8 +780,8 @@ Every frame here is a **state of the same screen** (§11.13).
 | 20 | Write — the page, nothing said yet | Empty rules, centre mic invitation, "Type it instead"; Done disabled |
 | 21 | Write — the page, listening | Words land as `spoken-text` live, caret at the end; listening bar footer |
 | 22 | Write — fixing a word I misheard | One spoken word boxed in `action`, keyboard over the footer |
-| 24 | Write — everything said, nothing written yet | Whole telling as spoken text; "Tap the first line to start writing" |
-| 25 | Write — the page, part written | 3 written, 1 in hand at 55% with the check, spoken below; 15 of 48 |
+| 24 | Write — everything said, nothing written yet | Whole telling as untraced text; "Tap a line to write it" |
+| 25 | Write — the page, part written | 3 traced (faint + graphite), 1 selected at 55%, untraced below; 15 of 48 |
 | 26 | Write — the page at Extra Large | 96 pt; fewer words per line, a much taller page |
 | 27 | Write — the page at Extra Small | 30 pt; the whole 48-word entry fits one window |
 | 29 | Results — the whole entry written, 3 stars | 91%, everything said was written, +224 points |
@@ -781,7 +789,7 @@ Every frame here is a **state of the same screen** (§11.13).
 | 40 | Write — microphone access | Child-legible explainer shown *before* the iOS prompt |
 | 41 | Write — microphone unavailable | Denied or unsupported; typing onto the page becomes the primary path |
 | 42 | Write — recording stopped at five minutes | A banner over the page, said warmly; 112 words ≈ 20 minutes of writing |
-| 44 | Write — tapping written text to write it again | Line 1 selected: tinted band, 2 pt outline, "Write this line again" chip |
+| 44 | Write — tapping a traced row to fix it | Row 2 re-selected: black letterforms, its ink back in accuracy colours |
 | 45 | Write — more said, added to the page | Scrolled; 10 written lines above, new spoken text below, 48 of 58 words |
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
@@ -849,9 +857,9 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 |---|---|---|---|
 | `Toolbar` — "I'm finished" leading, date centred, eraser + undo + clear trailing at 60 pt pitch | 0 | 0 | 834 × 72 |
 | The page, `paper`, full bleed, scrolls | 0 | 72 | 834 × 958 |
-| — written lines, `ink-natural`, **no guide** | 40 | 112 | 754 wide |
-| — the line in hand, `guide-text` with accuracy ink over it, `End-of-line check` 46 pt past the last letter | 40 | — | 754 wide |
-| — spoken lines, `spoken-text` only | 40 | — | 754 wide |
+| — traced rows, `ink-natural` over `guide-faint` letterforms | 40 | 112 | 754 wide |
+| — the selected row, `guide-text` (black) with accuracy ink over it | 40 | — | 754 wide |
+| — untraced rows, `spoken-text` only | 40 | — | 754 wide |
 | Footer hairline, 1 pt `divider` | 0 | 1030 | 834 × 1 |
 | `Mic / Footer` (§10.6) | 24 | 1060 | 64 × 64 |
 | "So far: 88%" `body`, hint `caption` beneath, 218 pt wide | 108 | 1062 | 218 |
@@ -876,9 +884,9 @@ the bottom 320 pt; the footer is behind it.
 muted mic well, "That's a whole lot of story!" `headline`, one `body` line beneath — and
 mutes the footer mic.
 
-**Frame 44** adds the selection: an `action` band at 12% behind the tapped line running the
-full text width, a 2 pt `action` outline around it, and a "Write this line again" chip
-(360 × 60, `radius-chip`, `action` label) 12 pt beneath the band at x = 100.
+**Frame 44** shows a traced row re-selected: row 2 back in black letterforms with its ink
+in accuracy colours, the traced rows around it faint-grey under graphite. No band, no chip
+— selection is its own affordance.
 
 ### 13.4 Frames 14 / 15 — Entry Detail
 
@@ -1016,8 +1024,8 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] Listening — words landing on the page live (frame 21)
 - [ ] A spoken word being fixed in place, keyboard up (frame 22)
 - [ ] Everything said, nothing written — all spoken text (frame 24)
-- [ ] The page part written — written above, in hand with the check, spoken below (frame 25)
-- [ ] A written line tapped for re-tracing — band, outline, chip (frame 44)
+- [ ] The page part written — traced above, one row selected, untraced below (frame 25)
+- [ ] A traced row re-selected for fixing (frame 44)
 - [ ] More dictation appended to an existing page (frame 45)
 - [ ] An entry long enough to scroll both the writing page and Entry Detail (frames 25, 45, 14, 15)
 - [ ] Search with results (frame 12)
@@ -1048,6 +1056,6 @@ Development then starts at Phase 1 in `DESIGN_DOCUMENT.md` §15.
 
 ---
 
-*Document version: 2.5*
+*Document version: 2.6*
 *Last updated: 2026-08-27*
-*Companion to DESIGN_DOCUMENT.md v2.5*
+*Companion to DESIGN_DOCUMENT.md v2.6*

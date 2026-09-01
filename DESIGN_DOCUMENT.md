@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v2.9
+## Design Document v2.6
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -8,7 +8,7 @@ they finish stops being a guide and becomes their own handwriting, right where t
 it. Do that for a day and there is a page. Do it for a year and there is a journal in the
 child's own hand.
 
-Companion: `WIREFRAME_SPEC.md` v2.5 (measurements, tokens, frame inventory).
+Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
 
 ---
@@ -133,6 +133,29 @@ Retired frame numbers: 8, 16, 35.
 
 Considered and rejected: read-aloud playback of journal text (the child using this app can
 read), stroke replay animation, and writing prompts — this is a journal, not a teacher.
+
+## 0.6 What Changed in v2.6
+
+**Free row selection, and the pencil never scrolls.**
+
+| Was (v2.5) | Now |
+|---|---|
+| A commit gesture: the end-of-line check, or tapping the next line — in order only | **Any row selects by tapping it, at any time**; the next untraced row comes up on its own when a row fills |
+| Written lines lost their guide entirely | **Traced rows keep faint letterforms under the ink** — legible as text, unmistakably the child's |
+| The record moved when the child said so | **The record is derived from the ink**: the unbroken run of fully-traced rows from the top |
+| The pencil could pan the page (finger-tracing on) | **The pencil never scrolls** — pen touches are excluded from the scroll gesture outright |
+| Fixing a traced line went through a chip | **Tap the row** — its ink comes back in accuracy colours and every tool works on it |
+
+**Why it is better.** The check was one more thing to learn and one more thing drawn on
+the page; free selection plus auto-advance gets the same flow with zero new UI — the
+ordinary path is still speak, then write straight down the page, and the taps are only for
+going back, skipping, or fixing. Excluding the pencil from the scroll gesture removes the
+last way a pen stroke could be eaten by a pan. And the derived record closes a loophole:
+nothing can ever *say* it is written — it either is inked or it is not.
+
+**What it costs.** Finishing is a sensor again (the row fills), which v2.5 argued against —
+but the agency the check protected now lives in free selection: the child can take any row
+back at any moment, so no automatic transition is ever final.
 
 ## 0.5 What Changed in v2.5
 
@@ -440,67 +463,62 @@ recognition is unavailable (frame 41), *Type it instead* puts the keyboard strai
 the page — the app never dead-ends, and typing is the same path as speaking with the mic
 removed.
 
-**Three tiers, and when text becomes real.** Every line of the page is in one of three
-states, distinguishable at a glance:
+**Three row states, and when text becomes real.** Every row of the page is in one of
+three states, distinguishable at a glance:
 
-| State | Text | Ink | Part of the record |
+| State | Letters | Ink | Part of the record |
 |---|---|---|---|
-| **Written** — finished | none — their ink *is* the text | natural graphite | **yes** |
-| **In hand** — being written | guide, locked | red / green per segment | not yet |
-| **Spoken** — said, waiting | pale and cool, editable | none | **no** |
+| **Traced** — has ink, not selected | faint grey, under the ink | natural graphite | see below |
+| **Selected** — being written now | black | red / green per segment | — |
+| **Untraced** — waiting | pale and cool, editable | none | **no** |
 
-**The child finishes a line by saying so**: tapping the check that sits at the end of the
-line in hand, or tapping the next spoken line to take it in hand. That is the settle —
-guide fades, ink turns graphite, in place — and it is also the **commit**: only then do
-that line's words join the record. Writing goes in order; only the next spoken line can be
-taken in hand, because a record assembled line by line must stay contiguous. Letters
-skipped on a line the child chose to finish score zero (§8.1) — finishing is a choice, not
-a certificate.
+**Any row can be selected by tapping it, at any time** — a traced row for fixing, a row
+further down to skip ahead, the row they just left. A pen that starts moving on an
+unselected row selects it and begins the stroke in the same gesture. When the selected
+row's last letter gets ink, the next untraced row is selected on its own, and the row left
+behind settles: letterforms fade to faint grey, ink turns graphite, in place. The ordinary
+flow is still speak, then write straight down the page — the taps are for going back, not
+for going forward.
 
-**Fixing misheard words happens in place, and the pencil and the finger do different
-jobs.** The pencil writes — putting it down on a row takes that row in hand and inks it.
-The finger picks text: a tap selects a word, and a drag runs the selection across as many
-as the child wants. That split is what lets a tap mean one thing on a page that is both a
-text to fix and a surface to write on. (Finger tracing gives the finger the job of writing
-instead, so there picking words falls back to a hold — one finger cannot mean two things.)
+**The record is derived, never declared.** What the journal, exports and every count read
+is the unbroken run of fully-traced rows from the top of the page, recomputed from the ink
+itself. It grows as rows fill, and shrinks if a record row's ink is cleared. A row traced
+out of order is scored — the child wrote it — but the record, the story so far in order,
+waits for the rows before it. Letters skipped on a traced row score zero (§8.1).
 
-Selected words can be changed two ways: **type over them**, or **say them again** — the mic
-aimed at the selection, so what the child says next takes the place of what they picked
-rather than joining the end of the page. The new words land where the old ones were as they
-are spoken. Spoken text is the only editable tier — the
-in-hand line's guide must not move under the pen, and written lines are the record. There
-is no bulk proofread step; the child fixes what they notice while the words are still
-words, and a mistake they never notice is caught the moment it becomes awkward to trace.
-Since edits can only touch the spoken tier, nothing the child has written ever reflows.
+**Fixing a misheard word** happens in place: hold a finger on an untraced word, it opens
+under a small action-coloured box, the keyboard rises, done. Untraced text is the only
+editable tier — and only where no traced row sits below it, because an edit must never
+reflow a row out from under its ink. There is no bulk proofread step; the child fixes what
+they notice while the words are still words.
 
-**Tap a written line to write it again.** The line highlights, a *"Write this line again"*
-chip appears beneath it, and tapping the chip clears that line's strokes and returns it to
-the in-hand state. The words stay in the record — only the ink is redone, and only the
-latest tracing is kept (§5.5). A child who goes back over a line they rushed watches their
-percentage go up, which is the whole reason it exists.
+**Fixing a row you already wrote is just tapping it.** Its ink comes back in accuracy
+colours, and the pen, eraser, undo and clear work on it exactly as they did the first time
+— all four are scoped to the selected row, so the rest of the page's ink is untouchable.
+Only the latest tracing is kept (§5.5): redoing overwrites, and a child who goes back over
+a row they rushed watches their percentage go up, which is the whole reason it exists.
 
 **Saying more appends to this page.** Tapping the footer mic again adds the new words to
 the spoken tier after the last existing word and scrolls to them. An entry is a day's
 page, however many times the child spoke to fill it — and the new words are no more real
 than the first ones were until they too are written.
 
-**Scrolling and the pen are separated by touch count, not by guesswork:**
+**The pencil never scrolls.** Pen touches are excluded from the scroll gesture outright,
+so a pen on the page is always ink — a stroke can never be eaten by a pan. Fingers scroll:
 
 | Finger tracing | One finger | Two fingers |
 |---|---|---|
-| Off | scrolls | — |
+| Off | scrolls (taps still select) | — |
 | On | draws | scrolls |
 
-With finger tracing off, only the pencil draws and a finger scrolls — unambiguous. With it
-on, the split is what Notes and Procreate do. Two fingers is a lot to ask of a five-year-old
-holding a pencil, so **a chevron button at the foot of the page scrolls without any gesture
-at all**. That button is the primary mechanism; the gestures are for whoever finds them.
+Two fingers is a lot to ask of a five-year-old holding a pencil, so **a chevron button at
+the foot of the page scrolls without any gesture at all**. That button is the primary
+mechanism; the gestures are for whoever finds them.
 
-Taps are the third input, and each tap target is unambiguous about which tier it landed
-on: a written line selects for re-tracing, the next spoken line advances, a spoken word
-opens for fixing, the check finishes the line. None of those regions is one where drawing
-or scrolling is the obvious intent, and a tap that lands nowhere meaningful clears the
-selection and does nothing.
+Taps are the third input and they all mean one thing — *select this row* — which is what
+makes the surface legible: there is no tap target to learn, no region where a tap does
+something different, and a held finger (the one exception) opens an untraced word for
+fixing.
 
 Ink is drawn in green/red per segment **always**; there is no toggle, because during
 writing the colours *are* the feedback.
@@ -509,9 +527,9 @@ Three tools in the toolbar:
 
 | Tool | Does |
 |---|---|
-| **Eraser** | Rubs out every point inside a 72 pt circle and re-scores the letters it touched. Selected state fills the button. |
-| **Undo** | Removes the last whole stroke, in order. |
-| **Clear** | Wipes the page's ink. Nothing is scored until Done. |
+| **Eraser** | Rubs out every point inside a 72 pt circle on the selected row and re-scores the letters it touched. Selected state fills the button. |
+| **Undo** | Removes the selected row's last whole stroke, in order. |
+| **Clear** | Wipes the selected row's ink. The rest of the page is unreachable. |
 
 The eraser and undo are not redundant: undo is chronological, the eraser is spatial. A
 child who overshoots the *a* in a ten-letter word wants to fix the *a*, not unwind
@@ -522,11 +540,11 @@ for why the live number and the final number are not the same.
 
 **Stopping part-way must be unremarkable.** A five-minute story is far more than a child
 will write in one sitting, so stopping part-way is the *normal* case, not the exception.
-*I'm finished* commits the line in hand if it has any ink (they traced it, so it counts —
-skipped letters at zero) and returns it to spoken if it has none. The spoken remainder
-stays with the entry as what is still to write — visible on the resume card, absent from
-the journal, exports and every count. No warning, no "are you sure", no lost-progress
-language: nothing real can be lost, because only what is written is real.
+*I'm finished* settles the page as it stands: every row with ink counts — they traced it —
+with skipped letters at zero, and the untraced remainder stays with the entry as what is
+still to write — visible on the resume card, absent from the journal, exports and every
+count. No warning, no "are you sure", no lost-progress language: nothing real can be lost,
+because only what is written is real.
 
 ### 4.5 Results
 
@@ -872,13 +890,13 @@ var totalWords: Int               // record + buffer: what "of 48 words" means
 @Attribute(.externalStorage) var thumbnailData: Data?
 ```
 
-**`transcript` grows one finished line at a time** (§4.4): finishing the line in hand moves
-its words from `spokenBuffer` into `transcript`. Everything downstream — journal rows,
-search, Entry Detail's Typed page, exports, `totalWordsWritten`, badges — reads
-`transcript` and never the buffer. The buffer exists so a child who spoke for four minutes
-and wrote for six does not have to say it again tomorrow; it is scratch, not record. Since
-v2.6 no list or card quotes it — it is seen only on the page itself, when the entry is
-opened for editing.
+**`transcript` follows the ink** (§4.4): it is the unbroken run of fully-traced rows from
+the top of the page, re-derived whenever the ink changes — it grows as rows fill and
+shrinks if a record row's ink is cleared. Everything downstream — journal rows, search,
+Entry Detail's Typed page, exports, `totalWordsWritten`, badges — reads `transcript` and
+never the buffer. The buffer exists so a child who spoke for four minutes and wrote for
+six does not have to say it again tomorrow; it is scratch, not record, and the resume card
+is the only UI that quotes it.
 
 ### 5.4 There is no Draft entity either
 
@@ -1061,21 +1079,17 @@ letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
 entryAccuracy     = mean(letterAccuracy) over every scored glyph, spaces excluded
 ```
 
-A letter with no ink scores **0%** — but only on lines the child chose to finish.
+A letter with no ink scores **0%** — but only on rows the child traced.
 
-v2.4 needed a special rule here ("words never reached are not scored") to keep stopping
-part-way from reading as collapse. v2.5 gets the same outcome structurally: unwritten
-words are not in the record at all (§5.3), so there is nothing to score and nothing to
-excuse. The scored population is simply the record.
-
-Inside a line the child *did* finish, a skipped letter still scores zero — finishing a
-line is a choice, not a certificate, and the anti-skip property is what made per-letter
-grading worth doing:
+The scored population is **every row with any ink**, wherever it sits on the page: the
+child wrote it, so it counts, and its untouched letters cost. Rows with no ink are not in
+the population at all — unwritten words are not failed words, and stopping part-way stays
+ordinary by construction (v2.4's "words never reached" rule, now at row granularity).
 
 ```
-scored letters  = every letter of the record (finished lines), spaces excluded
+scored letters  = every letter on a row with any ink, spaces excluded
 accuracy        = mean(letterAccuracy) over scored letters
-progress        = wordsWritten / totalWords     — record over record-plus-spoken
+progress        = wordsWritten / totalWords     — inked words over everything said
 ```
 
 **Live and final differ on purpose.**
@@ -1333,7 +1347,7 @@ never redrawn smaller. Thumbnails are the one exception (§10.6 of the spec).
 | Standard transition | 0.30 s ease-in-out |
 | Typed ↔ Handwritten | 0.35 s 3-D flip, y-axis |
 | Guide fade on reveal | 0.50 s |
-| **A line settles** — on the child's finish-tap, never automatically | **0.45 s cross-fade in place: guide out, ink to graphite** |
+| **A row settles** — whenever selection leaves it | **0.45 s cross-fade in place: letterforms to faint grey, ink to graphite** |
 | Spoken words landing during dictation | 0.15 s fade-in per word, no movement |
 | Badges, stars | spring, response 0.4, damping 0.7 |
 
@@ -1479,11 +1493,11 @@ defer it.
 
 ## 18. Companion Documents
 
-- `WIREFRAME_SPEC.md` v2.5 — measurements, tokens, component library, frame inventory
+- `WIREFRAME_SPEC.md` v2.6 — measurements, tokens, component library, frame inventory
 - `PENPOT_HANDOFF.md` — what the built Penpot file does differently and why
 - `Original Traceright App/` — the working tracing engine this is ported from
 
 ---
 
-*Document version: 2.9*
-*Last updated: 2026-08-30*
+*Document version: 2.6*
+*Last updated: 2026-08-27*
