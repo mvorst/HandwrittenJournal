@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v2.6
+## Penpot handoff, v2.9
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -99,6 +99,44 @@ from §5–§9 of this file.
   outright, so a pen on the page is always ink (§11.6).
 - The re-trace chip of §11.12 is retired: fixing a traced row is just tapping it.
 
+**What changed in v2.7 — three screens removed:**
+
+- **Avatar Capture is gone** (frame 7). Photos come from the system photo picker
+  (`photo.on.rectangle`), not a custom camera screen. The Profile Editor shows *Choose
+  Photo*, plus a destructive *Remove* once a photo exists.
+- **The Journal List is gone** (frame 11). Journal Home lists every entry itself under a
+  "My Journal" section; there is no "See all" and no separate list screen. Search stays in
+  Journal Home's toolbar (frame 12 is now a state of Journal Home).
+- **The Journal Calendar is gone** (frame 13), and with it the `Cell / Calendar` component.
+
+**What changed in v2.8 — the style-guide palette** (see `STYLE_GUIDE.md` for every
+decision and rejected proposal):
+
+- **Warm paper.** `paper` and `paper-sunk` shift from near-neutral to lined-paper cream
+  (`#FAF5E8` / `#F1E8D3`). `paper-raised` stays white.
+- **`danger` is crayon red `#D64541`, `success` is meadow green `#43A047`, `star-on` is
+  tangerine `#F28522`.** The accuracy inks (`ink-inside`, `ink-outside` and the
+  colorblind pair) deliberately do **not** follow — they are a teaching channel, and
+  §5.2 keeps their original values, so `success`/`danger` no longer share hexes with them.
+- **Cut-paper shadows** (§8): hard bottom-edge offsets, zero blur. `Button / Primary`
+  gains `shadow-card`.
+- **Three decorative accents reserved** (§5.6) for the future sticker/doodle pass.
+- **Explicitly rejected:** yellow primary buttons (`action` stays blue), colored or
+  restructured writing rules (the dashed-outer/solid-baseline gray rules are the spec),
+  a red margin rule, and any tracing-typeface change.
+
+**What changed in v2.9 — the journal reads only as handwriting:**
+
+- **The typed reading of an entry is gone.** Entry Detail always shows the child's own
+  strokes over the faint guide; there is nothing to flip to. Frame 14 is retired, frame
+  15 is simply "Entry Detail", and the page surface grows into the toggle's space
+  (§13.4).
+- **`Toggle / TypedHandwritten` is retired** (§10.6), and with it the §4 page-flip
+  motion and `Motion.pageFlip` in `AppConstants.swift`.
+- Typing is still how a keyboard entry gets *onto* the page (frame 41's fallback), and
+  the export's "include the typed words" option is untouched — this change is about
+  reading, not writing.
+
 ---
 
 ## 1. How To Use This Document
@@ -122,9 +160,9 @@ One Penpot file: **`Wireframes`**.
 |---|---|
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
-| `02 · Profiles` | Frames 1–7 |
-| `03 · Journal` | Frames 9–19 |
-| `04 · Write` | Frames 20–30, 36 |
+| `02 · Profiles` | Frames 1–6 |
+| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–48 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
 | `99 · Scratch` | Anything in progress; never referenced by development |
 
@@ -140,6 +178,10 @@ by number.
 | 16 | Entry Detail — accuracy colours | The journal is always natural ink now (§11.5) |
 | 35 | Level-up celebration | Levels removed |
 | 17 | Sentence attempts | Only the latest tracing is kept (v2.1) |
+| 7 | Avatar Capture — live camera | The system photo picker replaced the camera (v2.7) |
+| 11 | Journal List | Journal Home lists every entry itself (v2.7) |
+| 13 | Journal Calendar | Removed (v2.7) |
+| 14 | Entry Detail — Typed | The journal reads only as handwriting (v2.9) |
 
 ---
 
@@ -171,7 +213,6 @@ Nothing tappable may enter that band — i.e. nothing below **y 1170**.
 | Minimum tap target | 44 × 44 | Apple HIG floor. Child-facing primary actions are much larger. |
 | Child primary action | ≥ 280 × 64 | Deliberately oversized; a six-year-old is the user. |
 | Standard transition | 0.30 s ease-in-out | |
-| Page-flip (typed ↔ handwritten) | 0.35 s | `rotation3DEffect`, y-axis |
 | Guide fade on reveal | 0.50 s | |
 | Line settle (guide fades, ink turns natural, in place) | 0.45 s | See §11.10 |
 | Spring (badges, stars) | response 0.4, damping 0.7 | |
@@ -187,8 +228,8 @@ names in `AppConstants.swift`.
 
 | Token | Hex | Use |
 |---|---|---|
-| `paper` | `#FAF8F5` | App background, the writing surface |
-| `paper-sunk` | `#F1EEE9` | Card wells, keypad keys, inset panels |
+| `paper` | `#FAF5E8` | App background, the writing surface. Lined-paper cream (v2.8, `STYLE_GUIDE.md` §1.1) |
+| `paper-sunk` | `#F1E8D3` | Card wells, keypad keys, inset panels. A warm step down from `paper` (v2.8) |
 | `paper-raised` | `#FFFFFF` | Cards that float above `paper` |
 | `overlay-scrim` | `#000000` @ 40% | Behind modals and sheets |
 
@@ -226,12 +267,24 @@ names in `AppConstants.swift`.
 | `action` | `#007AFF` | Primary buttons, selected states, links |
 | `action-pressed` | `#0060D0` | Pressed state of `action` |
 | `action-disabled` | `#B4D5FA` | Disabled fill |
-| `star-on` | `#FFD700` | Earned star |
+| `star-on` | `#F28522` | Earned star. Tangerine (v2.8) — no longer shares a hue family with `streak-flame` |
 | `star-off` | `#D1D1D6` | Unearned star, unearned badge |
 | `streak-flame` | `#FF9500` | Flame glyph and streak count |
-| `success` | `#34C759` | Positive deltas on Progress |
-| `danger` | `#FF3B30` | Delete, reset, negative deltas |
+| `success` | `#43A047` | Positive deltas on Progress. Meadow green (v2.8) — deliberately no longer the same hex as `ink-inside`, which keeps its own value |
+| `danger` | `#D64541` | Delete, reset, negative deltas. Crayon red (v2.8) — deliberately no longer the same hex as `ink-outside`, which keeps its own value |
 | `divider` | `#E5E5EA` | Hairline separators |
+
+### 5.6 Decorative accents *(v2.8 — reserved, no UI role yet)*
+
+From `STYLE_GUIDE.md` §1.2: these exist for the sticker/doodle asset pass (crayon stars,
+badges, corner stickers). They must never carry meaning — no button fills, no states, and
+never anywhere the accuracy inks appear.
+
+| Token | Hex | Use |
+|---|---|---|
+| `pencil-yellow` | `#F6C33E` | Highlight/decorative accent only — never a primary button fill (`action` stays blue) |
+| `eraser-pink` | `#E35882` | Playful highlights, badges, stickers — **not** destructive actions (`danger` owns those) |
+| `lilac-star` | `#8E75C8` | Corner stickers, playful accents. Must stay visually distinct from `practice-path` purple |
 
 **Dark mode is out of scope for v1.** The app is a paper journal and stays light.
 
@@ -348,9 +401,14 @@ thumbnail width. Stroke widths scale with glyph size in every case (§11.5).
 | `radius-sheet` | 28 |
 | `radius-pill` | height ÷ 2 |
 | `radius-avatar` | full circle |
-| `shadow-card` | 0 y, 8 blur, `#000000` @ 6% |
-| `shadow-raised` | 0 y, 24 blur, `#000000` @ 10% |
-| `shadow-modal` | 0 y, 48 blur, `#000000` @ 18% |
+| `shadow-card` | 3 y, 0 blur, `#000000` @ 8% |
+| `shadow-raised` | 4 y, 0 blur, `#000000` @ 12% |
+| `shadow-modal` | 6 y, 0 blur, `#000000` @ 18% |
+
+Shadows are **cut-paper** as of v2.8 (`STYLE_GUIDE.md` §3.2): a hard bottom-edge offset
+with zero blur, so raised surfaces read as physical paper sitting on the page rather than
+objects floating in space. `Button / Primary` carries `shadow-card`; outline and text
+buttons carry none.
 | `stroke-hairline` | 1 pt, `divider` |
 | `stroke-emphasis` | 2 pt |
 | `stroke-selected` | 3 pt, `action` |
@@ -366,7 +424,7 @@ counterparts. Replace them with real SF Symbol SVG exports before final sign-off
 Required set: `mic.fill`, `keyboard`, `arrow.uturn.backward`, `trash`, `checkmark`,
 `chevron.left`, `chevron.right`, `gearshape.fill`, `chart.line.uptrend.xyaxis`,
 `magnifyingglass`, `calendar`, `line.3.horizontal.decrease.circle`, `square.and.arrow.up`,
-`ellipsis.circle`, `camera.fill`, `photo.on.rectangle`, `lock.fill`, `flame.fill`,
+`ellipsis.circle`, `photo.on.rectangle`, `lock.fill`, `flame.fill`,
 `star.fill`, `star`, `pencil.line`, `person.crop.circle.badge.plus`, `xmark`,
 `arrow.triangle.2.circlepath`, `plus`, `eraser.fill`, `speaker.wave.2.fill`.
 
@@ -439,7 +497,7 @@ Stars rate **one tracing**. They no longer accumulate toward anything.
 | `Ring / Results` | 220 outer diameter, 18 pt stroke, `paper-sunk` track, `action` progress, round cap, starts at 12 o'clock clockwise. `numeral-xl` centred with `caption` label 8 pt below. Shows the **session** accuracy. |
 | `Ring / Compact` | 120 outer, 12 pt stroke, same construction |
 | `Button / Toolbar / Active` | 44 × 44, `action` fill, `radius` 12, icon in `text-on-action`. Used for the eraser while it is selected. |
-| `Segmented` | h 44, `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3 pt with `shadow-card`. Used for Typed/Handwritten, Trace/Copy, and the 30d/90d/All range. |
+| `Segmented` | h 44, `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3 pt with `shadow-card`. Used for Trace/Copy and the 30d/90d/All range. |
 
 `Bar / Level` and `Pager / Attempt` are both **retired** — there is no ladder and no
 attempt history.
@@ -457,8 +515,8 @@ attempt history.
 | ~~`End-of-line check`~~ | **Retired in v2.6** — finishing is automatic (the row fills) and selection is free (any row, any tap). Do not reuse. |
 | `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). |
 | `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em. **Never accuracy colours.** |
-| `Toggle / TypedHandwritten` | 420 × 56, `radius-pill`, `paper-sunk` track. Two 210 pt segments. Selected: `paper-raised` inset 4 pt, `shadow-card`, `button-sm` in `text-primary`. Unselected `button-sm` in `text-secondary`. |
-| `Cell / Calendar` | 88 × 88. Day numeral `body` centred. Entry dot 8 pt in `action`, 8 pt below the numeral. Today: 2 pt `action` ring. |
+| ~~`Toggle / TypedHandwritten`~~ | **Retired in v2.9** — the journal reads only as handwriting; there is no typed page to flip to. Do not reuse. |
+| ~~`Cell / Calendar`~~ | **Retired in v2.7** — the calendar screen is gone. Do not reuse. |
 | `Font option` | Full content width × 176, `radius-card`. Selected: `paper-raised`, `shadow-card`, 3 pt `action` stroke, `checkmark` 24 pt trailing. Unselected: `paper-sunk`. Name `headline`, reason `caption`, then a live preview of the sample line at 46 / 60 on one ruled line. |
 | `Size option` | Full content width, height = size × 1.5 + 56. Same selected treatment. Label `body-em`, "NN pt" `caption` trailing, then a live preview at the real size. |
 
@@ -743,7 +801,7 @@ somewhere other than where they would write it.
 
 ## 12. Frame Inventory
 
-35 frames, all portrait 834 × 1194.
+33 frames, all portrait 834 × 1194.
 
 ### `02 · Profiles`
 
@@ -754,8 +812,7 @@ somewhere other than where they would write it.
 | 3 | PIN Pad — entering | 2 of 4 dots filled |
 | 4 | PIN Pad — wrong PIN | Danger dots mid-shake |
 | 5 | Profile Editor — new, empty | Empty avatar, empty name, "No PIN", Font/Size/Mode rows |
-| 6 | Profile Editor — existing, with photo | Populated, PIN set, Delete visible |
-| 7 | Avatar Capture — live camera | Circular mask, countdown "3" |
+| 6 | Profile Editor — existing, with photo | Populated, PIN set, Delete visible; Choose Photo + Remove |
 
 ### `03 · Journal`
 
@@ -764,9 +821,7 @@ somewhere other than where they would write it.
 | 9 | Journal Home — populated | **The main screen**: New Entry, then badges, then every entry newest first as `Row / Session`. No resume card, no "Your writing" card. |
 | 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey |
 | 12 | Journal Home — search active | Query "grandma", 2 results, keyboard up. Search lives in this screen's toolbar. |
-| 13 | Journal Calendar | March grid, dots on written days |
-| 14 | Entry Detail — Typed | A session page; toggle on "Typed" |
-| 15 | Entry Detail — Handwritten | Same page in `ink-natural`; one `Card / Entry stats` beneath |
+| 15 | Entry Detail | The entry as the child wrote it, in `ink-natural`; one `Card / Entry stats` beneath. The only reading — frame 14 (Typed) is retired (v2.9). |
 | 18 | Entry Detail — overflow menu open | Edit / Hear what I said / Share as PDF / Rename / Delete |
 | 19 | Export preview — one entry | Scope selector, one PDF page, the entry as one continuous flow |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, size and options |
@@ -846,7 +901,7 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 | "Your writing" card, `paper-sunk`, `radius-card` | 24 | 150 | 786 × 96 |
 | — "YOUR WRITING" `caption`; "Jua · Large · Trace" `headline`; "Change ›" trailing | | | |
 | `Button / Primary` "✎ New Entry" | 257 | 290 | 320 × 72 |
-| "Recent" `title-2` · "See all ›" trailing | 24 | 404 | — |
+| "My Journal" `title-2` | 24 | 404 | — |
 | Session cards, 3 then 2, `Card / Session`, 24 pt gaps | centred | 456 / 716 | 200 × 240 |
 | "Badges" `title-2` | 24 | 980 | — |
 | Badge strip: 64 pt circles, 20 pt gaps, no labels | centred | 1030 | 652 × 64 |
@@ -888,22 +943,21 @@ mutes the footer mic.
 in accuracy colours, the traced rows around it faint-grey under graphite. No band, no chip
 — selection is its own affordance.
 
-### 13.4 Frames 14 / 15 — Entry Detail
+### 13.4 Frame 15 — Entry Detail
+
+The entry always reads as the child's own handwriting (v2.9) — natural ink over the
+faint guide, never a typed rendering and never accuracy colours. Frame 14 is retired.
 
 | Element | x | y | Size |
 |---|---|---|---|
 | `Toolbar` — back leading, "Wednesday, March 4" centred `title-1`, `ellipsis.circle` trailing | 0 | 0 | 834 × 72 |
-| `Toggle / TypedHandwritten`, centred | 207 | 96 | 420 × 56 |
-| Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 176 | 786 × 620 |
-| — the entry flows continuously, 32 pt inner padding, ruled; scrollbar when it overflows | | | |
+| Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 96 | 786 × 700 |
+| — the entry flows continuously, 32 pt inner padding, ruled; the page keeps ruling below the last word; scrollbar when it overflows | | | |
 | "How it went" `body-em` + rule | 24 | 820 | — |
 | `Card / Entry stats` (§10.6) | 24 | 858 | 786 × 96 |
 | "Jua · Large · Trace" `caption` trailing | 24 | 976 | — |
 | `Button / Primary` "Edit" | 137 | 1070 | 268 × 64 |
 | `Button / Secondary` "Share" | 429 | 1074 | 268 × 56 |
-
-Frames 14 and 15 must be **pixel-identical apart from the page surface contents and the
-selected toggle segment**.
 
 ### 13.5 Frame 39 — Font size picker
 
@@ -967,7 +1021,7 @@ words** — the frame that shows an entry growing.
 There is no splitter and no fit rule, so this fixture no longer exercises anything except
 the page's height: at Large it is 23 lines, about two and a half windows.
 
-**An unfinished entry** (frames 9 variant, 11) — Mar 4, 5:30 PM, 32 of 48 words, next up
+**An unfinished entry** (frame 9 variant) — Mar 4, 5:30 PM, 32 of 48 words, next up
 *"until it got tired."*
 
 **Frame 12 only:** an older result for the query "grandma" — Jan 18, 3:15 PM, "Grandma read
@@ -1056,6 +1110,6 @@ Development then starts at Phase 1 in `DESIGN_DOCUMENT.md` §15.
 
 ---
 
-*Document version: 2.6*
-*Last updated: 2026-08-27*
+*Document version: 2.7*
+*Last updated: 2026-09-01*
 *Companion to DESIGN_DOCUMENT.md v2.6*

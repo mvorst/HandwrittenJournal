@@ -46,15 +46,15 @@ extension EntryPageView {
             }
 
             // §8.1b — a word was finished with letters in the wrong order. The modal
-            // sits over everything, chrome included, and only tracing the letter
-            // correctly closes it.
+            // sits over everything, chrome included, and only tracing every wrong
+            // letter correctly closes it.
             if let help = model.formationHelp {
                 FormationHelpOverlay(help: help,
                                      setup: model.setup,
                                      allowFinger: profile.allowFingerTracing,
-                                     colourBlind: profile.colorBlindMode) {
-                    model.completeFormationHelp()
-                }
+                                     colourBlind: profile.colorBlindMode,
+                                     onLessonComplete: { model.completeFormationLesson($0) },
+                                     onComplete: { model.completeFormationHelp() })
                 .id(help)
                 .transition(.opacity)
             }

@@ -7,8 +7,8 @@ enum Tokens {
 
     enum Colour {
         // 5.1 Surfaces
-        static let paper        = Color(hex: 0xFAF8F5)
-        static let paperSunk    = Color(hex: 0xF1EEE9)
+        static let paper        = Color(hex: 0xFAF5E8)
+        static let paperSunk    = Color(hex: 0xF1E8D3)
         static let paperRaised  = Color(hex: 0xFFFFFF)
         static let overlayScrim = Color(hex: 0x000000).opacity(0.40)
 
@@ -39,12 +39,18 @@ enum Tokens {
         static let action         = Color(hex: 0x007AFF)
         static let actionPressed  = Color(hex: 0x0060D0)
         static let actionDisabled = Color(hex: 0xB4D5FA)
-        static let starOn         = Color(hex: 0xFFD700)
+        static let starOn         = Color(hex: 0xF28522)
         static let starOff        = Color(hex: 0xD1D1D6)
         static let streakFlame    = Color(hex: 0xFF9500)
-        static let success        = Color(hex: 0x34C759)
-        static let danger         = Color(hex: 0xFF3B30)
+        static let success        = Color(hex: 0x43A047)
+        static let danger         = Color(hex: 0xD64541)
         static let divider        = Color(hex: 0xE5E5EA)
+
+        // 5.6 Decorative accents — reserved for the sticker/doodle pass. Never a
+        // button fill, never a state, never near the accuracy inks.
+        static let pencilYellow   = Color(hex: 0xF6C33E)
+        static let eraserPink     = Color(hex: 0xE35882)
+        static let lilacStar      = Color(hex: 0x8E75C8)
     }
 
     // MARK: - §6 Grid and spacing
@@ -67,6 +73,8 @@ enum Tokens {
         static let surfaceInset: CGFloat  = Space.s7
         static let toolbarHeight: CGFloat = 72
         static let homeIndicator: CGFloat = 24
+        /// The profile photo on the editor — large enough to frame by eye.
+        static let editorAvatar: CGFloat  = 160
         /// Width of the writing surface on an 834 pt canvas. Computed at runtime from the
         /// real width; this is the reference figure the spec quotes.
         static func surfaceWidth(in totalWidth: CGFloat) -> CGFloat {
@@ -86,10 +94,12 @@ enum Tokens {
         static let sheet: CGFloat  = 28
     }
 
+    /// Cut-paper as of §8 v2.8: a hard bottom-edge offset with zero blur, so raised
+    /// surfaces read as paper sitting on the page rather than floating above it.
     enum Elevation {
-        static let card   = ShadowSpec(radius: 8,  y: 0, opacity: 0.06)
-        static let raised = ShadowSpec(radius: 24, y: 0, opacity: 0.10)
-        static let modal  = ShadowSpec(radius: 48, y: 0, opacity: 0.18)
+        static let card   = ShadowSpec(radius: 0, y: 3, opacity: 0.08)
+        static let raised = ShadowSpec(radius: 0, y: 4, opacity: 0.12)
+        static let modal  = ShadowSpec(radius: 0, y: 6, opacity: 0.18)
     }
 
     struct ShadowSpec {
@@ -108,7 +118,6 @@ enum Tokens {
 
     enum Motion {
         static let standard: Double  = 0.30
-        static let pageFlip: Double  = 0.35
         static let guideFade: Double = 0.50
         static let settle: Double    = 0.45
         static var spring: Animation { .spring(response: 0.4, dampingFraction: 0.7) }

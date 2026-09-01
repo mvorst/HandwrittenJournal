@@ -21,6 +21,8 @@ struct PrimaryButton: View {
             .padding(.horizontal, Tokens.Space.s6)
             .background(enabled ? Tokens.Colour.action : Tokens.Colour.actionDisabled,
                         in: RoundedRectangle(cornerRadius: Tokens.Radius.button))
+            // §8 v2.8: primary buttons sit on the page like cut paper; disabled ones lie flat.
+            .hjShadow(enabled ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0))
         }
         .buttonStyle(PressableStyle())
         .disabled(!enabled)

@@ -41,11 +41,36 @@ final class WriteSessionViewModel {
     }
 
     /// §8.1b — the remediation modal: the finished word with its wrong-order letters,
-    /// and the one letter (picked at random) the child must trace correctly to go on.
+    /// and the lessons the child must trace correctly, one by one, to go on.
     struct FormationHelp: Hashable {
+        /// One distinct wrong character and every occurrence of it in the word —
+        /// tracing the character once lifts the discount on all of them.
+        struct Lesson: Hashable {
+            let character: Character
+            let letters: [FormationHelpRequest.Letter]
+
+            var offsets: Set<Int> { Set(letters.map(\.offset)) }
+        }
+
         let wordText: String
         let wrongOffsets: Set<Int>
-        let picked: FormationHelpRequest.Letter
+        /// The lessons in reading order — every one must be traced to close the modal.
+        let lessons: [Lesson]
+
+        /// A request's wrong letters as lessons: one per distinct character, in
+        /// reading order, so the same character wrong twice is taught once.
+        static func lessons(for letters: [FormationHelpRequest.Letter]) -> [Lesson] {
+            var lessons: [Lesson] = []
+            for letter in letters {
+                if let i = lessons.firstIndex(where: { $0.character == letter.character }) {
+                    lessons[i] = Lesson(character: letter.character,
+                                        letters: lessons[i].letters + [letter])
+                } else {
+                    lessons.append(Lesson(character: letter.character, letters: [letter]))
+                }
+            }
+            return lessons
+        }
     }
 
     var stage: Stage = .writing
@@ -168,21 +193,30 @@ final class WriteSessionViewModel {
     private func presentNextFormationHelp() {
         guard formationHelp == nil, !helpQueue.isEmpty else { return }
         let request = helpQueue.removeFirst()
-        // More than one wrong letter: one of them, at random, is the lesson.
-        guard let picked = request.letters.randomElement() else { return }
+        let lessons = FormationHelp.lessons(for: request.letters)
+        guard !lessons.isEmpty else { return }
         formationHelp = FormationHelp(wordText: request.wordText,
                                       wrongOffsets: request.wrongOffsets,
-                                      picked: picked)
+                                      lessons: lessons)
         Haptics.tap()
     }
 
-    /// The child traced the letter correctly. Its order discount is lifted — for good,
-    /// on this entry — and the score re-derives. The other wrong letters in the word
-    /// keep their discount; the lesson was the picked letter.
+    /// The child traced a lesson's letter correctly. The order discount is lifted —
+    /// for good, on this entry — on every wrong occurrence of that character in the
+    /// word, and the score re-derives. (The canvas already sounded the success haptic
+    /// at the trace itself.)
+    func completeFormationLesson(_ lesson: FormationHelp.Lesson) {
+        guard formationHelp != nil else { return }
+        for letter in lesson.letters {
+            controller.markRemediated(letter: letter.glyph)
+            session?.remediatedCharIndices.append(letter.charIndex)
+        }
+    }
+
+    /// Every lesson traced and the child tapped through — the modal closes and any
+    /// queued word takes its place.
     func completeFormationHelp() {
-        guard let help = formationHelp else { return }
-        controller.markRemediated(letter: help.picked.glyph)
-        session?.remediatedCharIndices.append(help.picked.charIndex)
+        guard formationHelp != nil else { return }
         formationHelp = nil
         Haptics.success()
         presentNextFormationHelp()

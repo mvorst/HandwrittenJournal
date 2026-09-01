@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import AVFoundation
 
 /// Frames 5 and 6. Starting level is gone; font, size and mode take its place.
 struct ProfileEditorView: View {
@@ -19,6 +20,11 @@ struct ProfileEditorView: View {
     @State private var showDeleteConfirm = false
     @State private var showFontPicker = false
     @State private var showSizePicker = false
+    @State private var photoStage: PhotoStage?
+    @State private var showCameraDenied = false
+    /// The full-resolution photo behind the current avatar, kept so "Adjust" can
+    /// re-frame the original instead of re-cropping an already-cropped 512 px JPEG.
+    @State private var sourceImage: UIImage?
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && (!usePIN || pin.count == 4)
@@ -28,26 +34,63 @@ struct ProfileEditorView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    AvatarView(image: avatar, initial: name.isEmpty ? nil : String(name.prefix(1)).uppercased(),
-                               diameter: 160, isAddTile: avatar == nil && name.isEmpty)
-                        .padding(.top, Tokens.Space.s6)
+                    // The photo carries its own two controls: tap it to re-frame,
+                    // and the X to take it off. Everything else stays a button.
+                    ZStack(alignment: .topTrailing) {
+                        AvatarView(image: avatar, initial: name.isEmpty ? nil : String(name.prefix(1)).uppercased(),
+                                   diameter: Tokens.Layout.editorAvatar,
+                                   isAddTile: avatar == nil && name.isEmpty)
+                            .contentShape(Circle())
+                            .onTapGesture { adjust() }
+                            .accessibilityAddTraits(avatar == nil ? [] : .isButton)
+                            .accessibilityHint(avatar == nil ? "" : "Move and zoom the photo")
+
+                        if avatar != nil {
+                            Button {
+                                avatar = nil
+                                sourceImage = nil
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundStyle(Tokens.Colour.textOnAction)
+                                    .frame(width: Tokens.Target.minimum, height: Tokens.Target.minimum)
+                                    .background(Tokens.Colour.danger, in: Circle())
+                                    // Against a dark photo the badge needs its own
+                                    // edge to stay legible.
+                                    .overlay(Circle().strokeBorder(Tokens.Colour.paper, lineWidth: 3))
+                            }
+                            .buttonStyle(PressableStyle())
+                            .accessibilityLabel("Remove photo")
+                        }
+                    }
+                    .frame(width: Tokens.Layout.editorAvatar, height: Tokens.Layout.editorAvatar)
+                    .padding(.top, Tokens.Space.s6)
 
                     HStack(spacing: Tokens.Space.s4) {
+                        if CameraPicker.isAvailable {
+                            SecondaryButton(title: "Take Photo", systemImage: "camera", minWidth: 216) {
+                                requestCamera()
+                            }
+                        }
                         PhotosPicker(selection: $photoItem, matching: .images) {
                             HStack(spacing: Tokens.Space.s3) {
                                 Image(systemName: "photo.on.rectangle").font(.system(size: 22))
                                 Text("Choose Photo").font(.hjButtonSm)
                             }
                             .foregroundStyle(Tokens.Colour.action)
-                            .frame(minWidth: 238, minHeight: 56)
+                            .frame(minWidth: 216, minHeight: 56)
                             .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button)
                                 .stroke(Tokens.Colour.action, lineWidth: Tokens.Stroke.emphasis))
                         }
-                        if avatar != nil {
-                            SecondaryButton(title: "Remove", minWidth: 160, destructive: true) { avatar = nil }
-                        }
                     }
                     .padding(.top, Tokens.Space.s5)
+
+                    if avatar != nil {
+                        Text("Tap the photo to move or zoom it")
+                            .font(.hjCaption)
+                            .foregroundStyle(Tokens.Colour.textSecondary)
+                            .padding(.top, Tokens.Space.s2)
+                    }
 
                     group("NAME") {
                         TextField("Type a name", text: $name)
@@ -134,6 +177,35 @@ struct ProfileEditorView: View {
         }
         .task { load() }
         .onChange(of: photoItem) { Task { await loadPhoto() } }
+        .fullScreenCover(item: $photoStage) { stage in
+            switch stage {
+            case .camera:
+                CameraPicker { image in
+                    // Straight into framing — swapping the stage keeps one
+                    // presentation alive rather than dismissing and re-presenting.
+                    photoStage = .crop(image)
+                } onFinish: {
+                    if case .camera = photoStage { photoStage = nil }
+                }
+                .ignoresSafeArea()
+            case .crop(let image):
+                AvatarCropView(image: image) { data in
+                    avatar = data
+                    sourceImage = image
+                    photoStage = nil
+                } onCancel: {
+                    photoStage = nil
+                }
+            }
+        }
+        .alert("Camera is turned off", isPresented: $showCameraDenied) {
+            if let settings = URL(string: UIApplication.openSettingsURLString) {
+                Button("Open Settings") { UIApplication.shared.open(settings) }
+            }
+            Button("Not now", role: .cancel) {}
+        } message: {
+            Text("A grown-up can let Journal use the camera in Settings. You can still choose a photo instead.")
+        }
         .sheet(isPresented: $showFontPicker) { FontPickerView(setup: $setup).presentationDetents([.large]) }
         .sheet(isPresented: $showSizePicker) { SizePickerView(setup: $setup).presentationDetents([.large]) }
         .confirmationDialog("Delete this profile?",
@@ -163,25 +235,40 @@ struct ProfileEditorView: View {
         avatar = profile.avatarImageData
     }
 
+    /// The camera prompt only appears once ever, so a later "no" has to be explained
+    /// rather than silently handing back a black viewfinder.
+    private func requestCamera() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            photoStage = .camera
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted { photoStage = .camera } else { showCameraDenied = true }
+                }
+            }
+        default:
+            showCameraDenied = true
+        }
+    }
+
     private func loadPhoto() async {
         guard let photoItem,
               let data = try? await photoItem.loadTransferable(type: Data.self),
               let image = UIImage(data: data) else { return }
-        avatar = Self.squareJPEG(image)
+        // Clear the selection so picking the same photo twice still opens the cropper.
+        self.photoItem = nil
+        photoStage = .crop(image)
     }
 
-    /// Centre-cropped to 512 × 512, JPEG q0.8 — roughly 40 KB (§4.2).
-    static func squareJPEG(_ image: UIImage, side: CGFloat = 512) -> Data? {
-        let shortest = min(image.size.width, image.size.height)
-        let crop = CGRect(x: (image.size.width - shortest) / 2,
-                          y: (image.size.height - shortest) / 2,
-                          width: shortest, height: shortest)
-        guard let cg = image.cgImage?.cropping(to: crop) else { return image.jpegData(compressionQuality: 0.8) }
-        let square = UIImage(cgImage: cg, scale: image.scale, orientation: image.imageOrientation)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: side, height: side))
-        return renderer.image { _ in
-            square.draw(in: CGRect(x: 0, y: 0, width: side, height: side))
-        }.jpegData(compressionQuality: 0.8)
+    /// Re-frame what is already there: the original if this session picked it,
+    /// otherwise the saved avatar, which can still be panned and zoomed.
+    private func adjust() {
+        if let sourceImage {
+            photoStage = .crop(sourceImage)
+        } else if let avatar, let image = UIImage(data: avatar) {
+            photoStage = .crop(image)
+        }
     }
 
     private func save() {
@@ -204,5 +291,19 @@ struct ProfileEditorView: View {
         guard let profile else { return }
         context.delete(profile)
         dismiss()
+    }
+
+    /// One presentation, two steps. Camera and cropper share a cover so the hand-off
+    /// from shutter to framing is a content swap, not a dismiss-then-present race.
+    private enum PhotoStage: Identifiable {
+        case camera
+        case crop(UIImage)
+
+        var id: String {
+            switch self {
+            case .camera: "camera"
+            case .crop: "crop"
+            }
+        }
     }
 }

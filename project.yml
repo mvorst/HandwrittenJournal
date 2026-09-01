@@ -21,6 +21,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mattvorst.education.handwrittenjournal
         GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_CFBundleDisplayName: "Journal"
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad."

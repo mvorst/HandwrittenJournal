@@ -1,9 +1,46 @@
 # Penpot Wireframes — Handoff Notes
 
-Companion to `WIREFRAME_SPEC.md` v2.6. Answers §17.2: *"a list of anything you changed
+Companion to `WIREFRAME_SPEC.md` v2.7. Answers §17.2: *"a list of anything you changed
 from §5–§11."*
 
-Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026-08-27.
+Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026-08-27,
+revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code), and
+for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below).
+
+## 1.0 v2.9 — the journal reads only as handwriting
+
+The app removed the typed reading of an entry (`EntryPageView` no longer has a
+`Reading` state); the wireframes now match:
+
+- **Frame 14 — Entry Detail — Typed is deleted.** The number joins the retired list.
+- **Frames 15 and 18**: `Toggle / TypedHandwritten` removed, the page surface moved up
+  to y 96 and grown to 786 × 700, one more ruled line added (6 now — the page keeps
+  ruling below the last word), and the scrollbar stretched to match. Frame 15 renamed
+  to plain "15 — Entry Detail".
+- **`Toggle / TypedHandwritten` is retired.** Like the other retired components, the
+  plugin API cannot delete it from the assets panel — **please remove it by hand**
+  along with the items in §2.3/§2.5. Its main-instance board still sits on
+  `01 · Components` under `10.6`.
+- 37 artboards now (was 38).
+
+## 1.1 v2.8 — the style-guide palette
+
+Every page was swept for the v2.8 token values (`WIREFRAME_SPEC.md` §5/§8,
+`STYLE_GUIDE.md` for the decisions):
+
+- **Library colors updated in place:** `paper` `#FAF5E8`, `paper-sunk` `#F1E8D3`,
+  `star-on` `#F28522`, `success` `#43A047`, `danger` `#D64541`. Three decorative
+  accents added: `pencil-yellow`, `eraser-pink`, `lilac-star` (26 library colors now).
+- **Shape fills/strokes swept by hex** on all seven pages. `#FF3B30` and `#34C759`
+  were replaced only on semantic uses (destructive buttons/text/icons, wrong-PIN dots,
+  the success note); the 432 generated accuracy-ink paths under `Live ink` and on
+  `99 · Scratch`, and the `Swatch · ink-*` tiles, keep their original values.
+- **All drop shadows re-cut** to the cut-paper spec (blur 8/24/48 → y 3/4/6, 0 blur,
+  8/12/18%), and every `Button / Primary` board (except Disabled) now carries
+  `shadow-card`.
+- **Foundations:** swatches and hex labels updated, a `5.6 · Decorative` row added
+  (the Color Tokens board grew to 1760 tall; the Icon Sheet moved down to y 1890),
+  and the Elevation board's labels now state the cut-paper values.
 
 ---
 
@@ -13,17 +50,17 @@ Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026
 |---|---|---|
 | `00 · Foundations` | 23 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, 25-icon sheet | 5 |
 | `01 · Components` | §10.1–§10.8 | 8 |
-| `02 · Profiles` | Frames 1–7 | 7 |
-| `03 · Journal` | Frames 9–15, 18, 19, 43 + the unfinished-entry variant | 11 |
+| `02 · Profiles` | Frames 1–6 | 6 |
+| `03 · Journal` | Frames 9, 10, 12, 14, 15, 18, 19, 43 + the unfinished-entry variant | 9 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–42, 44–48 — every one a state of the single v2.5 screen | 17 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 | 6 |
 
-**41 artboards, all portrait 834 × 1194** — every one verified for overflow and carrying a
+**38 artboards, all portrait 834 × 1194** — every one verified for overflow and carrying a
 PNG @2× export preset.
 
 **Library:** 23 colors, 20 typographies, 31 components.
 
-### Frames retired in v2.0 — do not reuse the numbers
+### Retired frames — do not reuse the numbers
 
 | # | Was | Why |
 |---|---|---|
@@ -31,6 +68,9 @@ PNG @2× export preset.
 | 16 | Entry Detail — accuracy colours | The journal is always natural ink now; there is nothing to show |
 | 35 | Level-up celebration | Levels removed |
 | 17 | Sentence attempts | Latest tracing only (v2.1) |
+| 7 | Avatar Capture — live camera | The system photo picker replaced the camera (v2.7) |
+| 11 | Journal List | Journal Home lists every entry itself (v2.7) |
+| 13 | Journal Calendar | Removed (v2.7) |
 
 ### New frames
 

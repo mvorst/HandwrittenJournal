@@ -10,7 +10,7 @@ import SwiftData
 /// | Mode | The page is | Opens this way |
 /// |---|---|---|
 /// | **Edit** | the writing surface: mic, ink, tools | a new entry, straight after the telling |
-/// | **View** | the entry as it reads: typed or handwritten, with its stats | an entry reopened from the journal |
+/// | **View** | the entry as it reads: the handwriting, with its stats | an entry reopened from the journal |
 ///
 /// **The pencil switches modes by itself.** Putting the pen on a page you were reading is
 /// the ask to write on it, so it hands over without the child finding a button first — the
@@ -21,14 +21,12 @@ import SwiftData
 struct EntryPageView: View {
 
     enum Mode: Hashable { case view, edit }
-    enum Reading: Hashable { case typed, handwritten }
 
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
 
     @State var model: WriteSessionViewModel
     @State private var mode: Mode
-    @State private var reading: Reading = .handwritten
     @State var typedText = ""
     @FocusState var typing: Bool
 
@@ -217,17 +215,11 @@ struct EntryPageView: View {
 
     // MARK: - Reading (§4.7)
 
-    /// The same entry read two ways. **Typed** puts the words on ruled paper in the face
-    /// the child traced; **Handwritten** puts their own strokes back over the faint guide,
-    /// laid out at the width they wrote at so the words stay under the ink.
+    /// The entry as the child wrote it: their own strokes alone on the ruled page, laid
+    /// out at the width they wrote at.
     private var readingStage: some View {
         VStack(spacing: 0) {
             chrome { entryMenu }
-
-            SegmentedControl(options: [(Reading.typed, "Typed"), (Reading.handwritten, "Handwritten")],
-                             selection: $reading)
-                .frame(width: 420)
-                .padding(.top, Tokens.Space.s5)
 
             readingPage
                 .padding(.horizontal, Tokens.Layout.screenMargin)
@@ -253,15 +245,12 @@ struct EntryPageView: View {
         ScrollView {
             ZStack(alignment: .topLeading) {
                 if let session = model.session {
-                    if reading == .typed {
-                        GuidePreview(text: session.transcript, setup: model.setup,
-                                     showRules: true, inset: Tokens.Space.s5)
-                            .frame(height: typedHeight(session))
-                    } else if !strokes.isEmpty {
+                    if !strokes.isEmpty {
                         PageReplayView(strokes: strokes,
                                        text: session.transcript,
                                        capturedWidth: session.canvasWidth,
                                        setup: model.setup,
+                                       showGuideText: false,
                                        onPencilTap: { show(.edit) })
                             .frame(height: replayHeight(session))
                     } else {
@@ -275,11 +264,9 @@ struct EntryPageView: View {
         }
         .background(Tokens.Colour.paper, in: RoundedRectangle(cornerRadius: Tokens.Radius.card))
         .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.card).stroke(Tokens.Colour.divider, lineWidth: 1))
-    }
-
-    private func typedHeight(_ session: WritingSession) -> CGFloat {
-        let width = UIScreen.main.bounds.width - Tokens.Layout.screenMargin * 2 - Tokens.Space.s5 * 2
-        return max(200, MaskRenderer.contentHeight(text: session.transcript, setup: model.setup, width: width))
+        // Touching the page — finger or pencil — is the ask to write on it. The pencil is
+        // caught by the replay view's own recogniser; this catches everything else.
+        .onTapGesture { show(.edit) }
     }
 
     /// The replay is scaled from the width the child wrote at, so its height follows that

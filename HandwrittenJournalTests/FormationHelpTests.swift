@@ -5,7 +5,7 @@ import UIKit
 
 /// §8.1b — the remediation flow behind the modal. A word finished with wrong-order
 /// letters asks for help exactly once, at pen-up, under the child's own pen; tracing
-/// the picked letter correctly lifts that letter's discount and no other; and a page
+/// a lesson's letter correctly lifts that letter's discount and no other; and a page
 /// restored from an archive never prompts — its words were finished in another sitting.
 @MainActor
 struct FormationHelpTests {
@@ -68,6 +68,25 @@ struct FormationHelpTests {
         #expect(canvas.tally.followedOrder[0] == true)
         #expect(requests.count == 1, "remediation must not prompt again")
         #expect(picked.charIndex == canvas.charIndex(ofGlyph: picked.glyph))
+    }
+
+    @Test("Every wrong letter becomes a lesson — one per distinct character, in reading order")
+    func lessonsCoverEveryWrongLetter() {
+        func letter(_ character: Character, glyph: Int, offset: Int) -> FormationHelpRequest.Letter {
+            FormationHelpRequest.Letter(glyph: glyph, charIndex: glyph, offset: offset, character: character)
+        }
+        // "hello" with h, both l's and o wrong: the l's fold into one lesson that
+        // carries — and so lifts — both occurrences.
+        let lessons = WriteSessionViewModel.FormationHelp.lessons(for: [
+            letter("h", glyph: 0, offset: 0),
+            letter("l", glyph: 2, offset: 2),
+            letter("l", glyph: 3, offset: 3),
+            letter("o", glyph: 4, offset: 4),
+        ])
+        #expect(lessons.map(\.character) == ["h", "l", "o"])
+        #expect(lessons.map(\.letters.count) == [1, 2, 1])
+        #expect(lessons[1].offsets == [2, 3])
+        #expect(lessons[1].letters.map(\.glyph) == [2, 3])
     }
 
     // MARK: - The modal's own canvas (§8.1b)
