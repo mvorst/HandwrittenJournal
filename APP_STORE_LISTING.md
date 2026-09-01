@@ -349,8 +349,8 @@ in the same commit.
 | Subtitle | 30 | **30** |
 | Keywords | 100 | 97 |
 | Promotional Text | 170 | 147 |
-| Description | 4000 | 2870 |
-| What's New (1.0) | 4000 | 520 |
+| Description | 4000 | 2929 |
+| What's New (1.0) | 4000 | 626 |
 
 Recount with:
 

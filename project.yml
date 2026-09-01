@@ -8,6 +8,11 @@ settings:
   base:
     TARGETED_DEVICE_FAMILY: "2"
     SWIFT_VERSION: "5.0"
+    # GENERATE_INFOPLIST_FILE writes these two straight into CFBundleShortVersionString
+    # and CFBundleVersion. Leave either unset and App Store Connect rejects the upload
+    # with "is empty but must be composed of one to three period-separated integers".
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
     INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown"
