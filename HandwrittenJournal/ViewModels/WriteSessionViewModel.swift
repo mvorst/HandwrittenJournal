@@ -318,7 +318,10 @@ final class WriteSessionViewModel {
                 if let joined { session.audioData = joined }
                 session.spokenDuration += duration
                 AudioSlicer.discardMaster(at: url)
-                self?.speech.reset()
+                // The slicer finishes on its own time. If the child has already started
+                // the next take, resetting now would stop it and delete its recording;
+                // `start()` has replaced everything a reset would clear anyway.
+                if self?.speech.isRecording == false { self?.speech.reset() }
             }
         }
     }

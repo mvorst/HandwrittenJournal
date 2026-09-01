@@ -134,9 +134,14 @@ final class SpeechRecognitionService {
         }
     }
 
-    /// Starts a recognition task on the live audio. One task covers one utterance: the
-    /// recogniser ends it at a pause, and `heard` starts the next one.
+    /// Starts a recognition task on the live audio. One task covers one utterance:
+    /// `heard` rotates to a fresh task at every utterance boundary, however the
+    /// recogniser chose to mark it.
     private func listen() {
+        // After a metadata-stamped pause the old task is still running. Left alone it
+        // piles up against the recogniser's task limit; its utterance is already
+        // committed, so nothing it could still say matters.
+        task?.cancel()
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         request.requiresOnDeviceRecognition = true
@@ -161,7 +166,9 @@ final class SpeechRecognitionService {
     private func heard(_ result: SFSpeechRecognitionResult?, error: Error?, turn: Int) {
         guard turn == listening else { return }
         if let result { take.hear(result.bestTranscription.formattedString) }
-        guard error != nil || (result?.isFinal ?? false) else { return }
+        guard Self.utteranceOver(failed: error != nil,
+                                 isFinal: result?.isFinal ?? false,
+                                 hasMetadata: result?.speechRecognitionMetadata != nil) else { return }
 
         let heardSomething = !take.live.isEmpty
         take.endUtterance()
@@ -172,6 +179,16 @@ final class SpeechRecognitionService {
         failures = (error != nil && !heardSomething) ? failures + 1 : 0
         guard failures < 3 else { stop(); return }
         listen()
+    }
+
+    /// Whether a recogniser callback is the end of its utterance.
+    ///
+    /// On-device recognition never delivers `isFinal` at a pause: the task stays alive,
+    /// stamps the finished utterance with `speechRecognitionMetadata`, and starts its
+    /// next hypothesis from zero. Miss the stamp and that next hypothesis replaces
+    /// everything said before the pause.
+    nonisolated static func utteranceOver(failed: Bool, isFinal: Bool, hasMetadata: Bool) -> Bool {
+        failed || isFinal || hasMetadata
     }
 
     func stop() {

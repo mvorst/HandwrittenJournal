@@ -73,6 +73,31 @@ struct SpokenTakeTests {
         #expect(take.text.isEmpty)
     }
 
+    @Test("A metadata-stamped pause keeps the line — on-device never sends isFinal there")
+    func metadataPauseKeepsTheLine() {
+        // What the child sees: they speak, stop to think, and speak again. On-device the
+        // recogniser marks the pause by stamping the result with metadata, then numbers
+        // its next hypothesis from zero — treating only isFinal/failure as the boundary
+        // let that next hypothesis wipe the line.
+        var take = SpokenTake()
+        take.hear("Today we went to the park.")
+        #expect(SpeechRecognitionService.utteranceOver(failed: false, isFinal: false, hasMetadata: true))
+        take.endUtterance()
+        take.hear("I saw a big dog.")
+        #expect(take.text == "Today we went to the park. I saw a big dog.")
+    }
+
+    @Test("An ordinary partial is not an utterance boundary")
+    func partialIsNotABoundary() {
+        #expect(!SpeechRecognitionService.utteranceOver(failed: false, isFinal: false, hasMetadata: false))
+    }
+
+    @Test("A final result or a failure still ends the utterance")
+    func finalAndFailureStillEnd() {
+        #expect(SpeechRecognitionService.utteranceOver(failed: false, isFinal: true, hasMetadata: false))
+        #expect(SpeechRecognitionService.utteranceOver(failed: true, isFinal: false, hasMetadata: false))
+    }
+
     @Test("The words the page shows are the words the entry keeps")
     @MainActor func tidyingLeavesTheTakeIntact() {
         // What the view model does with the take at "I'm done talking" (§5.2).
