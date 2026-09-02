@@ -5,28 +5,39 @@ struct BadgeDefinition: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let systemImage: String
+    /// What the child did — Results, and the badge card once it is earned (§4.3).
     let detail: String
+    /// What to do — the badge card while it is not earned yet.
+    let hint: String
 }
 
 enum BadgeEngine {
 
     static let all: [BadgeDefinition] = [
         .init(id: "first_entry", name: "First Entry", systemImage: "pencil.line",
-              detail: "You wrote your first entry."),
+              detail: "You wrote your first entry.",
+              hint: "Write your first entry."),
         .init(id: "sharp_shooter", name: "Sharp Shooter", systemImage: "star.fill",
-              detail: "A tracing at 90% or better."),
+              detail: "A tracing at 90% or better.",
+              hint: "Trace an entry at 90% or better."),
         .init(id: "streak_5", name: "5-Day Streak", systemImage: "flame.fill",
-              detail: "You wrote five days in a row."),
+              detail: "You wrote five days in a row.",
+              hint: "Write five days in a row."),
         .init(id: "ten_entries", name: "Ten Entries", systemImage: "calendar",
-              detail: "Ten entries in the journal."),
+              detail: "Ten entries in the journal.",
+              hint: "Write ten entries."),
         .init(id: "perfect_week", name: "Perfect Week", systemImage: "star.circle",
-              detail: "Seven days in a row."),
+              detail: "Seven days in a row.",
+              hint: "Write seven days in a row."),
         .init(id: "thousand_words", name: "1,000 Words", systemImage: "checkmark.seal",
-              detail: "A thousand words in your own hand."),
+              detail: "A thousand words in your own hand.",
+              hint: "Write a thousand words in your own hand."),
         .init(id: "every_font", name: "Every Font", systemImage: "textformat",
-              detail: "You tried every handwriting style."),
+              detail: "You tried every handwriting style.",
+              hint: "Try every handwriting style — pick a new one in Settings."),
         .init(id: "neat_writer", name: "Neat Writer", systemImage: "hand.thumbsup",
-              detail: "Five entries in a row at 85% or better."),
+              detail: "Five entries in a row at 85% or better.",
+              hint: "Write five entries in a row at 85% or better."),
     ]
 
     static func definition(id: String) -> BadgeDefinition? { all.first { $0.id == id } }

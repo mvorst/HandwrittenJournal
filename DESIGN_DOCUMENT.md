@@ -15,6 +15,10 @@ Build notes: `PENPOT_HANDOFF.md`.
 
 ## 0.11 What Changed in v3.2
 
+- **Badges explain themselves** (§4.3, §8.5): a tap on any tile of the Journal Home strip
+  opens its card — the badge, its name, *Earned* or *Not earned yet*, and one line saying
+  what earned it or what will. Closable by its button, its ✕ or the scrim.
+
 **One microphone, a visible turn, a hand that selects nothing, one way out, and crayons.**
 Explored on the Penpot page `14 · Write` and adopted on 2026-09-02; the answers to that
 page's open questions are recorded in `PENPOT_HANDOFF.md` §1.-1.
@@ -497,6 +501,11 @@ seven days; tapping it opens Progress. There is **no navigation bar**: the expor
 gone from this screen (an entry's ⋯ menu still reaches *Share as PDF*, including the whole
 journal), and search is a plain field directly above the entries it filters. There is no
 second journal screen: the main screen *is* the journal and the list is never truncated.
+
+**Tapping a badge opens its card** (v3.2): a centred sheet on the scrim, in the family of
+the PIN pad — the badge at tile size, its name, *Earned* or *Not earned yet*, and one line
+saying what earned it or what will (§8.5). It closes on its *Got it* button, its ✕, or a
+tap on the scrim, so a child is never stuck behind it.
 
 **There is no resume card and no "Keep writing".** An entry is not a task with a state —
 it is a page you either open or don't. Tapping a row opens it to read (§4.7), and **Edit**
@@ -1489,6 +1498,10 @@ None reference levels.
 
 `every_font` exists partly to make a child try Andika, which many of them read more easily
 than they read Jua.
+
+Each badge carries two lines (`BadgeEngine.swift`): `detail`, what the child did — shown on
+Results and on the badge card once earned — and `hint`, what to do, shown on the card until
+then (§4.3, v3.2).
 
 ---
 

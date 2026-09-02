@@ -21,6 +21,8 @@ struct JournalHomeView: View {
     @State private var showSettings = false
     @State private var showProgress = false
     @State private var query = ""
+    /// The badge whose card is open (§4.3, v3.2).
+    @State private var shownBadge: BadgeDefinition?
 
     /// Newest first. `orderedSessions` already sorts by `startedAt` descending.
     private var entries: [WritingSession] {
@@ -64,6 +66,15 @@ struct JournalHomeView: View {
         .sheet(isPresented: $showProgress) {
             ProgressReportView(profile: profile).presentationDetents([.large])
         }
+        // A badge's card sits over everything, in the family of the PIN pad (v3.2).
+        .overlay {
+            if let badge = shownBadge {
+                BadgeDetailOverlay(badge: badge, earned: profile.earnedBadgeIDs.contains(badge.id)) {
+                    shownBadge = nil
+                }
+            }
+        }
+        .animation(Tokens.Motion.spring, value: shownBadge)
         .task {
             #if DEBUG
             switch DemoData.screen {
@@ -198,13 +209,13 @@ struct JournalHomeView: View {
                 HStack(spacing: 20) {
                     ForEach(BadgeEngine.all) { badge in
                         let earned = profile.earnedBadgeIDs.contains(badge.id)
-                        Image(systemName: badge.systemImage)
-                            .font(.system(size: 28))
-                            .foregroundStyle(earned ? Tokens.Colour.starOn : Tokens.Colour.starOff)
-                            .frame(width: 64, height: 64)
-                            .background(earned ? Tokens.Colour.paperRaised : Tokens.Colour.paperSunk, in: Circle())
-                            .hjShadow(earned ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0))
-                            .accessibilityLabel(earned ? "\(badge.name), earned" : "\(badge.name), not earned yet")
+                        // Every tile is a button: a tap opens the badge's card (v3.2).
+                        Button { shownBadge = badge } label: {
+                            BadgeTile(badge: badge, earned: earned)
+                        }
+                        .buttonStyle(PressableStyle())
+                        .accessibilityLabel(earned ? "\(badge.name), earned" : "\(badge.name), not earned yet")
+                        .accessibilityHint("Shows what this badge is for")
                     }
                 }
                 .padding(.vertical, Tokens.Space.s1)

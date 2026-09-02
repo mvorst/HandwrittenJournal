@@ -13,6 +13,7 @@
 		0FE2C289B321CAE400F2DA44 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B04CD10837B6CE33A720BD /* CameraPicker.swift */; };
 		1606432C16081F214C748082 /* WritingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6511FA804CE4B985F4F5567 /* WritingSession.swift */; };
 		17281D15BE97C918B4F44D36 /* FormationHelpTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F95991343AC36B24264278 /* FormationHelpTests.swift */; };
+		1A2F02E4B9A578F5A22FE4E0 /* BadgeDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8545DEEE1884F45836EDE2 /* BadgeDetail.swift */; };
 		1A774BF381169FE23F7677F5 /* ProgressReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539559855DA545D4C9EF448B /* ProgressReportView.swift */; };
 		1DFA02342207F16C9E973FC3 /* WriteFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7257F46895D95B8ED53E4523 /* WriteFlowTests.swift */; };
 		21B6507309DB92A055FE409E /* FormationOrderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2DC18A0F1D004D4E2AEFD7 /* FormationOrderTests.swift */; };
@@ -63,6 +64,7 @@
 		DDB5C8B17A767122950C2DB1 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA34850BB29742A4A5C0721F /* UserProfile.swift */; };
 		E43F6A8C6A33D49D3BE7D7B9 /* AvatarCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6C6FCE576DEC35804A62B2 /* AvatarCropView.swift */; };
 		E5236A57CD3AF28612F98BF5 /* FormationHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A3C13764E7D543E7627762F /* FormationHelpView.swift */; };
+		E66759A50EA0E119BF5EB4FB /* BadgeEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBBA78F4AE0FC4A97AFC626A /* BadgeEngineTests.swift */; };
 		EAA76775C7B7AD5ADF80EDBC /* MaskRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317224CDD6345354B4506405 /* MaskRenderer.swift */; };
 		ED8DCFB404D2D028FDB651C8 /* ScoringEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750C9E16A516838BFA7898E6 /* ScoringEngine.swift */; };
 		F13A8D7D93E78C7B04B2B3B1 /* MaskDiagnosticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */; };
@@ -137,8 +139,10 @@
 		CA34850BB29742A4A5C0721F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		CA4D9382BE0701B240EF5FFA /* PracticePoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePoints.swift; sourceTree = "<group>"; };
 		CD28F6BA541DAD897935A6B5 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		CD8545DEEE1884F45836EDE2 /* BadgeDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeDetail.swift; sourceTree = "<group>"; };
 		D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelMeter.swift; sourceTree = "<group>"; };
 		D556A107FFF646240E5A9E99 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		DBBA78F4AE0FC4A97AFC626A /* BadgeEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngineTests.swift; sourceTree = "<group>"; };
 		DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageRenderCheck.swift; sourceTree = "<group>"; };
 		E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePointsTests.swift; sourceTree = "<group>"; };
 		EBB72F6CD8A76412888AF70A /* HandwrittenJournalTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HandwrittenJournalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -193,6 +197,7 @@
 			isa = PBXGroup;
 			children = (
 				83203735DA55F589A277AF90 /* ArchiveTests.swift */,
+				DBBA78F4AE0FC4A97AFC626A /* BadgeEngineTests.swift */,
 				4C8504149D1903CBF173B098 /* DictationTests.swift */,
 				51F95991343AC36B24264278 /* FormationHelpTests.swift */,
 				30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */,
@@ -216,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				FF6C6FCE576DEC35804A62B2 /* AvatarCropView.swift */,
+				CD8545DEEE1884F45836EDE2 /* BadgeDetail.swift */,
 				F6B04CD10837B6CE33A720BD /* CameraPicker.swift */,
 				8FDEC48C96B648AECEE701DE /* DesignSystem.swift */,
 				D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */,
@@ -399,6 +405,7 @@
 			files = (
 				8216FCB39BD51B0295C0AD31 /* AppConstants.swift in Sources */,
 				E43F6A8C6A33D49D3BE7D7B9 /* AvatarCropView.swift in Sources */,
+				1A2F02E4B9A578F5A22FE4E0 /* BadgeDetail.swift in Sources */,
 				007EE8BED1E481D3F484BC98 /* BadgeEngine.swift in Sources */,
 				0FE2C289B321CAE400F2DA44 /* CameraPicker.swift in Sources */,
 				6AD282153D3AA88B10796F11 /* DemoData.swift in Sources */,
@@ -444,6 +451,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B559FA1425DAEE503E2DF976 /* ArchiveTests.swift in Sources */,
+				E66759A50EA0E119BF5EB4FB /* BadgeEngineTests.swift in Sources */,
 				6BCBBD703B5BF7059E32AF07 /* DictationTests.swift in Sources */,
 				17281D15BE97C918B4F44D36 /* FormationHelpTests.swift in Sources */,
 				9CBD2324A4BD06D2B252F431 /* FormationJudgeRealismTests.swift in Sources */,

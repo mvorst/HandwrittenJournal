@@ -127,6 +127,9 @@ decision and rejected proposal):
 
 **What changed in v3.2 — the Write flow from page `14 · Write`:**
 
+- **Badges open a card.** Every tile on the Journal Home strip is a button; a tap opens
+  `Sheet / Badge` (§10.8) — frame 52, over frame 9. Not yet drawn in Penpot.
+
 Explored on the Penpot page `14 · Write` and adopted by the app on 2026-09-02. Frames 20,
 21, 22, 24, 25, 29, 30 and 44 on `04 · Write` are superseded by their alternates there,
 and frames 52 (doodling) and 53 (adding words) are new; promotion onto `04 · Write` is
@@ -235,7 +238,7 @@ One Penpot file: **`Wireframes`**.
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
 | `02 · Profiles` | Frames 1–6, 51 |
-| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43 |
+| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 52 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
 | `13 · Journal` | The v3.1 alternates of frames 9, 10 and 49 — the layout the app builds — plus a notes board |
@@ -502,7 +505,7 @@ Required set: `mic.fill`, `keyboard`, `arrow.uturn.backward`, `trash`, `checkmar
 `magnifyingglass`, `calendar`, `line.3.horizontal.decrease.circle`, `square.and.arrow.up`,
 `ellipsis.circle`, `photo.on.rectangle`, `lock.fill`, `flame.fill`,
 `star.fill`, `star`, `pencil.line`, `person.crop.circle.badge.plus`, `xmark`,
-`arrow.triangle.2.circlepath`, `plus`, `eraser.fill`, `speaker.wave.2.fill`, `sparkles`.
+`arrow.triangle.2.circlepath`, `plus`, `eraser.fill`, `speaker.wave.2.fill`, `sparkles`, `checkmark.circle.fill`, `circle.dashed`.
 
 ---
 
@@ -619,7 +622,8 @@ attempt history.
 `Badge / Tile`: 88 circle + label below. Earned — `paper-raised` fill, `shadow-card`, icon
 40 pt in `star-on`, label `caption` in `text-primary`. Unearned — `paper-sunk` fill, no
 shadow, icon 40 pt in `star-off`, label `caption` in `text-secondary`. Label wraps to two
-lines maximum, centred, 88 pt wide. The home strip uses 64 pt tiles with **no labels**.
+lines maximum, centred, 88 pt wide. The home strip uses 64 pt tiles with **no labels**. Every tile is a button: a tap opens
+`Sheet / Badge` (v3.2).
 
 Badges no longer reference levels. `DESIGN_DOCUMENT.md` §8 owns the list; `BadgeEngine.swift`
 is the authority, and the library must carry exactly its eight, in its order:
@@ -642,6 +646,7 @@ is the authority, and the library must carry exactly its eight, in its order:
 | `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. **Journal Home has none** (v3.1). Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads: leading "Back" / "I'm finished", the date, `Segmented / View · Edit` at x 394, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766. |
 | `Sheet / Modal` | width to content, `radius-sheet`, `paper-raised`, `shadow-modal`, centred, on `overlay-scrim` |
 | `Sheet / PIN pad` | 700 × 800 |
+| `Sheet / Badge` (v3.2) | 480 wide, `radius-sheet`, `paper-raised`, `shadow-modal`, centred on `overlay-scrim`. `Badge / Tile` at 88 pt, 40 pt from the top; name `title-2` 24 pt below; then *Earned* (`checkmark.circle.fill` 15 pt, `success`) or *Not earned yet* (`circle.dashed`, `text-secondary`) in `caption`; one `body` line, centred, 32 pt side padding — what earned it, or what will; `Button / Primary` "Got it" 32 pt below and 32 pt from the bottom. `xmark` 20 pt in a 44 pt `paper-sunk` disc, 16 pt in from the top-trailing corner. Closes on the button, the ✕ or the scrim; springs in and out (§4). |
 | `Menu / Overflow` | 320 wide, rows h 60, `radius` 16, `paper-raised`, `shadow-modal`, hairline between rows inset 20 pt. Four rows, in this order: *Write it all again*, *Share as PDF*, *Rename this entry*, then a divider and *Delete this entry* in `danger`. (*Hear what I said* was retired in v3.0.) |
 | `Row / Setting` | h 64, full width, label `body` leading, control trailing, 1 pt `divider` bottom inset 16 pt leading |
 | `Keyboard` | h 316, `paper-sunk`, 1 pt `divider` top edge. Four rows, key h 62, gap 10, row gap 12, keys `paper-raised` with `radius` 8 and `shadow-card`; modifier keys `star-off`. |
@@ -960,6 +965,7 @@ talking*, the `Segmented / View · Edit` control, the toolbar's *I'm finished* (
 | 18 | Entry Detail — overflow menu open | Write it all again / Share as PDF / Rename this entry / — / Delete this entry |
 | 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", both option toggles |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. Journal Home's export button — and the defect where it opened `ExportView` with no session — went in v3.1; the entry menu is the only route |
+| 52 | Journal Home — badge detail | `Sheet / Badge` over frame 9 for *5-Day Streak* (earned: "You wrote five days in a row.") and, as a second state, *Ten Entries* (not earned yet: "Write ten entries."). **Not yet drawn in Penpot** (v3.2) |
 
 ### `04 · Write`
 
