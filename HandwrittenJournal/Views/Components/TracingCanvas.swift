@@ -61,6 +61,25 @@ final class TracingCanvasView: UIView {
             setNeedsDisplay()
         }
     }
+    /// The crayon (v3.2): drawing touches doodle anywhere on the page. A doodle selects
+    /// nothing, is attributed to nothing and is scored against nothing; it is kept with
+    /// the page in its own layer. With the eraser on as well, the eraser rubs out doodles.
+    var isDoodleActive = false { didSet { setNeedsDisplay() } }
+    /// Which crayon the next doodle is drawn with (`Crayon.rawValue`).
+    var crayon: Int = 0
+    /// The ABC tool (v3.2): a touch picks a spoken word to fix, a drag picks a run, and a
+    /// tap past the last word asks to add more. It replaces tap- and hold-to-edit, so a
+    /// hand set down on the page can never raise the keyboard.
+    var isTextEditActive = false {
+        didSet {
+            dragAnchor = nil
+            dragRange = nil
+            pendingAppendTap = nil
+            setNeedsDisplay()
+        }
+    }
+    /// Row handles sit in the margin gutter the writing hand is not resting on.
+    var handlesOnRight = false { didSet { setNeedsDisplay() } }
     /// While dictating the mask is skipped (nobody can trace yet — selecting a row stops
     /// the mic) and a caret marks where the next word will land.
     var isDictating = false {
@@ -95,10 +114,17 @@ final class TracingCanvasView: UIView {
     /// the view model can keep the archive current on every one of them: a crash or a
     /// jettison between two strokes must cost one stroke, never a page (§6).
     var onInkChange: (() -> Void)?
+    /// The ABC tool was tapped past the last word: the child wants to add more (v3.2).
+    var onAppendRequested: (() -> Void)?
+    /// Whether the page has any ink at all, and any doodles — what enables "I'm finished"
+    /// and the tools while the crayon is in hand.
+    var onPageState: ((_ hasAnyInk: Bool, _ hasDoodles: Bool) -> Void)?
 
     // MARK: - State
 
     private(set) var strokes: [TracingStroke] = []
+    /// The crayon layer — never in `strokes`, so nothing that scores can see it (v3.2).
+    private(set) var doodles: [TracingStroke] = []
     private(set) var tally = ScoringEngine.Tally(letterCount: 0)
     private let maskRenderer = MaskRenderer()
     /// §8.1a — judges each letter's ink against its taught formation. nil for every
@@ -172,8 +198,17 @@ final class TracingCanvasView: UIView {
         let start: CGPoint
         let began: CFTimeInterval
         let canDraw: Bool
+        /// Whether lifting without moving picks the row — true for the pencil and for
+        /// the handle, false for a finger on the words (v3.2).
+        let selectsOnTap: Bool
     }
     private var pendingTap: PendingTap?
+    /// A hand resting on the page, being ignored until it lifts.
+    private var ignoredTouch: UITouch?
+    /// A tap past the last word with the ABC tool in hand, resolved at pen-up.
+    private var pendingAppendTap: CGPoint?
+    /// The first unwritten row should come up as soon as the layout exists (v3.2).
+    private var wantsFirstRowSelection = false
 
     /// The word the finger came down on, and the run it has been dragged over. Held here
     /// rather than round-tripped through the view model so the highlight tracks the finger
@@ -258,9 +293,11 @@ final class TracingCanvasView: UIView {
             applyRestore()
         } else if !keepInk {
             // Ink under a layout that moved is nobody's handwriting any more — and it
-            // no longer stands for the entry's archive, which must be left alone.
-            if !strokes.isEmpty { provenance = .lost }
+            // no longer stands for the entry's archive, which must be left alone. The
+            // doodles count here too: a page that lost them must not write them away.
+            if !strokes.isEmpty || !doodles.isEmpty { provenance = .lost }
             strokes.removeAll()
+            doodles.removeAll()
             current = nil
             selectedRow = nil
             settling = [:]
@@ -279,6 +316,7 @@ final class TracingCanvasView: UIView {
             restoredThisBuild = false
             onInkChange?()
         }
+        consumeFirstRowSelection()
         onLayoutChange?(bounds.height)
     }
 
@@ -299,8 +337,9 @@ final class TracingCanvasView: UIView {
     }
 
     private func clearForEmptyText() {
-        if !strokes.isEmpty { provenance = .lost }
+        if !strokes.isEmpty || !doodles.isEmpty { provenance = .lost }
         strokes.removeAll()
+        doodles.removeAll()
         current = nil
         selectedRow = nil
         settling = [:]
@@ -385,6 +424,26 @@ final class TracingCanvasView: UIView {
         selectRow(next)
     }
 
+    /// v3.2 — when a take ends, typed words land, or a page is reopened to write on, the
+    /// first line with letters still to write comes up on its own, so the page says
+    /// where to start (the pencil marker in the margin). If the layout is not there yet
+    /// the request waits for the rebuild that brings it.
+    func selectFirstUnwrittenRow() {
+        wantsFirstRowSelection = true
+        consumeFirstRowSelection()
+    }
+
+    private func firstUnwrittenRow() -> Int? {
+        maskRenderer.layout.scorableByLine.keys.filter { !rowFullyInked($0) }.min()
+    }
+
+    private func consumeFirstRowSelection() {
+        guard wantsFirstRowSelection, !isDictating, provenance != .pending,
+              !maskRenderer.layout.scorableByLine.isEmpty else { return }
+        wantsFirstRowSelection = false
+        if selectedRow == nil, let row = firstUnwrittenRow() { selectRow(row) }
+    }
+
     // MARK: - Restoring an earlier sitting
 
     /// Puts an archived tracing back on the page. The record re-derives from the ink, so
@@ -427,7 +486,8 @@ final class TracingCanvasView: UIView {
         // tapping the mic does both at once, so without this every restored point would
         // read as outside its letter and the whole entry would score zero.
         if !maskRenderer.hasBitmap { regenerate(layoutOnly: false) }
-        strokes = restored
+        strokes = restored.ink
+        doodles = restored.doodles
         current = nil
         selectedRow = nil
         settling = [:]
@@ -480,13 +540,17 @@ final class TracingCanvasView: UIView {
                                    totalWords: maskRenderer.layout.wordCount, streak: streak)
     }
 
-    func archive() throws -> Data { try StrokeArchive.encode(strokes) }
+    /// The whole page's ink — handwriting and doodles in one archive, each stroke
+    /// carrying its layer (§6.1, HJST v3).
+    func archive() throws -> Data { try StrokeArchive.encode(strokes + doodles) }
 
     /// Always natural ink — a thumbnail is journal furniture, never a marked-up test.
+    /// Doodles go in too, under the handwriting, because they are part of the page.
     func thumbnail(width: CGFloat = 320) -> Data? {
-        guard bounds.width > 0, !strokes.isEmpty else { return nil }
-        var ink = strokes[0].bounds()
-        for stroke in strokes.dropFirst() { ink = ink.union(stroke.bounds()) }
+        let everything = doodles + strokes
+        guard bounds.width > 0, !everything.isEmpty else { return nil }
+        var ink = everything[0].bounds()
+        for stroke in everything.dropFirst() { ink = ink.union(stroke.bounds()) }
         ink = ink.insetBy(dx: -8, dy: -8)
         guard ink.width > 0, ink.height > 0 else { return nil }
         let scale = width / ink.width
@@ -497,6 +561,7 @@ final class TracingCanvasView: UIView {
             ctx.fill(CGRect(origin: .zero, size: size))
             ctx.cgContext.scaleBy(x: scale, y: scale)
             ctx.cgContext.translateBy(x: -ink.minX, y: -ink.minY)
+            Crayon.draw(doodles, in: ctx.cgContext, widthScale: setup.size.size / 72)
             draw(strokes: strokes, in: ctx.cgContext) { _ in Self.naturalPalette }
         }.pngData()
     }
@@ -504,6 +569,12 @@ final class TracingCanvasView: UIView {
     // MARK: - Tools (scoped to the selected row)
 
     func undo() {
+        if isDoodleActive {
+            guard !doodles.isEmpty else { return }
+            doodles.removeLast()
+            doodlesChanged()
+            return
+        }
         guard let row = selectedRow,
               let index = strokes.lastIndex(where: { self.row(of: $0) == row }) else { return }
         strokes.remove(at: index)
@@ -512,6 +583,12 @@ final class TracingCanvasView: UIView {
     }
 
     func clearSelected() {
+        if isDoodleActive {
+            guard !doodles.isEmpty else { return }
+            doodles.removeAll()
+            doodlesChanged()
+            return
+        }
         guard let row = selectedRow else { return }
         let remaining = strokes.filter { self.row(of: $0) != row }
         guard remaining.count != strokes.count else { return }
@@ -522,6 +599,15 @@ final class TracingCanvasView: UIView {
     }
 
     private func applyErase(at point: CGPoint) {
+        if isDoodleActive {
+            guard !doodles.isEmpty else { return }
+            let result = StrokeEraser.erase(at: point, from: doodles)
+            guard result.strokes.count != doodles.count
+                    || result.strokes.pointCount != doodles.pointCount else { return }
+            doodles = result.strokes
+            doodlesChanged()
+            return
+        }
         guard let row = selectedRow else { return }
         let mine = strokes.filter { self.row(of: $0) == row }
         guard !mine.isEmpty else { return }
@@ -538,19 +624,51 @@ final class TracingCanvasView: UIView {
         return rowHasAnyInk(row)
     }
 
+    /// The crayon layer changed: the archive follows it like ink (§6), the tools learn
+    /// whether there is anything left to undo, and the page redraws.
+    private func doodlesChanged() {
+        reportProgress()
+        setNeedsDisplay()
+        onInkChange?()
+    }
+
     // MARK: - Touches
 
     private func drawingTouch(_ touch: UITouch) -> Bool {
         allowFinger || touch.type == .pencil
     }
 
-    /// **The pencil writes and the finger picks words.** That split is what lets a tap mean
-    /// one thing on a page that is both a text to fix and a surface to write on.
-    ///
-    /// Finger tracing gives the finger the job of writing instead — one finger cannot mean
-    /// two things — so there, picking words falls back to a hold.
-    private func selectsText(_ touch: UITouch) -> Bool {
-        touch.type != .pencil && !allowFinger
+    /// **A hand resting on the page is not an input** (§11.6, v3.2). A palm or the heel
+    /// of a hand set down to write is far wider than any fingertip, so a wide direct
+    /// touch is dropped before it can select, edit or draw anything. The threshold is a
+    /// starting point to check on a device: fingertips report roughly 20–35 pt.
+    static let handRadius: CGFloat = 50
+
+    static func isHand(radius: CGFloat, type: UITouch.TouchType) -> Bool {
+        type == .direct && radius > handRadius
+    }
+
+    private static func isHand(_ touch: UITouch) -> Bool {
+        isHand(radius: touch.majorRadius, type: touch.type)
+    }
+
+    /// The row whose handle sits under a point — the margin gutter on the side the
+    /// writing hand is not resting on. Any touch may pick a row here; it is the one
+    /// place a finger selects (§11.11, v3.2).
+    func handleRow(at point: CGPoint) -> Int? {
+        let inset = Tokens.Layout.surfaceInset
+        let inGutter = handlesOnRight ? point.x >= bounds.width - inset : point.x <= inset
+        guard inGutter, let row = maskRenderer.layout.lineIndex(at: point),
+              !(maskRenderer.layout.scorableByLine[row] ?? []).isEmpty else { return nil }
+        return row
+    }
+
+    /// Past the last word — below the last line, or to its right on that line — where
+    /// the ABC tool adds more words.
+    func pointIsAfterText(_ point: CGPoint) -> Bool {
+        guard let last = maskRenderer.layout.glyphBoxes.last else { return false }
+        if point.y > last.rect.maxY + 8 { return true }
+        return maskRenderer.layout.lineIndex(at: point) == last.lineIndex && point.x > last.rect.maxX
     }
 
     /// The word under a point, if its text can still be changed: spoken, on a row with no
@@ -562,12 +680,34 @@ final class TracingCanvasView: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        if Self.isHand(touch) { ignoredTouch = touch; return }
         let point = touch.location(in: self)
+
+        // The ABC tool: any touch picks a spoken word to fix — a drag picks a run — or
+        // the space after the last word to add more. Nothing here writes.
+        if isTextEditActive {
+            if let word = editableWord(at: point) {
+                dragAnchor = word.range
+                dragRange = word.range
+                Haptics.tap()
+                setNeedsDisplay()
+            } else if pointIsAfterText(point) {
+                pendingAppendTap = point
+            }
+            return
+        }
 
         if isEraserActive, drawingTouch(touch) {
             eraserCentre = point
             applyErase(at: point)
             setNeedsDisplay()
+            return
+        }
+
+        // The crayon: a drawing touch doodles wherever it lands. It selects nothing and
+        // is attributed to nothing.
+        if isDoodleActive {
+            if drawingTouch(touch) { beginStroke(at: touch, layer: .doodle) }
             return
         }
 
@@ -578,26 +718,26 @@ final class TracingCanvasView: UIView {
             return
         }
 
-        // The finger picks words to fix: tap for one, drag for a run of them.
-        if selectsText(touch), let word = editableWord(at: point) {
-            dragAnchor = word.range
-            dragRange = word.range
-            Haptics.tap()
-            setNeedsDisplay()
+        // The handle in the margin: a tap picks that row, finger or pen.
+        if let row = handleRow(at: point) {
+            pendingTap = PendingTap(row: row, start: point, began: CACurrentMediaTime(),
+                                    canDraw: drawingTouch(touch), selectsOnTap: true)
             return
         }
 
-        // Anywhere else: a tap selects the row it lands on — any row, any time. A pen
-        // that starts moving becomes ink on that row; with finger tracing on, a held
-        // finger opens a word for fixing.
+        // On the words: the pencil picks a row with a tap and writes on it with a move.
+        // A finger picks nothing here — a hand set down to write is the reason — unless
+        // it is the writing finger, and then only a moving finger writes.
         guard let row = maskRenderer.layout.lineIndex(at: point),
-              !(maskRenderer.layout.scorableByLine[row] ?? []).isEmpty else { return }
+              !(maskRenderer.layout.scorableByLine[row] ?? []).isEmpty,
+              drawingTouch(touch) else { return }
         pendingTap = PendingTap(row: row, start: point, began: CACurrentMediaTime(),
-                                canDraw: drawingTouch(touch))
+                                canDraw: true, selectsOnTap: touch.type == .pencil)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        if touch === ignoredTouch { return }
         let point = touch.location(in: self)
 
         // Dragging out a run of words. Anything the drag cannot reach — written text, the
@@ -609,6 +749,11 @@ final class TracingCanvasView: UIView {
                 dragRange = low...high
                 setNeedsDisplay()
             }
+            return
+        }
+
+        if let start = pendingAppendTap {
+            if hypot(point.x - start.x, point.y - start.y) > Self.tapSlop { pendingAppendTap = nil }
             return
         }
 
@@ -633,20 +778,20 @@ final class TracingCanvasView: UIView {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first, touch === ignoredTouch { ignoredTouch = nil; return }
         if dragAnchor != nil {
             dragAnchor = nil
             if let range = dragRange { onEditWord?(range, wordText(range)) }
             return
         }
+        if pendingAppendTap != nil {
+            pendingAppendTap = nil
+            onAppendRequested?()
+            return
+        }
         if let pending = pendingTap {
             pendingTap = nil
-            // A held touch on an editable word opens it for fixing; a tap selects.
-            if CACurrentMediaTime() - pending.began > 0.5,
-               wordIsEditable(onRow: pending.row),
-               let touch = touches.first,
-               let word = maskRenderer.layout.word(at: touch.location(in: self)) {
-                onEditWord?(word.range, wordText(word.range))
-            } else {
+            if pending.selectsOnTap {
                 selectRow(pending.row)
                 Haptics.tap()
             }
@@ -656,7 +801,9 @@ final class TracingCanvasView: UIView {
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        ignoredTouch = nil
         pendingTap = nil
+        pendingAppendTap = nil
         dragAnchor = nil
         dragRange = nil
         endStroke()
@@ -686,8 +833,8 @@ final class TracingCanvasView: UIView {
         return String(characters[range.lowerBound...range.upperBound])
     }
 
-    private func beginStroke(at touch: UITouch) {
-        current = TracingStroke()
+    private func beginStroke(at touch: UITouch, layer: TracingStroke.Layer = .ink) {
+        current = TracingStroke(layer: layer, crayon: UInt8(clamping: crayon))
         add(touch)
         setNeedsDisplay()
     }
@@ -698,6 +845,11 @@ final class TracingCanvasView: UIView {
         let force: CGFloat = touch.type == .pencil && touch.maximumPossibleForce > 0
             ? min(1, touch.force / touch.maximumPossibleForce)
             : 0.55
+        if current?.isDoodle == true {
+            // A doodle is attributed to nothing and scored against nothing.
+            current?.append(StrokePoint(location: location, force: force, isInside: false, letterIndex: -1))
+            return
+        }
         // Ink scores only against the selected row — a stray wobble two rows down must
         // not put ink on a word the child has not reached.
         let letter = maskRenderer.glyphIndex(at: location, onLine: selectedRow) ?? -1
@@ -711,6 +863,11 @@ final class TracingCanvasView: UIView {
         current = nil
         eraserCentre = nil
         if let finished, !finished.isEmpty {
+            if finished.isDoodle {
+                doodles.append(finished)
+                doodlesChanged()
+                return
+            }
             strokes.append(finished)
             retally(penUpOn: word(of: finished))
             onInkChange?()
@@ -735,6 +892,21 @@ final class TracingCanvasView: UIView {
         retally(penUpOn: strokes.last.flatMap { word(of: $0) })
         onInkChange?()
         maybeAdvance()
+    }
+
+    /// Appends doodles as if drawn with the crayon — attributed to nothing, scored against
+    /// nothing. The programmatic path used by tests.
+    func addDoodle(_ new: [TracingStroke], crayon: Int = 0) {
+        for var stroke in new where !stroke.isEmpty {
+            stroke.layer = .doodle
+            stroke.crayon = UInt8(clamping: crayon)
+            for i in stroke.points.indices {
+                stroke.points[i].letterIndex = -1
+                stroke.points[i].isInside = false
+            }
+            doodles.append(stroke)
+        }
+        doodlesChanged()
     }
 
     /// The word a stroke was written on — that of the first letter it touched.
@@ -897,6 +1069,7 @@ final class TracingCanvasView: UIView {
             if tally.hasInk(letter: i) { words.insert(box.wordIndex) }
         }
         onProgress?(tally.liveAccuracy, words.count, selectedRowHasInk)
+        onPageState?(!strokes.isEmpty, !doodles.isEmpty)
     }
 
     // MARK: - The settle (§11.10 — on deselection, not on a sensor)
@@ -1013,6 +1186,12 @@ final class TracingCanvasView: UIView {
             }
         }
 
+        // The crayon layer sits under the handwriting, multiplied so the letters read
+        // through it (§4.4, v3.2). The doodle in hand is drawn with it.
+        let widthScale = setup.size.size / 72
+        Crayon.draw(doodles, in: ctx, widthScale: widthScale)
+        if let live = current, live.isDoodle { Crayon.draw([live], in: ctx, widthScale: widthScale) }
+
         committedImage?.draw(at: .zero)
 
         if !settling.isEmpty {
@@ -1023,7 +1202,7 @@ final class TracingCanvasView: UIView {
             }
         }
 
-        if let live = current {
+        if let live = current, !live.isDoodle {
             let palette = accuracyPalette
             draw(strokes: [live], in: ctx) { _ in palette }
         }
@@ -1041,6 +1220,31 @@ final class TracingCanvasView: UIView {
             ctx.setLineDash(phase: 0, lengths: [6, 4])
             ctx.strokeEllipse(in: circle)
             ctx.setLineDash(phase: 0, lengths: [])
+        }
+
+        drawHandles(in: ctx)
+    }
+
+    /// §11.11 (v3.2) — every row with letters carries a handle in the margin gutter: a
+    /// faint dot, or the pencil on the row in hand. It is what a finger taps to pick a
+    /// row, and it says where the child is.
+    private func drawHandles(in ctx: CGContext) {
+        let inset = Tokens.Layout.surfaceInset
+        let cx = handlesOnRight ? bounds.width - inset / 2 : inset / 2
+        for (row, indices) in maskRenderer.layout.scorableByLine where !indices.isEmpty {
+            guard let band = maskRenderer.layout.rect(forLine: row) else { continue }
+            let cy = band.midY
+            if row == selectedRow {
+                let size: CGFloat = 22
+                let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
+                if let marker = UIImage(systemName: "pencil.line", withConfiguration: config)?
+                    .withTintColor(UIColor(Tokens.Colour.action), renderingMode: .alwaysOriginal) {
+                    marker.draw(in: CGRect(x: cx - size / 2, y: cy - size / 2, width: size, height: size))
+                }
+            } else {
+                ctx.setFillColor(UIColor.black.withAlphaComponent(0.15).cgColor)
+                ctx.fillEllipse(in: CGRect(x: cx - 4, y: cy - 4, width: 8, height: 8))
+            }
         }
     }
 

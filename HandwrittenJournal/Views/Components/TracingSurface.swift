@@ -35,6 +35,17 @@ struct TracingSurface: UIViewRepresentable {
     /// Letters remediated in the help modal in an earlier sitting (§8.1b), by character
     /// position — their order discount stays lifted when the page reopens.
     var restoredRemediatedChars: [Int] = []
+    /// The crayon is in hand: drawing touches doodle, nothing selects (v3.2).
+    var isDoodleActive = false
+    var crayon = 0
+    /// The ABC tool is in hand: touches pick words to fix, or the space after them to
+    /// add more (v3.2).
+    var isTextEditActive = false
+    /// Row handles sit in the gutter away from the writing hand.
+    var handlesOnRight = false
+    /// Room kept clear at the foot of the window — the stage the mic stands on while a
+    /// take runs from an empty page, so the newest words never land under it.
+    var bottomInset: CGFloat = 0
 
     @Binding var controller: TracingController
 
@@ -78,6 +89,15 @@ struct TracingSurface: UIViewRepresentable {
         view.canvas.onInkChange = {
             Task { @MainActor in controller.onInkChange?() }
         }
+        view.canvas.onAppendRequested = {
+            Task { @MainActor in controller.onAppendRequested?() }
+        }
+        view.canvas.onPageState = { hasAnyInk, hasDoodles in
+            Task { @MainActor in
+                controller.pageHasInk = hasAnyInk
+                controller.hasDoodles = hasDoodles
+            }
+        }
         Task { @MainActor in
             view.focus(word: startAtWord, animated: false)
         }
@@ -94,6 +114,13 @@ struct TracingSurface: UIViewRepresentable {
         view.canvas.allowFinger = allowFinger
         view.canvas.isEraserActive = isEraserActive
         view.canvas.editingRange = editingRange
+        view.canvas.isDoodleActive = isDoodleActive
+        view.canvas.crayon = crayon
+        view.canvas.isTextEditActive = isTextEditActive
+        view.canvas.handlesOnRight = handlesOnRight
+        if abs(view.contentInset.bottom - bottomInset) > 0.5 {
+            view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        }
         let wasDictating = view.canvas.isDictating
         view.canvas.isDictating = isDictating
         if isDictating, !wasDictating || view.textJustGrew { view.followTail() }
@@ -201,10 +228,11 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         scroll(to: rect, animated: animated)
     }
 
-    /// While dictating, the newest words stay in view.
+    /// While dictating, the newest words stay in view — above the stage, when the mic is
+    /// standing on the page.
     func followTail() {
         layoutIfNeeded()
-        let target = max(0, contentSize.height - bounds.height)
+        let target = max(0, contentSize.height + contentInset.bottom - bounds.height)
         if abs(contentOffset.y - target) > 4 {
             setContentOffset(CGPoint(x: 0, y: target), animated: false)
         }
@@ -243,7 +271,12 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
 final class TracingController {
     var liveAccuracy: Double = 0
     var wordsWritten: Int = 0
+    /// The selected row has ink — what enables the row tools.
     var hasInk: Bool = false
+    /// The page has ink anywhere — what enables "I'm finished" (v3.2).
+    var pageHasInk: Bool = false
+    /// The page has doodles — what enables the tools while the crayon is in hand (v3.2).
+    var hasDoodles: Bool = false
     /// Mirrored canvas state the footer hint reads. Updated alongside every progress
     /// report so observation actually fires.
     private(set) var hasSelection = false
@@ -255,12 +288,30 @@ final class TracingController {
     var onFormationHelp: ((FormationHelpRequest) -> Void)?
     /// The finished ink changed; the archive should follow it (§6).
     var onInkChange: (() -> Void)?
+    /// The ABC tool was tapped past the last word (v3.2).
+    var onAppendRequested: (() -> Void)?
+    /// Asked to take the first unwritten row in hand before any surface existed.
+    private var wantsFirstRowSelection = false
 
     // Not observed: it is set from inside a SwiftUI update, and nothing draws from it.
     @ObservationIgnored private weak var scroller: ScrollingCanvas?
     private var canvas: TracingCanvasView? { scroller?.canvas }
 
-    func attach(_ scroller: ScrollingCanvas) { self.scroller = scroller }
+    func attach(_ scroller: ScrollingCanvas) {
+        self.scroller = scroller
+        if wantsFirstRowSelection {
+            wantsFirstRowSelection = false
+            scroller.canvas.selectFirstUnwrittenRow()
+        }
+    }
+
+    /// v3.2 — asks the page to take its first unwritten line in hand, so the child can
+    /// see where to start. Remembered until there is a surface to ask.
+    func selectFirstUnwrittenRow() {
+        guard let canvas else { wantsFirstRowSelection = true; return }
+        canvas.selectFirstUnwrittenRow()
+        refresh()
+    }
 
     /// Whether a surface is on screen to speak for.
     var isAttached: Bool { canvas != nil }
@@ -391,8 +442,13 @@ struct PageReplayView: UIViewRepresentable {
                                        colour: UIColor(Tokens.Colour.guideText),
                                        alphaForLine: { _ in TracingCanvasView.tracedGuideAlpha })
                 }
+            } else if showRules {
+                // Nothing written yet, but doodles to show: still a ruled page (v3.2).
+                drawRules(in: ctx, pageSize: pageSize)
             }
 
+            // The crayon layer under the handwriting, as the page showed it (v3.2).
+            Crayon.draw(strokes.doodles, in: ctx, widthScale: setup.size.size / 72)
             drawInk(in: ctx)
             ctx.restoreGState()
         }
@@ -443,7 +499,7 @@ struct PageReplayView: UIViewRepresentable {
             let s = setup.size.size / 72
             let low = 1.5 * s, high = 5.0 * s
 
-            for stroke in strokes where stroke.points.count > 1 {
+            for stroke in strokes.ink where stroke.points.count > 1 {
                 for i in 1..<stroke.points.count {
                     let a = stroke.points[i - 1], b = stroke.points[i]
                     let force = (a.force + b.force) / 2

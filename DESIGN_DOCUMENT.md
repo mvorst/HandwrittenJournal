@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.0
+## Design Document v3.2
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,45 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.11 What Changed in v3.2
+
+**One microphone, a visible turn, a hand that selects nothing, one way out, and crayons.**
+Explored on the Penpot page `14 · Write` and adopted on 2026-09-02; the answers to that
+page's open questions are recorded in `PENPOT_HANDOFF.md` §1.-1.
+
+1. **One microphone that starts and stops in the same place** (§4.4). On an empty page
+   the mic stands big and low on the page, near the child's hands; tapped, it turns red
+   in place and becomes the stop. While it listens the footer shows only the level and
+   the clock. When the take ends the same button docks into the footer as the say-more
+   mic, and a take started there stops there. Frame 20's second mic and the *I'm done
+   talking* button are gone.
+2. **Dictation ending is a change of turn** (§4.4). The first unwritten line comes up on
+   its own — black letters and the pencil marker in the margin — and a *Your turn —
+   write it!* callout takes the spot the mic left, until the first stroke.
+3. **A resting hand selects nothing** (§4.4). A direct touch wider than
+   `TracingCanvasView.handRadius` is dropped outright; a finger tap on the words does
+   nothing; the pencil picks a row by writing on it or tapping it; a finger picks a row
+   only by its **handle** — the faint dot in the margin gutter, mirrored for left-handed
+   profiles. Fixing a word is the **ABC tool**, not a tap or a hold.
+4. **Navigation — one way out** (§4.4, §4.5, §4.7). The entry page's toolbar reads Back ·
+   date · tools; the View/Edit switch is gone. **Back scores the page as it stands** and
+   leaves — to the journal from a new entry, to the entry as it reads from a reopened
+   one. The footer's *I'm finished* is the one finish control. Results end with a single
+   *Back to my journal*; saying more is done by reopening the entry.
+5. **Scoring is idempotent** (§8.3). An entry can now be scored more than once, so the
+   profile moves by the *change* in the entry's points and stars, never twice for the
+   same page.
+6. **The ABC tool adds words too** (§4.4). Switched on with nothing picked, or tapped past
+   the last word, it opens an add field; typed words join the spoken tier on their own
+   paragraph.
+7. **Crayons** (§4.4, §6.1). A crayon tool draws doodles in the three decorative accents
+   anywhere on the page. Doodles are their own layer under the handwriting — multiply at
+   85% so the letters read through — never attributed, never scored, never in the record
+   or the counts, and kept with the page: in the journal, the thumbnail and every PDF.
+   `HJST` v3 carries a per-stroke layer and crayon.
 
 ---
 
@@ -370,9 +409,8 @@ Profile Picker ──(PIN if set)──▶ Journal Home
                              ▼
                      Results (this session)
                              │
-                   ┌─────────┴──────────┐
-                   ▼                    ▼
-              Write more          See My Journal
+                             ▼
+                      Back to my journal
 ```
 
 **The loop is the design.** Speak and watch the words land pale on the page → write down
@@ -381,7 +419,8 @@ the spoken words run out. One screen, no ceremony between talking and writing, a
 in the journal that is not in the child's own hand. Everything else in the app is in
 service of that loop.
 
-An entry ends when the child taps "I'm finished". Results summarise **only that entry** —
+An entry ends when the child taps "I'm finished" — or **Back**, which scores the page as
+it stands and skips the results (v3.2). Results summarise **only that entry** —
 not lifetime totals, which would make each sitting feel smaller than the last.
 
 ---
@@ -481,7 +520,7 @@ and the writing share one surface.
 
 ```
 ┌──────────────────────────────────────┐
-│ I'm finished   Wednesday, March 4  ◆↺🗑│  ← toolbar
+│ Back   Wednesday, March 4   ✎ ABC ◆ ↺ 🗑 ⋯ │  ← toolbar
 │                                      │
 │  Today we went to the park and I     │  ← WRITTEN: their ink,
 │  saw a big dog. The dog wanted       │    graphite — the record
@@ -492,16 +531,26 @@ and the writing share one surface.
 │  Then we had ice cream on the way    │    not yet real
 │                     ⋮                │    the whole page SCROLLS
 ├──────────────────────────────────────┤
-│ 🎤  So far: 88%  [███░░] 15 of 48 ⌄ [Done]│  ← mic lives here
+│ 🎤  So far: 88%  [███░░] 15 of 48 ⌄ [I'm finished]│  ← say-more mic
 └──────────────────────────────────────┘
 ```
 
-**Speak** — the mic is a round button in the footer, drawn big in the centre while the page
-is empty. `SFSpeechRecognizer`, on-device, `en-US`, live partial results, up to **five
-minutes**. The words land on the page *as the child says them* — in the journal face, on
-the ruled lines, in the pale spoken tier — so the page is the live transcript. While
-listening, the footer becomes a level meter, the elapsed time, and *I'm done talking*.
-**The audio is not kept** (§10.4, v3.0) — it goes to the recogniser and nowhere else.
+**Speak** — there is one microphone (v3.2). On an empty page it stands big and low on the
+page, near the child's hands, with the invitation above it; tapped, it turns red in the
+same spot and becomes the stop — *Tap when you're done talking*. Wherever the child tapped
+to start is where they tap to stop. Once the page has words the mic lives in the footer as
+the say-more mic, and a take started there stops there too. `SFSpeechRecognizer`,
+on-device, `en-US`, live partial results, up to **five minutes**. The words land on the
+page *as the child says them* — in the journal face, on the ruled lines, in the pale
+spoken tier — so the page is the live transcript, kept clear of the stage while it
+listens. The footer shows only the level meter and the elapsed time; there is no second
+button to find. **The audio is not kept** (§10.4, v3.0) — it goes to the recogniser and
+nowhere else.
+
+**When the take ends, the page changes turn** (v3.2). The first line with letters still to
+write comes up on its own — black letters, the pencil marker in the margin — and, the
+first time words land on a page with no ink, a *Your turn — write it!* callout takes the
+spot the mic stood on until the first stroke. The mic docks into the footer.
 
 **A pause ends an utterance, not the take.** `SFSpeechRecognizer` hands back one utterance
 at a time and numbers each from zero, so its latest hypothesis is only ever the *tail* of
@@ -532,13 +581,18 @@ three states, distinguishable at a glance:
 | **Selected** — being written now | black | red / green per segment | — |
 | **Untraced** — waiting | pale and cool, editable | none | **no** |
 
-**Any row can be selected by tapping it, at any time** — a traced row for fixing, a row
-further down to skip ahead, the row they just left. A pen that starts moving on an
-unselected row selects it and begins the stroke in the same gesture. When the selected
-row's last letter gets ink, the next untraced row is selected on its own, and the row left
-behind settles: letterforms fade to faint grey, ink turns graphite, in place. The ordinary
-flow is still speak, then write straight down the page — the taps are for going back, not
-for going forward.
+**The pencil selects; a finger selects only by the handle** (v3.2). A pencil tap on a row
+picks it — a traced row for fixing, a row further down to skip ahead — and a pen that
+starts moving on an unselected row selects it and begins the stroke in the same gesture.
+Every row with letters carries a **handle** in the margin gutter: a faint dot, or the
+pencil marker on the row in hand. A finger picks a row by tapping its handle and by
+nothing else; a finger tap on the words does nothing, and a direct touch wider than a
+fingertip (`TracingCanvasView.handRadius`) is dropped before it can do anything at all,
+because a hand set down to write used to select whatever it landed on. Handles sit in the
+right-hand gutter for left-handed profiles. When the selected row's last letter gets ink,
+the next untraced row is selected on its own, and the row left behind settles: letterforms
+fade to faint grey, ink turns graphite, in place. The ordinary flow is still speak, then
+write straight down the page.
 
 **The record is derived, never declared.** What the journal, exports and every count read
 is the unbroken run of fully-traced rows from the top of the page, recomputed from the ink
@@ -546,11 +600,15 @@ itself. It grows as rows fill, and shrinks if a record row's ink is cleared. A r
 out of order is scored — the child wrote it — but the record, the story so far in order,
 waits for the rows before it. Letters skipped on a traced row score zero (§8.1).
 
-**Fixing a misheard word** happens in place: hold a finger on an untraced word, it opens
-under a small action-coloured box, the keyboard rises, done. Untraced text is the only
-editable tier — and only where no traced row sits below it, because an edit must never
-reflow a row out from under its ink. There is no bulk proofread step; the child fixes what
-they notice while the words are still words.
+**Fixing a misheard word is the ABC tool** (v3.2): switch it on, tap the word — a drag
+picks a run — and it opens under a small action-coloured box with the keyboard up, or
+*Say it again* speaks over it. Tap past the last word instead, and the same footer offers
+to **add words** to the end of the page; typed words join the spoken tier on their own
+paragraph. The tool puts itself down when the fix or the addition lands. Untraced text is
+the only editable tier — and only where no traced row sits below it, because an edit must
+never reflow a row out from under its ink. There is no tap-to-edit and no hold-to-edit, so
+a finger resting on the page can never raise the keyboard; and there is no bulk proofread
+step — the child fixes what they notice while the words are still words.
 
 **Fixing a row you already wrote is just tapping it.** Its ink comes back in accuracy
 colours, and the pen, eraser, undo and clear work on it exactly as they did the first time
@@ -575,21 +633,35 @@ Two fingers is a lot to ask of a five-year-old holding a pencil, so **a chevron 
 the foot of the page scrolls without any gesture at all**. That button is the primary
 mechanism; the gestures are for whoever finds them.
 
-Taps are the third input and they all mean one thing — *select this row* — which is what
-makes the surface legible: there is no tap target to learn, no region where a tap does
-something different, and a held finger (the one exception) opens an untraced word for
-fixing.
+Taps are the third input. With the pencil they mean one thing — *select this row*; with a
+finger they mean nothing except on a handle, which is the one tap target on the page and
+is drawn so it can be found. The ABC tool and the crayon change what a touch does only
+while they are in hand, and both are visibly on in the toolbar.
 
 Ink is drawn in green/red per segment **always**; there is no toggle, because during
 writing the colours *are* the feedback.
 
-Three tools in the toolbar:
+Six tools in the toolbar, then the ⋯ entry menu (v3.2). Pencil, crayon and ABC are the
+three things the pen can be, and the one in hand is drawn filled, so the way back to
+writing is always in view:
 
 | Tool | Does |
 |---|---|
-| **Eraser** | Rubs out every point inside a 72 pt circle on the selected row and re-scores the letters it touched. Selected state fills the button. |
-| **Undo** | Removes the selected row's last whole stroke, in order. |
-| **Clear** | Wipes the selected row's ink. The rest of the page is unreachable. |
+| **Pencil** | Writing — the default. Tapping it puts the crayon, the ABC tool or the eraser down. |
+| **Crayon** | Switches the pen to a crayon: strokes go anywhere, into the doodle layer, and never count. The footer shows the three crayons while it is in hand. |
+| **ABC** | The page's touches pick a spoken word to fix, or the space after the last word to add more. Puts itself down when the change lands. |
+| **Eraser** | Rubs out every point inside a 72 pt circle on the selected row — or in the doodles, while the crayon is in hand — and re-scores the letters it touched. Selected state fills the button. |
+| **Undo** | Removes the selected row's last whole stroke, in order — or the last doodle, while the crayon is in hand. |
+| **Clear** | Wipes the selected row's ink — or every doodle, while the crayon is in hand. The rest of the page is unreachable. |
+
+**Doodles are welcome and never count** (v3.2). A crayon stroke goes anywhere — margins,
+empty rules, over the words — in one of the three decorative accents (§11.1). It is a
+separate layer under the handwriting, drawn in multiply at 85% so the letters stay
+readable through it; it is attributed to nothing, scored against nothing, selects nothing,
+and is never in the record or the word counts. It is kept with the page in the same
+archive (§6.1) and shown wherever the page is shown: the writing surface, the reading
+page, the thumbnail and every PDF. There is no setting and no export option for it — a
+doodle is part of the page the child made.
 
 The eraser and undo are not redundant: undo is chronological, the eraser is spatial. A
 child who overshoots the *a* in a ten-letter word wants to fix the *a*, not unwind
@@ -605,6 +677,12 @@ with skipped letters at zero, and the untraced remainder stays with the entry as
 still to write — visible on the resume card, absent from the journal, exports and every
 count. No warning, no "are you sure", no lost-progress language: nothing real can be lost,
 because only what is written is real.
+
+**Back scores too** (v3.2). Leaving the page by Back scores it exactly as *I'm finished*
+does — every row with ink counts — and skips the results, so the journal's accuracy, stars
+and points are always current however the child left. The entry's score is replaced, not
+added to: the profile moves by the difference (§8.3). From a new entry Back is the
+journal; from an entry reopened to write on, Back is the entry as it reads (§4.7).
 
 ### 4.5 Results
 
@@ -629,8 +707,9 @@ Summarises the entry — one entry, one result:
 
      🏆 NEW BADGE: Sharp Shooter
 
-        [ Say something new ]
-        [ See My Journal ]
+        [ Back to my journal ]
+   Want to say more about today? Open this
+   entry from your journal and tap the mic.
 ```
 
 The panel is a thumbnail of the page in the child's own hand plus the two numbers that
@@ -644,9 +723,12 @@ accuracy is over written words only, which is no longer a special rule: unwritte
 not in the record at all (§8.1). None of this language treats stopping as a failure, because
 at five minutes of dictation it isn't one — the rest stays spoken, not unwritten.
 
-**When words are still waiting the only way on is out** — *See My Journal*. "Say something
-new" would add to a pile the child has not finished, so it appears only once the page is
-fully written. Carrying on is done by reopening the entry and tapping **Edit** (§4.7).
+**The only way on is out — home** (v3.2). Results end with one button, *Back to my
+journal*, whatever the state of the page; *See my page* and *Say something new* are gone.
+A caption says where saying more went — open the entry from the journal and tap the mic —
+because a child who has just finished writing has nothing to view here, and every extra
+choice was a place to get lost. Carrying on is done by reopening the entry and tapping
+**Write on this page** (§4.7).
 
 "Best yet with *font* at *size*" replaces v1's "Best yet at Level N". The comparison must
 be **setting-matched** or it is dishonest: 88% at Extra Large is not better than 84% at
@@ -679,7 +761,9 @@ something. Now:
 
 **The pencil changes mode by itself.** Putting the pen on a page you were reading *is* the
 ask to write on it, so the page hands over without the child finding a button first; the
-View/Edit switch in the toolbar is there for fingers. Nothing is destroyed on the way
+*Write on this page* button is there for fingers, and **Back** is the way out of Edit —
+it scores the page as it stands and returns to the entry as it reads (v3.2; the toolbar's
+View/Edit switch is gone). Nothing is destroyed on the way
 between them — it is one session and one canvas archive, and the ink is set aside on the
 way out of Edit so the surface can be rebuilt from it.
 
@@ -994,17 +1078,19 @@ Strokes are archived as a compact binary blob, not JSON. A ten-line page traced 
 runs 15,000–40,000 sample points; JSON would be several megabytes per entry, which is
 unacceptable when the goal is to keep every page forever and eventually sync it.
 
-### 6.1 Format `HJST` v2
+### 6.1 Format `HJST` v3
 
 ```
 Header (8 bytes)
   magic        4  "HJST"
-  version      1  0x02   (0x01 still decodes; see below)
+  version      1  0x03   (0x01 and 0x02 still decode; see below)
   flags        1  reserved (0)
   strokeCount  2  UInt16, little-endian
 
 Per stroke
   pointCount   2  UInt16
+  flags        1  UInt8 (v3 only): bit 0 = doodle, bits 1–2 = crayon (0 yellow, 1 pink,
+                  2 lilac); 0 for handwriting
   points[]     14 bytes each (10 in v1):
      x         4  Float32   canvas coordinates
      y         4  Float32
@@ -1023,6 +1109,12 @@ a descender's tail re-read against the whole page can land on the row below and
 unfinish a line the child finished — the page would reopen with a shorter record than
 it closed with. v2 makes a restore exact. A v1 archive decodes unattributed and the
 canvas attributes it afresh, as before.
+
+**Why the layer is stored (v3).** Doodles (§4.4, v3.2) live in the same archive as the
+handwriting so they are kept, exported and deleted with the page, but a doodle must come
+back as a doodle — never attributed, never scored, never in the record. The flags byte
+says which layer each stroke belongs to and which crayon drew it. v1 and v2 archives
+decode with every stroke as ink.
 
 **Measured expectation:** 6,000 points → 60 KB raw → ~18–24 KB compressed, so a ten-line
 page lands around 120 KB. **One archive per entry, not per attempt** — re-tracing a line
@@ -1358,6 +1450,12 @@ Worked from `WIREFRAME_SPEC.md` §14: 78 + 50 + 25 + 30 = **183**; 94 + 75 + 25 
 
 Points are a running total with no ceiling and nothing to spend them on. They exist because
 a number that only goes up is quietly motivating, and because nothing is gated behind them.
+
+**An entry is scored as often as it is left, and counted once** (v3.2). *I'm finished* and
+Back both score the page as it stands, and a page can be reopened and left again, so the
+entry's score is *replaced* each time and the profile moves by the difference — points and
+stars alike. Finishing the same page twice never awards it twice; erasing a row and
+leaving takes the difference back.
 Journal Home shows the total, what today added and a bar for each of the last seven days
 (§4.3); every entry in the list shows what it earned.
 

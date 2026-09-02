@@ -28,8 +28,9 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · Three line states, settle in place, tap to write a line again (v2.4) | ✅ |
 | — · One screen; spoken-until-written record; commit-on-finish; fix-a-word (v2.5) | ✅ |
 | — · Free row selection; derived record; pencil never scrolls (v2.6) | ✅ |
+| — · One mic that stops in place; your-turn callout; row handles + palm rejection; ABC tool fixes and adds words; crayon doodles in every export; Back scores; home-only results (v3.2, from Penpot `14 · Write`) | ✅ |
 
-**107 tests across 15 suites, all passing.**
+**138 tests across 20 suites, all passing.**
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -280,18 +281,18 @@ silently fell back to the system face.
 2. **The accessibility pass is outstanding** — Dynamic Type on chrome, VoiceOver labels,
    and the left-handed toolbar mirror are declared in the model but not yet applied to the
    tracing toolbar.
-3. **Scroll, pen and tap now share the writing surface, and that is the thing to watch in
-   testing.** One finger draws and two scroll when finger tracing is on; the chevron button
-   scrolls with no gesture at all. v2.5 adds tap targets per tier — written lines select
-   for redo, the next spoken line advances, other spoken words open for fixing, the check
-   finishes — plus the slow-press edit on the next line. Each region is one where neither
-   drawing nor scrolling is the obvious intent, drags cancel taps, and strokes only start
-   on the active line's band; but this gesture stack is the densest thing in the app and
-   only a device with a real five-year-old answers whether it disappears into the paper.
-4. **The re-trace chip is drawn by the canvas, not composed in SwiftUI.** It has to sit at a
-   line's position inside a scroll view, and drawing it is far simpler than publishing the
-   rect and tracking the offset. It means the chip does not get SwiftUI's button semantics —
-   VoiceOver included — which the accessibility pass in (2) has to cover.
+3. **Scroll, pen and tap share the writing surface, and v3.2 thinned the stack: only a
+   device can confirm it.** The pencil selects a row by tapping or writing on it; a
+   finger selects only by the handle in the margin gutter and does nothing on the words;
+   fixing and adding words is the ABC tool; the crayon has its own layer. A direct touch
+   wider than `TracingCanvasView.handRadius` (50 pt of `UITouch.majorRadius`) is treated
+   as a resting hand and dropped — that figure is a starting point from documented
+   fingertip radii, not a measurement, and needs a real iPad and a real hand.
+4. **The row handles are drawn by the canvas, not composed in SwiftUI.** They sit at each
+   line's position inside a scroll view, and drawing them is far simpler than publishing
+   the rects and tracking the offset. It means the handles — and the pencil marker on the
+   row in hand — have no SwiftUI button semantics, VoiceOver included, which the
+   accessibility pass in (2) has to cover.
 5. **Entry Detail keeps a Rename action the wireframe's ⋯ menu does not show.** Frame 18
    draws four items; renaming is a real feature with nowhere else to live, so it is a fifth.
    Worth resolving in the wireframe rather than the code.

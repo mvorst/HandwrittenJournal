@@ -14,14 +14,24 @@ import Compression
 /// unfinish a line the child finished. Storing the attribution makes a restored page
 /// reopen with exactly the record it closed with. v1 archives still decode; their
 /// points come back unattributed and the canvas attributes them afresh.
+///
+/// **v3 carries each stroke's layer.** A crayon doodle (v3.2) lives in the same archive
+/// as the handwriting so it is kept, exported and deleted with the page, but it must
+/// come back as a doodle — never scored, never attributed — so each stroke is prefixed
+/// by a flags byte: bit 0 is the doodle flag, bits 1–2 the crayon. v1 and v2 archives
+/// decode as they always did, every stroke ink.
 enum StrokeArchive {
 
     enum ArchiveError: Error { case badMagic, badVersion, truncated, compressionFailed }
 
     static let magic: [UInt8] = Array("HJST".utf8)
-    static let version: UInt8 = 2
+    static let version: UInt8 = 3
     /// §6.1 — set when per-point inside data is meaningless, as it will be in Copy mode.
     static let flagNoInsideData: UInt8 = 1 << 0
+    /// Per-stroke flags (v3): bit 0 marks a doodle, bits 1–2 carry its crayon.
+    static let strokeFlagDoodle: UInt8 = 1 << 0
+    static let strokeCrayonShift: UInt8 = 1
+    static let strokeCrayonMask: UInt8 = 0b11
 
     /// What a decode hands back: the strokes, and whether their points carry the letter
     /// they were drawn against.
@@ -42,6 +52,7 @@ enum StrokeArchive {
         for stroke in strokes.prefix(Int(UInt16.max)) {
             let points = Array(stroke.points.prefix(Int(UInt16.max)))
             raw.appendLE(UInt16(points.count))
+            raw.append(strokeFlags(for: stroke))
             for p in points {
                 raw.appendLE(Float32(p.location.x))
                 raw.appendLE(Float32(p.location.y))
@@ -51,6 +62,15 @@ enum StrokeArchive {
             }
         }
         return try compress(raw)
+    }
+
+    static func strokeFlags(for stroke: TracingStroke) -> UInt8 {
+        var flags: UInt8 = 0
+        if stroke.isDoodle {
+            flags |= strokeFlagDoodle
+            flags |= (stroke.crayon & strokeCrayonMask) << strokeCrayonShift
+        }
+        return flags
     }
 
     // MARK: - Decode
@@ -70,8 +90,9 @@ enum StrokeArchive {
         try need(8)
         guard Array(raw[0..<4]) == magic else { throw ArchiveError.badMagic }
         let version = raw[4]
-        guard version == 1 || version == 2 else { throw ArchiveError.badVersion }
+        guard (1...3).contains(version) else { throw ArchiveError.badVersion }
         let attributed = version >= 2
+        let layered = version >= 3
         let pointSize = attributed ? 14 : 10
         cursor = 6
         let strokeCount = Int(raw.readLE(UInt16.self, at: &cursor))
@@ -81,8 +102,16 @@ enum StrokeArchive {
         for _ in 0..<strokeCount {
             try need(2)
             let pointCount = Int(raw.readLE(UInt16.self, at: &cursor))
-            try need(pointCount * pointSize)
             var stroke = TracingStroke()
+            if layered {
+                try need(1)
+                let flags = raw[raw.startIndex + cursor]; cursor += 1
+                if flags & strokeFlagDoodle != 0 {
+                    stroke.layer = .doodle
+                    stroke.crayon = (flags >> strokeCrayonShift) & strokeCrayonMask
+                }
+            }
+            try need(pointCount * pointSize)
             stroke.points.reserveCapacity(pointCount)
             for _ in 0..<pointCount {
                 let x = raw.readLE(Float32.self, at: &cursor)

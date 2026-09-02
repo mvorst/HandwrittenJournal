@@ -80,9 +80,36 @@ final class WriteSessionViewModel {
         }
     }
 
+    /// What the pen does on the page (v3.2). The eraser can be on for either layer, so
+    /// the crayon and its eraser are two tools; the ABC tool takes the page's touches
+    /// for words instead of ink.
+    enum Tool: Equatable {
+        case pen, crayon, words, eraser, crayonEraser
+
+        var drawsDoodles: Bool { self == .crayon || self == .crayonEraser }
+        var erases: Bool { self == .eraser || self == .crayonEraser }
+        var editsWords: Bool { self == .words }
+    }
+
     var stage: Stage = .writing
     var mic: MicState = .idle
-    var isEraserActive = false
+    var tool: Tool = .pen
+    /// Kept for the eraser's callers: the eraser is one of the tools.
+    var isEraserActive: Bool {
+        get { tool.erases }
+        set { setEraser(newValue) }
+    }
+    /// The crayon the next doodle is drawn with (`Crayon.rawValue`).
+    var crayon = 0
+    /// v3.2 — the take that is running started from the stage mic on an empty page, so
+    /// the stop lives there too; otherwise it started from the footer mic and stops there.
+    private(set) var listeningFromStage = false
+    /// v3.2 — the first telling just landed on a page with no ink: the callout that says
+    /// whose turn it is. Cleared by the first stroke, the mic, or a tap.
+    var showYourTurn = false
+    /// v3.2 — words being typed to add to the end of the page with the ABC tool. Non-nil
+    /// while the add field is up; `editing` and this are never both set.
+    var appending: String?
     var editing: EditingWord?
     var lastResult: ScoreResult?
     var newBadges: [BadgeDefinition] = []
@@ -133,6 +160,9 @@ final class WriteSessionViewModel {
         if let session {
             if startingOver { Self.clearTracing(of: session) }
             adopt(session)
+            // Reopened to write on: the first line still to write comes up as soon as
+            // there is a surface, so the page says where to start (v3.2).
+            if recordLength < basePageText.count { controller.selectFirstUnwrittenRow() }
         }
         wireController()
     }
@@ -180,7 +210,10 @@ final class WriteSessionViewModel {
         guard let session else { return }
         Self.clearTracing(of: session)
         editing = nil
+        appending = nil
         replacing = nil
+        tool = .pen
+        showYourTurn = false
         lastResult = nil
         newBadges = []
         formationHelp = nil
@@ -194,7 +227,8 @@ final class WriteSessionViewModel {
         controller.onRecordChange = { [weak self] newLength in self?.recordChanged(newLength) }
         controller.onInkChange = { [weak self] in self?.inkChanged() }
         controller.onSelectRow = { [weak self] _ in self?.rowSelected() }
-        controller.onEditWord = { [weak self] range, word in self?.wordHeld(range, word) }
+        controller.onEditWord = { [weak self] range, word in self?.wordPicked(range, word) }
+        controller.onAppendRequested = { [weak self] in self?.appendRequested() }
         controller.onFormationHelp = { [weak self] request in self?.formationHelpNeeded(request) }
     }
 
@@ -273,9 +307,12 @@ final class WriteSessionViewModel {
         // The page needs no permission — only the mic does, and it asks when tapped.
     }
 
-    /// The footer mic (or the big one on an empty page).
+    /// The footer mic (or the big one on the stage of an empty page).
     func micTapped() {
         guard mic == .idle, editing == nil else { return }
+        appending = nil
+        if tool.editsWords { tool = .pen }
+        showYourTurn = false
         switch speech.currentStatusWithoutPrompting() {
         case .ready: startListening()
         case .unknown: leaveSurface(for: .explainPermission)
@@ -310,6 +347,10 @@ final class WriteSessionViewModel {
 
     private func startListening() {
         do {
+            // Wherever the child tapped to start is where they will tap to stop (v3.2):
+            // the stage when the page was empty, the footer otherwise.
+            listeningFromStage = basePageText.isEmpty
+            tool = .pen
             try speech.start()
             mic = .listening
             Haptics.tap()
@@ -324,6 +365,7 @@ final class WriteSessionViewModel {
         speech.stop()
         mic = speech.didReachCap ? .capped : .idle
         let heard = Self.tidy(speech.transcript)
+        let firstTelling = !pageHasInk
         if let range = replacing {
             replacing = nil
             substitute(range, with: heard)
@@ -331,7 +373,23 @@ final class WriteSessionViewModel {
             appendDictation(heard)
         }
         speech.reset()
+        listeningFromStage = false
+        wordsLanded(firstTelling: firstTelling)
         Haptics.tap()
+    }
+
+    /// Whether anything on the page has ink — asked of the surface, or of the entry when
+    /// there is no surface to ask.
+    private var pageHasInk: Bool {
+        controller.isAttached ? controller.pageHasInk : (session?.hasWriting ?? false)
+    }
+
+    /// v3.2 — spoken or typed words just landed. The first line still to write comes up
+    /// on its own, and if nothing on the page has ink yet the page says whose turn it is.
+    private func wordsLanded(firstTelling: Bool) {
+        guard !basePageText.isEmpty else { return }
+        controller.selectFirstUnwrittenRow()
+        if firstTelling, mic != .capped { showYourTurn = true }
     }
 
     func dismissCapBanner() {
@@ -341,8 +399,10 @@ final class WriteSessionViewModel {
     /// Typing is the same path as speaking with the mic removed — the words land as
     /// spoken text and are no more real until they are written.
     func useTyped(_ text: String) {
+        let firstTelling = !pageHasInk
         appendDictation(Self.tidy(text))
         stage = .writing
+        wordsLanded(firstTelling: firstTelling)
     }
 
     private func appendDictation(_ text: String) {
@@ -385,6 +445,7 @@ final class WriteSessionViewModel {
     /// A stroke landed, or was undone, erased or cleared: the archive follows the ink
     /// at once (§6). The score waits for Done; the ink does not.
     private func inkChanged() {
+        showYourTurn = false
         guard controller.accountsForArchive else { return }
         ensureSession()
         guard let session else { return }
@@ -417,10 +478,82 @@ final class WriteSessionViewModel {
         editing = nil
     }
 
-    private func wordHeld(_ range: ClosedRange<Int>, _ word: String) {
+    /// The ABC tool picked a word, or a run of them. Only spoken text can change (§11.13).
+    private func wordPicked(_ range: ClosedRange<Int>, _ word: String) {
         guard mic == .idle, !word.isEmpty else { return }
+        appending = nil
         editing = EditingWord(range: range, original: word, draft: word)
         Haptics.tap()
+    }
+
+    /// The ABC tool was tapped past the last word: the add field comes up (v3.2).
+    private func appendRequested() {
+        guard mic == .idle, tool.editsWords else { return }
+        editing = nil
+        appending = appending ?? ""
+        Haptics.tap()
+    }
+
+    /// v3.2 — the typed words join the end of the page as spoken text, the tool goes
+    /// down, and the first unwritten line comes up.
+    func commitAppend() {
+        guard let draft = appending else { return }
+        appending = nil
+        if tool.editsWords { tool = .pen }
+        let text = Self.tidy(draft)
+        guard !text.isEmpty else { return }
+        let firstTelling = !pageHasInk
+        appendDictation(text)
+        wordsLanded(firstTelling: firstTelling)
+    }
+
+    // MARK: - Tools (v3.2)
+
+    /// The ABC tool: on, the page's touches pick words to fix and the footer offers to
+    /// add more; off again once a fix or an addition lands, or the child says never mind.
+    func toggleWordsTool() {
+        if tool.editsWords { cancelEdit(); return }
+        guard mic == .idle else { return }
+        tool = .words
+        editing = nil
+        appending = ""
+        showYourTurn = false
+    }
+
+    /// The pencil: back to writing from the crayon, the ABC tool or the eraser. It is the
+    /// default, and the toolbar shows it filled while it is in hand, so the way back is
+    /// always on screen.
+    func pickPencil() {
+        editing = nil
+        appending = nil
+        replacing = nil
+        tool = .pen
+    }
+
+    /// The crayon: on, the pen doodles; off, it writes. Either way the eraser is put down.
+    func toggleCrayon() {
+        editing = nil
+        appending = nil
+        tool = tool.drawsDoodles ? .pen : .crayon
+        showYourTurn = false
+    }
+
+    /// The eraser rubs out whichever layer the pen was drawing.
+    func toggleEraser() { setEraser(!tool.erases) }
+
+    private func setEraser(_ on: Bool) {
+        switch (tool, on) {
+        case (.crayon, true):              tool = .crayonEraser
+        case (.crayonEraser, false):       tool = .crayon
+        case (.eraser, false):             tool = .pen
+        case (.pen, true), (.words, true): tool = .eraser; editing = nil; appending = nil
+        default:                           break
+        }
+    }
+
+    func pickCrayon(_ index: Int) {
+        crayon = max(0, min(Crayon.allCases.count - 1, index))
+        if tool == .crayonEraser { tool = .crayon }
     }
 
     /// §11.13 — the fix lands in place. Only the spoken tier can change, so nothing the
@@ -428,6 +561,7 @@ final class WriteSessionViewModel {
     func commitEdit() {
         guard let editing else { return }
         self.editing = nil
+        if tool.editsWords { tool = .pen }
         let replacement = editing.draft
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacing(#/\s+/#, with: " ")
@@ -440,6 +574,7 @@ final class WriteSessionViewModel {
     func speakOverSelection() {
         guard let editing, mic == .idle else { return }
         self.editing = nil
+        if tool.editsWords { tool = .pen }
         replacing = editing.range
         micTapped()
         // The mic may have gone to the explainer or the unavailable page instead. The
@@ -448,7 +583,9 @@ final class WriteSessionViewModel {
 
     func cancelEdit() {
         editing = nil
+        appending = nil
         replacing = nil
+        if tool.editsWords { tool = .pen }
     }
 
     /// Puts `text` where `range` was. Refuses anything that would move written words: the
@@ -495,37 +632,11 @@ final class WriteSessionViewModel {
 
     // MARK: - Finishing
 
-    /// Stopping part-way is ordinary, so this is the same action whether the child wrote
-    /// three words or all of them. Every row with any ink counts — they traced it — and
-    /// its untouched letters score zero.
-    ///
-    /// The ink is already saved — every stroke saw to that — so what Done adds is the
-    /// score. A surface that does not stand for the entry's ink (a restore that could
-    /// not land) has nothing honest to score and records nothing.
+    /// "I'm finished": the page is scored as it stands and the results come up. Stopping
+    /// part-way is ordinary, so this is the same action whether the child wrote three
+    /// words or all of them.
     func finishWriting() {
-        if mic == .listening { dictationEnded() }
-        editing = nil
-        guard controller.accountsForArchive,
-              let result = controller.finishEntry(streak: profile.currentStreak) else {
-            stageSurface()
-            stage = .results
-            return
-        }
-        persist()
-        guard let session else {
-            stage = .results
-            return
-        }
-        let canvas = controller.canvasSize
-        session.record(result,
-                       strokes: controller.archive() ?? session.strokeArchive,
-                       thumbnail: controller.thumbnail() ?? session.thumbnailData,
-                       canvas: canvas.width > 0 ? canvas
-                                                : CGSize(width: session.canvasWidth, height: session.canvasHeight))
-        session.endedAt = .now
-        lastResult = result
-        applyProgress(result: result)
-        save()
+        recordScore()
         // The surface is torn down for the results; whatever is built next starts
         // from the entry as it now stands.
         stageSurface()
@@ -533,10 +644,51 @@ final class WriteSessionViewModel {
         stage = .results
     }
 
-    private func applyProgress(result: ScoreResult) {
+    /// Back (v3.2): the page is scored as it stands, so the journal is always current,
+    /// and the child leaves without the results. Scoring again later replaces the
+    /// entry's score and moves the profile by the difference (§8.3).
+    func saveScore() {
+        recordScore()
+        stageSurface()
+    }
+
+    /// The score itself. Every row with any ink counts — they traced it — and its
+    /// untouched letters score zero. The ink is already saved (every stroke saw to
+    /// that), so this adds the score and nothing more. A surface that does not stand
+    /// for the entry's ink (a restore that could not land) has nothing honest to score
+    /// and records nothing.
+    @discardableResult
+    private func recordScore() -> ScoreResult? {
+        if mic == .listening { dictationEnded() }
+        editing = nil
+        appending = nil
+        tool = .pen
+        showYourTurn = false
+        guard controller.accountsForArchive,
+              let result = controller.finishEntry(streak: profile.currentStreak) else { return nil }
+        persist()
+        guard let session else { return nil }
+        let canvas = controller.canvasSize
+        let earlier = (points: session.points, stars: session.stars)
+        session.record(result,
+                       strokes: controller.archive() ?? session.strokeArchive,
+                       thumbnail: controller.thumbnail() ?? session.thumbnailData,
+                       canvas: canvas.width > 0 ? canvas
+                                                : CGSize(width: session.canvasWidth, height: session.canvasHeight))
+        session.endedAt = .now
+        lastResult = result
+        applyProgress(result: result, replacing: earlier)
+        save()
+        return result
+    }
+
+    /// A page can be scored more than once — Back scores it as it stands, and finishing
+    /// it again in a later sitting scores it again — so the profile takes the *change*
+    /// in the entry's points and stars, never a second helping (§8.3, v3.2).
+    private func applyProgress(result: ScoreResult, replacing earlier: (points: Int, stars: Int)) {
+        profile.totalPoints = max(0, profile.totalPoints + result.totalPoints - earlier.points)
+        profile.totalStars = max(0, profile.totalStars + result.stars - earlier.stars)
         guard result.wordsWritten > 0 else { return }
-        profile.totalPoints += result.totalPoints
-        profile.totalStars += result.stars
         profile.registerActivity()
 
         let sessions = profile.orderedSessions.filter(\.hasWriting)
@@ -556,15 +708,6 @@ final class WriteSessionViewModel {
         let earned = BadgeEngine.newlyEarned(from: snapshot, existing: profile.earnedBadgeIDs)
         newBadges = earned
         profile.earnedBadgeIDs.append(contentsOf: earned.map(\.id))
-    }
-
-    /// More to say about the same day. The new words will join this page as spoken text.
-    func sayMore() {
-        lastResult = nil
-        newBadges = []
-        reloadFromSession()
-        stage = .writing
-        micTapped()
     }
 
     /// Leaving the writing surface — switching to reading, the page closing — or about

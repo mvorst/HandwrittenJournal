@@ -80,10 +80,15 @@ enum PDFBookBuilder {
                 let scale = min(contentWidth / bounds.width, available / bounds.height)
                 context.saveGState()
                 context.translateBy(x: margin - bounds.minX * scale, y: y - bounds.minY * scale)
+                // The crayon layer goes into the book too, under the handwriting (v3.2).
+                context.saveGState()
+                context.scaleBy(x: scale, y: scale)
+                Crayon.draw(strokes.doodles, in: context, widthScale: session.setup.size.size / 72)
+                context.restoreGState()
                 context.setLineCap(.round)
                 context.setLineJoin(.round)
                 context.setStrokeColor(UIColor(Tokens.Colour.inkNatural).cgColor)
-                for stroke in strokes where stroke.points.count > 1 {
+                for stroke in strokes.ink where stroke.points.count > 1 {
                     for i in 1..<stroke.points.count {
                         let a = stroke.points[i - 1], b = stroke.points[i]
                         let force = (a.force + b.force) / 2

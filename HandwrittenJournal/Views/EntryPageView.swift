@@ -14,7 +14,9 @@ import SwiftData
 ///
 /// **The pencil switches modes by itself.** Putting the pen on a page you were reading is
 /// the ask to write on it, so it hands over without the child finding a button first — the
-/// button is there for fingers.
+/// *Write on this page* button is there for fingers. The way out of Edit is **Back**
+/// (v3.2): it scores the page as it stands, so the journal is always current, and returns
+/// to wherever the child came from. There is no mode switch in the toolbar any more.
 ///
 /// Nothing is destroyed by moving between them: it is one session, one canvas archive, and
 /// the ink is set aside on the way out of Edit so the surface can be rebuilt from it.
@@ -33,6 +35,8 @@ struct EntryPageView: View {
     /// never opened it at all.
     @State var showTyping = false
     @FocusState var typing: Bool
+    /// The stop button's ring while a take runs from the stage (v3.2).
+    @State var stagePulse = false
 
     @State private var strokes: [TracingStroke] = []
     @State private var showExport = false
@@ -42,10 +46,14 @@ struct EntryPageView: View {
     @State private var draftTitle = ""
 
     let profile: UserProfile
+    /// Whether the page was opened from the journal — where Back from Edit returns to
+    /// the entry as it reads — or is a new entry, where Back is the journal itself.
+    private let openedFromJournal: Bool
 
     init(profile: UserProfile, context: ModelContext,
          resuming session: WritingSession? = nil, mode: Mode = .edit) {
         self.profile = profile
+        self.openedFromJournal = session != nil
         _model = State(initialValue: WriteSessionViewModel(profile: profile, context: context,
                                                            resuming: session))
         // A new entry opens on the writing surface — the child has just said the words and
@@ -117,14 +125,6 @@ struct EntryPageView: View {
         mode = next
     }
 
-    /// The results are read and done with: back to the page, as the entry it now is.
-    func finishedLooking() {
-        model.lastResult = nil
-        model.newBadges = []
-        model.stage = .writing
-        show(.view)
-    }
-
     private func startOver() {
         model.writeItAllAgain()
         show(.edit)
@@ -143,16 +143,15 @@ struct EntryPageView: View {
 
     // MARK: - Chrome
 
-    /// The one bar both modes share: the way out, the date, the mode switch, and whatever
-    /// tools the mode brings with it.
+    /// The one bar both modes share: Back, the date, and whatever tools the mode brings
+    /// with it (v3.2 — the View/Edit switch is gone; Back is the way out of both).
     func chrome<Trailing: View>(@ViewBuilder trailing: () -> Trailing) -> some View {
         HStack(spacing: Tokens.Space.s4) {
-            TextButton(title: leaveTitle) { leave() }
+            TextButton(title: "Back") { leave() }
             Spacer(minLength: Tokens.Space.s4)
             Text(pageDate).font(.hjHeadline).foregroundStyle(Tokens.Colour.textPrimary)
                 .lineLimit(1)
             Spacer(minLength: Tokens.Space.s4)
-            modeSwitch
             trailing()
         }
         .padding(.horizontal, Tokens.Layout.screenMargin)
@@ -160,29 +159,22 @@ struct EntryPageView: View {
         .overlay(alignment: .bottom) { Rectangle().fill(Tokens.Colour.divider).frame(height: 1) }
     }
 
-    /// Finishing an entry is a moment worth marking, so Edit keeps *I'm finished* and its
-    /// results. Reading one is not — Back is just back.
-    private var leaveTitle: String { mode == .edit ? "I'm finished" : "Back" }
-
+    /// Back (v3.2). From Edit the page is scored as it stands first, so the journal is
+    /// always current, and the child goes back to where they came from: the journal for
+    /// a new entry, the entry as it reads for one they reopened. Finishing — with its
+    /// results — is the footer's *I'm finished*.
     private func leave() {
         if mode == .edit {
-            model.isEraserActive = false
-            if model.pageText.isEmpty { dismissSession() } else { model.finishWriting() }
+            model.saveScore()
+            if openedFromJournal, !(model.session?.pageText.isEmpty ?? true) {
+                show(.view)
+            } else {
+                dismissSession()
+            }
         } else {
             dismissSession()
         }
     }
-
-    private var modeSwitch: some View {
-        SegmentedControl(options: [(Mode.view, "View"), (Mode.edit, "Edit")],
-                         selection: Binding(get: { mode }, set: { show($0) }),
-                         height: 48)
-            .frame(width: 200)
-            .disabled(!canRead)
-    }
-
-    /// There is nothing to read until something has been said.
-    private var canRead: Bool { !(model.session?.pageText.isEmpty ?? true) }
 
     /// The ⋯ menu — everything that is about the entry rather than about the page.
     var entryMenu: some View {
@@ -268,16 +260,23 @@ struct EntryPageView: View {
     }
 
     /// The replay is scaled from the width the child wrote at, so its height follows that
-    /// same ratio — and it is sized to the *text*, not to the captured canvas, because the
-    /// writing page keeps ruling itself far below the last word.
+    /// same ratio — and it is sized to the *content*, not to the captured canvas, because
+    /// the writing page keeps ruling itself far below the last word. Content is the written
+    /// text and every stroke on the page: a doodle drawn under the last word is part of
+    /// the page and must be in view (v3.2).
     private func replayHeight(_ session: WritingSession) -> CGFloat {
         guard session.canvasWidth > 0 else { return 300 }
         let width = UIScreen.main.bounds.width - Tokens.Layout.screenMargin * 2
         let scale = width / session.canvasWidth
         let textWidth = session.canvasWidth - Tokens.Layout.surfaceInset * 2
         guard textWidth > 0 else { return max(200, session.canvasHeight * scale) }
-        let content = MaskRenderer.contentHeight(text: session.transcript, setup: model.setup, width: textWidth)
-        return max(200, min(content, session.canvasHeight) * scale)
+        var content = session.transcript.isEmpty ? 0
+            : MaskRenderer.contentHeight(text: session.transcript, setup: model.setup, width: textWidth)
+        if let lowest = strokes.map({ $0.bounds().maxY }).max() {
+            content = max(content, lowest + Tokens.Space.s7)
+        }
+        let ceiling = session.canvasHeight > 0 ? session.canvasHeight : content
+        return max(200, min(content, ceiling) * scale)
     }
 
     /// One row for the whole entry: accuracy and words. There is nothing below entry

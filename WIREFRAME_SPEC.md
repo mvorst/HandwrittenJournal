@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v3.1
+## Penpot handoff, v3.2
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -124,6 +124,37 @@ decision and rejected proposal):
 - **Explicitly rejected:** yellow primary buttons (`action` stays blue), colored or
   restructured writing rules (the dashed-outer/solid-baseline gray rules are the spec),
   a red margin rule, and any tracing-typeface change.
+
+**What changed in v3.2 — the Write flow from page `14 · Write`:**
+
+Explored on the Penpot page `14 · Write` and adopted by the app on 2026-09-02. Frames 20,
+21, 22, 24, 25, 29, 30 and 44 on `04 · Write` are superseded by their alternates there,
+and frames 52 (doodling) and 53 (adding words) are new; promotion onto `04 · Write` is
+still to do (`PENPOT_HANDOFF.md` §1.-1).
+
+- **One microphone.** `Mic / Stage` — 176 pt, low on the empty page — starts the take and
+  becomes the stop in the same spot (`danger`, a stop square, a pulse ring). The footer
+  mic is gone from the empty page and *I'm done talking* is gone everywhere; the
+  `Listening bar` is the level meter and the clock. Once the page has words the mic
+  docks into the footer as `Mic / Footer`, and a take started there stops there (§10.6,
+  §11.13).
+- **The take ending is a change of turn.** The first unwritten row is selected on its own
+  and `Callout / Your turn` takes the stage the mic left (§11.11, §11.13).
+- **A resting hand selects nothing.** Wide touches are dropped; finger taps on the words
+  do nothing; every row carries a `Row handle` in the margin gutter — an 8 pt dot, or the
+  `pencil.line` marker on the row in hand — and a finger picks a row only by it (§11.6,
+  §11.11). Fixing a word is the toolbar's **ABC** tool, not a tap or a hold; the same
+  tool adds words to the end of the page (§11.13).
+- **Navigation.** The Write toolbar reads Back · date · crayon · ABC · eraser · undo ·
+  clear · ⋯; the `Segmented / View · Edit` control is gone from the entry page. The
+  footer's *Done* becomes *I'm finished*, the one finish control; Back scores the page as
+  it stands and leaves. Results end with one button, *Back to my journal* (§13.3).
+- **Crayons.** A crayon tool (`scribble.variable`) draws doodles in the three §5.6 accents
+  into their own layer under the ink — multiply at 85% — never scored, kept in the
+  journal, the thumbnail and every PDF; `Crayon swatches` sit in the footer while it is
+  in hand (§10.6).
+- `scribble.variable`, `textformat.abc`, `pencil.line` and `stop.fill` join the icon set
+  (§9).
 
 **What changed in v3.1 — the action deck and points:**
 
@@ -494,6 +525,13 @@ Build each as a Penpot component with the listed variants.
 
 Primary button icon, when present, is 28 pt, leading, 12 pt from the label.
 
+**The Write toolbar's tools** (v3.2), `Button / Toolbar` at a 52 pt pitch ending with
+`ellipsis.circle` at x 766: `pencil` (write — the default), `scribble.variable` (crayon),
+`textformat.abc` (ABC), `eraser.fill`, `arrow.uturn.backward`, `trash`. Pencil, crayon and
+ABC are the three things the pen can be; the one in hand fills `action` at a 12 pt radius
+with a `text-on-action` glyph, so the way back to writing is always in view. A tool with
+nothing to act on draws in `action-disabled`.
+
 ### 10.2 Avatars
 
 | Component | Diameter | Ring | Shadow |
@@ -558,12 +596,16 @@ attempt history.
 | `Card / Entry stats` (entry detail) | Full content width × 112, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Row`; then a three-line stack — word count `body-em` ("48 of 48 words"), a one-line note `caption` ("You finished the whole thing." / "N words are still waiting on the page."), and the setup summary `caption` ("Jua · Large · Trace") — **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback; *"Hear what I said"* is retired too (v3.0 — no audio is kept). The setup summary lives **inside** the card, not below it. |
 | `Writing progress` | Full width of the footer. `paper-sunk` capsule track 8 pt tall, `action` fill to `wordsWritten / totalWords`, caption "15 of 48 words" beneath in `text-secondary`. Replaces the sentence queue. In the footer it is 190 pt wide, not full width — the accuracy hint sits to its left. |
 | `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
-| `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action`. Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. Drawn large — 176 pt — in the centre of an empty page (frame 20). |
-| `Listening bar` | Replaces the footer while recording: `Level meter` 280 wide leading, elapsed `numeral-l` over "of 5:00" `caption`, `Button / Primary` "I'm done talking" 260 × 64 trailing. |
+| `Mic / Stage` (v3.2) | The one mic while the page is empty: 176 pt circle, `action` fill, `shadow-raised`, `mic.fill` 76 pt, centred at (417, 788) — low on the page, near the child's hands — with "Tap to start talking" `body-em` beneath and *Type it instead* under that. **Listening**, in the same spot: `danger` fill, a 56 pt `text-on-action` stop square (radius 12), a `danger` pulse ring, "Tap when you're done talking" beneath. The page keeps its last line above the stage while it listens. When the take ends the button docks into the footer as `Mic / Footer`. |
+| `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action` — present only once the page has words (v3.2: one mic, never two). Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. A take started here stops here: `danger` fill and a 22 pt stop square while it listens. |
+| `Listening bar` | Replaces the footer while recording (v3.2): the stop in the mic's spot **only when the take started from the footer**, then `Level meter` 280 wide, elapsed `numeral-l` over "of 5:00" `caption`, and the reassurance line trailing. No primary button — a take started on the stage stops on the stage. |
+| `Row handle` (v3.2) | In the 40 pt margin gutter of every row with letters, centred in the gutter at the row's x-height: an 8 pt dot, black @ 15%; on the row in hand the `pencil.line` glyph, 22 pt, `action`. The one place a finger selects a row. Left-handed profiles carry it in the right-hand gutter. |
+| `Callout / Your turn` (v3.2) | 660 × 116 `paper-raised`, `radius-card`, `shadow-modal`, bottom-aligned over the page where the stage was: a 64 pt `pencil-yellow` well with `pencil.line` 28 pt in `text-primary`, "Your turn — write it!" `headline`, one `body` line in `text-secondary`. Shown once, when the first telling lands on a page with no ink; gone at the first stroke or a tap. |
+| `Crayon swatches` (v3.2) | Where the readout sits while the crayon is in hand: three 40 pt circles at a 52 pt pitch in `pencil-yellow`, `eraser-pink`, `lilac-star`, the one in hand ringed `stroke-selected` in `action`; "Doodles never count — tap the pencil to write again" `caption` beneath. |
 | ~~`End-of-line check`~~ | **Retired in v2.6** — finishing is automatic (the row fills) and selection is free (any row, any tap). Do not reuse. |
-| `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). |
-| `Word editor footer` | Replaces the footer while a word is under edit (frame 22): "Fix the word:" / "Fix these words:" `body` in `text-secondary`, a `paper-sunk` field at `radius-button`, `Button / Primary` "✓ Fix it", `Button / Secondary` "🎤 Say it again", and a `Button / Text` "Never mind". |
-| `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em. **Never accuracy colours.** |
+| `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). Reached with the **ABC** tool in hand (v3.2): a tap picks the word, a drag a run. |
+| `Word editor footer` | Replaces the footer while the ABC tool is in hand (v3.2). **Fixing** (frame 22): "Fix the word:" / "Fix these words:" `body` in `text-secondary`, a `paper-sunk` field at `radius-button`, `Button / Primary` "✓ Fix it", `Button / Secondary` "🎤 Say it again", `Button / Text` "Never mind". **Adding** (frame 53, when nothing is picked or the tap landed past the last word): "Add to the page:", an empty field with the placeholder "Type more words", `Button / Primary` "✓ Add them", the caption "…or tap a word above to fix it", and "Never mind". The tool puts itself down when the change lands. |
+| `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em, doodles beneath it in their crayons (v3.2). **Never accuracy colours.** |
 | ~~`Toggle / TypedHandwritten`~~ | **Retired in v2.9** — the journal reads only as handwriting; there is no typed page to flip to. Deleted from the library in v3.0. Do not confuse it with `Segmented / View · Edit`, which switches *modes*, not renderings. |
 | ~~`Cell / Calendar`~~ | **Retired in v2.7** — the calendar screen is gone. Deleted from the library in v3.0. Do not reuse. |
 | ~~`Card / Session`~~ | **Retired in v3.0** — Journal Home lists entries as `Row / Session`, never as a card grid. Deleted from the library. |
@@ -734,8 +776,10 @@ Everything else:
   when it is on (one finger is ink then — the Notes / Procreate split). Because two
   fingers is a lot to ask of a five-year-old holding a pencil, **a chevron button at the
   foot of the page scrolls with no gesture at all** — that is the primary mechanism.
-- Finger *taps* still reach the page in every mode — taps select rows (§11.11); only drags
-  scroll.
+- Finger *taps* on the words do nothing (v3.2); a finger picks a row only by its handle
+  (§11.11). Only drags scroll. **A direct touch wider than a fingertip is a resting hand**
+  and is dropped before it can select, edit or draw — `TracingCanvasView.handRadius`,
+  50 pt to start with, to be checked on a device.
 - **The Entry Detail page scrolls too.** A long entry is never truncated.
 
 ### 11.9 Long-form dictation, on the page
@@ -798,11 +842,18 @@ The faint letterforms left under a traced row's ink keep the row legible as *tex
 the ink reads unmistakably as the child's own; the pale untraced tier below keeps the
 boundary between "mine" and "not yet mine" visible at a glance.
 
-**Any row can be selected by tapping it, at any time.** A traced row, the row after next,
-the last row of the page — one tap. Selecting a traced row brings its ink back up in
-accuracy colours for fixing; leaving any row settles it (§11.10). A pen that starts moving
-on an unselected row selects it and begins the stroke in the same gesture — writing
-somewhere *is* selecting it. Selecting a row also stops the mic if it is listening.
+**Any row can be selected at any time — with the pencil, or by its handle** (v3.2). A
+pencil tap on a traced row, the row after next, the last row of the page: one tap. A pen
+that starts moving on an unselected row selects it and begins the stroke in the same
+gesture — writing somewhere *is* selecting it. A finger selects only by the `Row handle`
+in the margin gutter (§10.6); a finger on the words does nothing, and a resting hand is
+dropped outright (§11.6). Selecting a traced row brings its ink back up in accuracy
+colours for fixing; leaving any row settles it (§11.10). Selecting a row also stops the
+mic if it is listening.
+
+**When a take ends, or typed words land, the first unwritten row is selected on its own**
+(v3.2), and the first time that happens on a page with no ink `Callout / Your turn` says
+so. The page never asks the child to find the start.
 
 **Nothing needs a tap to move forward.** When the selected row's last letter gets ink, the
 next untraced row is selected automatically. The taps are for going back, skipping ahead,
@@ -815,10 +866,11 @@ are filled, and shrinks if a record row's ink is erased or cleared. A row traced
 order is the child's work and is scored (§11.4), but the record — the story so far, in
 order — waits for the rows before it.
 
-**Untraced text is editable; traced text is not.** Holding a finger on an untraced word
-opens it for fixing in place (§11.13) — provided no traced row sits below it, because an
-edit must never reflow a row out from under its ink. Ink is attributed only to the
-selected row, so a stray wobble can never put ink on a word the child has not reached.
+**Untraced text is editable; traced text is not.** With the ABC tool in hand, tapping an
+untraced word opens it for fixing in place (§11.13) — provided no traced row sits below
+it, because an edit must never reflow a row out from under its ink. Ink is attributed only
+to the selected row, so a stray wobble can never put ink on a word the child has not
+reached — and a doodle is attributed to nothing at all (§11.13).
 
 **New dictation appends to this page** as untraced text after the last existing word — the
 word total goes up and the page scrolls to the new words. An entry is a day's page,
@@ -842,25 +894,42 @@ up, which is the entire reason the feature exists.
 
 Speaking, seeing, fixing and writing all happen on the page. There is no other surface.
 
-- **The mic** is a 64 pt round `action` button in the footer, always available — tapping it
-  mid-entry is how "saying more" works. While the page is empty it is *also* drawn large in
-  the centre with the invitation (frame 20); same control, bigger target when there is
-  nothing else to aim at.
-- **Listening** replaces the footer with the listening bar and streams the words onto the
-  page in `spoken-text` as they are recognised, caret at the end (frame 21). The reassurance
-  line — *"Nothing goes in your journal until you write it."* — sits centred above the bar.
-- **Fixing a word**: holding a finger on an untraced word draws a 2 pt `action` box over
-  it with a 10% tint, raises the keyboard over the footer, and edits it in place (frame
-  22). A tap selects the row (§11.11); the hold opens the word. The line reflows within
+- **There is one mic** (v3.2). While the page is empty it is `Mic / Stage`, 176 pt and low
+  on the page with the invitation above it (frame 20); tapped, it turns into the stop in
+  the same spot (frame 21) — wherever the child tapped to start, they tap to stop. Once
+  the page has words the same control lives in the footer as `Mic / Footer`, 64 pt,
+  always available — tapping it mid-entry is how "saying more" works — and a take started
+  there stops there.
+- **Listening** streams the words onto the page in `spoken-text` as they are recognised,
+  caret at the end, the last line kept above the stage (frame 21). The footer is the level
+  meter and the clock, nothing to tap; the reassurance line — *"Nothing goes in your
+  journal until you write it."* — sits under the stop.
+- **The take ending** selects the first unwritten row on its own and, on a page with no
+  ink yet, shows `Callout / Your turn` where the mic stood (frame 24). The mic docks into
+  the footer.
+- **Fixing a word** is the **ABC** tool (v3.2): switch it on and tap the word — a drag
+  picks a run — and a 2 pt `action` box with a 10% tint sits over it while the keyboard is
+  up and the `Word editor footer` edits it in place (frame 22). The line reflows within
   the untraced region; traced rows cannot move because edits cannot reach them. There is
-  no bulk review step — the child fixes what they notice, when they notice it.
+  no tap-to-edit and no hold-to-edit — a resting hand can never raise the keyboard — and
+  no bulk review step: the child fixes what they notice, when they notice it.
+- **Adding words** is the same tool (frame 53): switched on with nothing picked, or tapped
+  past the last word, the footer offers *Add to the page* and the typed words join the
+  spoken tier on their own paragraph. The tool puts itself down when the change lands.
+- **Doodling** is the crayon (frame 52): strokes go anywhere in one of the three §5.6
+  crayons, into a layer under the handwriting drawn in multiply at 85%, and never count —
+  not attributed, not scored, not in the record or the counts. Doodles stay with the page
+  and appear in the journal, the thumbnail and every PDF. Undo, clear and the eraser act
+  on the doodles while the crayon is in hand.
 - **Typing instead** is the same path with no mic: *Type it instead* puts the caret at the
   end of the spoken text and the keyboard types onto the page.
 - **The five-minute cap** is a banner over the top of the page (frame 42), not a screen.
 
 What died to make this: the session-start screen, the recording screen with its separate
 transcript panel, and the check-what-I-said screen. Each existed to show the child text
-somewhere other than where they would write it.
+somewhere other than where they would write it. v3.2 retired the second mic, *I'm done
+talking*, the `Segmented / View · Edit` control, the toolbar's *I'm finished* (the footer's
+*Done* became it), and the results' *See my page* and *Say something new*.
 
 ---
 
@@ -895,6 +964,11 @@ somewhere other than where they would write it.
 ### `04 · Write`
 
 Every frame here is a **state of the same screen** (§11.13).
+
+**v3.2:** frames 20, 21, 22, 24, 25, 29, 30 and 44 are superseded by their alternates on
+page `14 · Write`, which also adds **52 — doodling with the crayon** and **53 — adding
+words with the keyboard**; the rows below describe the v3.1 state until the alternates are
+promoted (`PENPOT_HANDOFF.md` §1.-1).
 
 | # | Frame | Notes |
 |---|---|---|
@@ -994,7 +1068,7 @@ it.".
 
 | Element | x | y | Size |
 |---|---|---|---|
-| `Toolbar` — "I'm finished" leading, date centred, eraser + undo + clear trailing at 60 pt pitch | 0 | 0 | 834 × 72 |
+| `Toolbar` — "Back" leading, date centred, pencil + crayon + ABC + eraser + undo + clear + ⋯ trailing at 52 pt pitch (v3.2) | 0 | 0 | 834 × 72 |
 | The page, `paper`, full bleed, scrolls | 0 | 72 | 834 × 958 |
 | — traced rows, `ink-natural` over `guide-faint` letterforms | 40 | 112 | 754 wide |
 | — the selected row, `guide-text` (black) with accuracy ink over it | 40 | — | 754 wide |
@@ -1004,17 +1078,22 @@ it.".
 | "So far: 88%" `body`, hint `caption` beneath, 218 pt wide | 108 | 1062 | 218 |
 | `Writing progress` (§10.6) with "15 of 48 words" | 340 | 1074 | 166 |
 | `Button / Toolbar` `chevron.down` — scrolls a line with no gesture | 530 | 1060 | 44 × 44 |
-| `Button / Primary` "Done ✓" | 590 | 1060 | 220 × 64 |
+| `Row handle` on every row with letters — a dot, or `pencil.line` on the row in hand (v3.2) | 20 | — | 8 / 22 |
+| `Button / Primary` "I'm finished ✓" (v3.2 — was "Done") | 590 | 1060 | 220 × 64 |
 
 Frames 24, 26, 27 and 44–48 are the same layout with a different page state, size or
 variant; only the page contents and the footer numbers change.
 
-**Frame 20** (nothing said yet) hides the progress numbers, disables Done, and adds the
-centre invitation: `Mic / Footer` at 176 pt centred at y ≈ 512, "Tell me about your day,
-Milo" `title-1`, a two-line `body` caption, and "Type it instead" as a text button.
+**Frame 20** (nothing said yet, v3.2) has no footer mic and disables *I'm finished*. The
+invitation — "Tell me about your day, Milo" `title-1` and a two-line `body` caption — sits
+above `Mic / Stage`, 176 pt centred at (417, 788), with "Tap to start talking" and "Type
+it instead" beneath.
 
-**Frame 21** (listening) swaps the footer for the `Listening bar` (§10.6) and centres
-*"Nothing goes in your journal until you write it."* in `caption` just above it.
+**Frame 21** (listening, v3.2) keeps the stage where it was and turns it into the stop;
+the words land above it and the footer is the `Level meter` and the clock only.
+
+**Frame 24** (the take just ended, v3.2) docks the mic in the footer, selects the first
+row, and lays `Callout / Your turn` over the foot of the page where the stage was.
 
 **Frame 22** (fixing a word) draws the `Word being fixed` treatment on the page, replaces
 the footer with the `Word editor footer` (§10.6) at y 790–874, and puts the keyboard in the
@@ -1165,10 +1244,13 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] Profile with no photo — initial-letter avatar, distinct from the add tile (frame 1)
 - [ ] An entry stopped part-way — a normal row reading "N words · not written yet"; opening it and tapping Edit carries on
 - [ ] Recording stopped at the five-minute cap — banner over the page (frame 42)
-- [ ] The page with nothing said yet — empty rules, centre mic (frame 20)
-- [ ] Listening — words landing on the page live (frame 21)
-- [ ] A spoken word being fixed in place, keyboard up (frame 22)
-- [ ] Everything said, nothing written — all spoken text (frame 24)
+- [ ] The page with nothing said yet — empty rules, one mic low on the page (frame 20, `14 · Write`)
+- [ ] Listening — words landing on the page live, the stop in the mic's place (frame 21, `14 · Write`)
+- [ ] The take just ended — first row in hand, the your-turn callout (frame 24, `14 · Write`)
+- [ ] A spoken word being fixed with the ABC tool, keyboard up (frame 22, `14 · Write`)
+- [ ] Words being added with the ABC tool (frame 53, `14 · Write`)
+- [ ] A hand resting on the page — nothing selected (frame 44, `14 · Write`)
+- [ ] Crayon in hand — doodles under the ink, swatches in the footer (frame 52, `14 · Write`)
 - [ ] The page part written — traced above, one row selected, untraced below (frame 25)
 - [ ] A traced row re-selected for fixing (frame 44)
 - [ ] More dictation appended to an existing page (frame 45)

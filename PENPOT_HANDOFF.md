@@ -7,6 +7,37 @@ Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026
 revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code), and
 for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below).
 
+## 1.-1 v3.2 — the Write flow, from page `14 · Write`
+
+An exploration page **`14 · Write`** (2026-09-02) redrew the write flow against five
+complaints about `04 · Write`, and the app adopted it the same day (`DESIGN_DOCUMENT.md`
+§0.11). The page holds alternates of frames 20, 21, 22, 24, 25, 29, 30 and 44, two new
+frames — **52 — doodling with the crayon** and **53 — adding words with the keyboard** —
+and a notes board with the rationale, the decisions and the open questions as they were
+answered:
+
+| Question | Decision |
+|---|---|
+| Should Back from Edit score the page? | **Yes — score it, so the journal is always current.** Back scores like *I'm finished* and skips the results; the profile moves by the difference. |
+| One finish button in the footer, or the toolbar too? | **The footer alone.** The toolbar reads Back · date · tools. |
+| Doodles a setting? Left out of the PDF? | **Always available, and in every export.** |
+| Keep *Say something new* on the results? | **No — home only.** Appending happens from the page itself: the ABC tool adds words (frame 53), and the footer mic says more. |
+| Row handles as faint dots? | **Yes.** |
+
+**Added after the first walkthrough:** a **Pencil** tool leads the toolbar on every
+`14 · Write` frame (`pencil.line` at x 454; the date box narrowed to 300). Pencil, crayon and
+ABC are the three things the pen can be, and the one in hand is filled, so the way back to
+writing from a doodle or a word fix is always visible.
+
+**Not yet done:** promoting the alternates onto `04 · Write`. Cross-page moves are not
+possible over MCP (§7), so promotion means rebuilding them there and retiring the
+superseded frames; until then `04 · Write` describes v3.1 and `14 · Write` is the reference
+for the frames it covers.
+
+**One number to check on a device:** the resting-hand threshold, `TracingCanvasView.handRadius`
+(50 pt of `UITouch.majorRadius`). The notes board on `14 · Write` was written before the
+figure was chosen and says "about 20 pt"; the code and `WIREFRAME_SPEC.md` §11.6 say 50.
+
 ## 1.0 v2.9 — the journal reads only as handwriting
 
 The app removed the typed reading of an entry (`EntryPageView` no longer has a

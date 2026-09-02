@@ -20,14 +20,14 @@ enum StrokeEraser {
         let r2 = radius * radius
 
         for stroke in strokes {
-            var current = TracingStroke()
+            var current = stroke.emptied()
             for point in stroke.points {
                 let dx = point.location.x - centre.x
                 let dy = point.location.y - centre.y
                 if dx * dx + dy * dy <= r2 {
                     if point.letterIndex >= 0 { touched.insert(point.letterIndex) }
                     if !current.isEmpty { out.append(current) }
-                    current = TracingStroke()
+                    current = stroke.emptied()
                 } else {
                     current.append(point)
                 }

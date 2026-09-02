@@ -19,10 +19,12 @@ struct PrimaryButton: View {
             .foregroundStyle(Tokens.Colour.textOnAction)
             .frame(minWidth: minWidth, minHeight: height)
             .padding(.horizontal, Tokens.Space.s6)
-            .background(enabled ? Tokens.Colour.action : Tokens.Colour.actionDisabled,
-                        in: RoundedRectangle(cornerRadius: Tokens.Radius.button))
             // §8 v2.8: primary buttons sit on the page like cut paper; disabled ones lie flat.
-            .hjShadow(enabled ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0))
+            // The shadow is the shape's, not the label's — cast from the composed view it
+            // would ghost the text as well.
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button)
+                .fill(enabled ? Tokens.Colour.action : Tokens.Colour.actionDisabled)
+                .hjShadow(enabled ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0)))
         }
         .buttonStyle(PressableStyle())
         .disabled(!enabled)
@@ -482,7 +484,8 @@ extension View {
     func card(radius: CGFloat = Tokens.Radius.card,
               fill: Color = Tokens.Colour.paperRaised,
               shadow: Tokens.ShadowSpec = Tokens.Elevation.card) -> some View {
-        background(fill, in: RoundedRectangle(cornerRadius: radius)).hjShadow(shadow)
+        // The shadow belongs to the shape; cast from the composed view it ghosts the content.
+        background(RoundedRectangle(cornerRadius: radius).fill(fill).hjShadow(shadow))
     }
 
     func sunkCard(radius: CGFloat = Tokens.Radius.card) -> some View {
