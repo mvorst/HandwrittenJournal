@@ -2,7 +2,9 @@ import SwiftUI
 import SwiftData
 
 /// The main screen (v3.1): the header, the action deck, the points card, badges, then
-/// every entry newest first with the search field directly above them.
+/// every entry newest first with the search field directly above them. Since v3.3 the
+/// dashboard stays put and only the entries scroll, and in landscape the two stand side
+/// by side — the dashboard a column on the left, the journal the rest.
 ///
 /// There is no navigation bar any more. The export button left — an entry's ⋯ menu still
 /// reaches *Share as PDF*, including the whole journal — and search moved down to sit by
@@ -35,18 +37,19 @@ struct JournalHomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    header
-                    actionDeck
-                    pointsCard
-                    badgesSection
-                    entriesSection
+            GeometryReader { geo in
+                let layout = ScreenLayout(geo)
+                let stack = layout.isLandscape
+                    ? AnyLayout(HStackLayout(alignment: .top, spacing: Tokens.Space.s5))
+                    : AnyLayout(VStackLayout(spacing: 0))
+                stack {
+                    dashboard(layout)
+                        .frame(width: layout.isLandscape ? layout.dashboardWidth : nil)
+                    entriesColumn(layout)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .padding(.horizontal, Tokens.Layout.screenMargin)
-                .padding(.bottom, Tokens.Space.s8)
             }
-            .scrollDismissesKeyboard(.interactively)
             .background(Tokens.Colour.paper)
             // Nothing lives in the bar (v3.1) — the pushed practice sheet keeps its own.
             .toolbar(.hidden, for: .navigationBar)
@@ -89,9 +92,22 @@ struct JournalHomeView: View {
         }
     }
 
+    // MARK: - Dashboard
+
+    /// Everything above the journal: the header, the action deck, the points card and
+    /// the badges. It never scrolls (v3.3).
+    private func dashboard(_ layout: ScreenLayout) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header(showsButtons: !layout.isLandscape)
+            actionDeck(layout)
+            pointsCard(layout)
+            badgesSection
+        }
+    }
+
     // MARK: - Header
 
-    private var header: some View {
+    private func header(showsButtons: Bool) -> some View {
         HStack(alignment: .top, spacing: Tokens.Space.s4) {
             Button { selected = nil } label: {
                 AvatarView(image: profile.avatarImageData, initial: profile.initial, diameter: 56)
@@ -115,10 +131,18 @@ struct JournalHomeView: View {
                 }
             }
             Spacer()
+            if showsButtons { screenButtons }
+        }
+        .padding(.top, Tokens.Space.s5)
+    }
+
+    /// Progress and Settings. In the header in portrait; in landscape they move to the
+    /// journal column's header, so they keep the top-right corner either way (v3.3).
+    private var screenButtons: some View {
+        HStack(spacing: Tokens.Space.s4) {
             ToolbarIconButton(systemImage: "chart.line.uptrend.xyaxis") { showProgress = true }
             ToolbarIconButton(systemImage: "gearshape.fill") { showSettings = true }
         }
-        .padding(.top, Tokens.Space.s5)
     }
 
     /// Streak language is only ever positive: when it lapses, say nothing about losing it.
@@ -134,8 +158,13 @@ struct JournalHomeView: View {
 
     /// The two ways to earn, side by side on the content grid: New Entry stays the
     /// primary; Practice is its outlined partner, a real button rather than a text link.
-    private var actionDeck: some View {
-        HStack(spacing: Tokens.Space.s4) {
+    private func actionDeck(_ layout: ScreenLayout) -> some View {
+        // Side by side on the content grid in portrait; stacked in the dashboard column
+        // in landscape, each the column's width (v3.3).
+        let deck = layout.isLandscape
+            ? AnyLayout(VStackLayout(spacing: Tokens.Space.s4))
+            : AnyLayout(HStackLayout(spacing: Tokens.Space.s4))
+        return deck {
             ActionTile(style: .primary,
                        title: "New Entry",
                        subtitle: "Tell me about your day",
@@ -145,7 +174,7 @@ struct JournalHomeView: View {
                        title: "Practice my letters",
                        systemImage: "textformat.abc",
                        chip: "+\(PracticePoints.full) points a letter") { practicing = true }
-                .frame(width: 284)
+                .frame(width: layout.isLandscape ? nil : 284)
         }
         .padding(.top, Tokens.Space.s5)
     }
@@ -154,7 +183,7 @@ struct JournalHomeView: View {
 
     /// The running total, what today added, and a bar for each of the last seven days.
     /// The card is a button: it opens Progress, like the chart icon above it.
-    private var pointsCard: some View {
+    private func pointsCard(_ layout: ScreenLayout) -> some View {
         let summary = profile.pointsSummary()
         return Button { showProgress = true } label: {
             HStack(spacing: Tokens.Space.s4) {
@@ -167,14 +196,22 @@ struct JournalHomeView: View {
                             .font(.hjNumeralL)
                             .foregroundStyle(Tokens.Colour.textPrimary)
                             .monospacedDigit()
+                            .lineLimit(1)
+                            .fixedSize()
                         Text("points").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     }
+                    // The total and its unit never wrap, whatever the column squeezes (v3.3).
+                    .fixedSize()
                     Text(pointsDelta(summary))
                         .font(summary.today > 0 ? .hjBodyEm : .hjBody)
                         .foregroundStyle(summary.today > 0 ? Tokens.Colour.success : Tokens.Colour.textSecondary)
                 }
                 Spacer(minLength: Tokens.Space.s4)
-                PointsTracker(days: summary.days)
+                // Narrower bars in the dashboard column (v3.3), so a four-figure total
+                // beside the tracker never wraps.
+                PointsTracker(days: summary.days,
+                              barWidth: layout.isLandscape ? 20 : 24,
+                              gap: layout.isLandscape ? 10 : 12)
                 Spacer(minLength: Tokens.Space.s4)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 20, weight: .semibold))
@@ -226,20 +263,30 @@ struct JournalHomeView: View {
 
     // MARK: - Entries
 
-    private var entriesSection: some View {
+    /// The journal: its header and the search field stay put; only the rows scroll (v3.3).
+    private func entriesColumn(_ layout: ScreenLayout) -> some View {
         VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-            SectionHeader(title: query.isEmpty ? "My Journal" : resultsTitle)
+            SectionHeader(title: query.isEmpty ? "My Journal" : resultsTitle,
+                          trailing: layout.isLandscape ? AnyView(screenButtons) : nil)
             SearchField(text: $query)
-            if entries.isEmpty {
-                emptyState
-            } else {
-                ForEach(entries) { session in
-                    Button { opened = session } label: { EntryRow(session: session) }
-                        .buttonStyle(.plain)
+            ScrollView {
+                LazyVStack(spacing: Tokens.Space.s4) {
+                    if entries.isEmpty {
+                        emptyState
+                    } else {
+                        ForEach(entries) { session in
+                            Button { opened = session } label: { EntryRow(session: session) }
+                                .buttonStyle(.plain)
+                        }
+                    }
                 }
+                // Room for the first row's edge, and for the last to clear the home indicator.
+                .padding(.top, Tokens.Space.s1)
+                .padding(.bottom, Tokens.Space.s8)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
-        .padding(.top, Tokens.Space.s8)
+        .padding(.top, layout.isLandscape ? Tokens.Space.s6 : Tokens.Space.s8)
     }
 
     private var resultsTitle: String {

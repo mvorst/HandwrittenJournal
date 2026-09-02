@@ -15,7 +15,10 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
-    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown"
+    # v3.3: both orientations, full screen only — a Split View or Slide Over window is
+    # narrower than the page, and the page keeps its portrait width (WIREFRAME_SPEC.md §3).
+    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    INFOPLIST_KEY_UIRequiresFullScreen: YES
 targets:
   HandwrittenJournal:
     type: application

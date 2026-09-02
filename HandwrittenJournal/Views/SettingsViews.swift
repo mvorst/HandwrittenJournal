@@ -48,6 +48,13 @@ struct ProfileSettingsView: View {
                         SettingRow(title: "Left-handed layout") {
                             Toggle("", isOn: $profile.isLeftHanded).labelsHidden().tint(Tokens.Colour.action)
                         }
+                        // §13.6 (v3.3) — where the landscape rail goes. Auto follows handedness.
+                        SettingRow(title: "Controls in landscape",
+                                   subtitle: "Auto keeps them away from the writing hand") {
+                            SegmentedControl(options: RailSide.allCases.map { (value: $0, label: $0.label) },
+                                             selection: $profile.railSide, height: 44)
+                                .frame(width: 270)
+                        }
                     }
 
                     nudge

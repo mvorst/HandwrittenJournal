@@ -17,13 +17,25 @@ struct PracticeView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            PracticeSurface(setup: setup,
-                            allowFinger: profile.allowFingerTracing,
-                            colourBlind: profile.colorBlindMode,
-                            completed: profile.practiceLetters(),
-                            controller: controller)
-            footer
+        GeometryReader { geo in
+            let layout = ScreenLayout(geo, railSide: profile.resolvedRailSide)
+            // v3.3 — in landscape the sheet keeps its portrait width, so the letters keep
+            // their size, and the prompt and the award move into the rail beside it.
+            let stack = layout.isLandscape
+                ? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
+                : AnyLayout(VStackLayout(spacing: 0))
+            stack {
+                if layout.railOnLeft { rail(layout) }
+                PracticeSurface(setup: setup,
+                                allowFinger: profile.allowFingerTracing,
+                                colourBlind: profile.colorBlindMode,
+                                completed: profile.practiceLetters(),
+                                controller: controller)
+                    .frame(width: layout.isLandscape ? layout.pageWidth : nil)
+                    .frame(maxHeight: .infinity)
+                if !layout.isLandscape { footer }
+                if layout.railOnRight { rail(layout) }
+            }
         }
         .background(Tokens.Colour.paper)
         .navigationTitle("Practice Letters")
@@ -65,24 +77,57 @@ struct PracticeView: View {
                 }
             }
             Spacer()
-            if lastAward > 0 {
-                Text("+\(lastAward) \(lastAward == 1 ? "point" : "points")")
-                    .font(.hjNumeralL)
-                    .foregroundStyle(Tokens.Colour.success)
-                    .contentTransition(.numericText())
-                    .transition(.opacity)
-            } else if controller.hasInk {
-                Text("\(controller.accuracyPercent)%")
-                    .font(.hjNumeralL)
-                    .foregroundStyle(Tokens.Colour.textSecondary)
-                    .contentTransition(.numericText())
-            }
+            award
         }
         .padding(.horizontal, Tokens.Layout.screenMargin)
         .frame(height: 72)
         .background(Tokens.Colour.paper)
         .overlay(alignment: .top) { Rectangle().fill(Tokens.Colour.divider).frame(height: 1) }
         .animation(Tokens.Motion.spring, value: lastAward)
+    }
+
+    /// The rail beside the sheet in landscape (v3.3): the prompt, the legend and the
+    /// award, top to bottom, with a hairline against the sheet.
+    private func rail(_ layout: ScreenLayout) -> some View {
+        VStack(alignment: .leading, spacing: Tokens.Space.s3) {
+            Text(prompt)
+                .font(.hjHeadline)
+                .foregroundStyle(Tokens.Colour.textPrimary)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+            if let legend {
+                Text(legend)
+                    .font(.hjCaption)
+                    .foregroundStyle(Tokens.Colour.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            award.padding(.top, Tokens.Space.s2)
+            Spacer(minLength: 0)
+        }
+        .padding(Tokens.Layout.screenMargin)
+        .frame(width: layout.railWidth, alignment: .topLeading)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: layout.railOnLeft ? .trailing : .leading) {
+            Rectangle().fill(Tokens.Colour.divider).frame(width: 1)
+        }
+        .animation(Tokens.Motion.spring, value: lastAward)
+    }
+
+    /// What the letter in hand just earned, or the live accuracy while it is being traced.
+    @ViewBuilder
+    private var award: some View {
+        if lastAward > 0 {
+            Text("+\(lastAward) \(lastAward == 1 ? "point" : "points")")
+                .font(.hjNumeralL)
+                .foregroundStyle(Tokens.Colour.success)
+                .contentTransition(.numericText())
+                .transition(.opacity)
+        } else if controller.hasInk {
+            Text("\(controller.accuracyPercent)%")
+                .font(.hjNumeralL)
+                .foregroundStyle(Tokens.Colour.textSecondary)
+                .contentTransition(.numericText())
+        }
     }
 
     /// "+18 today" — what the sheet has earned so far today, in the toolbar where the

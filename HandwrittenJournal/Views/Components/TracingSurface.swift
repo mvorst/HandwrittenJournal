@@ -150,6 +150,8 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     private var appliedSetup: WritingSetup?
     private var focusedWord: Int?
     private(set) var textJustGrew = false
+    /// The window shape the last layout was for; a change is a rotation (v3.3).
+    private var laidOutFor = CGSize.zero
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -195,6 +197,8 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
         guard bounds.width > 0 else { return }
+        let reshaped = laidOutFor != .zero && laidOutFor != bounds.size
+        laidOutFor = bounds.size
         let width = layoutWidth > 0 ? layoutWidth : bounds.width
         let zoom = bounds.width / width
         let height = max(bounds.height / zoom, canvas.requiredHeight(forWidth: width))
@@ -211,6 +215,19 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
             // window is not a blown-up bitmap.
             canvas.contentScaleFactor = min(4, UIScreen.main.scale * max(1, zoom))
             contentSize = CGSize(width: size.width * zoom, height: size.height * zoom)
+        }
+        if reshaped { keepRowInView() }
+    }
+
+    /// After a rotation the window is a different height — in landscape the page shows
+    /// about eight lines at Large rather than ten — so the row in hand stays where the
+    /// child can see it, and with nothing in hand the offset is only clamped (v3.3).
+    private func keepRowInView() {
+        if let row = canvas.selectedRow, let rect = canvas.rect(forLine: row) {
+            scroll(to: rect, animated: false)
+        } else {
+            let maxY = max(0, contentSize.height + contentInset.bottom - bounds.height)
+            if contentOffset.y > maxY { setContentOffset(CGPoint(x: 0, y: maxY), animated: false) }
         }
     }
 

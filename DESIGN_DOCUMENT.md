@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.2
+## Design Document v3.3
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -12,6 +12,33 @@ Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
 
 ---
+
+## 0.12 What Changed in v3.3
+
+**Landscape, with the page at its portrait width.** Drawn on the Penpot page
+`06 · Landscape` and adopted the same day (2026-09-02); `WIREFRAME_SPEC.md` §3, §11.1 and
+§13.6 have the numbers.
+
+1. **Both orientations, full screen only.** The app declares landscape and
+   `UIRequiresFullScreen`: a Split View or Slide Over window would be narrower than the
+   page.
+2. **The page never re-wraps.** Ink is stored at the width it was written at and drawn
+   over the guide letters, so in landscape the writing page, the reading page and the
+   practice sheet keep the width the device has in portrait — the shorter side of the
+   screen — and the leftover width becomes a **rail**. The page shows about eight lines
+   at Large rather than ten, and rotating scrolls the row in hand back into view without
+   rebuilding the surface.
+3. **The rail** holds what the portrait footer held — the mic, the readout, the progress,
+   the scroll chevron, *I'm finished* — on the side of the free hand, so a resting forearm
+   never crosses a button and the finish control is never under the palm. *Auto* means
+   left for a right-handed child and right when *Left-handed layout* is on; a
+   **Controls in landscape** setting (Auto · Left · Right) pins it. Entry Detail's side
+   column follows the same side, so the page stays put when the pencil lands.
+4. **Journal Home** is two columns in landscape — the dashboard on the left, the journal
+   on the right — and in **both** orientations the dashboard, the journal header and the
+   search field stay put: only the entries scroll (§4.3).
+5. **Results, the Profile Picker and the practice sheet** re-flow; the sheets keep their
+   portrait layout, centred by the system.
 
 ## 0.11 What Changed in v3.2
 
@@ -207,7 +234,7 @@ differences are structural, not cosmetic:
 |---|---|---|
 | Levels 1–10 drive glyph size; earned with stars | **Font size is a setting** | Progression made shrinking text a reward. It is a difficulty dial, and a grown-up should turn it. |
 | One typeface (Jua) | **Font is a setting**, from a curated list of five | Different children read different letterforms more easily; Andika exists for exactly this. |
-| Landscape first | **Portrait only** | The writing screen stacks page-above-line. A child holds an iPad like a notebook. |
+| Landscape first | **Portrait only** *(landscape returned in v3.3 with the page at its portrait width — §0.12)* | The writing screen stacks page-above-line. A child holds an iPad like a notebook. |
 | One sentence = one entry | **A session holds many sentences** | Writing is a sitting, not a sentence. The page grows while you watch. |
 | "Show accuracy colours" toggle | **Always on while writing, never on in the journal** | Two different jobs. Neither needs a switch. |
 | Parent gate (7 × 8 = ?) | **Removed** | See §10.3 — this is a real loss, recorded honestly. |
@@ -431,7 +458,9 @@ not lifetime totals, which would make each sitting feel smaller than the last.
 
 ## 4. Screen Specifications
 
-All screens are portrait, 834 × 1194. See `WIREFRAME_SPEC.md` §13 for coordinates.
+All screens are designed portrait, 834 × 1194 — see `WIREFRAME_SPEC.md` §13 for
+coordinates — and since v3.3 each also lays out in landscape, 1194 × 834, by the rules in
+§0.12 and `WIREFRAME_SPEC.md` §13.6.
 
 ### 4.1 Profile Picker (launch screen)
 
@@ -1064,8 +1093,8 @@ own record is complete whatever the buffer holds — a "draft" is unfinished *te
 unfinished record.
 
 Since v2.6 this distinction has **no UI of its own**. Such an entry is an ordinary row in
-the journal whose metadata reads *"N words · not written yet"*; opening it and tapping Edit
-puts the waiting words back on the page. The flag still drives the Results copy (§4.5) and the
+the journal whose metadata reads *"N words · not written yet"*; opening it and putting the
+pencil on the page — or tapping *Write on this page* — puts the waiting words back. The flag still drives the Results copy (§4.5) and the
 entry-detail line that reads *"You finished the whole thing."* — it is a property of an
 entry, not a state the app asks the child to resolve, and it never gates Edit (§4.7).
 
@@ -1710,7 +1739,6 @@ defer it.
 
 - Copy mode scoring (§7.4)
 - Levels, unlocks, or any earned progression
-- Landscape
 - iPhone
 - Dark mode
 - Accounts, sharing between devices, anything social

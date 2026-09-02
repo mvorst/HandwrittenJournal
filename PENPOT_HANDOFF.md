@@ -4,39 +4,112 @@ Companion to `WIREFRAME_SPEC.md` v2.7. Answers §17.2: *"a list of anything you 
 from §5–§11."*
 
 Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026-08-27,
-revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code), and
-for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below).
+revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code),
+for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below), swept against the
+app for v3.1/v3.2 on 2026-09-02 (§1.-1 — the exploration pages promoted and deleted), and
+given a landscape page the same day (§1.-2).
 
-## 1.-1 v3.2 — the Write flow, from page `14 · Write`
+## 1.-2 Landscape — page `06 · Landscape` *(drawn and adopted 2026-09-02, v3.3)*
 
-An exploration page **`14 · Write`** (2026-09-02) redrew the write flow against five
-complaints about `04 · Write`, and the app adopted it the same day (`DESIGN_DOCUMENT.md`
-§0.11). The page holds alternates of frames 20, 21, 22, 24, 25, 29, 30 and 44, two new
-frames — **52 — doodling with the crayon** and **53 — adding words with the keyboard** —
-and a notes board with the rationale, the decisions and the open questions as they were
-answered:
+A new page **`06 · Landscape`** holds landscape versions of one frame from each screen
+family — **1194 × 834**, on a 1294 / 934 grid, each numbered after the portrait frame it
+mirrors: 20, 24, 25 and 48 (Write), 29 (Results), 49 (Practice), 09 (Journal Home), 15
+(Entry Detail), 01 (Profile Picker), 31 and 33 (the sheets), plus `Notes — 06 · Landscape`.
+The plugin API cannot reorder pages, so it lands after `99 · Scratch` — drag it up by hand.
+The portrait pages stay the reference for content and states; this page settles layout only.
 
-| Question | Decision |
-|---|---|
-| Should Back from Edit score the page? | **Yes — score it, so the journal is always current.** Back scores like *I'm finished* and skips the results; the profile moves by the difference. |
-| One finish button in the footer, or the toolbar too? | **The footer alone.** The toolbar reads Back · date · tools. |
-| Doodles a setting? Left out of the PDF? | **Always available, and in every export.** |
-| Keep *Say something new* on the results? | **No — home only.** Appending happens from the page itself: the ABC tool adds words (frame 53), and the footer mic says more. |
-| Row handles as faint dots? | **Yes.** |
+**The rule that drives everything.** The page keeps its portrait width. Ink is stored at
+the width it was written at (`canvasWidth` 754 — the 40 pt inset either side of an 834 pt
+page) and is drawn over the guide letters, so a page must never re-wrap. In landscape the
+writing page, the reading page and the practice sheet therefore stay 834 wide and the
+extra 360 pt becomes a **rail**: everything the portrait footer held — mic, readout,
+progress, the scroll chevron, *I'm finished* — stacks in it behind a 1 pt divider. The rail
+sits on the side of the free hand: left for a right-handed child, right when *Left-handed
+layout* is on (frame 48). A resting forearm never crosses a button, and the finish button
+is a reach away from the pencil rather than under the palm. The page is 762 tall instead
+of 958, so it scrolls sooner — about 8 lines at Large rather than 10. The toolbar is the
+portrait toolbar stretched: Back leading, the date centred, the tools trailing at 52 pt.
 
-**Added after the first walkthrough:** a **Pencil** tool leads the toolbar on every
-`14 · Write` frame (`pencil.line` at x 454; the date box narrowed to 300). Pencil, crayon and
-ABC are the three things the pen can be, and the one in hand is filled, so the way back to
-writing from a doodle or a word fix is always visible.
+**The other screens.** Journal Home is two columns — dashboard (header, deck, points,
+badges) at 560 on the left, journal (search, rows) at 562 on the right, Progress and
+Settings keeping the top-right corner; the badge strip is a clipping board so it reads as
+scrollable, and row quotes truncate to one line as the app does. Entry Detail keeps the
+page at its width on the left and moves the stats card and both actions into the 336 pt
+column beside it. Results is score left, page preview right, one button under both. The
+Profile Picker is one row of four at the same 96 pt gaps. Progress and Settings are drawn
+as **system page sheets** — the portrait layout centred over a scrim, scrolling inside;
+nothing reflows, and the pickers, Export and app settings present the same way.
 
-**Not yet done:** promoting the alternates onto `04 · Write`. Cross-page moves are not
-possible over MCP (§7), so promotion means rebuilding them there and retiring the
-superseded frames; until then `04 · Write` describes v3.1 and `14 · Write` is the reference
-for the frames it covers.
+**What the app does differently from the frames** (built the same day as v3.3;
+`WIREFRAME_SPEC.md` §3, §11.1, §13.6 and `DESIGN_DOCUMENT.md` §0.12 are the record):
 
-**One number to check on a device:** the resting-hand threshold, `TracingCanvasView.handRadius`
-(50 pt of `UITouch.majorRadius`). The notes board on `14 · Write` was written before the
-figure was chosen and says "about 20 pt"; the code and `WIREFRAME_SPEC.md` §11.6 say 50.
+- **Full screen only.** `project.yml` declares both landscape orientations and
+  `UIRequiresFullScreen`, so there is never a Split View window narrower than the page.
+- **The rail side is a setting.** *Controls in landscape* under WRITING — Auto (away from
+  the writing hand), Left, Right — not only the handedness toggle the frames imply.
+- **Entry Detail's column sits on the rail's side**, not always on the right as frame 15
+  draws it, so the page does not jump when the pencil lands and Edit takes over.
+- **Journal Home's dashboard is fixed in portrait too.** Only the entries scroll, in both
+  orientations; the frame only showed landscape.
+- **The undrawn states follow the family rule:** the word editor sits under the page
+  column above the keyboard while the rail keeps its footer; the listening rail is the
+  stop, the clock, the level and the caption stacked; the cap banner lies over the page.
+- The practice sheet keeps its portrait width so the letters keep their size, as drawn.
+
+**How they were built.** Each frame is a scripted deep copy of its portrait source (§7's
+serialise-and-rebuild), moved subtree by subtree by a per-frame placement rule with width,
+height and text overrides — so the handwriting, icons and styling are the originals, not
+redrawn. The annotations on the frames and the notes board say which rule each one shows.
+
+## 1.-1 v3.2 — the Write flow and the badge card *(promoted 2026-09-02)*
+
+The exploration pages `13 · Journal` (2026-09-01) and `14 · Write` (2026-09-02) were both
+adopted by the app the day they were drawn. **They have now been promoted onto the
+canonical pages and both exploration pages are deleted** — there is one version of every
+frame again, and it is the one the app builds.
+
+**What moved.** Frames 9, 10 (from `13 · Journal`) and 20, 21, 22, 24, 25, 29, 30, 44
+(from `14 · Write`) replaced the frames of the same numbers; **52 — doodling with the
+crayon** and **53 — adding words with the keyboard** are new on `04 · Write`; frame 49
+(Practice Letters) is the +2-a-letter alternate. The MCP plugin cannot move or clone a
+shape across pages (§7), so each frame was serialised on its own page and rebuilt shape by
+shape on the target — boards, groups, paths (by `d`), texts with their per-range styling —
+then checked against an export of the original.
+
+**What was rebuilt in place.** The write frames that had no alternate — 26, 27, 42, 45,
+46, 47, 50 — were brought to v3.2 rather than redrawn: the `Segmented / View · Edit`
+control removed, the leading *I'm finished* replaced by **Back**, `pencil`, `crayon` and
+`textformat.abc` added to the toolbar at x 454 / 506 / 558, the date box widened to 300,
+the footer's *Done* replaced by *I'm finished*, and a `Row handle` dropped into the margin
+gutter of every row with the `pencil.line` marker on the row in hand.
+
+**Frame 48 is built.** It was marked *NOT BUILT* because nothing read `isLeftHanded`;
+`TracingCanvasView` now does. It is frame 25 with the handle gutter mirrored to the right
+— which is all the app mirrors — and its note says so.
+
+**Frame 54 — Journal Home — badge detail** is new (v3.2): `Sheet / Badge` over frame 9 for
+*5-Day Streak*. Both states of the card — earned and not earned yet — are on
+`01 · Components` under §10.8. The frame number is **54**, not 52: `WIREFRAME_SPEC.md`
+had 52 promised to the badge card and already spent on the crayon frame.
+
+**The other frames the app had outgrown:**
+
+- **15 and 18 — Entry Detail.** The mode switch is gone from the toolbar (Back · date · ⋯),
+  and *Hear what I said* is gone from the stats card and from the ⋯ menu, which is now the
+  app's four rows with only *Delete this entry* in `danger`.
+- **12 — Journal Home, search active.** It was still the old top search bar with a Cancel
+  button. Rebuilt from frame 9: the page scrolled to the list, "2 results" as the section
+  header, the query in the field with its clear control, two matching rows and the keyboard.
+- **19 — Export preview.** Gained the on-device line and the two option toggles the app
+  shows under every scope; **43**'s note no longer describes the Journal Home export
+  button, which went in v3.1.
+
+**One number to check on a device:** the resting-hand threshold,
+`TracingCanvasView.handRadius` (50 pt of `UITouch.majorRadius`).
+
+**Still by hand, please.** The plugin API cannot delete library assets: `Segmented / View · Edit`
+joins `Bar / Level`, `Sheet / Parent gate`, `Toggle / TypedHandwritten` and the three stale
+`journal / L*` typographies in §2.3/§2.5 as things to remove from the assets panel.
 
 ## 1.0 v2.9 — the journal reads only as handwriting
 
@@ -79,15 +152,16 @@ Every page was swept for the v2.8 token values (`WIREFRAME_SPEC.md` §5/§8,
 
 | Page | Contents | Boards |
 |---|---|---|
-| `00 · Foundations` | 23 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, 25-icon sheet | 5 |
-| `01 · Components` | §10.1–§10.8 | 8 |
-| `02 · Profiles` | Frames 1–6 | 6 |
-| `03 · Journal` | Frames 9, 10, 12, 14, 15, 18, 19, 43 + the unfinished-entry variant | 9 |
-| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–42, 44–48 — every one a state of the single v2.5 screen | 17 |
+| `00 · Foundations` | 26 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, icon sheet | 5 |
+| `01 · Components` | §10.1–§10.8, including both states of `Sheet / Badge` | 7 |
+| `02 · Profiles` | Frames 1–6, 51 | 7 |
+| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 | 8 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 — every one a state of the single v3.2 screen | 21 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 | 6 |
+| `06 · Landscape` | Landscape versions of frames 01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49 and a notes board (§1.-2) | 12 |
+| `99 · Scratch` | Font calibration check; never referenced by development | 1 |
 
-**38 artboards, all portrait 834 × 1194** — every one verified for overflow and carrying a
-PNG @2× export preset.
+**42 portrait artboards at 834 × 1194** — every one verified for overflow — plus **11 landscape artboards at 1194 × 834** on `06 · Landscape` (§1.-2).
 
 **Library:** 23 colors, 20 typographies, 31 components.
 
@@ -265,7 +339,7 @@ will do in a sitting. The design answer is not a shorter cap but making *stoppin
 **Superseded in v2.6.** This section originally called for a resume card on Journal Home and
 a "Still to write" section in the journal list. Both are gone: an entry is not a task with a
 state. An unfinished entry is an ordinary row reading *"N words · not written yet"*, and
-opening it and tapping **Edit** carries on. See `DESIGN_DOCUMENT.md` §0.6.
+opening it and putting the pencil on the page — or tapping *Write on this page* — carries on (v3.2: the Edit switch is gone). See `DESIGN_DOCUMENT.md` §0.6.
 
 **Frame 42 changed meaning.** It was "you hit the 200-character cap"; it is now "you talked
 for five minutes". The copy stays warm — *"That's a whole lot of story!"* — and it states

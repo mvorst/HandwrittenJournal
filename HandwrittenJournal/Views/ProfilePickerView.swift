@@ -16,31 +16,34 @@ struct ProfilePickerView: View {
     private let avatarSize: CGFloat = 160
 
     var body: some View {
-        ZStack {
-            Tokens.Colour.paper.ignoresSafeArea()
+        GeometryReader { geo in
+            let layout = ScreenLayout(geo)
+            ZStack {
+                Tokens.Colour.paper.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    ToolbarIconButton(systemImage: "gearshape.fill") { showAppSettings = true }
+                VStack(spacing: 0) {
+                    HStack {
+                        Spacer()
+                        ToolbarIconButton(systemImage: "gearshape.fill") { showAppSettings = true }
+                    }
+                    .padding(.horizontal, Tokens.Layout.screenMargin)
+                    .padding(.top, Tokens.Space.s5)
+
+                    Text("Handwritten Journal").font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
+                        .padding(.top, Tokens.Space.s6)
+
+                    if profiles.isEmpty {
+                        emptyState
+                    } else {
+                        Text("Who's writing today?").font(.hjHeadline).foregroundStyle(Tokens.Colour.textSecondary)
+                            .padding(.top, Tokens.Space.s3)
+                        grid(layout)
+                        Text("Touch and hold a profile to edit it")
+                            .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                            .padding(.bottom, Tokens.Space.s8)
+                    }
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, Tokens.Layout.screenMargin)
-                .padding(.top, Tokens.Space.s5)
-
-                Text("Handwritten Journal").font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
-                    .padding(.top, Tokens.Space.s6)
-
-                if profiles.isEmpty {
-                    emptyState
-                } else {
-                    Text("Who's writing today?").font(.hjHeadline).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.top, Tokens.Space.s3)
-                    grid
-                    Text("Touch and hold a profile to edit it")
-                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.bottom, Tokens.Space.s8)
-                }
-                Spacer(minLength: 0)
             }
         }
         .sheet(item: $editing) { profile in
@@ -73,8 +76,9 @@ struct ProfilePickerView: View {
         }
     }
 
-    private var grid: some View {
-        let columns = [GridItem(.flexible(), spacing: 96), GridItem(.flexible(), spacing: 96)]
+    /// Two across in portrait; one row of four in landscape (v3.3), the same 96 pt apart.
+    private func grid(_ layout: ScreenLayout) -> some View {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 96), count: layout.isLandscape ? 4 : 2)
         return ScrollView {
             LazyVGrid(columns: columns, spacing: Tokens.Space.s8) {
                 ForEach(profiles) { profile in

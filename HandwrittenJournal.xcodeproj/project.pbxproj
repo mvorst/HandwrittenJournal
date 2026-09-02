@@ -33,6 +33,7 @@
 		6BCBBD703B5BF7059E32AF07 /* DictationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8504149D1903CBF173B098 /* DictationTests.swift */; };
 		6EAF92610859F50F548C39C2 /* PracticePoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4D9382BE0701B240EF5FFA /* PracticePoints.swift */; };
 		7315B4BA1CC97C102A1E3DCB /* TracingSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */; };
+		734AD614924E4FB8CF85D30D /* ScreenLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C647CF1626925B57DE6B95 /* ScreenLayout.swift */; };
 		74EDAAFBB21E2DD6B34607F2 /* Jua-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8AC3DC1E3E58E0F1F4EB8077 /* Jua-Regular.ttf */; };
 		755C0F8606B097732FC90F6B /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEC48C96B648AECEE701DE /* DesignSystem.swift */; };
 		7FE57D239864EF7B0D6BA657 /* ComicNeue-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */; };
@@ -61,6 +62,7 @@
 		D4AFB7C6D77C5CD4D931596B /* FontRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95491F9A2EF3940543FC21A8 /* FontRegistry.swift */; };
 		D87E5020369D6A0A6D4B3CC4 /* JournalHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */; };
 		DB1569B957F884E0BF608945 /* Andika-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 15F239F77FF2512FC3A68268 /* Andika-Bold.ttf */; };
+		DD964DC723920933B23A5BED /* ScreenLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */; };
 		DDB5C8B17A767122950C2DB1 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA34850BB29742A4A5C0721F /* UserProfile.swift */; };
 		E43F6A8C6A33D49D3BE7D7B9 /* AvatarCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6C6FCE576DEC35804A62B2 /* AvatarCropView.swift */; };
 		E5236A57CD3AF28612F98BF5 /* FormationHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A3C13764E7D543E7627762F /* FormationHelpView.swift */; };
@@ -94,6 +96,7 @@
 		2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sniglet-ExtraBold.ttf"; sourceTree = "<group>"; };
 		30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationJudgeRealismTests.swift; sourceTree = "<group>"; };
 		317224CDD6345354B4506405 /* MaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskRenderer.swift; sourceTree = "<group>"; };
+		33C647CF1626925B57DE6B95 /* ScreenLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayout.swift; sourceTree = "<group>"; };
 		36FC8914863613ACF75C8F46 /* LetterFormations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterFormations.swift; sourceTree = "<group>"; };
 		376D4EEB2D8D809E08A27F93 /* LICENSES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSES.md; sourceTree = "<group>"; };
 		386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkPersistenceTests.swift; sourceTree = "<group>"; };
@@ -134,6 +137,7 @@
 		AA678BED1B99E37DA5D78365 /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		ACED7D009F8A919086DBC977 /* StrokeArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeArchive.swift; sourceTree = "<group>"; };
 		B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ComicNeue-Bold.ttf"; sourceTree = "<group>"; };
+		BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayoutTests.swift; sourceTree = "<group>"; };
 		C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingCanvas.swift; sourceTree = "<group>"; };
 		C6511FA804CE4B985F4F5567 /* WritingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSession.swift; sourceTree = "<group>"; };
 		CA34850BB29742A4A5C0721F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -212,6 +216,7 @@
 				E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */,
 				78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */,
 				6C7479E7EE0014A22E896B2E /* ScoringTests.swift */,
+				BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */,
 				7257F46895D95B8ED53E4523 /* WriteFlowTests.swift */,
 			);
 			path = HandwrittenJournalTests;
@@ -290,6 +295,7 @@
 				4A3033F0B636553128B47F4A /* AppConstants.swift */,
 				47228A13921D57051339E56C /* DemoData.swift */,
 				73C71DE065B9447280E118B3 /* HandwrittenJournalApp.swift */,
+				33C647CF1626925B57DE6B95 /* ScreenLayout.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -432,6 +438,7 @@
 				BCF37E40D06CAE7AE9945527 /* ProgressReport.swift in Sources */,
 				1A774BF381169FE23F7677F5 /* ProgressReportView.swift in Sources */,
 				ED8DCFB404D2D028FDB651C8 /* ScoringEngine.swift in Sources */,
+				734AD614924E4FB8CF85D30D /* ScreenLayout.swift in Sources */,
 				84191D67968C7A843016FF81 /* SettingsViews.swift in Sources */,
 				CCC557FF30FC7B4A9A912634 /* SpeechRecognitionService.swift in Sources */,
 				BA4FDC928E579A946B798BE5 /* StrokeArchive.swift in Sources */,
@@ -466,6 +473,7 @@
 				0937D44ACD0FCF36CB18E25C /* PracticePointsTests.swift in Sources */,
 				F88CE53ABA735FE06824A737 /* PracticeSheetColourTests.swift in Sources */,
 				BF494E92BF61DB8568FF2227 /* ScoringTests.swift in Sources */,
+				DD964DC723920933B23A5BED /* ScreenLayoutTests.swift in Sources */,
 				1DFA02342207F16C9E973FC3 /* WriteFlowTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -550,7 +558,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -618,7 +627,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;

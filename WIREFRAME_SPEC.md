@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v3.2
+## Penpot handoff, v3.3
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -125,15 +125,36 @@ decision and rejected proposal):
   restructured writing rules (the dashed-outer/solid-baseline gray rules are the spec),
   a red margin rule, and any tracing-typeface change.
 
+**What changed in v3.3 — landscape (page `06 · Landscape`):**
+
+- **Both orientations, full screen only.** The portrait-only decision of v2.0 (§3) is
+  reversed on one condition: **the page keeps its portrait width.** Ink is stored at the
+  width it was written at and drawn over the guide letters, so a page never re-wraps — in
+  landscape the writing page, the reading page and the practice sheet stay 834 wide (on an
+  11-inch iPad) and 762 tall, and the other 360 pt is a **rail** (§11.1).
+- **The rail** holds what the portrait footer held — the mic, the readout, the progress,
+  the scroll chevron and *I'm finished* — on the side of the free hand: left for a
+  right-handed child, right when *Left-handed layout* is on, or pinned by the new
+  **Controls in landscape** setting (§13.6).
+- **Journal Home** is two columns in landscape — the dashboard at 560 on the left, the
+  journal on the right — and in **both** orientations only the entries scroll: the header,
+  the deck, the points card, the badges, the journal header and the search field stay put
+  (§13.2, §13.6).
+- **Entry Detail, Results, the Profile Picker and Practice** re-flow (§13.6); the sheets —
+  Progress, Settings, the pickers, Export — keep their portrait layout, centred by the
+  system.
+- **Not Split View.** The app declares `UIRequiresFullScreen`: a Slide Over or Split View
+  window is narrower than the page.
+
 **What changed in v3.2 — the Write flow from page `14 · Write`:**
 
 - **Badges open a card.** Every tile on the Journal Home strip is a button; a tap opens
-  `Sheet / Badge` (§10.8) — frame 52, over frame 9. Not yet drawn in Penpot.
+  `Sheet / Badge` (§10.8) — frame 54, over frame 9.
 
 Explored on the Penpot page `14 · Write` and adopted by the app on 2026-09-02. Frames 20,
-21, 22, 24, 25, 29, 30 and 44 on `04 · Write` are superseded by their alternates there,
-and frames 52 (doodling) and 53 (adding words) are new; promotion onto `04 · Write` is
-still to do (`PENPOT_HANDOFF.md` §1.-1).
+21, 22, 24, 25, 29, 30 and 44 were rebuilt from that exploration and frames 52 (doodling)
+and 53 (adding words) added; the frames now live on `04 · Write` and the exploration page
+is gone (`PENPOT_HANDOFF.md` §1.-1).
 
 - **One microphone.** `Mic / Stage` — 176 pt, low on the empty page — starts the take and
   becomes the stop in the same spot (`danger`, a stop square, a pulse ring). The footer
@@ -161,7 +182,8 @@ still to do (`PENPOT_HANDOFF.md` §1.-1).
 
 **What changed in v3.1 — the action deck and points:**
 
-Explored on the Penpot page `13 · Journal` and adopted by the app on 2026-09-02.
+Explored on the Penpot page `13 · Journal`, adopted by the app on 2026-09-02 and
+rebuilt onto `03 · Journal` and `04 · Write`; the exploration page is gone.
 
 - **Journal Home has no navigation bar.** The export button is gone from this screen —
   the whole journal is exported from an entry's ⋯ → *Share as PDF* → *Everything* — and
@@ -238,10 +260,9 @@ One Penpot file: **`Wireframes`**.
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
 | `02 · Profiles` | Frames 1–6, 51 |
-| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 52 |
-| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50 |
+| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
-| `13 · Journal` | The v3.1 alternates of frames 9, 10 and 49 — the layout the app builds — plus a notes board |
 | `99 · Scratch` | Anything in progress; never referenced by development |
 
 **Board naming:** `NN — Screen Name — state`, e.g. `04 — PIN Pad — wrong PIN`. The leading
@@ -265,22 +286,32 @@ by number.
 
 ## 3. Artboards and Orientation
 
-**The app is portrait only.** v1 designed landscape first, on the argument that a wider
-writing line is better for a child. The v2 writing screen stacks the page-so-far above the
-active line, which is a vertical composition; and a child holding an iPad to write holds it
-like a notebook. Portrait wins on both counts.
+**Portrait is the primary orientation; landscape is supported (v3.3).** v1 designed
+landscape first, on the argument that a wider writing line is better for a child; v2
+reversed that, because the writing screen is a vertical composition and a child holding an
+iPad to write holds it like a notebook. v3.3 adds landscape back on one condition: **the
+page keeps its portrait width.** Ink is stored at the width it was written at and drawn
+over the guide letters, so a page must never re-wrap. In landscape the page stays the width
+the device has in portrait — the shorter side of the screen — and the rest of the width
+becomes a rail beside it (§11.1, §13.6). Every frame is designed portrait; page
+`06 · Landscape` holds one landscape frame per screen family.
 
 | | Size (pt) | Use |
 |---|---|---|
 | **Primary artboard** | **834 × 1194** | iPad Pro 11" portrait. Design every frame at this size. |
-| Narrow check | 744 × 1133 | iPad mini portrait. Do not draw; verify the primary layout does not break. |
-| Wide check | 1032 × 1376 | iPad Pro 13" portrait. Do not draw; verify. |
+| **Landscape artboard** | **1194 × 834** | iPad Pro 11" landscape (page `06 · Landscape`). The page column is 834 wide; the rail 360. |
+| Narrow check | 744 × 1133 | iPad mini portrait. Do not draw; verify the primary layout does not break. Landscape: page 744, rail 389. |
+| Wide check | 1032 × 1376 | iPad Pro 13" portrait. Do not draw; verify. Landscape: page 1032, rail 344. |
+
+**Full screen only.** The app declares `UIRequiresFullScreen`, so there is no Split View or
+Slide Over window narrower than the page.
 
 Design in **points, at 1×**. Penpot pixels map 1:1 to iOS points. Export at 2× and 3× only
 for image assets, never for layout reference.
 
 **Safe areas.** Reserve 24 pt at the bottom for the home indicator and 0 pt at the sides.
-Nothing tappable may enter that band — i.e. nothing below **y 1170**.
+Nothing tappable may enter that band — i.e. nothing below **y 1170** in portrait, **y 810**
+in landscape.
 
 ---
 
@@ -584,7 +615,7 @@ Stars rate **one tracing**. They no longer accumulate toward anything.
 | `Ring / Results` | 220 outer diameter, 18 pt stroke, `paper-sunk` track, `action` progress, round cap, starts at 12 o'clock clockwise. `numeral-xl` centred with `caption` label 8 pt below. Shows the **session** accuracy. |
 | `Ring / Compact` | 120 outer, 12 pt stroke, same construction |
 | `Button / Toolbar / Active` | 44 × 44, `action` fill, `radius` 12, icon in `text-on-action`. Used for the eraser while it is selected. |
-| `Segmented` | h 44 (h 48 in a toolbar), `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3–4 pt with `shadow-card`. Two uses only: **`Segmented / View · Edit`** 200 × 48 in the entry-page toolbar (§13.4), and the export scope (This entry / This month / Everything). There is **no** Trace/Copy switch — Copy is not built — and **no** date-range filter on Progress. |
+| `Segmented` | h 44 (h 48 in a toolbar), `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3–4 pt with `shadow-card`. One use: the export scope (This entry / This month / Everything). **`Segmented / View · Edit` is retired** (v3.2) — the entry page has no mode switch; Back is the way out of both modes. There is **no** Trace/Copy switch — Copy is not built — and **no** date-range filter on Progress. |
 | `Tracker / last 7 days` (v3.1) | "Last 7 days" `caption` over seven 24 pt bars at a 12 pt gap, 38 pt tall at the week's best day, `radius` 4: today `action`, other days `action-disabled`, a 4 pt `paper-sunk` stub for a day with nothing; weekday initials `caption-sm` beneath, today's bold in `text-primary`. Lives in `Card / Points`. |
 
 `Bar / Level` and `Pager / Attempt` are both **retired** — there is no ladder and no
@@ -643,7 +674,7 @@ is the authority, and the library must carry exactly its eight, in its order:
 
 | Component | Spec |
 |---|---|
-| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. **Journal Home has none** (v3.1). Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads: leading "Back" / "I'm finished", the date, `Segmented / View · Edit` at x 394, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766. |
+| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. **Journal Home has none** (v3.1). Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads (v3.2): leading "Back" at x 24, the date box 300 wide at x 130, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766 — in Edit, `pencil` 454, `crayon` 506, `textformat.abc` 558, `eraser.fill` 610, `arrow.uturn.backward` 662, `trash` 714; in View, `ellipsis.circle` alone. The one in hand of pencil / crayon / ABC is filled. |
 | `Sheet / Modal` | width to content, `radius-sheet`, `paper-raised`, `shadow-modal`, centred, on `overlay-scrim` |
 | `Sheet / PIN pad` | 700 × 800 |
 | `Sheet / Badge` (v3.2) | 480 wide, `radius-sheet`, `paper-raised`, `shadow-modal`, centred on `overlay-scrim`. `Badge / Tile` at 88 pt, 40 pt from the top; name `title-2` 24 pt below; then *Earned* (`checkmark.circle.fill` 15 pt, `success`) or *Not earned yet* (`circle.dashed`, `text-secondary`) in `caption`; one `body` line, centred, 32 pt side padding — what earned it, or what will; `Button / Primary` "Got it" 32 pt below and 32 pt from the bottom. `xmark` 20 pt in a 44 pt `paper-sunk` disc, 16 pt in from the top-trailing corner. Closes on the button, the ✕ or the scrim; springs in and out (§4). |
@@ -670,7 +701,7 @@ edge to edge between the toolbar and the footer.
 ```
   0       24  40                                   794 810  834
   ├────────┼───┼─────────────────────────────────────┼───┼───┤
-  │  I'm finished   Wednesday, March 4    ◆  ↺  🗑          │  y 0
+  │  Back      Wednesday, August 27    ✏ 🖍 ABC ◆ ↺ 🗑 ⋯    │  y 0
   ├──────────────────────────────────────────────────────────┤  y 72
   │ ┌──────────────────────────────────────────────────────┐ │
   │ │                                                      │ │
@@ -680,7 +711,7 @@ edge to edge between the toolbar and the footer.
   │ │                 text inset 40 either side            │ │
   │ │                                                      │ │
   │ └──────────────────────────────────────────────────────┘ │  y 1030
-  │  So far: 88%      [███░░░░]  15 of 48 words   ⌄  [Done]  │
+  │ 🎤 So far: 88%  [███░░░░] 16 of 48 words ⌄ [I'm finished] │
   ├──────────────────────────────────────────────────────────┤  y 1170
   │                  Home indicator  24                      │
   └──────────────────────────────────────────────────────────┘  y 1194
@@ -695,6 +726,20 @@ edge to edge between the toolbar and the footer.
 | Page top padding, first baseline offset | `space-7` = 40 pt |
 | Page fill | `paper` |
 | Footer | y = 1030, 1 pt `divider` hairline along its top edge |
+
+**Landscape (v3.3, 1194 × 834).** The page keeps every number above — text inset 40, text
+width 754, page top y = 72 — and is 762 tall instead of 958; it stands beside a **rail**
+that takes the width left over, on the side of the free hand.
+
+| Value | Number |
+|---|---|
+| Page column | 834 wide, y 72 – 834; x = 360 with the rail on the left, x = 0 with it on the right |
+| Rail | 360 wide (344 on a 13-inch iPad, 389 on a mini), 1 pt `divider` on its page-side edge, 24 pt padding all round |
+| Rail contents, top to bottom | `Mic / Footer` with the readout and its hint beside it; `Writing progress` across the rail; at the foot the scroll chevron beside a compact *I'm finished* (16 pt side padding, stretched to the rail) |
+| Rail side | *Auto* → away from the writing hand (left, or right with *Left-handed layout*); or *Left* / *Right* by the *Controls in landscape* setting (§13.6) |
+| Word editor | Under the page column, above the keyboard; the rail keeps its footer |
+| Listening | The stop where the mic was with the clock beside it, the level across the rail, the one line of reassurance beneath |
+| Rotation | Never re-wraps the page or rebuilds the surface; the row in hand is scrolled back into view |
 
 **Page height is content height, not viewport height.** The page view is as tall as the
 transcript needs at the current face and size, and the scroll view shows a 958 pt window
@@ -940,7 +985,9 @@ talking*, the `Segmented / View · Edit` control, the toolbar's *I'm finished* (
 
 ## 12. Frame Inventory
 
-39 frames, all portrait 834 × 1194.
+42 frames, all portrait 834 × 1194 — plus 11 landscape frames at 1194 × 834 on page
+`06 · Landscape` (v3.3), one per screen family, each numbered after the portrait frame it
+mirrors (01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49).
 
 ### `02 · Profiles`
 
@@ -961,41 +1008,42 @@ talking*, the `Segmented / View · Edit` control, the toolbar's *I'm finished* (
 | 9 | Journal Home — populated | **The main screen** (v3.1): the profile header, the action deck (`Button / Tile` × 2), `Card / Points`, then **Badges**, then **My Journal** — the search field, then every entry newest first as `Row / Session` with its points under the stars. No navigation bar, no export button, no resume card, no "Your writing" card, no card grid. |
 | 10 | Journal Home — empty | New profile, no sessions, no streak, 0 points ("Your first entry starts the count.", every tracker bar a stub), badges grey ("0 of 8"); "Your journal is empty" / "Tap New Entry and tell me about your day." under a `book.closed` glyph |
 | 12 | Journal Home — search active | Query "grandma", "2 results", keyboard up. Search is a plain field under the My Journal header (v3.1), not `.searchable`. |
-| 15 | Entry Detail | The **View** mode of the entry page: the child's own strokes in `ink-natural`, `Segmented / View · Edit` in the toolbar, one `Card / Entry stats` beneath, then `Button / Primary` "Write on this page" + `Button / Secondary` "Share". No "How it went" heading. Frame 14 (Typed) is retired (v2.9). |
+| 15 | Entry Detail | The **View** mode of the entry page: the child's own strokes in `ink-natural`, the v3.2 toolbar (Back · date · ⋯ — there is no mode switch), one `Card / Entry stats` beneath, then `Button / Primary` "Write on this page" + `Button / Secondary` "Share". No "How it went" heading, and no *Hear what I said* (v3.0). Frame 14 (Typed) is retired (v2.9). |
 | 18 | Entry Detail — overflow menu open | Write it all again / Share as PDF / Rename this entry / — / Delete this entry |
-| 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", both option toggles |
+| 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", the on-device line, both option toggles |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. Journal Home's export button — and the defect where it opened `ExportView` with no session — went in v3.1; the entry menu is the only route |
-| 52 | Journal Home — badge detail | `Sheet / Badge` over frame 9 for *5-Day Streak* (earned: "You wrote five days in a row.") and, as a second state, *Ten Entries* (not earned yet: "Write ten entries."). **Not yet drawn in Penpot** (v3.2) |
+| 54 | Journal Home — badge detail | `Sheet / Badge` over frame 9 for *5-Day Streak* (earned: "You wrote five days in a row."). The *not earned yet* state — *Ten Entries*, "Write ten entries." — is drawn beside it as a component state on `01 · Components` §10.8 (v3.2) |
 
 ### `04 · Write`
 
 Every frame here is a **state of the same screen** (§11.13).
 
-**v3.2:** frames 20, 21, 22, 24, 25, 29, 30 and 44 are superseded by their alternates on
-page `14 · Write`, which also adds **52 — doodling with the crayon** and **53 — adding
-words with the keyboard**; the rows below describe the v3.1 state until the alternates are
-promoted (`PENPOT_HANDOFF.md` §1.-1).
+**v3.2:** every frame here carries the v3.2 chrome — Back · date · pencil · crayon · ABC ·
+eraser · undo · clear · ⋯ in the toolbar, the row handles in the margin gutter, and *I'm
+finished* as the one finish control in the footer.
 
 | # | Frame | Notes |
 |---|---|---|
-| 20 | Write — the page, nothing said yet | Empty rules, centre mic invitation, "Type it instead"; Done disabled |
-| 21 | Write — the page, listening | Words land as `spoken-text` live, caret at the end; listening bar footer |
-| 22 | Write — fixing a word I misheard | One spoken word boxed in `action`; the `Word editor footer` (§10.6) replaces the normal footer, keyboard beneath it |
-| 24 | Write — everything said, nothing written yet | Whole telling as spoken text; footer reads "Nothing written yet" / "Write with your pencil — hold a word to fix it" |
-| 25 | Write — the page, part written | 3 traced (faint + graphite), 1 selected at 55%, untraced below; 15 of 48 |
+| 20 | Write — the page, nothing said yet | Empty rules, one 176 pt mic low on the page, "Tap to start talking", "Type it instead"; no footer mic, *I'm finished* disabled |
+| 21 | Write — the page, listening | Words land as `spoken-text` live; the mic has turned into the stop in its own place, and the footer is the level meter and the clock, with nothing to tap |
+| 22 | Write — fixing a word | The **ABC** tool in hand, one spoken word boxed in `action`; the `Word editor footer` (§10.6) replaces the normal footer — *Fix it* · *Say it again* · *Never mind* — keyboard beneath it |
+| 24 | Write — your turn to write | The take has just ended: the mic has docked in the footer, the first row is in hand (black letters, the pencil marker in the gutter) and `Callout / Your turn` stands where the mic was. *I'm finished* is disabled until there is ink |
+| 25 | Write — the page, part written | 3 traced (faint + graphite), 1 in hand at 55%, spoken below; 16 of 48; handles down the gutter, the pencil marker on the row in hand |
 | 26 | Write — the page at Extra Large | 96 pt; fewer words per line, a much taller page |
 | 27 | Write — the page at Extra Small | 30 pt; the whole 48-word entry fits one window |
-| 29 | Results — the whole entry written, 3 stars | "You wrote everything you said!" / "All 48 words, in your own hand"; 91%, +224 points, the finish message, the page preview, then **See my page** (primary) + *Say something new* + *See My Journal* |
-| 30 | Results — stopped part way, 2 stars + new badge | "Great writing, Milo!" / "You wrote 32 words today"; 78%, +183 points, "16 words you said are still spoken…", the new badge, then **See my page** + *See My Journal*. *Say something new* appears only when everything said was written |
+| 29 | Results — the whole entry written | "You wrote everything you said!" / "All 48 words, in your own hand"; 91%, +224 points, the finish message, the page preview, then the one button — **Back to my journal** — and the caption saying where saying more went |
+| 30 | Results — stopped part way, new badge | "Great writing, Milo!" / "You wrote 32 words today"; 78%, +183 points, "16 words you said are still spoken…", the new badge, then **Back to my journal** |
 | 40 | Write — microphone access | Child-legible explainer shown *before* the iOS prompt |
 | 41 | Write — microphone unavailable | Denied or unsupported; typing onto the page is the whole fallback — there is **no "Open iPad Settings" button** on this screen |
 | 42 | Write — recording stopped at five minutes | A banner over the page, said warmly; 112 words ≈ 20 minutes of writing |
-| 44 | Write — tapping a traced row to fix it | Row 2 re-selected: black letterforms, its ink back in accuracy colours |
+| 44 | Write — a resting hand does nothing | A palm on the page: the wide touch is dropped, nothing is selected, and the row in hand does not change. A finger picks a row only by its handle; the pencil picks one by writing on it or tapping it |
 | 45 | Write — more said, added to the page | Scrolled; 10 written lines above, new spoken text below, 48 of 58 words |
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
-| 48 | Write — left-handed layout — **NOT BUILT** | The profile stores `isLeftHanded` and Settings offers the toggle, but nothing in the app reads it. The real screen is frame 25. Kept as design intent, marked so nobody builds against it |
+| 48 | Write — left-handed layout | §16 variant, built in v3.2: `isLeftHanded` mirrors the handle gutter to the right so a resting left hand never covers it. Nothing else moves — the toolbar, the footer and the writing are frame 25's |
 | 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
+| 52 | Write — doodling with the crayon | The crayon in hand: a sun, a heart and a flower in the three §5.6 accents, in their own layer under the handwriting at 85% multiply; the three swatches sit in the footer where the readout usually is, with "Doodles never count — tap the pencil to write again" |
+| 53 | Write — adding words with the keyboard | The **ABC** tool with nothing picked: the *Add words* field in the footer, keyboard up. Typed words join the spoken tier on their own paragraph |
 | 50 | Write — letter formation help | §8.1b: a word finished with letters in the wrong order. A modal over the whole screen, chrome included — the word with its wrong letters in `ink-outside`, then a carousel of up to three lesson tiles, the live one bordered in `action`. Only tracing every red letter correctly closes it |
 
 Frames 23, 28 and 36 are **retired**: 23 was the splitter, 28 the ink-only reveal (the page
@@ -1003,8 +1051,7 @@ now reveals a line at a time, in place, §11.10) and 36 the append screen, which
 and 45 cover between them. Frames 20, 21, 22 and 42 keep their numbers but are **no longer
 screens** — they are states of the page (v2.5).
 
-**§16 variants** are frames 46 and 47, built as states of frame 25. Frame 48 is a variant
-the app does not produce (see above).
+**§16 variants** are frames 46, 47 and 48, built as states of frame 25.
 
 ### `05 · Progress & Settings`
 
@@ -1042,8 +1089,8 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 
 ### 13.2 Frame 9 — Journal Home
 
-Built on `13 · Journal` as the v3.1 alternate and adopted; the frames on `03 · Journal`
-show the v3.0 layout and are superseded by it.
+Built as the v3.1 alternate, adopted by the app and rebuilt onto `03 · Journal`; frames 9,
+10 and 12 there all carry this layout.
 
 | Element | x | y | Size |
 |---|---|---|---|
@@ -1119,16 +1166,17 @@ The entry always reads as the child's own handwriting (v2.9) — natural ink ove
 faint guide, never a typed rendering and never accuracy colours. Frame 14 is retired.
 
 **Reading and writing are one screen.** Frame 15 is that screen in **View** mode; every
-frame on `04 · Write` is the same screen in **Edit** mode. The `Segmented / View · Edit`
-control in the toolbar is how a finger moves between them — and putting the pencil on a
-page being read switches to Edit by itself.
+frame on `04 · Write` is the same screen in **Edit** mode. Since v3.2 there is no mode
+switch: *Write on this page* is how a finger moves into Edit, putting the pencil on the
+page does it by itself, and **Back** — which scores the page as it stands — is the way
+out of both.
 
 | Element | x | y | Size |
 |---|---|---|---|
-| `Toolbar` — "Back" (plain text, no chevron) at x 24, the date at x 110, `Segmented / View · Edit` (View selected) at x 542, `ellipsis.circle` at x 758 | 0 | 0 | 834 × 72 |
+| `Toolbar` — "Back" (plain text, no chevron) at x 24, the date at x 110, `ellipsis.circle` at x 758 | 0 | 0 | 834 × 72 |
 | Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 96 | 786 × 748 |
 | — the entry flows continuously, 32 pt inner padding, ruled; the page keeps ruling below the last word; scrollbar when it overflows | | | |
-| `Card / Entry stats` (§10.6) — the setup summary is its third line | 24 | 858 | 786 × 112 |
+| `Card / Entry stats` (§10.6) — accuracy, stars, "48 of 48 words" and the setup summary as its third line. No *Hear what I said* (v3.0) | 24 | 858 | 786 × 112 |
 | `Button / Primary` "✎ Write on this page" | 119 | 1070 | 340 × 64 |
 | `Button / Secondary` "Share" | 475 | 1074 | 240 × 56 |
 
@@ -1144,6 +1192,28 @@ The nudge is the only thing that replaces level progression. It appears in **Set
 Shown in `caption` / `action` when the current setting's rolling average has been ≥ 90% for
 14 days and a smaller size exists. It is a suggestion to a grown-up, never an automatic
 change and never a reward.
+
+---
+
+### 13.6 Landscape (v3.3) — page `06 · Landscape`
+
+One rule, then its consequences. **The page keeps its portrait width** (§3, §11.1); the
+rest of the screen is laid out around it.
+
+| Screen | Landscape layout |
+|---|---|
+| Write (20, 24, 25, 48) | The page column, 834 wide, beside a 360 rail on the free-hand side (§11.1). The toolbar stretches: Back leading, the date centred, the tools trailing at 52 pt. |
+| Practice (49) | The sheet keeps its portrait width so the letters keep their size; the prompt, the legend and the award stack in the rail. |
+| Journal Home (09) | The dashboard column — header, the deck stacked, points, badges — at 560 on the left; the journal — its header with Progress and Settings trailing, the search field, the rows — on the right. In both orientations only the rows scroll. |
+| Entry Detail (15) | The reading page at its width; the stats card and the two actions in the column beside it — on the rail's side, so the page stays put when the pencil lands and Edit takes over. |
+| Results (29) | The score on the left, the page preview and its setup on the right, *Back to my journal* under both. |
+| Profile Picker (01) | One row of four at the same 96 pt gaps. |
+| Sheets (19, 31–34, 38, 39, 43) | The portrait layout, presented by the system as a page sheet over a scrim. Nothing reflows. |
+
+**Controls in landscape** — a per-profile setting under WRITING (frame 33): *Auto* (the
+rail sits away from the writing hand — left, or right with *Left-handed layout*), *Left*,
+*Right*. It moves the rail on Write and Practice and the side column on Entry Detail;
+nothing else mirrors.
 
 ---
 
@@ -1248,17 +1318,17 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] New profile — no sessions, no streak, all badges grey (frame 10)
 - [ ] Wrong PIN (frame 4)
 - [ ] Profile with no photo — initial-letter avatar, distinct from the add tile (frame 1)
-- [ ] An entry stopped part-way — a normal row reading "N words · not written yet"; opening it and tapping Edit carries on
+- [ ] An entry stopped part-way — a normal row reading "N words · not written yet"; opening it and putting the pencil on the page — or tapping *Write on this page* — carries on
 - [ ] Recording stopped at the five-minute cap — banner over the page (frame 42)
-- [ ] The page with nothing said yet — empty rules, one mic low on the page (frame 20, `14 · Write`)
-- [ ] Listening — words landing on the page live, the stop in the mic's place (frame 21, `14 · Write`)
-- [ ] The take just ended — first row in hand, the your-turn callout (frame 24, `14 · Write`)
-- [ ] A spoken word being fixed with the ABC tool, keyboard up (frame 22, `14 · Write`)
-- [ ] Words being added with the ABC tool (frame 53, `14 · Write`)
-- [ ] A hand resting on the page — nothing selected (frame 44, `14 · Write`)
-- [ ] Crayon in hand — doodles under the ink, swatches in the footer (frame 52, `14 · Write`)
+- [ ] The page with nothing said yet — empty rules, one mic low on the page (frame 20)
+- [ ] Listening — words landing on the page live, the stop in the mic's place (frame 21)
+- [ ] The take just ended — first row in hand, the your-turn callout (frame 24)
+- [ ] A spoken word being fixed with the ABC tool, keyboard up (frame 22)
+- [ ] Words being added with the ABC tool (frame 53)
+- [ ] A hand resting on the page — nothing selected (frame 44)
+- [ ] Crayon in hand — doodles under the ink, swatches in the footer (frame 52)
 - [ ] The page part written — traced above, one row selected, untraced below (frame 25)
-- [ ] A traced row re-selected for fixing (frame 44)
+- [ ] A traced row picked again by tapping its handle (frame 44)
 - [ ] More dictation appended to an existing page (frame 45)
 - [ ] An entry long enough to scroll both the writing page and Entry Detail (frames 25, 45, 15)
 - [ ] Search with results (frame 12)
@@ -1268,9 +1338,8 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] Progress with fewer than 5 entries at one setting (frame 32)
 - [ ] Guide lines toggled off (frame 46)
 - [ ] Colourblind ink scheme (frame 47)
-- [ ] ~~Left-handed layout — toolbar and footer actions mirrored (frame 48)~~ — **not built.**
-      `isLeftHanded` is stored and the Settings toggle writes it, but nothing reads it.
-      `soundEnabled` is inert the same way: the toggle exists, no sound is played.
+- [ ] Left-handed layout — the handle gutter mirrored to the right (frame 48). Nothing
+      else moves. `soundEnabled` is still inert: the toggle exists, no sound is played.
 - [ ] Letter practice — the alphabet worksheet (frame 49)
 - [ ] A word finished with letters in the wrong order — the formation-help modal (frame 50)
 - [ ] Framing a profile photo — move and zoom (frame 51)

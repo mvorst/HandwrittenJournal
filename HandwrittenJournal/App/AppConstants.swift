@@ -67,7 +67,8 @@ enum Tokens {
         static let s9: CGFloat = 72
     }
 
-    /// §3 artboard and §6 margins. The app is portrait only.
+    /// §3 artboard and §6 margins. Both orientations since v3.3: in landscape the page
+    /// keeps the device's portrait width and the rest is the rail (`ScreenLayout`).
     enum Layout {
         static let screenMargin: CGFloat  = Space.s5
         static let surfaceInset: CGFloat  = Space.s7

@@ -41,6 +41,9 @@ final class UserProfile {
     var guideLinesEnabled: Bool = true
     var allowFingerTracing: Bool = true
     var colorBlindMode: Bool = false
+    /// §13.6 (v3.3) — which side of the page the landscape rail sits on (`RailSide`);
+    /// Auto keeps it away from the writing hand.
+    var railSideRaw: Int = RailSide.auto.rawValue
 
     @Relationship(deleteRule: .cascade, inverse: \WritingSession.author)
     var sessions: [WritingSession]?
@@ -59,6 +62,15 @@ final class UserProfile {
     }
 
     var initial: String { String(name.first ?? "?").uppercased() }
+
+    var railSide: RailSide {
+        get { RailSide(rawValue: railSideRaw) ?? .auto }
+        set { railSideRaw = newValue.rawValue }
+    }
+
+    /// The landscape rail's side for this profile: the setting, with Auto resolved by
+    /// handedness (v3.3).
+    var resolvedRailSide: RailSide.Resolved { railSide.resolved(isLeftHanded: isLeftHanded) }
 
     var orderedSessions: [WritingSession] {
         (sessions ?? []).sorted { $0.startedAt > $1.startedAt }

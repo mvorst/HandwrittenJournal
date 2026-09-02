@@ -41,6 +41,8 @@ struct RootView: View {
             guard !seeded else { return }
             seeded = true
             DemoData.seedIfNeeded(context)
+            DemoData.applyRequestedOrientation()
+            DemoData.dumpStrokesIfRequested()
             if DemoData.screen != nil {
                 try? await Task.sleep(for: .milliseconds(120))
                 let all = (try? context.fetch(FetchDescriptor<UserProfile>())) ?? []

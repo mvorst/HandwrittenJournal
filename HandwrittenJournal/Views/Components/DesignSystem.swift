@@ -8,17 +8,23 @@ struct PrimaryButton: View {
     var minWidth: CGFloat = Tokens.Target.childPrimaryW
     var height: CGFloat = Tokens.Target.childPrimaryH
     var enabled: Bool = true
+    /// Stretches to the width offered — a column's, in the landscape rail (v3.3).
+    var fillsWidth = false
+    /// The label's side padding. The rail uses a tighter one so the control still fits
+    /// beside the scroll chevron on a 13-inch iPad's 344 pt rail.
+    var horizontalPadding: CGFloat = Tokens.Space.s6
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: Tokens.Space.s3) {
                 if let systemImage { Image(systemName: systemImage).font(.system(size: 28, weight: .medium)) }
-                Text(title).font(.hjButton)
+                Text(title).font(.hjButton).lineLimit(1)
             }
             .foregroundStyle(Tokens.Colour.textOnAction)
             .frame(minWidth: minWidth, minHeight: height)
-            .padding(.horizontal, Tokens.Space.s6)
+            .frame(maxWidth: fillsWidth ? .infinity : nil)
+            .padding(.horizontal, horizontalPadding)
             // §8 v2.8: primary buttons sit on the page like cut paper; disabled ones lie flat.
             // The shadow is the shape's, not the label's — cast from the composed view it
             // would ghost the text as well.
@@ -36,6 +42,8 @@ struct SecondaryButton: View {
     var systemImage: String? = nil
     var minWidth: CGFloat = 220
     var destructive = false
+    /// Stretches to the width offered (v3.3).
+    var fillsWidth = false
     let action: () -> Void
 
     private var tint: Color { destructive ? Tokens.Colour.danger : Tokens.Colour.action }
@@ -48,6 +56,7 @@ struct SecondaryButton: View {
             }
             .foregroundStyle(tint)
             .frame(minWidth: minWidth, minHeight: 56)
+            .frame(maxWidth: fillsWidth ? .infinity : nil)
             .padding(.horizontal, Tokens.Space.s5)
             .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button)
                 .stroke(tint, lineWidth: Tokens.Stroke.emphasis))

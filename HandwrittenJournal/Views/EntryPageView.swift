@@ -63,13 +63,18 @@ struct EntryPageView: View {
     }
 
     var body: some View {
-        ZStack {
-            Tokens.Colour.paper.ignoresSafeArea()
-            switch model.stage {
-            case .explainPermission:        permissionExplainer
-            case .unavailable(let message): unavailable(message)
-            case .results:                  resultsStage
-            case .writing:                  mode == .edit ? AnyView(writingStage) : AnyView(readingStage)
+        // v3.3 — one screen, two layouts: the window's shape decides, and the page keeps
+        // its portrait width either way (`ScreenLayout`).
+        GeometryReader { geo in
+            let layout = ScreenLayout(geo, railSide: profile.resolvedRailSide)
+            ZStack {
+                Tokens.Colour.paper.ignoresSafeArea()
+                switch model.stage {
+                case .explainPermission:        permissionExplainer
+                case .unavailable(let message): unavailable(message)
+                case .results:                  resultsStage(layout)
+                case .writing:                  mode == .edit ? AnyView(writingStage(layout)) : AnyView(readingStage(layout))
+                }
             }
         }
         .task { await model.prepare() }
@@ -206,32 +211,63 @@ struct EntryPageView: View {
     // MARK: - Reading (§4.7)
 
     /// The entry as the child wrote it: their own strokes alone on the ruled page, laid
-    /// out at the width they wrote at.
-    private var readingStage: some View {
-        VStack(spacing: 0) {
+    /// out at the width they wrote at. In landscape (v3.3) the stats and the actions take
+    /// the column beside the page — on the rail's side, so the page stays put when the
+    /// pencil lands and Edit takes over.
+    private func readingStage(_ layout: ScreenLayout) -> some View {
+        let stack = layout.isLandscape
+            ? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
+            : AnyLayout(VStackLayout(spacing: 0))
+        return VStack(spacing: 0) {
             chrome { entryMenu }
 
-            readingPage
-                .padding(.horizontal, Tokens.Layout.screenMargin)
-                .padding(.top, Tokens.Space.s5)
-                .frame(maxHeight: .infinity)
+            stack {
+                if layout.railOnLeft { readingAside(layout) }
 
-            metadata
-                .padding(.horizontal, Tokens.Layout.screenMargin)
-                .padding(.top, Tokens.Space.s5)
+                readingPage(layout)
+                    .padding(.horizontal, Tokens.Layout.screenMargin)
+                    .padding(.top, Tokens.Space.s5)
+                    .padding(.bottom, layout.isLandscape ? Tokens.Space.s5 : 0)
+                    .frame(width: layout.isLandscape ? layout.pageWidth : nil)
+                    .frame(maxHeight: .infinity)
 
-            HStack(spacing: Tokens.Space.s4) {
-                PrimaryButton(title: "Write on this page", systemImage: "pencil.line",
-                              minWidth: 300, height: 64) { show(.edit) }
-                SecondaryButton(title: "Share", systemImage: "square.and.arrow.up", minWidth: 240) {
-                    showExport = true
+                if !layout.isLandscape {
+                    metadata(layout)
+                        .padding(.horizontal, Tokens.Layout.screenMargin)
+                        .padding(.top, Tokens.Space.s5)
+
+                    HStack(spacing: Tokens.Space.s4) {
+                        PrimaryButton(title: "Write on this page", systemImage: "pencil.line",
+                                      minWidth: 300, height: 64) { show(.edit) }
+                        SecondaryButton(title: "Share", systemImage: "square.and.arrow.up", minWidth: 240) {
+                            showExport = true
+                        }
+                    }
+                    .padding(.vertical, Tokens.Space.s5)
                 }
+
+                if layout.railOnRight { readingAside(layout) }
             }
-            .padding(.vertical, Tokens.Space.s5)
         }
     }
 
-    private var readingPage: some View {
+    /// The column beside the reading page in landscape (v3.3): the stats card at the
+    /// top, the two actions at the foot, stretched to the column.
+    private func readingAside(_ layout: ScreenLayout) -> some View {
+        VStack(spacing: Tokens.Space.s4) {
+            metadata(layout)
+            Spacer(minLength: 0)
+            PrimaryButton(title: "Write on this page", systemImage: "pencil.line",
+                          minWidth: 200, height: 64, fillsWidth: true) { show(.edit) }
+            SecondaryButton(title: "Share", systemImage: "square.and.arrow.up",
+                            minWidth: 200, fillsWidth: true) { showExport = true }
+        }
+        .padding(.vertical, Tokens.Space.s5)
+        .padding(layout.railOnLeft ? .leading : .trailing, Tokens.Layout.screenMargin)
+        .frame(width: layout.railWidth)
+    }
+
+    private func readingPage(_ layout: ScreenLayout) -> some View {
         ScrollView {
             ZStack(alignment: .topLeading) {
                 if let session = model.session {
@@ -242,7 +278,7 @@ struct EntryPageView: View {
                                        setup: model.setup,
                                        showGuideText: false,
                                        onPencilTap: { show(.edit) })
-                            .frame(height: replayHeight(session))
+                            .frame(height: replayHeight(session, layout: layout))
                     } else {
                         Text(session.transcript.isEmpty ? session.spokenBuffer : session.transcript)
                             .font(.hjBody).foregroundStyle(Tokens.Colour.starOff)
@@ -264,9 +300,11 @@ struct EntryPageView: View {
     /// the writing page keeps ruling itself far below the last word. Content is the written
     /// text and every stroke on the page: a doodle drawn under the last word is part of
     /// the page and must be in view (v3.2).
-    private func replayHeight(_ session: WritingSession) -> CGFloat {
+    private func replayHeight(_ session: WritingSession, layout: ScreenLayout) -> CGFloat {
         guard session.canvasWidth > 0 else { return 300 }
-        let width = UIScreen.main.bounds.width - Tokens.Layout.screenMargin * 2
+        // The page column's width — the device's portrait width less the margins (v3.3),
+        // never the window's, which in landscape would blow the entry up to fill it.
+        let width = layout.pageWidth - Tokens.Layout.screenMargin * 2
         let scale = width / session.canvasWidth
         let textWidth = session.canvasWidth - Tokens.Layout.surfaceInset * 2
         guard textWidth > 0 else { return max(200, session.canvasHeight * scale) }
@@ -280,34 +318,60 @@ struct EntryPageView: View {
     }
 
     /// One row for the whole entry: accuracy and words. There is nothing below entry
-    /// level to report on (§4.7).
-    private var metadata: some View {
-        HStack(spacing: Tokens.Space.s5) {
-            if let session = model.session {
-                if session.hasWriting {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("\(session.accuracyPercent)%")
-                            .font(.hjNumeralL).foregroundStyle(Tokens.Colour.textPrimary)
-                        Text("accuracy").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+    /// level to report on (§4.7). In landscape the same card stacks to its column.
+    @ViewBuilder
+    private func metadata(_ layout: ScreenLayout) -> some View {
+        if layout.isLandscape {
+            VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+                if let session = model.session {
+                    if session.hasWriting {
+                        HStack(alignment: .center, spacing: Tokens.Space.s5) {
+                            accuracyBlock(session)
+                            StarsView(earned: session.stars, size: StarsView.row.size, gap: StarsView.row.gap)
+                        }
                     }
-                    StarsView(earned: session.stars, size: StarsView.row.size, gap: StarsView.row.gap)
+                    wordsBlock(session)
                 }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(session.hasWriting
-                         ? "\(session.wordsWritten) of \(session.totalWords) words"
-                         : "\(session.totalWords) words, not written yet")
-                        .font(.hjBodyEm).foregroundStyle(Tokens.Colour.textPrimary)
-                    Text(session.hasWriting && session.isComplete
-                         ? "You finished the whole thing."
-                         : "\(session.wordsRemaining) words are still waiting on the page.")
-                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                    Text(model.setup.summary).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                }
-                Spacer()
             }
+            .padding(Tokens.Space.s5)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .sunkCard(radius: Tokens.Radius.card)
+        } else {
+            HStack(spacing: Tokens.Space.s5) {
+                if let session = model.session {
+                    if session.hasWriting {
+                        accuracyBlock(session)
+                        StarsView(earned: session.stars, size: StarsView.row.size, gap: StarsView.row.gap)
+                    }
+                    wordsBlock(session)
+                    Spacer()
+                }
+            }
+            .padding(Tokens.Space.s4)
+            .sunkCard(radius: Tokens.Radius.card)
         }
-        .padding(Tokens.Space.s4)
-        .sunkCard(radius: Tokens.Radius.card)
+    }
+
+    private func accuracyBlock(_ session: WritingSession) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(session.accuracyPercent)%")
+                .font(.hjNumeralL).foregroundStyle(Tokens.Colour.textPrimary)
+            Text("accuracy").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+        }
+    }
+
+    private func wordsBlock(_ session: WritingSession) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(session.hasWriting
+                 ? "\(session.wordsWritten) of \(session.totalWords) words"
+                 : "\(session.totalWords) words, not written yet")
+                .font(.hjBodyEm).foregroundStyle(Tokens.Colour.textPrimary)
+            Text(session.hasWriting && session.isComplete
+                 ? "You finished the whole thing."
+                 : "\(session.wordsRemaining) words are still waiting on the page.")
+                .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+            Text(model.setup.summary).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+        }
     }
 
     // MARK: - Permission (frame 40 — shown before the iOS prompt)

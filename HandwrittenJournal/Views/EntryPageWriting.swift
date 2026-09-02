@@ -11,49 +11,23 @@ extension EntryPageView {
     /// One continuous scrolling page carrying all three text tiers — written, in hand,
     /// spoken — with everything else layered over it: the stage (one mic, and the stop in
     /// its place while it listens), the your-turn callout, the cap banner, the word editor.
-    var writingStage: some View {
-        ZStack {
+    func writingStage(_ layout: ScreenLayout) -> some View {
+        // v3.3 — the footer's controls stand beside the page in landscape and below it
+        // in portrait. One `AnyLayout` rather than two view trees, so the surface keeps
+        // its identity through a rotation: rebuilt mid-write it would restore its
+        // archive again and drop the stroke in hand.
+        let stack = layout.isLandscape
+            ? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
+            : AnyLayout(VStackLayout(spacing: 0))
+        return ZStack {
             VStack(spacing: 0) {
                 chrome { tools }
 
-                ZStack(alignment: .top) {
-                    TracingSurface(text: model.pageText,
-                                   setup: model.setup,
-                                   showGuideLines: profile.guideLinesEnabled,
-                                   showGuideText: true,
-                                   colourBlind: profile.colorBlindMode,
-                                   allowFinger: profile.allowFingerTracing,
-                                   isEraserActive: model.tool.erases,
-                                   isDictating: model.mic == .listening,
-                                   editingRange: model.editing?.range ?? model.replacing,
-                                   startAtWord: model.startWord,
-                                   restoring: model.restoredStrokes,
-                                   restoredWidth: model.restoredWidth,
-                                   restoredAttributed: model.restoredAttributed,
-                                   restoredRemediatedChars: model.restoredRemediated,
-                                   isDoodleActive: model.tool.drawsDoodles,
-                                   crayon: model.crayon,
-                                   isTextEditActive: model.tool.editsWords,
-                                   handlesOnRight: profile.isLeftHanded,
-                                   bottomInset: model.mic == .listening && model.listeningFromStage
-                                       ? Self.stageInset : 0,
-                                   controller: $model.controller)
-                        // Replacing a tracing means a page with no ink on it, and the surface
-                        // restores its archive once, when it is made.
-                        .id(model.surface)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                    if stageIsUp { stage }
-                    if model.showYourTurn && model.mic == .idle { yourTurnCallout }
-                    if model.mic == .capped { capBanner }
-                }
-
-                if model.editing != nil || model.appending != nil {
-                    wordEditor
-                } else if model.mic == .listening {
-                    listeningBar
-                } else {
-                    footer
+                stack {
+                    if layout.railOnLeft { rail(layout) }
+                    pageColumn(layout)
+                    if !layout.isLandscape { bottomBar }
+                    if layout.railOnRight { rail(layout) }
                 }
             }
 
@@ -70,6 +44,72 @@ extension EntryPageView {
                 .id(help)
                 .transition(.opacity)
             }
+        }
+    }
+
+    /// The page and what lies over it. In landscape it keeps the width it has in
+    /// portrait (§11.1) and, while a word is being fixed, carries the word editor
+    /// beneath it — above the keyboard, where the row being fixed is.
+    private func pageColumn(_ layout: ScreenLayout) -> some View {
+        VStack(spacing: 0) {
+            ZStack(alignment: .top) {
+                TracingSurface(text: model.pageText,
+                               setup: model.setup,
+                               showGuideLines: profile.guideLinesEnabled,
+                               showGuideText: true,
+                               colourBlind: profile.colorBlindMode,
+                               allowFinger: profile.allowFingerTracing,
+                               isEraserActive: model.tool.erases,
+                               isDictating: model.mic == .listening,
+                               editingRange: model.editing?.range ?? model.replacing,
+                               startAtWord: model.startWord,
+                               restoring: model.restoredStrokes,
+                               restoredWidth: model.restoredWidth,
+                               restoredAttributed: model.restoredAttributed,
+                               restoredRemediatedChars: model.restoredRemediated,
+                               isDoodleActive: model.tool.drawsDoodles,
+                               crayon: model.crayon,
+                               isTextEditActive: model.tool.editsWords,
+                               handlesOnRight: profile.isLeftHanded,
+                               bottomInset: model.mic == .listening && model.listeningFromStage
+                                   ? Self.stageInset : 0,
+                               controller: $model.controller)
+                    // Replacing a tracing means a page with no ink on it, and the surface
+                    // restores its archive once, when it is made.
+                    .id(model.surface)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if stageIsUp { stage }
+                if model.showYourTurn && model.mic == .idle { yourTurnCallout }
+                if model.mic == .capped { capBanner }
+            }
+            if layout.isLandscape, model.editing != nil || model.appending != nil { wordEditor }
+        }
+        .frame(width: layout.isLandscape ? layout.pageWidth : nil)
+    }
+
+    /// Portrait: the bar under the page — the word editor, the listening bar, or the footer.
+    @ViewBuilder
+    private var bottomBar: some View {
+        if model.editing != nil || model.appending != nil {
+            wordEditor
+        } else if model.mic == .listening {
+            listeningBar
+        } else {
+            footer
+        }
+    }
+
+    /// Landscape (v3.3): the rail beside the page, on the side of the free hand, with a
+    /// hairline against the page. It holds what the footer holds, stacked.
+    private func rail(_ layout: ScreenLayout) -> some View {
+        Group {
+            if model.mic == .listening { railListening } else { railFooter }
+        }
+        .frame(width: layout.railWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: layout.railOnLeft ? .trailing : .leading) {
+            Rectangle().fill(Tokens.Colour.divider).frame(width: 1)
         }
     }
 
@@ -252,33 +292,12 @@ extension EntryPageView {
             HStack(alignment: .center, spacing: Tokens.Space.s4) {
                 // The mic lives here once the page has words — saying more, any time. On
                 // an empty page it stands on the stage instead; one mic, never two.
-                if !model.pageText.isEmpty {
-                    Button {
-                        if model.mic == .capped { model.dismissCapBanner() } else { model.micTapped() }
-                    } label: {
-                        ZStack {
-                            Circle().fill(model.mic == .capped ? Tokens.Colour.paperSunk : Tokens.Colour.action)
-                                .frame(width: 64, height: 64)
-                            Image(systemName: "mic.fill").font(.system(size: 28))
-                                .foregroundStyle(model.mic == .capped ? Tokens.Colour.textSecondary : Tokens.Colour.textOnAction)
-                        }
-                    }
-                    .buttonStyle(PressableStyle())
-                    .accessibilityLabel("Say more")
-                }
+                if !model.pageText.isEmpty { micButton }
 
                 if model.tool.drawsDoodles {
                     crayons
                 } else {
-                    VStack(alignment: .leading, spacing: Tokens.Space.s1) {
-                        Text(readout)
-                            .font(.hjBody)
-                            .foregroundStyle(model.controller.wordsWritten > 0 ? Tokens.Colour.textPrimary : Tokens.Colour.textSecondary)
-                        Text(hint)
-                            .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                            .lineLimit(2)
-                    }
-                    .frame(width: 218, alignment: .leading)
+                    readoutBlock.frame(width: 218, alignment: .leading)
                 }
 
                 if model.totalWords > 0 {
@@ -293,16 +312,75 @@ extension EntryPageView {
                 // of a five-year-old holding a pencil.
                 ToolbarIconButton(systemImage: "chevron.down") { model.controller.nextLines() }
 
-                // The one finish control: scores the page and shows the results. Back in
-                // the toolbar scores too, and just leaves.
-                PrimaryButton(title: "I'm finished", systemImage: "checkmark", minWidth: 200, height: 64,
-                              enabled: model.controller.pageHasInk) {
-                    model.isEraserActive = false
-                    model.finishWriting()
-                }
+                finishButton(compact: false)
             }
             .padding(.horizontal, Tokens.Layout.screenMargin)
             .padding(.vertical, Tokens.Space.s4)
+        }
+    }
+
+    /// The rail's footer (v3.3): the same pieces top to bottom — the mic and the readout,
+    /// the progress, and at the foot the scroll chevron beside the one finish control, a
+    /// reach from the pencil rather than under the palm.
+    private var railFooter: some View {
+        VStack(alignment: .leading, spacing: Tokens.Space.s5) {
+            HStack(alignment: .top, spacing: Tokens.Space.s4) {
+                if !model.pageText.isEmpty { micButton }
+                if model.tool.drawsDoodles {
+                    crayons
+                } else {
+                    readoutBlock.frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            if model.totalWords > 0 {
+                WritingProgressBar(written: model.wordsWritten, total: model.totalWords)
+            }
+            Spacer(minLength: 0)
+            HStack(spacing: Tokens.Space.s4) {
+                ToolbarIconButton(systemImage: "chevron.down") { model.controller.nextLines() }
+                finishButton(compact: true)
+            }
+        }
+        .padding(Tokens.Layout.screenMargin)
+    }
+
+    private var micButton: some View {
+        Button {
+            if model.mic == .capped { model.dismissCapBanner() } else { model.micTapped() }
+        } label: {
+            ZStack {
+                Circle().fill(model.mic == .capped ? Tokens.Colour.paperSunk : Tokens.Colour.action)
+                    .frame(width: 64, height: 64)
+                Image(systemName: "mic.fill").font(.system(size: 28))
+                    .foregroundStyle(model.mic == .capped ? Tokens.Colour.textSecondary : Tokens.Colour.textOnAction)
+            }
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel("Say more")
+    }
+
+    private var readoutBlock: some View {
+        VStack(alignment: .leading, spacing: Tokens.Space.s1) {
+            Text(readout)
+                .font(.hjBody)
+                .foregroundStyle(model.controller.wordsWritten > 0 ? Tokens.Colour.textPrimary : Tokens.Colour.textSecondary)
+            Text(hint)
+                .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                .lineLimit(2)
+        }
+    }
+
+    /// The one finish control: scores the page and shows the results. Back in the
+    /// toolbar scores too, and just leaves. Compact in the rail, where it shares the
+    /// width with the chevron.
+    private func finishButton(compact: Bool) -> some View {
+        PrimaryButton(title: "I'm finished", systemImage: "checkmark",
+                      minWidth: compact ? 160 : 200, height: 64,
+                      enabled: model.controller.pageHasInk,
+                      fillsWidth: compact,
+                      horizontalPadding: compact ? Tokens.Space.s4 : Tokens.Space.s6) {
+            model.isEraserActive = false
+            model.finishWriting()
         }
     }
 
@@ -344,29 +422,12 @@ extension EntryPageView {
         VStack(spacing: 0) {
             Rectangle().fill(Tokens.Colour.divider).frame(height: 1)
             HStack(alignment: .center, spacing: Tokens.Space.s4) {
-                if !model.listeningFromStage {
-                    Button { model.dictationEnded() } label: {
-                        ZStack {
-                            Circle().fill(Tokens.Colour.danger).frame(width: 64, height: 64)
-                            RoundedRectangle(cornerRadius: 5).fill(Tokens.Colour.textOnAction)
-                                .frame(width: 22, height: 22)
-                        }
-                    }
-                    .buttonStyle(PressableStyle())
-                    .accessibilityLabel("Stop talking")
-                }
+                if !model.listeningFromStage { stopButton }
                 LevelMeter(level: model.speech.level)
                     .frame(width: 280, height: 40)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(SpeechRecognitionService.formatted(model.speech.elapsed))
-                        .font(.hjNumeralL).monospacedDigit().foregroundStyle(Tokens.Colour.textPrimary)
-                    Text("of \(SpeechRecognitionService.formatted(SpeechRecognitionService.maximumDuration))")
-                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                }
+                clock
                 Spacer()
-                Text(model.replacing == nil
-                     ? "Nothing goes in your journal until you write it."
-                     : "Say it again — the new words take the old ones' place.")
+                Text(listeningCaption)
                     .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                     .multilineTextAlignment(.trailing)
                     .frame(maxWidth: 280, alignment: .trailing)
@@ -374,6 +435,50 @@ extension EntryPageView {
             .padding(.horizontal, Tokens.Layout.screenMargin)
             .padding(.vertical, Tokens.Space.s4)
         }
+    }
+
+    /// The rail while a take runs (v3.3): the stop where the mic was, the clock beside
+    /// it, the level across the rail, and the one line of reassurance.
+    private var railListening: some View {
+        VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+            HStack(alignment: .center, spacing: Tokens.Space.s4) {
+                if !model.listeningFromStage { stopButton }
+                clock
+            }
+            LevelMeter(level: model.speech.level)
+                .frame(height: 40)
+            Text(listeningCaption)
+                .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+            Spacer(minLength: 0)
+        }
+        .padding(Tokens.Layout.screenMargin)
+    }
+
+    private var stopButton: some View {
+        Button { model.dictationEnded() } label: {
+            ZStack {
+                Circle().fill(Tokens.Colour.danger).frame(width: 64, height: 64)
+                RoundedRectangle(cornerRadius: 5).fill(Tokens.Colour.textOnAction)
+                    .frame(width: 22, height: 22)
+            }
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel("Stop talking")
+    }
+
+    private var clock: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(SpeechRecognitionService.formatted(model.speech.elapsed))
+                .font(.hjNumeralL).monospacedDigit().foregroundStyle(Tokens.Colour.textPrimary)
+            Text("of \(SpeechRecognitionService.formatted(SpeechRecognitionService.maximumDuration))")
+                .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+        }
+    }
+
+    private var listeningCaption: String {
+        model.replacing == nil
+            ? "Nothing goes in your journal until you write it."
+            : "Say it again — the new words take the old ones' place."
     }
 
     /// §11.13 (v3.2) — the ABC tool's footer. With a word picked it fixes that word in
@@ -456,16 +561,35 @@ extension EntryPageView {
 
     // MARK: - Results
 
-    var resultsStage: some View {
+    func resultsStage(_ layout: ScreenLayout) -> some View {
         ScrollView {
             VStack(spacing: 0) {
-                Text(headline).font(.hjDisplay).foregroundStyle(Tokens.Colour.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, Tokens.Space.s8)
-                Text(subtitle).font(.hjHeadline).foregroundStyle(Tokens.Colour.textSecondary)
-                    .padding(.top, Tokens.Space.s2)
+                if layout.isLandscape {
+                    // v3.3 — the score beside the page, and one way out under both.
+                    HStack(alignment: .center, spacing: Tokens.Space.s7) {
+                        scoreColumn.frame(maxWidth: .infinity)
+                        pageColumnOfResults.frame(maxWidth: .infinity)
+                    }
+                    .padding(.horizontal, Tokens.Layout.screenMargin)
+                } else {
+                    scoreColumn
+                    pageColumnOfResults
+                }
+                wayOut
+            }
+        }
+    }
 
-                if let result = model.lastResult, result.wordsWritten > 0 {
+    /// The headline, the stars, the ring and the points — the score.
+    private var scoreColumn: some View {
+        VStack(spacing: 0) {
+            Text(headline).font(.hjDisplay).foregroundStyle(Tokens.Colour.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.top, Tokens.Space.s8)
+            Text(subtitle).font(.hjHeadline).foregroundStyle(Tokens.Colour.textSecondary)
+                .padding(.top, Tokens.Space.s2)
+
+            if let result = model.lastResult, result.wordsWritten > 0 {
                     StarsView(earned: result.stars, size: StarsView.results.size, gap: StarsView.results.gap)
                         .padding(.top, Tokens.Space.s5)
                     AccuracyRing(accuracy: result.accuracy).padding(.top, Tokens.Space.s5)
@@ -483,7 +607,12 @@ extension EntryPageView {
                             .padding(.top, Tokens.Space.s5)
                     }
                 }
+        }
+    }
 
+    /// The page as it was written, its setup, and any badge it earned.
+    private var pageColumnOfResults: some View {
+        VStack(spacing: 0) {
                 if let session = model.session, session.hasWriting {
                     pagePreview(session).padding(.top, Tokens.Space.s6)
                 }
@@ -506,23 +635,24 @@ extension EntryPageView {
                     .padding(Tokens.Space.s4).card()
                     .padding(.horizontal, Tokens.Layout.screenMargin).padding(.top, Tokens.Space.s4)
                 }
-
-                VStack(spacing: Tokens.Space.s3) {
-                    // One way out (v3.2): home. The page is in the journal now, and there
-                    // is nothing left to do here; saying more happens from the journal.
-                    PrimaryButton(title: "Back to my journal", systemImage: "book.closed",
-                                  minWidth: 340, height: 72) { dismissSession() }
-                    Text(model.lastResult?.finishedEverything == true
-                         ? "Want to say more about today? Open this entry from your journal and tap the mic."
-                         : "Carry on any time: open this entry from your journal and the waiting words are still there.")
-                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, Tokens.Layout.screenMargin)
-                }
-                .padding(.top, Tokens.Space.s7)
-                .padding(.bottom, Tokens.Space.s8)
-            }
         }
+    }
+
+    /// One way out (v3.2): home. The page is in the journal now, and there is nothing
+    /// left to do here; saying more happens from the journal.
+    private var wayOut: some View {
+        VStack(spacing: Tokens.Space.s3) {
+            PrimaryButton(title: "Back to my journal", systemImage: "book.closed",
+                          minWidth: 340, height: 72) { dismissSession() }
+            Text(model.lastResult?.finishedEverything == true
+                 ? "Want to say more about today? Open this entry from your journal and tap the mic."
+                 : "Carry on any time: open this entry from your journal and the waiting words are still there.")
+                .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Tokens.Layout.screenMargin)
+        }
+        .padding(.top, Tokens.Space.s7)
+        .padding(.bottom, Tokens.Space.s8)
     }
 
     private var headline: String {
