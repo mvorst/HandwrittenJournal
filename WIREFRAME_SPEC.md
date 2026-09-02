@@ -312,10 +312,10 @@ names in `AppConstants.swift`.
 | `action` | `#007AFF` | Primary buttons, selected states, links |
 | `action-pressed` | `#0060D0` | Pressed state of `action` |
 | `action-disabled` | `#B4D5FA` | Disabled fill |
-| `star-on` | `#F28522` | Earned star. Tangerine (v2.8) — no longer shares a hue family with `streak-flame` |
+| `star-on` | `#F28522` | Earned star. Tangerine (v2.8) — no longer shares a hue family with `streak-flame`. Also a practice letter that earned one point today (v3.1) |
 | `star-off` | `#D1D1D6` | Unearned star, unearned badge |
 | `streak-flame` | `#FF9500` | Flame glyph and streak count |
-| `success` | `#43A047` | Positive deltas on Progress. Meadow green (v2.8) — deliberately no longer the same hex as `ink-inside`, which keeps its own value |
+| `success` | `#43A047` | Positive deltas on Progress. Meadow green (v2.8) — deliberately no longer the same hex as `ink-inside`, which keeps its own value. Also a practice letter that earned both points today (v3.1) |
 | `danger` | `#D64541` | Delete, reset, negative deltas. Crayon red (v2.8) — deliberately no longer the same hex as `ink-outside`, which keeps its own value |
 | `divider` | `#E5E5EA` | Hairline separators |
 
@@ -915,7 +915,7 @@ Every frame here is a **state of the same screen** (§11.13).
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
 | 48 | Write — left-handed layout — **NOT BUILT** | The profile stores `isLeftHanded` and Settings offers the toggle, but nothing in the app reads it. The real screen is frame 25. Kept as design intent, marked so nobody builds against it |
-| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Nothing is saved or graded; only the points are kept |
+| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
 | 50 | Write — letter formation help | §8.1b: a word finished with letters in the wrong order. A modal over the whole screen, chrome included — the word with its wrong letters in `ink-outside`, then a carousel of up to three lesson tiles, the live one bordered in `action`. Only tracing every red letter correctly closes it |
 
 Frames 23, 28 and 36 are **retired**: 23 was the splitter, 28 the ink-only reveal (the page

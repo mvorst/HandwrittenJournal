@@ -835,8 +835,11 @@ another letter switches to it without the demo — they are already tracing.
 streak or the badges — but a letter that flips green **earns points** (§8.3, v3.1): two
 in the arrow order, one otherwise, each letter once a day. The award replaces the footer
 % for the letter in hand (*+2 points*) and a *+18 today* pill in the toolbar keeps the
-day's count. Undo and clear live in the toolbar; live accuracy shows in the footer while
-ink is down. The footer % takes the order discount (§8.1a) exactly as the journal does —
+day's count. Letters that have earned stay coloured for the rest of the day — green for
+two points, orange for one (blue and orange in the colour-blind scheme) — so the sheet shows
+what is done; the letter in hand always draws in the plain guide colour so its ink stays
+visible, and the idle footer carries a one-line legend. Undo and clear live in the toolbar;
+live accuracy shows in the footer while ink is down. The footer % takes the order discount (§8.1a) exactly as the journal does —
 the sheet teaches the rule the journal grades — and when a traced letter ignored the
 arrows the "Nice G!" line becomes a nudge: *"Good G! Try the strokes in the arrow order."*
 

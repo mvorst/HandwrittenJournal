@@ -24,10 +24,14 @@ enum DemoData {
         milo.totalWordsWritten = 640
         milo.lastWroteOn = .now
         milo.earnedBadgeIDs = ["first_entry", "sharp_shooter", "streak_5"]
-        // Nine letters traced on the practice sheet today (§8.3) — the "+18 today" pill.
+        // Ten letters traced on the practice sheet today (§8.3): eight in the arrow order,
+        // two out of it — 8 × 2 + 2 × 1 = the "+18 today" pill, in both status colours.
         let today = PracticePoints.dayKey(.now)
-        for letter in "ABCDEabcd" {
+        for letter in "ABCDEabc" {
             milo.practiceLedger[PracticePoints.ledgerKey(day: today, character: letter)] = PracticePoints.full
+        }
+        for letter in "de" {
+            milo.practiceLedger[PracticePoints.ledgerKey(day: today, character: letter)] = PracticePoints.partial
         }
         context.insert(milo)
 

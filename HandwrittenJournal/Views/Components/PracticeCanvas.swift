@@ -55,6 +55,9 @@ struct PracticeSurface: UIViewRepresentable {
     var sheetText = PracticeSheet.text
     var autoSelectSoleGlyph = false
     var requireFullFormation = false
+    /// §8.3 (v3.1) — the letters that have already earned today, by points, so the
+    /// sheet can colour what is done. Empty on the remediation modal's sheet.
+    var completed: [Character: Int] = [:]
     let controller: PracticeController
 
     func makeUIView(context: Context) -> PracticeScrollView {
@@ -64,6 +67,7 @@ struct PracticeSurface: UIViewRepresentable {
         view.canvas.colourBlind = colourBlind
         view.canvas.autoSelectSoleGlyph = autoSelectSoleGlyph
         view.canvas.requireFullFormation = requireFullFormation
+        view.canvas.completed = completed
         view.canvas.text = sheetText
         controller.canvas = view.canvas
         view.canvas.onStateChange = { [weak controller] in controller?.sync() }
@@ -74,6 +78,7 @@ struct PracticeSurface: UIViewRepresentable {
     func updateUIView(_ view: PracticeScrollView, context: Context) {
         view.canvas.allowFinger = allowFinger
         view.canvas.colourBlind = colourBlind
+        view.canvas.completed = completed
         view.setFingerDraws(allowFinger)
     }
 }
@@ -131,6 +136,12 @@ final class PracticeCanvasView: UIView {
     /// formation followed in order *and* every one of its strokes covered, not just
     /// enough good ink. Off for the practice sheet, on for the remediation modal.
     var requireFullFormation = false
+    /// §8.3 (v3.1) — the letters that have already earned today, by points. Each draws
+    /// in its status colour so the sheet shows what is done; the letter in hand always
+    /// draws in the guide colour, or its own green ink would vanish into a green letter.
+    var completed: [Character: Int] = [:] {
+        didSet { if completed != oldValue { setNeedsDisplay() } }
+    }
     var onStateChange: (() -> Void)?
 
     private(set) var phase: PracticePhase = .idle
@@ -621,7 +632,9 @@ final class PracticeCanvasView: UIView {
         guard let ctx = UIGraphicsGetCurrentContext() else { return }
         drawRules(in: ctx)
         drawHighlight(in: ctx)
-        maskRenderer.drawGuide(in: ctx, colour: UIColor(Tokens.Colour.guideText))
+        let statuses = statusColours()
+        maskRenderer.drawGuide(in: ctx, colour: UIColor(Tokens.Colour.guideText),
+                               colourForCharacter: { statuses[$0] })
         // Ink is drawn by `inkView`, above the demo layers.
     }
 
@@ -663,6 +676,30 @@ final class PracticeCanvasView: UIView {
         ctx.setLineWidth(2)
         ctx.addPath(path.cgPath)
         ctx.strokePath()
+    }
+
+    /// The completed letters' colours by `charIndex`, the letter in hand excepted.
+    private func statusColours() -> [Int: UIColor] {
+        guard !completed.isEmpty else { return [:] }
+        var out: [Int: UIColor] = [:]
+        let inHand = selectedBox?.charIndex
+        for box in maskRenderer.layout.glyphBoxes where box.isScorable && box.charIndex != inHand {
+            if let points = completed[box.character],
+               let colour = Self.statusColour(points: points, colourBlind: colourBlind) {
+                out[box.charIndex] = colour
+            }
+        }
+        return out
+    }
+
+    /// Green for a letter that earned both points, orange for one that earned a single
+    /// point out of arrow order — or the colour-blind pair the page's ink already uses.
+    static func statusColour(points: Int, colourBlind: Bool) -> UIColor? {
+        switch points {
+        case 2...: return UIColor(colourBlind ? Tokens.Colour.inkInsideCB : Tokens.Colour.success)
+        case 1:    return UIColor(colourBlind ? Tokens.Colour.inkOutsideCB : Tokens.Colour.starOn)
+        default:   return nil
+        }
     }
 
     private var doneTracing: Bool {

@@ -21,6 +21,7 @@ struct PracticeView: View {
             PracticeSurface(setup: setup,
                             allowFinger: profile.allowFingerTracing,
                             colourBlind: profile.colorBlindMode,
+                            completed: profile.practiceLetters(),
                             controller: controller)
             footer
         }
@@ -49,11 +50,20 @@ struct PracticeView: View {
 
     private var footer: some View {
         HStack(spacing: Tokens.Space.s4) {
-            Text(prompt)
-                .font(.hjHeadline)
-                .foregroundStyle(Tokens.Colour.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(prompt)
+                    .font(.hjHeadline)
+                    .foregroundStyle(Tokens.Colour.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                if let legend {
+                    Text(legend)
+                        .font(.hjCaption)
+                        .foregroundStyle(Tokens.Colour.textSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
             Spacer()
             if lastAward > 0 {
                 Text("+\(lastAward) \(lastAward == 1 ? "point" : "points")")
@@ -95,6 +105,14 @@ struct PracticeView: View {
         .padding(.horizontal, Tokens.Space.s2)
         .animation(Tokens.Motion.spring, value: today)
         .accessibilityLabel("\(today) practice points today")
+    }
+
+    /// What the colours mean — shown while nothing is selected, once there is
+    /// something to explain.
+    private var legend: String? {
+        guard case .idle = controller.phase, !profile.practiceLetters().isEmpty else { return nil }
+        let done = profile.colorBlindMode ? "Blue" : "Green"
+        return "\(done) letters are done for today. Orange ones earned 1 point — try them in the arrow order."
     }
 
     private var prompt: String {

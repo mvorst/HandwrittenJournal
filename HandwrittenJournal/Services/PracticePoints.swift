@@ -100,6 +100,18 @@ extension UserProfile {
         PracticePoints.points(in: practiceLedger, on: date, calendar: calendar)
     }
 
+    /// The letters that have already earned today and what each earned — the practice
+    /// sheet colours them (§4.11).
+    func practiceLetters(on date: Date = .now, calendar: Calendar = .current) -> [Character: Int] {
+        let prefix = PracticePoints.dayKey(date, calendar: calendar) + "|"
+        var out: [Character: Int] = [:]
+        for (key, value) in practiceLedger where key.hasPrefix(prefix) {
+            let rest = key.dropFirst(prefix.count)
+            if rest.count == 1, let character = rest.first { out[character] = value }
+        }
+        return out
+    }
+
     /// What the points card shows (§4.3).
     func pointsSummary(now: Date = .now, calendar: Calendar = .current) -> PointsSummary {
         PointsSummary.build(total: totalPoints,

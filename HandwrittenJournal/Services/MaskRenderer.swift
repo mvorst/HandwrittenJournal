@@ -456,6 +456,61 @@ final class MaskRenderer {
     }
     private var guideCaches: [String: GuideCache] = [:]
 
+    /// v3.1 — the practice sheet's completed letters: a colour per character, the rest
+    /// in `colour`. Same text, setup and frame path as the mask with only the colour
+    /// attribute varying, so every glyph lands exactly where the scorer thinks it is.
+    /// `colourForCharacter` takes the UTF-16 index the glyph boxes carry as `charIndex`.
+    func drawGuide(in context: CGContext, colour: UIColor, colourForCharacter: (Int) -> UIColor?) {
+        guard let source = guideSource else { return }
+        let length = (source.text as NSString).length
+        var overrides: [(index: Int, colour: UIColor)] = []
+        for i in 0..<length {
+            if let override = colourForCharacter(i) { overrides.append((i, override)) }
+        }
+        guard !overrides.isEmpty else { drawGuide(in: context, colour: colour); return }
+
+        let key = [source.text, source.setup.face.id, "\(source.setup.size.size)", "\(source.frameRect)",
+                   colour.description,
+                   overrides.map { "\($0.index):\($0.colour.description)" }.joined(separator: ",")]
+            .joined(separator: "|")
+        let guide: GuideCache
+        if let cached = overrideCache, cached.key == key {
+            guide = cached.guide
+        } else {
+            let attributed = NSMutableAttributedString(
+                attributedString: Self.attributedString(text: source.text, setup: source.setup, colour: colour))
+            for item in overrides {
+                attributed.addAttribute(.foregroundColor, value: item.colour,
+                                        range: NSRange(location: item.index, length: 1))
+            }
+            let framesetter = CTFramesetterCreateWithAttributedString(attributed)
+            let path = CGPath(rect: source.frameRect, transform: nil)
+            let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, attributed.length), path, nil)
+            let lines = CTFrameGetLines(frame) as! [CTLine]
+            var origins = [CGPoint](repeating: .zero, count: lines.count)
+            CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), &origins)
+            guide = GuideCache(colour: colour, frame: frame, lines: lines, origins: origins)
+            overrideCache = (key, guide)
+        }
+
+        context.saveGState()
+        context.textMatrix = .identity
+        context.translateBy(x: 0, y: source.canvasHeight)
+        context.scaleBy(x: 1, y: -1)
+        context.translateBy(x: 0, y: -topPadding)
+        for i in 0..<min(layout.lineCount, guide.lines.count) {
+            context.textPosition = CGPoint(x: source.frameRect.minX + guide.origins[i].x,
+                                           y: guide.origins[i].y)
+            CTLineDraw(guide.lines[i], context)
+        }
+        context.restoreGState()
+    }
+
+    /// Only the latest per-character variant is kept — the sheet's completed set changes
+    /// a few dozen times a day at most — and its key carries the text and frame, so a
+    /// stale entry can never match a new layout.
+    private var overrideCache: (key: String, guide: GuideCache)?
+
     private struct GuideSource {
         let text: String
         let setup: WritingSetup
