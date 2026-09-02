@@ -54,6 +54,17 @@ Build notes: `PENPOT_HANDOFF.md`.
 
 ---
 
+## 0.10 What Changed in v3.1
+
+- **Journal Home is an action deck over a points card** (§4.3). New Entry and *Practice
+  my letters* are two tiles side by side, each saying what it earns; beneath them the
+  points card shows the total, today's gain and the last seven days, and every entry in
+  the list shows its points. The navigation bar is gone — no export button on this
+  screen, and search sits directly above the entries.
+- **Practice letters earn points** (§4.11, §8.3): +2 when a letter flips green in the
+  arrow order, +1 otherwise, each letter once a day; never streaks or badges.
+- `UserProfile.practiceLedger` (§5.1) keeps one entry per letter per day.
+
 ## 0.9 What Changed in v2.9
 
 **The remediation modal** — finishing a word with wrong-order letters now teaches the
@@ -413,33 +424,40 @@ Delete Profile is destructive and marked "Grown-ups only". **It is not gated** �
 
 ```
 ┌────────────────────────────────────┐
-│  [↑]              [🔍 Search    ]  │
 │  ╭──╮↻ Milo              [📈] [⚙]  │
 │  ╰──╯ 🔥 5-day streak              │
 │                                    │
-│        ┌──────────────────┐        │
-│        │  ✎  New Entry    │        │
-│        └──────────────────┘        │
-│                                    │
-│  Badges ─────────────────────────  │
+│  ┌────────────────────┐ ┌────────┐ │
+│  │ ✎ New Entry  +230▸ │ │ ABc    │ │
+│  │   Tell me about    │ │Practice│ │
+│  │   your day         │ │ +2/ltr │ │
+│  └────────────────────┘ └────────┘ │
+│  ┌────────────────────────────────┐│
+│  │ ✦ 1,240 points   Last 7 days  ›││
+│  │   +224 today     ▁▂▃▅▄▆█      ││
+│  └────────────────────────────────┘│
+│  Badges ────────────────── 3 of 8  │
 │  [🏆][🎯][🔥][░][░][░][░][░]       │
 │                                    │
 │  My Journal ─────────────────────  │
+│  [🔍 Search what you said        ] │
 │  ┌────┬───────────────────────┬──┐ │
 │  │~~~~│ Aug 28 · 9:56 PM      │★★★│ │
-│  │~~~~│ "I saw a red bird…"   │  │ │
+│  │~~~~│ "I saw a red bird…"   │+224│ │
 │  │    │ 23 words · 94% · Jua  │  │ │
-│  └────┴───────────────────────┴──┘ │
-│  ┌────┬───────────────────────┬──┐ │
-│  │~~~~│ Aug 28 · 7:56 PM      │★★★│ │
 │  └────┴───────────────────────┴──┘ │
 │              … every entry …       │
 └────────────────────────────────────┘
 ```
 
-**Badges first, then every entry, newest first.** There is no second journal screen: the
-main screen *is* the journal, so search and export live in its toolbar and the list is
-never truncated.
+**The action deck, then the points, then badges, then every entry, newest first (v3.1).**
+New Entry and *Practice my letters* are two tiles on the content grid — the primary and
+its outlined partner — each with a chip saying what it earns (§8.3). Beneath them the
+points card shows the running total, what today added, and a bar for each of the last
+seven days; tapping it opens Progress. There is **no navigation bar**: the export button is
+gone from this screen (an entry's ⋯ menu still reaches *Share as PDF*, including the whole
+journal), and search is a plain field directly above the entries it filters. There is no
+second journal screen: the main screen *is* the journal and the list is never truncated.
 
 **There is no resume card and no "Keep writing".** An entry is not a task with a state —
 it is a page you either open or don't. Tapping a row opens it to read (§4.7), and **Edit**
@@ -449,7 +467,8 @@ bought at the cost of a mode.
 
 Rows show the **handwriting thumbnail**, not typed text — the journal should look like a
 journal at a glance. Metadata reads *"23 words · 94% · Jua Large"*, or *"23 words · not
-written yet"* when there is no tracing.
+written yet"* when there is no tracing. The points the entry earned sit under its stars,
+so the list reads as the ledger of a number that only goes up (§8.3).
 
 There is no "Your writing" settings card. The gear reaches the same settings, and the main
 screen is for entries.
@@ -812,11 +831,14 @@ success haptic: *"Nice G! Pick another letter."* Touching the next letter clears
 last one; touching the same letter replays its demo. A pen that simply starts writing on
 another letter switches to it without the demo — they are already tracing.
 
-**Sandbox rules:** no persistence, no score kept, no streak or badge effect. Undo and
-clear live in the toolbar; live accuracy shows in the footer while ink is down. The
-footer % takes the order discount (§8.1a) exactly as the journal does — the sheet
-teaches the rule the journal grades — and when a traced letter ignored the arrows the
-"Nice G!" line becomes a nudge: *"Good G! Try the strokes in the arrow order."*
+**Sandbox rules:** no ink is saved, nothing is graded, and nothing here touches the
+streak or the badges — but a letter that flips green **earns points** (§8.3, v3.1): two
+in the arrow order, one otherwise, each letter once a day. The award replaces the footer
+% for the letter in hand (*+2 points*) and a *+18 today* pill in the toolbar keeps the
+day's count. Undo and clear live in the toolbar; live accuracy shows in the footer while
+ink is down. The footer % takes the order discount (§8.1a) exactly as the journal does —
+the sheet teaches the rule the journal grades — and when a traced letter ignored the
+arrows the "Nice G!" line becomes a nudge: *"Good G! Try the strokes in the arrow order."*
 
 **Why Jua only:** the stroke-order guides are hand-authored per letterform
 (`LetterFormations.swift`, 62 characters × 1–4 strokes, in glyph-ink-box coordinates,
@@ -853,6 +875,7 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
     // Progress (no levels)
     var totalStars: Int = 0
     var totalPoints: Int = 0
+    var practiceLedger: [String: Int] = [:]   // "yyyy-MM-dd|G" → 1 or 2 (§8.3, v3.1)
     var currentStreak: Int = 0
     var longestStreak: Int = 0
     var lastWroteOn: Date?
@@ -1332,6 +1355,16 @@ Worked from `WIREFRAME_SPEC.md` §14: 78 + 50 + 25 + 30 = **183**; 94 + 75 + 25 
 
 Points are a running total with no ceiling and nothing to spend them on. They exist because
 a number that only goes up is quietly motivating, and because nothing is gated behind them.
+Journal Home shows the total, what today added and a bar for each of the last seven days
+(§4.3); every entry in the list shows what it earned.
+
+**Practice letters earn points too (v3.1).** A letter that flips green on the practice
+sheet is worth **+2** when its strokes followed the arrows and **+1** when they did not
+(§8.1a); a one-point letter tops up to two if it is traced in order later the same day.
+Each character earns at most once a calendar day, so the whole sheet — 62 characters — is
+worth 124 and needs no cap. Practice points add to the running total only: they never
+extend a streak, unlock a badge or appear in the journal list. The journal stays the
+point.
 
 ### 8.4 Streaks
 

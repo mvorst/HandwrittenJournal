@@ -38,6 +38,9 @@ enum ScoringEngine {
     static let starValue = 25
     static let streakStep = 5
     static let streakCap = 5
+    /// §8.3 — the most one entry can earn: 100 + 3 × 25 + 5 × 5 + 30. What the New Entry
+    /// tile on Journal Home promises (§4.3).
+    static let maxEntryPoints = 100 + 3 * starValue + streakCap * streakStep + sessionBonus
 
     /// §8.1a — a letter clearly drawn against its taught formation (parts out of the
     /// demonstrated order, or a part drawn against its demonstrated direction) keeps

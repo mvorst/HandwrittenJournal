@@ -29,6 +29,10 @@ final class UserProfile {
     var lastWroteOn: Date?
     var totalWordsWritten: Int = 0
     var earnedBadgeIDs: [String] = []
+    /// §8.3 (v3.1) — practice points, one entry per character per calendar day, keyed
+    /// `"yyyy-MM-dd|<character>"` (`PracticePoints.ledgerKey`). Bounded by the sheet
+    /// itself: at most 62 entries a day, worth at most 124.
+    var practiceLedger: [String: Int] = [:]
 
     // Preferences
     var isLeftHanded: Bool = false

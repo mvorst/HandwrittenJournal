@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v3.0
+## Penpot handoff, v3.1
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -125,6 +125,24 @@ decision and rejected proposal):
   restructured writing rules (the dashed-outer/solid-baseline gray rules are the spec),
   a red margin rule, and any tracing-typeface change.
 
+**What changed in v3.1 — the action deck and points:**
+
+Explored on the Penpot page `13 · Journal` and adopted by the app on 2026-09-02.
+
+- **Journal Home has no navigation bar.** The export button is gone from this screen —
+  the whole journal is exported from an entry's ⋯ → *Share as PDF* → *Everything* — and
+  the search field moved down to sit directly above the entries it filters (§13.2).
+- **New Entry and Practice my letters are an action deck**: two `Button / Tile`s on the
+  content grid, the primary and its outlined partner, each with a chip saying what it
+  earns (§10.1). The centred button and the text link beneath it are retired.
+- **Points are tracked on the home screen.** `Card / Points` shows the running total,
+  today's gain and `Tracker / last 7 days`; every `Row / Session` shows "+N points" under
+  its stars; the Badges header reads "3 of 8" (§10.5, §10.6).
+- **Practice letters earn points** — +2 when a letter flips green in the arrow order, +1
+  otherwise, each letter once a day; never streaks or badges (`DESIGN_DOCUMENT.md` §8.3).
+  Frame 49 carries a "+18 today" pill and a "+2 points" footer state.
+- `sparkles` joins the icon set (§9).
+
 **What changed in v3.0 — reconciled with the built app:**
 
 This revision was written *from* the code rather than ahead of it. Where the Penpot file
@@ -189,6 +207,7 @@ One Penpot file: **`Wireframes`**.
 | `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
+| `13 · Journal` | The v3.1 alternates of frames 9, 10 and 49 — the layout the app builds — plus a notes board |
 | `99 · Scratch` | Anything in progress; never referenced by development |
 
 **Board naming:** `NN — Screen Name — state`, e.g. `04 — PIN Pad — wrong PIN`. The leading
@@ -452,7 +471,7 @@ Required set: `mic.fill`, `keyboard`, `arrow.uturn.backward`, `trash`, `checkmar
 `magnifyingglass`, `calendar`, `line.3.horizontal.decrease.circle`, `square.and.arrow.up`,
 `ellipsis.circle`, `photo.on.rectangle`, `lock.fill`, `flame.fill`,
 `star.fill`, `star`, `pencil.line`, `person.crop.circle.badge.plus`, `xmark`,
-`arrow.triangle.2.circlepath`, `plus`, `eraser.fill`, `speaker.wave.2.fill`.
+`arrow.triangle.2.circlepath`, `plus`, `eraser.fill`, `speaker.wave.2.fill`, `sparkles`.
 
 ---
 
@@ -471,6 +490,7 @@ Build each as a Penpot component with the listed variants.
 | `Button / Text` | h 44 | none | `button-sm`, `action` | — |
 | `Button / Destructive` | h 56, min w 220 | none, 2 pt `danger` stroke | `button-sm`, `danger` | 14 |
 | `Button / Toolbar` | 44 × 44 | none | icon 24, `action` | — |
+| `Button / Tile` (v3.1) | h 128; primary 486 wide, secondary 284 | primary `action` + `shadow-card`; secondary `paper-raised`, 2 pt `action` stroke, flat | icon 40 / 36 leading; `button` / `headline` title, `body` subtitle @ 85%, `caption` semibold chip in a capsule — white @ 20% on the primary (top-trailing), `action` @ 10% on the secondary | 20 |
 
 Primary button icon, when present, is 28 pt, leading, 12 pt from the label.
 
@@ -524,6 +544,7 @@ Stars rate **one tracing**. They no longer accumulate toward anything.
 | `Ring / Compact` | 120 outer, 12 pt stroke, same construction |
 | `Button / Toolbar / Active` | 44 × 44, `action` fill, `radius` 12, icon in `text-on-action`. Used for the eraser while it is selected. |
 | `Segmented` | h 44 (h 48 in a toolbar), `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3–4 pt with `shadow-card`. Two uses only: **`Segmented / View · Edit`** 200 × 48 in the entry-page toolbar (§13.4), and the export scope (This entry / This month / Everything). There is **no** Trace/Copy switch — Copy is not built — and **no** date-range filter on Progress. |
+| `Tracker / last 7 days` (v3.1) | "Last 7 days" `caption` over seven 24 pt bars at a 12 pt gap, 38 pt tall at the week's best day, `radius` 4: today `action`, other days `action-disabled`, a 4 pt `paper-sunk` stub for a day with nothing; weekday initials `caption-sm` beneath, today's bold in `text-primary`. Lives in `Card / Points`. |
 
 `Bar / Level` and `Pager / Attempt` are both **retired** — there is no ladder and no
 attempt history.
@@ -532,7 +553,8 @@ attempt history.
 
 | Component | Spec |
 |---|---|
-| `Row / Session` (**the main screen's journal list**) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing, vertically centred. |
+| `Row / Session` (**the main screen's journal list**) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing with *"+N points"* `caption` semibold in `success` centred beneath it (v3.1). |
+| `Card / Points` (Journal Home, v3.1) | Full content width × 128, `paper-raised`, `radius-card`, `shadow-card`, 24 pt padding. `sparkles` 32 pt in `star-on` (`star-off` at zero); the running total `numeral-l` with "points" `body` in `text-secondary` on its baseline; beneath, "+224 today" `body-em` in `success` — or "Your first entry starts the count." / "Nothing yet today" `body` in `text-secondary`; `Tracker / last 7 days`; `chevron.right` 20 pt trailing. The whole card opens Progress. |
 | `Card / Entry stats` (entry detail) | Full content width × 112, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Row`; then a three-line stack — word count `body-em` ("48 of 48 words"), a one-line note `caption` ("You finished the whole thing." / "N words are still waiting on the page."), and the setup summary `caption` ("Jua · Large · Trace") — **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback; *"Hear what I said"* is retired too (v3.0 — no audio is kept). The setup summary lives **inside** the card, not below it. |
 | `Writing progress` | Full width of the footer. `paper-sunk` capsule track 8 pt tall, `action` fill to `wordsWritten / totalWords`, caption "15 of 48 words" beneath in `text-secondary`. Replaces the sentence queue. In the footer it is 190 pt wide, not full width — the accuracy hint sits to its left. |
 | `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
@@ -575,12 +597,13 @@ is the authority, and the library must carry exactly its eight, in its order:
 
 | Component | Spec |
 |---|---|
-| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads: leading "Back" / "I'm finished", the date, `Segmented / View · Edit` at x 394, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766. |
+| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. **Journal Home has none** (v3.1). Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads: leading "Back" / "I'm finished", the date, `Segmented / View · Edit` at x 394, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766. |
 | `Sheet / Modal` | width to content, `radius-sheet`, `paper-raised`, `shadow-modal`, centred, on `overlay-scrim` |
 | `Sheet / PIN pad` | 700 × 800 |
 | `Menu / Overflow` | 320 wide, rows h 60, `radius` 16, `paper-raised`, `shadow-modal`, hairline between rows inset 20 pt. Four rows, in this order: *Write it all again*, *Share as PDF*, *Rename this entry*, then a divider and *Delete this entry* in `danger`. (*Hear what I said* was retired in v3.0.) |
 | `Row / Setting` | h 64, full width, label `body` leading, control trailing, 1 pt `divider` bottom inset 16 pt leading |
 | `Keyboard` | h 316, `paper-sunk`, 1 pt `divider` top edge. Four rows, key h 62, gap 10, row gap 12, keys `paper-raised` with `radius` 8 and `shadow-card`; modifier keys `star-off`. |
+| `Search field` (v3.1) | Full content width × 44, `paper-sunk`, `radius-pill`, 16 pt padding: `magnifyingglass` 20 pt in `text-secondary`, "Search what you said" `body`, `xmark.circle.fill` in `star-off` trailing once there is a query. Sits under the My Journal header, above the rows. |
 | `Empty state` | Icon 72 pt in `star-off`, `title-2` heading 24 pt below, `body` explanation in `text-secondary` 12 pt below, optional `Button / Primary` 32 pt below. Vertically centred in its area. |
 
 `Sheet / Parent gate` is **retired**.
@@ -861,13 +884,13 @@ somewhere other than where they would write it.
 
 | # | Frame | Notes |
 |---|---|---|
-| 9 | Journal Home — populated | **The main screen**: a navigation bar with the search field and the export button, then the profile header, **New Entry** with *Practice my letters* beneath it, then **Badges**, then every entry newest first as `Row / Session`. No resume card, no "Your writing" card, no card grid. |
-| 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey; "Your journal is empty" / "Tap New Entry and tell me about your day." under a `book.closed` glyph |
-| 12 | Journal Home — search active | Query "grandma", "2 results", keyboard up. Search is `.searchable` in this screen's navigation bar. |
+| 9 | Journal Home — populated | **The main screen** (v3.1): the profile header, the action deck (`Button / Tile` × 2), `Card / Points`, then **Badges**, then **My Journal** — the search field, then every entry newest first as `Row / Session` with its points under the stars. No navigation bar, no export button, no resume card, no "Your writing" card, no card grid. |
+| 10 | Journal Home — empty | New profile, no sessions, no streak, 0 points ("Your first entry starts the count.", every tracker bar a stub), badges grey ("0 of 8"); "Your journal is empty" / "Tap New Entry and tell me about your day." under a `book.closed` glyph |
+| 12 | Journal Home — search active | Query "grandma", "2 results", keyboard up. Search is a plain field under the My Journal header (v3.1), not `.searchable`. |
 | 15 | Entry Detail | The **View** mode of the entry page: the child's own strokes in `ink-natural`, `Segmented / View · Edit` in the toolbar, one `Card / Entry stats` beneath, then `Button / Primary` "Write on this page" + `Button / Secondary` "Share". No "How it went" heading. Frame 14 (Typed) is retired (v2.9). |
 | 18 | Entry Detail — overflow menu open | Write it all again / Share as PDF / Rename this entry / — / Delete this entry |
 | 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", both option toggles |
-| 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. **Known defect:** Journal Home's export button opens `ExportView` with no session, which hides the scope control and leaves the scope at *This entry*, so that route renders a one-page PDF |
+| 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. Journal Home's export button — and the defect where it opened `ExportView` with no session — went in v3.1; the entry menu is the only route |
 
 ### `04 · Write`
 
@@ -892,7 +915,7 @@ Every frame here is a **state of the same screen** (§11.13).
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
 | 48 | Write — left-handed layout — **NOT BUILT** | The profile stores `isLeftHanded` and Settings offers the toggle, but nothing in the app reads it. The real screen is frame 25. Kept as design intent, marked so nobody builds against it |
-| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries undo + clear; the footer carries the prompt and, once there is ink, the accuracy. Nothing is scored, saved or counted |
+| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Nothing is saved or graded; only the points are kept |
 | 50 | Write — letter formation help | §8.1b: a word finished with letters in the wrong order. A modal over the whole screen, chrome included — the word with its wrong letters in `ink-outside`, then a carousel of up to three lesson tiles, the live one bordered in `action`. Only tracing every red letter correctly closes it |
 
 Frames 23, 28 and 36 are **retired**: 23 was the splitter, 28 the ink-only reveal (the page
@@ -939,27 +962,33 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 
 ### 13.2 Frame 9 — Journal Home
 
+Built on `13 · Journal` as the v3.1 alternate and adopted; the frames on `03 · Journal`
+show the v3.0 layout and are superseded by it.
+
 | Element | x | y | Size |
 |---|---|---|---|
-| Navigation bar — search field `paper-sunk` pill, `magnifyingglass` 20 pt + "Search what you said" | 24 | 14 | 700 × 44 |
-| — export button, `Button / Toolbar` `square.and.arrow.up` | 766 | 14 | 44 |
-| `Avatar / M` (tap to switch user) | 24 | 104 | 56 |
-| Switch-user badge, `arrow.triangle.2.circlepath` 14 pt | 64 | 144 | 22 |
-| Name, `display` | 96 | 102 | — |
-| Streak, flame 20 pt + `body` in `streak-flame` | 96 | 154 | — |
-| Progress button, `Button / Toolbar` | 706 | 108 | 44 |
-| Settings button, `Button / Toolbar` | 766 | 108 | 44 |
-| `Button / Primary` "✎ New Entry" | 257 | 236 | 320 × 72 |
-| `Button / Text` "ABc Practice my letters" | centred | 320 | — |
-| "Badges" `title-2` + rule | 24 | 400 | — |
-| Badge strip: 64 pt circles, 20 pt gaps, no labels, **left-aligned and horizontally scrollable** | 24 | 450 | 652 × 64 |
-| "My Journal" `title-2` + rule | 24 | 570 | — |
-| `Row / Session`, 16 pt gaps, newest first | 24 | 622, 770, 918, 1066 | 786 × 132 |
+| `Avatar / M` (tap to switch user) | 24 | 40 | 56 |
+| Switch-user badge, `arrow.triangle.2.circlepath` 14 pt | 64 | 80 | 22 |
+| Name, `display` | 96 | 38 | — |
+| Streak, flame 20 pt + `body` in `streak-flame` | 96 | 90 | — |
+| Progress button, `Button / Toolbar` | 706 | 44 | 44 |
+| Settings button, `Button / Toolbar` | 766 | 44 | 44 |
+| `Button / Tile` "✎ New Entry" — primary, subtitle "Tell me about your day", chip "up to +230 points" top-trailing | 24 | 136 | 486 × 128 |
+| `Button / Tile` "ABc Practice my letters" — outlined, chip "+2 points a letter" | 526 | 136 | 284 × 128 |
+| `Card / Points` — `sparkles` 32 pt in `star-on`, total `numeral-l` + "points" `body`, "+224 today" `body-em` in `success`, `Tracker / last 7 days` at x 416, `chevron.right` 20 pt trailing; the card opens Progress | 24 | 280 | 786 × 128 |
+| "Badges" `title-2` + rule, "3 of 8" `caption` in `text-secondary` trailing | 24 | 440 | — |
+| Badge strip: 64 pt circles, 20 pt gaps, no labels, **left-aligned and horizontally scrollable** | 24 | 488 | 652 × 64 |
+| "My Journal" `title-2` + rule | 24 | 600 | — |
+| Search field — `paper-sunk` pill, `magnifyingglass` 20 pt + "Search what you said" | 24 | 648 | 786 × 44 |
+| `Row / Session`, 16 pt gaps, newest first, "+N points" under the stars | 24 | 708, 856, 1004, 1152 | 786 × 132 |
 
-There is **no** "Your writing" card and **no** card grid. Badges come **before** the journal.
-When a search is active the section header reads "N results" and the rows are the matches;
-when nothing matches, an `Empty state` reading "Nothing found" / "Search looks at what you
-said, not how you wrote it.".
+There is **no navigation bar** (v3.1): the export button is gone from this screen — the
+whole journal is exported from an entry's ⋯ → *Share as PDF* → *Everything* — and search
+is a plain field above the list, not `.searchable`. There is **no** "Your writing" card
+and **no** card grid. Badges come **before** the journal. When a search is active the
+section header reads "N results" and the rows are the matches; when nothing matches, an
+`Empty state` reading "Nothing found" / "Search looks at what you said, not how you wrote
+it.".
 
 ### 13.3 Frame 25 — Write, the page part written *(the defining screen of v2.5)*
 

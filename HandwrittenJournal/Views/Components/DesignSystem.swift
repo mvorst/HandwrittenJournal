@@ -95,6 +95,83 @@ struct ToolbarIconButton: View {
     }
 }
 
+/// `Button / Tile` (§10.1, v3.1) — the action deck on Journal Home: a big primary tile and
+/// its outlined partner, each saying what it earns. Replaces the centred primary button
+/// and the text link that used to hang beneath it.
+struct ActionTile: View {
+    enum Style { case primary, secondary }
+
+    let style: Style
+    let title: String
+    var subtitle: String? = nil
+    let systemImage: String
+    var chip: String? = nil
+    var height: CGFloat = 128
+    let action: () -> Void
+
+    private var isPrimary: Bool { style == .primary }
+    private var tint: Color { isPrimary ? Tokens.Colour.textOnAction : Tokens.Colour.action }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Tokens.Space.s4) {
+                Image(systemName: systemImage)
+                    .font(.system(size: isPrimary ? 40 : 36, weight: .medium))
+                    .frame(width: 40)
+                VStack(alignment: .leading, spacing: Tokens.Space.s1) {
+                    Text(title).font(isPrimary ? .hjButton : .hjHeadline)
+                    if let subtitle {
+                        Text(subtitle).font(.hjBody).opacity(0.85)
+                    }
+                    if !isPrimary, let chip {
+                        PointsChip(text: chip, tint: Tokens.Colour.action, onAction: false)
+                            .padding(.top, Tokens.Space.s1)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(tint)
+            .padding(.horizontal, Tokens.Space.s5)
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+            .background(isPrimary ? Tokens.Colour.action : Tokens.Colour.paperRaised,
+                        in: RoundedRectangle(cornerRadius: Tokens.Radius.card))
+            .overlay {
+                if !isPrimary {
+                    RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                        .strokeBorder(Tokens.Colour.action, lineWidth: Tokens.Stroke.emphasis)
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if isPrimary, let chip {
+                    PointsChip(text: chip, tint: Tokens.Colour.textOnAction, onAction: true)
+                        .padding(Tokens.Space.s4)
+                }
+            }
+            // The primary tile sits on the page like cut paper; the outlined one lies flat.
+            .hjShadow(isPrimary ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0))
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel(chip.map { "\(title). \($0)" } ?? title)
+    }
+}
+
+/// "up to +230 points" / "+2 points a letter" — a caption capsule on a tile.
+struct PointsChip: View {
+    let text: String
+    var tint: Color = Tokens.Colour.action
+    /// On the action-blue tile the capsule is a white wash; elsewhere a tint wash.
+    var onAction = false
+
+    var body: some View {
+        Text(text)
+            .font(.hjCaption.weight(.semibold))
+            .foregroundStyle(tint)
+            .padding(.horizontal, Tokens.Space.s3)
+            .frame(height: 28)
+            .background(tint.opacity(onAction ? 0.2 : 0.1), in: Capsule())
+    }
+}
+
 struct PressableStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -248,7 +325,92 @@ struct SegmentedControl<T: Hashable>: View {
     }
 }
 
+// MARK: - Points tracker (§10.5, v3.1 — Tracker / last 7 days)
+
+/// One bar per day for the last week, today in `action`, the other days in
+/// `action-disabled`, a 4 pt `paper-sunk` stub for a day with nothing. Bars scale to the
+/// week's best day, so a quiet week still reads.
+struct PointsTracker: View {
+    let days: [PointsSummary.Day]
+    var barWidth: CGFloat = 24
+    var gap: CGFloat = 12
+    var maxHeight: CGFloat = 38
+
+    private var peak: Int { max(1, days.map(\.points).max() ?? 1) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Space.s1) {
+            Text("Last 7 days").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+            HStack(alignment: .bottom, spacing: gap) {
+                ForEach(days, id: \.date) { day in
+                    VStack(spacing: Tokens.Space.s1) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(fill(for: day))
+                            .frame(width: barWidth, height: height(for: day))
+                        Text(day.date.formatted(.dateTime.weekday(.narrow)))
+                            .font(day.isToday ? .hjCaptionSm.weight(.bold) : .hjCaptionSm)
+                            .foregroundStyle(day.isToday ? Tokens.Colour.textPrimary : Tokens.Colour.textSecondary)
+                            .lineLimit(1)
+                            .fixedSize()
+                            .frame(width: barWidth)
+                    }
+                }
+            }
+            .frame(height: maxHeight + Tokens.Space.s1 + LineHeight.captionSm, alignment: .bottom)
+        }
+        // The week is a fixed 240 pt; a card that proposes less would squeeze the last
+        // labels to nothing, so insist on the ideal width.
+        .fixedSize(horizontal: true, vertical: false)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Last 7 days: " + days.map {
+            "\($0.date.formatted(.dateTime.weekday(.wide))) \($0.points)"
+        }.joined(separator: ", "))
+    }
+
+    private func fill(for day: PointsSummary.Day) -> Color {
+        if day.points == 0 { return Tokens.Colour.paperSunk }
+        return day.isToday ? Tokens.Colour.action : Tokens.Colour.actionDisabled
+    }
+
+    private func height(for day: PointsSummary.Day) -> CGFloat {
+        guard day.points > 0 else { return 4 }
+        return max(6, (maxHeight * CGFloat(day.points) / CGFloat(peak)).rounded())
+    }
+}
+
 // MARK: - Chrome
+
+/// The journal search (§10.8, v3.1): a plain field that sits directly above the entries
+/// it filters, now that Journal Home has no navigation bar to put it in.
+struct SearchField: View {
+    @Binding var text: String
+    var prompt = "Search what you said"
+
+    var body: some View {
+        HStack(spacing: Tokens.Space.s3) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(Tokens.Colour.textSecondary)
+            TextField(prompt, text: $text)
+                .font(.hjBody)
+                .foregroundStyle(Tokens.Colour.textPrimary)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+            if !text.isEmpty {
+                Button { text = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(Tokens.Colour.starOff)
+                }
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(.horizontal, Tokens.Space.s4)
+        .frame(height: Tokens.Target.minimum)
+        .background(Tokens.Colour.paperSunk, in: Capsule())
+    }
+}
 
 struct SectionHeader: View {
     let title: String

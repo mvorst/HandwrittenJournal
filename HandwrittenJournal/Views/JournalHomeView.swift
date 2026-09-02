@@ -1,11 +1,15 @@
 import SwiftUI
 import SwiftData
 
-/// The main screen (v2.6): badges, then every entry newest first.
+/// The main screen (v3.1): the header, the action deck, the points card, badges, then
+/// every entry newest first with the search field directly above them.
 ///
-/// There is no resume card and no separate journal list. An entry is not a task with a
-/// state — it is a page you either open or don't. Tapping one opens that page to read
-/// (§4.7); the same page carries on writing it, so there is nothing else to route to.
+/// There is no navigation bar any more. The export button left — an entry's ⋯ menu still
+/// reaches *Share as PDF*, including the whole journal — and search moved down to sit by
+/// the list it filters, so nothing was left to put in one. There is no resume card and no
+/// separate journal list either: an entry is not a task with a state, it is a page you
+/// either open or don't. Tapping one opens it to read (§4.7); the same page carries on
+/// writing it.
 struct JournalHomeView: View {
     @Environment(\.modelContext) private var context
     @Bindable var profile: UserProfile
@@ -16,7 +20,6 @@ struct JournalHomeView: View {
     @State private var opened: WritingSession?
     @State private var showSettings = false
     @State private var showProgress = false
-    @State private var showExport = false
     @State private var query = ""
 
     /// Newest first. `orderedSessions` already sorts by `startedAt` descending.
@@ -33,22 +36,19 @@ struct JournalHomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     header
-                    newEntryButton
+                    actionDeck
+                    pointsCard
                     badgesSection
                     entriesSection
                 }
                 .padding(.horizontal, Tokens.Layout.screenMargin)
                 .padding(.bottom, Tokens.Space.s8)
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Tokens.Colour.paper)
+            // Nothing lives in the bar (v3.1) — the pushed practice sheet keeps its own.
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $practicing) { PracticeView(profile: profile) }
-            .searchable(text: $query, prompt: "Search what you said")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up") }
-                        .disabled(profile.orderedSessions.isEmpty)
-                }
-            }
         }
         // A new entry opens on the writing surface; one from the journal opens as
         // something to read. Same screen either way (§4.4).
@@ -63,9 +63,6 @@ struct JournalHomeView: View {
         }
         .sheet(isPresented: $showProgress) {
             ProgressReportView(profile: profile).presentationDetents([.large])
-        }
-        .sheet(isPresented: $showExport) {
-            ExportView(profile: profile, session: nil).presentationDetents([.large])
         }
         .task {
             #if DEBUG
@@ -122,24 +119,81 @@ struct JournalHomeView: View {
         }
     }
 
-    // MARK: - Primary action
+    // MARK: - Action deck (§4.3)
 
-    private var newEntryButton: some View {
-        VStack(spacing: Tokens.Space.s3) {
-            PrimaryButton(title: "New Entry", systemImage: "pencil.line", minWidth: 320, height: 72) {
-                writing = true
-            }
-            TextButton(title: "Practice my letters", systemImage: "textformat.abc") { practicing = true }
+    /// The two ways to earn, side by side on the content grid: New Entry stays the
+    /// primary; Practice is its outlined partner, a real button rather than a text link.
+    private var actionDeck: some View {
+        HStack(spacing: Tokens.Space.s4) {
+            ActionTile(style: .primary,
+                       title: "New Entry",
+                       subtitle: "Tell me about your day",
+                       systemImage: "pencil.line",
+                       chip: "up to +\(ScoringEngine.maxEntryPoints) points") { writing = true }
+            ActionTile(style: .secondary,
+                       title: "Practice my letters",
+                       systemImage: "textformat.abc",
+                       chip: "+\(PracticePoints.full) points a letter") { practicing = true }
+                .frame(width: 284)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, Tokens.Space.s7)
+        .padding(.top, Tokens.Space.s5)
+    }
+
+    // MARK: - Points (§4.3, §8.3)
+
+    /// The running total, what today added, and a bar for each of the last seven days.
+    /// The card is a button: it opens Progress, like the chart icon above it.
+    private var pointsCard: some View {
+        let summary = profile.pointsSummary()
+        return Button { showProgress = true } label: {
+            HStack(spacing: Tokens.Space.s4) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 32, weight: .medium))
+                    .foregroundStyle(summary.total > 0 ? Tokens.Colour.starOn : Tokens.Colour.starOff)
+                VStack(alignment: .leading, spacing: Tokens.Space.s2) {
+                    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s2) {
+                        Text(summary.total.formatted())
+                            .font(.hjNumeralL)
+                            .foregroundStyle(Tokens.Colour.textPrimary)
+                            .monospacedDigit()
+                        Text("points").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
+                    }
+                    Text(pointsDelta(summary))
+                        .font(summary.today > 0 ? .hjBodyEm : .hjBody)
+                        .foregroundStyle(summary.today > 0 ? Tokens.Colour.success : Tokens.Colour.textSecondary)
+                }
+                Spacer(minLength: Tokens.Space.s4)
+                PointsTracker(days: summary.days)
+                Spacer(minLength: Tokens.Space.s4)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(Tokens.Colour.textSecondary)
+            }
+            .padding(.horizontal, Tokens.Space.s5)
+            .frame(height: 128)
+            .frame(maxWidth: .infinity)
+            .card()
+        }
+        .buttonStyle(PressableStyle())
+        .padding(.top, Tokens.Space.s4)
+        .accessibilityLabel("\(summary.total) points, \(pointsDelta(summary)). Opens progress.")
+    }
+
+    private func pointsDelta(_ summary: PointsSummary) -> String {
+        if summary.today > 0 { return "+\(summary.today) today" }
+        return summary.total == 0 ? "Your first entry starts the count." : "Nothing yet today"
     }
 
     // MARK: - Badges
 
     private var badgesSection: some View {
-        VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-            SectionHeader(title: "Badges")
+        let earned = BadgeEngine.all.filter { profile.earnedBadgeIDs.contains($0.id) }.count
+        return VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+            SectionHeader(title: "Badges", trailing: AnyView(
+                Text("\(earned) of \(BadgeEngine.all.count)")
+                    .font(.hjCaption)
+                    .foregroundStyle(Tokens.Colour.textSecondary)
+            ))
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(BadgeEngine.all) { badge in
@@ -156,7 +210,7 @@ struct JournalHomeView: View {
                 .padding(.vertical, Tokens.Space.s1)
             }
         }
-        .padding(.top, Tokens.Space.s8)
+        .padding(.top, Tokens.Space.s6)
     }
 
     // MARK: - Entries
@@ -164,6 +218,7 @@ struct JournalHomeView: View {
     private var entriesSection: some View {
         VStack(alignment: .leading, spacing: Tokens.Space.s4) {
             SectionHeader(title: query.isEmpty ? "My Journal" : resultsTitle)
+            SearchField(text: $query)
             if entries.isEmpty {
                 emptyState
             } else {
@@ -197,7 +252,8 @@ struct JournalHomeView: View {
 }
 
 /// One entry, one row. The handwriting thumbnail leads — the journal should look like a
-/// journal at a glance, not like a list of scores.
+/// journal at a glance, not like a list of scores — and the points the entry earned sit
+/// quietly under its stars, so the list reads as the ledger of a number that only goes up.
 struct EntryRow: View {
     let session: WritingSession
 
@@ -214,7 +270,15 @@ struct EntryRow: View {
                     .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
             }
             Spacer()
-            StarsView(earned: session.stars, size: StarsView.row.size, gap: StarsView.row.gap)
+            VStack(spacing: Tokens.Space.s2) {
+                StarsView(earned: session.stars, size: StarsView.row.size, gap: StarsView.row.gap)
+                if session.points > 0 {
+                    Text("+\(session.points) points")
+                        .font(.hjCaption.weight(.semibold))
+                        .foregroundStyle(Tokens.Colour.success)
+                        .monospacedDigit()
+                }
+            }
         }
         .padding(Tokens.Space.s4)
         .frame(height: 132)

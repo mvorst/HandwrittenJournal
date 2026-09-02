@@ -24,6 +24,11 @@ enum DemoData {
         milo.totalWordsWritten = 640
         milo.lastWroteOn = .now
         milo.earnedBadgeIDs = ["first_entry", "sharp_shooter", "streak_5"]
+        // Nine letters traced on the practice sheet today (§8.3) — the "+18 today" pill.
+        let today = PracticePoints.dayKey(.now)
+        for letter in "ABCDEabcd" {
+            milo.practiceLedger[PracticePoints.ledgerKey(day: today, character: letter)] = PracticePoints.full
+        }
         context.insert(milo)
 
         let ada = UserProfile(name: "Ada")
