@@ -248,7 +248,7 @@ entry is now an ordinary row.)*
 **Audio storage changed shape.** Recording a whole session rather than a sentence means a
 5-minute master at ~1.2 MB; daily for five years is over 2 GB. v2.2 sliced the master into
 per-sentence clips; **v2.4 keeps it whole**, because with no sentences there is nothing to
-slice and *"Hear what I said"* sits on the entry.
+slice; *"Hear what I said"* was retired in v3.0 (no audio is kept).
 
 ---
 
@@ -364,7 +364,7 @@ component, the attempt count and chevron on every sentence row, "best of N traci
 the export page, and "best NN%" from every journal list row — a session now shows its
 **mean** accuracy, because there is no longer a best to pick from.
 
-**Voice playback** appears as "Hear it" on each sentence row in frames 14, 15 and 18.
+**Voice playback** appeared as "Hear it" on each sentence row in frames 14, 15 and 18; it is retired as of v3.0 — no audio is recorded or kept.
 
 **A defect fixed in passing:** toolbar labels ("Close", "Cancel", "Save", back labels) were
 sitting flush against the top edge of every toolbar across all four pages — a helper ignored

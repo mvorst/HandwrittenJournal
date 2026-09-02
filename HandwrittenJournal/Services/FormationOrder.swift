@@ -12,10 +12,22 @@ import UIKit
 /// - **Pen lifts are ignored.** An `a` drawn in one motion that still goes
 ///   circle-then-line, each part in its taught direction, passes.
 /// - **Go-overs are ignored.** Returning to darken a part already drawn is not a fault;
-///   only the *first* genuine visit to each part is judged.
+///   only the *first* genuine visit to each part is judged, and that visit is judged on
+///   its net motion — a pen that runs up a stem to start it from the top has not drawn
+///   the stem upwards.
 /// - **Unjudgeable ink passes.** Ink that barely lies along the formation is not judged
 ///   at all — the inside/outside score already speaks for ink like that. The discount is
 ///   only for ink that clearly traced the letter the wrong way round.
+///
+/// **The judge tracks the pen along the path rather than snapping each sample to the
+/// nearest point of it.** Letterforms pass close to themselves — the bar of an `e` starts
+/// two points from the arc that comes back round to it, the tail of a `y` runs up the
+/// same line its second stroke runs down, every stem meets its bowl — and a nearest-point
+/// reading flickers between those parts sample by sample, producing "backwards" verdicts
+/// for letters drawn exactly as taught. So the pen's position along a part is carried
+/// forward and only moves as far as the pen moves, a part is only surrendered once the
+/// pen is clearly off it, and where a fresh pen lands between two parts, the part it
+/// then *moves along* is the one it meant.
 enum FormationOrder {
 
     // MARK: - Placed geometry
@@ -27,6 +39,8 @@ enum FormationOrder {
         let isDot: Bool
         /// Arclength from the stroke's start to each vertex.
         let arclength: [CGFloat]
+        /// Unit direction of each segment, `points[i]` → `points[i + 1]`.
+        let tangents: [CGPoint]
         /// A loop (an o): direction wraps through the seam instead of ending at it.
         let isClosed: Bool
 
@@ -36,11 +50,15 @@ enum FormationOrder {
             self.points = points
             isDot = points.count == 1
             var running: [CGFloat] = [0]
+            var tangents: [CGPoint] = []
             for i in 1..<max(1, points.count) {
-                running.append(running[i - 1] + hypot(points[i].x - points[i - 1].x,
-                                                      points[i].y - points[i - 1].y))
+                let dx = points[i].x - points[i - 1].x, dy = points[i].y - points[i - 1].y
+                let length = hypot(dx, dy)
+                running.append(running[i - 1] + length)
+                tangents.append(length > 0 ? CGPoint(x: dx / length, y: dy / length) : .zero)
             }
             arclength = running
+            self.tangents = tangents
             let length = running.last ?? 0
             isClosed = points.count > 2 && length > 0
                 && hypot(points[0].x - points[points.count - 1].x,
@@ -68,7 +86,8 @@ enum FormationOrder {
         let followed: Bool
         /// Whether every stroke of the formation received a genuine visit — the whole
         /// letter was traced, not just begun. The remediation modal (§8.1b) requires
-        /// this before it counts a trace as complete.
+        /// this before it counts a trace as complete, and the page waits for it before
+        /// it interrupts a word.
         let coveredAllStrokes: Bool
     }
 
@@ -81,6 +100,21 @@ enum FormationOrder {
         analyze(penPaths: penPaths, formation: formation, tolerance: tolerance).followed
     }
 
+    /// Where a sample sits relative to one stroke: how far off it, how far along it,
+    /// and which way the stroke runs there.
+    private struct Projection {
+        let distance: CGFloat
+        let t: CGFloat
+        let tangent: CGPoint
+    }
+
+    private struct Sample {
+        let point: CGPoint
+        let pen: Int
+        let stroke: Int
+        let projection: Projection
+    }
+
     /// The full reading: the order verdict plus whether the whole letter was covered.
     static func analyze(penPaths: [[CGPoint]], formation: [PlacedStroke],
                         tolerance: CGFloat) -> Analysis {
@@ -88,81 +122,73 @@ enum FormationOrder {
             return Analysis(followed: true, coveredAllStrokes: true)
         }
 
-        // 1. Assign every sample to the formation stroke it is tracing. A little
-        //    hysteresis keeps junctions — where two parts of a letter touch — from
-        //    flickering between assignments sample by sample.
-        struct Sample {
-            let point: CGPoint
-            let pen: Int
-            let stroke: Int
-            let t: CGFloat
-            let distance: CGFloat
-        }
-        var samples: [Sample] = []
-        var previous: Int?
-        for (pen, path) in penPaths.enumerated() {
-            for point in path {
-                var best: (stroke: Int, distance: CGFloat, t: CGFloat)?
-                for (i, stroke) in formation.enumerated() {
-                    let (distance, t) = project(point, onto: stroke)
-                    if best == nil || distance < best!.distance { best = (i, distance, t) }
-                }
-                guard var chosen = best, chosen.distance <= tolerance else {
-                    previous = nil
-                    continue
-                }
-                if let stay = previous, stay != chosen.stroke {
-                    let (distance, t) = project(point, onto: formation[stay])
-                    if distance <= tolerance, distance <= chosen.distance * 1.4 {
-                        chosen = (stay, distance, t)
-                    }
-                }
-                previous = chosen.stroke
-                samples.append(Sample(point: point, pen: pen, stroke: chosen.stroke,
-                                      t: chosen.t, distance: chosen.distance))
-            }
-        }
+        // Direction and progress are only read while the pen is close to the path
+        // (0.6 × tolerance): a pen travelling *past* a part on its way somewhere else
+        // skims the edge of the band, and that transit must not read as tracing it.
+        let tight = tolerance * 0.6
+        // A part in hand is kept while the pen is this close to it, whatever else is
+        // near: letterforms cross and touch — the crossbar of a t, the bowl of a b
+        // meeting its stem — and a nearest-part reading would hand the pen back and
+        // forth at every such junction. Further off than this, and nearer to another
+        // part, the pen's motion decides which part it is on.
+        let hold = tolerance * 0.2
+        // How far ahead to look when the pen lands between parts, or is contested by
+        // one. Long enough that the stroke itself outweighs the pen's landing wobble.
+        let lookahead = max(tolerance * 2, 12)
 
-        // 2. Fold the samples into visits — maximal runs tracing one formation stroke.
-        //    Ink that wanders off the letter and back does not end a visit; landing on a
-        //    different part does. Direction steps are kept only while the pen is close
-        //    to the path (0.6 × tolerance): a pen travelling *past* a part on its way
-        //    somewhere else skims the edge of the band, and that transit must not read
-        //    as tracing it backwards — a continuous circle-then-line `a` is legal.
+        let samples = assign(penPaths: penPaths, formation: formation,
+                             tolerance: tolerance, hold: hold, lookahead: lookahead)
+
+        // Fold the samples into visits — maximal runs tracing one formation stroke.
+        // Ink that wanders off the letter and back does not end a visit; landing on a
+        // different part does.
         struct Visit {
             let stroke: Int
             let tFirst: CGFloat
+            /// Pen distance covered while on this part, any distance from the path.
             var travel: CGFloat = 0
-            var steps: [(dt: CGFloat, travel: CGFloat)] = []
+            /// Movement *along* the part, either way, read only while close to it —
+            /// a pen milling about at a junction has travel but no progress.
+            var progress: CGFloat = 0
+            /// Net movement in the part's taught direction, read only while close.
+            var advance: CGFloat = 0
+            /// Pen distance behind `advance`, so the two can be compared.
+            var judged: CGFloat = 0
         }
         var visits: [Visit] = []
         var lastOn: Sample?
-        let tight = tolerance * 0.6
         for sample in samples {
             if visits.last?.stroke != sample.stroke {
-                visits.append(Visit(stroke: sample.stroke, tFirst: sample.t))
+                visits.append(Visit(stroke: sample.stroke, tFirst: sample.projection.t))
             }
             if let last = lastOn, last.stroke == sample.stroke, last.pen == sample.pen {
-                let step = hypot(sample.point.x - last.point.x, sample.point.y - last.point.y)
+                let dx = sample.point.x - last.point.x, dy = sample.point.y - last.point.y
+                let step = hypot(dx, dy)
                 visits[visits.count - 1].travel += step
-                if last.distance <= tight, sample.distance <= tight {
+                if last.projection.distance <= tight, sample.projection.distance <= tight {
                     let stroke = formation[sample.stroke]
-                    var dt = sample.t - last.t
+                    var dt = sample.projection.t - last.projection.t
                     if stroke.isClosed, stroke.length > 0 {
                         dt -= (dt / stroke.length).rounded() * stroke.length
                     }
-                    visits[visits.count - 1].steps.append((dt: dt, travel: step))
+                    let tangent = sample.projection.tangent
+                    visits[visits.count - 1].progress += abs(dt)
+                    visits[visits.count - 1].advance += dx * tangent.x + dy * tangent.y
+                    visits[visits.count - 1].judged += step
                 }
             }
             lastOn = sample
         }
 
-        // 3. Only genuine visits count: enough pen travel to be a stroke of the letter,
-        //    not a graze past a junction. Dots are a touch, not a travel.
+        // Only genuine visits count: enough pen travel to be a stroke of the letter,
+        // and a substantial share of it *along* the part — a pen landing beside a
+        // junction and dragging to the corner has travel on the wrong part but little
+        // progress. Dots are a touch, not a travel.
         let kept = visits.filter { visit in
             let stroke = formation[visit.stroke]
             if stroke.isDot { return true }
             return visit.travel >= max(tolerance * 0.5, stroke.length * 0.2)
+                && visit.progress >= stroke.length * 0.4
         }
         let coveredAll = Set(kept.map(\.stroke)).count == formation.count
 
@@ -173,8 +199,8 @@ enum FormationOrder {
             return Analysis(followed: true, coveredAllStrokes: coveredAll)
         }
 
-        // 4. Order — the first time each part is genuinely traced must run in the
-        //    taught sequence. Parts never traced are missing ink, not wrong order.
+        // Order — the first time each part is genuinely traced must run in the taught
+        // sequence. Parts never traced are missing ink, not wrong order.
         var firstVisit: [Int: Int] = [:]
         for (i, visit) in kept.enumerated() where firstVisit[visit.stroke] == nil {
             firstVisit[visit.stroke] = i
@@ -184,24 +210,17 @@ enum FormationOrder {
             return Analysis(followed: false, coveredAllStrokes: coveredAll)
         }
 
-        // 5. Direction — judged on the opening travel of each part's first visit, which
-        //    is where the pen declares which way it means to go. A retrace back over a
-        //    correctly begun part is a go-over, not a fault.
+        // Direction — the net motion of each part's first visit, against the part's
+        // own direction. Net, not opening: a pen that runs up a stem to begin it from
+        // the top and then draws it down has drawn it down. Only a visit that on
+        // balance ran the wrong way is a fault.
         for (strokeIndex, keptIndex) in firstVisit {
             let stroke = formation[strokeIndex]
             guard !stroke.isDot, stroke.length > 0 else { continue }
             let visit = kept[keptIndex]
-            let window = stroke.length * 0.6
-            var travelled: CGFloat = 0
-            var advance: CGFloat = 0
-            for step in visit.steps {
-                travelled += step.travel
-                advance += step.dt
-                if travelled >= window { break }
-            }
             // Too little on-path movement to call a direction.
-            guard travelled >= stroke.length * 0.2 else { continue }
-            if advance <= -travelled * 0.25 {
+            guard visit.judged >= stroke.length * 0.2 else { continue }
+            if visit.advance <= -visit.judged * 0.25 {
                 return Analysis(followed: false, coveredAllStrokes: coveredAll)
             }
             // A loop must also begin near its taught start — an o begun at the bottom
@@ -216,16 +235,197 @@ enum FormationOrder {
         return Analysis(followed: true, coveredAllStrokes: coveredAll)
     }
 
-    /// Nearest point on the stroke: perpendicular distance and arclength position.
-    private static func project(_ point: CGPoint, onto stroke: PlacedStroke)
-        -> (distance: CGFloat, t: CGFloat) {
+    // MARK: - Assigning ink to parts
+
+    /// Decides which formation stroke each pen sample is tracing.
+    private static func assign(penPaths: [[CGPoint]], formation: [PlacedStroke],
+                               tolerance: CGFloat, hold: CGFloat, lookahead: CGFloat) -> [Sample] {
+        var samples: [Sample] = []
+        let dots = formation.indices.filter { formation[$0].isDot }
+
+        for (pen, path) in penPaths.enumerated() where !path.isEmpty {
+            // A tap is the dot of an i or a j when one is near enough to be meant — a
+            // dot placed a little low must not be read as a touch on the stem.
+            let travel = zip(path, path.dropFirst()).reduce(CGFloat(0)) {
+                $0 + hypot($1.1.x - $1.0.x, $1.1.y - $1.0.y)
+            }
+            if travel < tolerance,
+               let dot = dots.min(by: { distance(path[0], formation[$0].points[0])
+                                        < distance(path[0], formation[$1].points[0]) }),
+               distance(path[0], formation[dot].points[0]) <= tolerance * 1.5 {
+                for point in path {
+                    samples.append(Sample(point: point, pen: pen, stroke: dot,
+                                          projection: project(point, onto: formation[dot])))
+                }
+                continue
+            }
+
+            var current: (stroke: Int, t: CGFloat)?
+            for (index, point) in path.enumerated() {
+                var chosen: (stroke: Int, projection: Projection)?
+
+                if let held = current {
+                    // Carry the pen along the part it is on: look for it near where it
+                    // was, so a part that passes close to itself cannot pull the reading
+                    // across to its other side.
+                    let stroke = formation[held.stroke]
+                    let local = project(point, onto: stroke, near: held.t,
+                                        window: max(tolerance * 2, stroke.length * 0.25))
+                    if local.distance <= tolerance {
+                        let nearest = nearestStroke(to: point, in: formation)
+                        if local.distance <= hold || nearest == nil || nearest!.stroke == held.stroke
+                            || local.distance <= nearest!.projection.distance * 1.4 {
+                            chosen = (held.stroke, local)
+                        } else {
+                            // Contested: another part is clearly nearer. The part the
+                            // pen goes on to move along keeps it — a crossbar crossing
+                            // its stem is still the crossbar.
+                            var candidates = candidates(for: point, in: formation, tolerance: tolerance)
+                            if let i = candidates.firstIndex(where: { $0.stroke == held.stroke }) {
+                                candidates[i] = (held.stroke, local)
+                            } else {
+                                candidates.append((held.stroke, local))
+                            }
+                            chosen = choose(among: candidates, path: path, from: index,
+                                            formation: formation, tolerance: tolerance,
+                                    hold: hold, lookahead: lookahead)
+                        }
+                    }
+                }
+
+                if chosen == nil {
+                    // A fresh pen, or one that has left its part: every part within
+                    // reach is a candidate, and the one the pen goes on to move along
+                    // is the one it meant.
+                    let candidates = candidates(for: point, in: formation, tolerance: tolerance)
+                    guard !candidates.isEmpty else { current = nil; continue }
+                    chosen = choose(among: candidates, path: path, from: index,
+                                    formation: formation, tolerance: tolerance,
+                                    hold: hold, lookahead: lookahead)
+                }
+
+                guard let pick = chosen else { current = nil; continue }
+                samples.append(Sample(point: point, pen: pen, stroke: pick.stroke, projection: pick.projection))
+                current = (pick.stroke, pick.projection.t)
+            }
+        }
+        return samples
+    }
+
+    /// Which of several parts a landing pen meant: the one it then moves along.
+    ///
+    /// Only parts the pen *stays with* over the lookahead can compete — a stem drawn
+    /// bottom-up runs through the point where its hump begins and for a moment moves
+    /// the way the hump opens, but it does not stay with the hump, and a stem drawn
+    /// upwards must be judged as one. Among the parts it stays with, the one it moves
+    /// along wins; a dot has no direction and can only win by being nearest when
+    /// nothing else is being traced.
+    private static func choose(among candidates: [(stroke: Int, projection: Projection)],
+                               path: [CGPoint], from index: Int, formation: [PlacedStroke],
+                               tolerance: CGFloat, hold: CGFloat, lookahead: CGFloat)
+        -> (stroke: Int, projection: Projection) {
+        guard candidates.count > 1 else { return candidates[0] }
+
+        // Credit each part with the pen's motion along it, weighted by how close the
+        // pen is to it; note how much of the way the pen stayed near it, and how far
+        // from it the pen ran on average.
+        let near = tolerance * 0.5
+        var alignment = [CGFloat](repeating: 0, count: candidates.count)
+        var stayed = [CGFloat](repeating: 0, count: candidates.count)
+        var offset = candidates.map(\.projection.distance)
+        var along = candidates.map(\.projection.t)
+        var travelled: CGFloat = 0
+        var steps: CGFloat = 1
+        var i = index + 1
+        while i < path.count, travelled < lookahead {
+            let a = path[i - 1], b = path[i]
+            let dx = b.x - a.x, dy = b.y - a.y
+            let step = hypot(dx, dy)
+            travelled += step
+            steps += 1
+            for (c, candidate) in candidates.enumerated() {
+                let stroke = formation[candidate.stroke]
+                let projection = stroke.isDot
+                    ? project(b, onto: stroke)
+                    : project(b, onto: stroke, near: along[c],
+                              window: max(tolerance * 2, stroke.length * 0.25))
+                offset[c] += min(projection.distance, tolerance)
+                guard projection.distance <= tolerance else { continue }
+                if projection.distance <= near { stayed[c] += step }
+                guard !stroke.isDot else { continue }
+                let weight = 1 - projection.distance / tolerance
+                alignment[c] += (dx * projection.tangent.x + dy * projection.tangent.y) * weight
+                along[c] = projection.t
+            }
+            i += 1
+        }
+
+        let eligible = candidates.indices.filter { stayed[$0] >= travelled * 0.5 }
+        let pool = eligible.isEmpty ? Array(candidates.indices) : eligible
+
+        // A pen plainly *on* one part — half as far from it as from any other, the
+        // whole way — is tracing that part, whichever way it is going. Direction only
+        // decides between parts the pen is equally close to.
+        let byOffset = pool.sorted { offset[$0] < offset[$1] }
+        if byOffset.count > 1, offset[byOffset[0]] < offset[byOffset[1]] * 0.5 {
+            return candidates[byOffset[0]]
+        }
+        let best = pool.map { alignment[$0] }.max() ?? 0
+        if best > 0 {
+            // The part the pen runs along; between parts it runs along equally, the
+            // nearer one.
+            let leading = pool.filter { alignment[$0] >= best * 0.9 }
+            let pick = leading.min { candidates[$0].projection.distance < candidates[$1].projection.distance }!
+            return candidates[pick]
+        }
+        let pick = pool.min { candidates[$0].projection.distance < candidates[$1].projection.distance }!
+        return candidates[pick]
+    }
+
+    /// Every part within reach of a point.
+    private static func candidates(for point: CGPoint, in formation: [PlacedStroke],
+                                   tolerance: CGFloat) -> [(stroke: Int, projection: Projection)] {
+        formation.indices.compactMap { i in
+            let projection = project(point, onto: formation[i])
+            return projection.distance <= tolerance ? (i, projection) : nil
+        }
+    }
+
+    private static func nearestStroke(to point: CGPoint, in formation: [PlacedStroke])
+        -> (stroke: Int, projection: Projection)? {
+        var best: (stroke: Int, projection: Projection)?
+        for (i, stroke) in formation.enumerated() {
+            let projection = project(point, onto: stroke)
+            if best == nil || projection.distance < best!.projection.distance {
+                best = (i, projection)
+            }
+        }
+        return best
+    }
+
+    private static func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
+        hypot(a.x - b.x, a.y - b.y)
+    }
+
+    /// Nearest point on the stroke: perpendicular distance, arclength position and the
+    /// stroke's direction there. With `near`, only the stretch of the stroke within
+    /// `window` of that arclength is searched — following the pen rather than snapping
+    /// it — wrapping through the seam of a loop.
+    private static func project(_ point: CGPoint, onto stroke: PlacedStroke,
+                                near: CGFloat? = nil, window: CGFloat = 0) -> Projection {
         let points = stroke.points
         guard points.count > 1 else {
-            guard let only = points.first else { return (.greatestFiniteMagnitude, 0) }
-            return (hypot(point.x - only.x, point.y - only.y), 0)
+            guard let only = points.first else {
+                return Projection(distance: .greatestFiniteMagnitude, t: 0, tangent: .zero)
+            }
+            return Projection(distance: distance(point, only), t: 0, tangent: .zero)
         }
-        var best: (distance: CGFloat, t: CGFloat) = (.greatestFiniteMagnitude, 0)
+        var best = Projection(distance: .greatestFiniteMagnitude, t: 0, tangent: .zero)
         for i in 1..<points.count {
+            if let near, !within(window, of: near, segmentFrom: stroke.arclength[i - 1],
+                                  to: stroke.arclength[i], stroke: stroke) {
+                continue
+            }
             let a = points[i - 1], b = points[i]
             let ab = CGPoint(x: b.x - a.x, y: b.y - a.y)
             let lengthSquared = ab.x * ab.x + ab.y * ab.y
@@ -235,11 +435,25 @@ enum FormationOrder {
             let nearest = CGPoint(x: a.x + ab.x * u, y: a.y + ab.y * u)
             let distance = hypot(point.x - nearest.x, point.y - nearest.y)
             if distance < best.distance {
-                best = (distance, stroke.arclength[i - 1]
-                        + (stroke.arclength[i] - stroke.arclength[i - 1]) * u)
+                best = Projection(distance: distance,
+                                  t: stroke.arclength[i - 1] + (stroke.arclength[i] - stroke.arclength[i - 1]) * u,
+                                  tangent: stroke.tangents[i - 1])
             }
         }
         return best
+    }
+
+    /// Whether a segment's arclength span lies within `window` of `centre`, allowing
+    /// for the seam of a closed stroke.
+    private static func within(_ window: CGFloat, of centre: CGFloat,
+                               segmentFrom start: CGFloat, to end: CGFloat,
+                               stroke: PlacedStroke) -> Bool {
+        let low = centre - window, high = centre + window
+        if end >= low && start <= high { return true }
+        guard stroke.isClosed, stroke.length > 0 else { return false }
+        let length = stroke.length
+        return (end + length >= low && start + length <= high)
+            || (end - length >= low && start - length <= high)
     }
 }
 

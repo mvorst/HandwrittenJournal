@@ -82,7 +82,6 @@ WHAT'S INSIDE
 • Stroke order taught, not just shape — a letter drawn backwards stops the page and teaches that one letter properly, then lets them carry on
 • A practice sheet: every letter Aa to Zz and 0 to 9, each one drawing itself stroke by stroke with arrows to follow
 • An eraser, an undo, and a scroll button, so the pencil never has to fight the page
-• Their voice kept with the page — "Hear what I said", years later
 • Badges, stars and a writing streak
 • Read any entry as their handwriting or as typed words, one tap apart
 • Export a single page, or the whole book, as a PDF for a grandparent
@@ -96,7 +95,7 @@ Progress is kept per setting, so if the score dips after you move to a smaller s
 
 PRIVACY
 
-Everything stays on this iPad. Speech is recognised on the device, the recordings are stored on the device, and there is no account, no sign-in, no analytics and no advertising. Nothing leaves unless a grown-up taps Share.
+Everything stays on this iPad. Speech is recognised on the device and no audio is recorded or kept, and there is no account, no sign-in, no analytics and no advertising. Nothing leaves unless a grown-up taps Share.
 
 WHAT IT IS NOT
 
@@ -301,7 +300,6 @@ The app has no user accounts, no servers and no networking code. It does not con
 WHAT THE APP STORES ON YOUR DEVICE
 - Profiles: a name, an optional photo, an optional PIN (stored only as a salted hash), and writing settings.
 - Journal entries: the words your child spoke, the strokes they wrote, accuracy scores and dates.
-- Audio: a recording of each dictation, kept so your child can hear what they said.
 
 All of it is written to storage on your iPad and protected by iOS file protection. None of it is transmitted anywhere.
 
@@ -312,7 +310,7 @@ SHARING
 The only way information leaves your device is if an adult exports a page or the journal as a PDF and shares it. What happens to that file afterwards is governed by whatever app or service you send it to.
 
 DELETION
-Deleting an entry deletes its writing, its scores and its recording. Deleting a profile deletes everything belonging to that profile. Deleting the app removes all of it.
+Deleting an entry deletes its writing and its scores. Deleting a profile deletes everything belonging to that profile. Deleting the app removes all of it.
 
 CHILDREN
 This app is designed for children. Because it collects nothing and transmits nothing, it does not knowingly or unknowingly collect personal information from anyone, of any age.

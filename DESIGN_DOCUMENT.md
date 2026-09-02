@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v2.6
+## Design Document v3.0
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,47 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.10 What Changed in v3.0
+
+**The ink is never lost, the judge grades a real pen, and the modal waits its turn.**
+
+1. **The archive is written on every stroke** — and every undo, erase and clear — and
+   the store is saved each time, not left to autosave (§6). Done adds the score; it no
+   longer stands between the child and their work being kept.
+2. **A surface only writes the ink it put back.** Finishing an entry, reading it and
+   tapping *Write on this page* built a surface with no ink on it, which reported an
+   empty record and wrote an empty archive over the child's page. The next surface is
+   now always staged from the entry itself, and a surface that has not restored the
+   entry's ink — or could not — can neither overwrite the archive nor shorten the
+   record (§6).
+3. **`HJST` v2 carries each point's letter** (§6.1), so a reopened page re-derives
+   exactly the record it closed with instead of re-attributing ink against the mask.
+   v1 archives still open.
+4. **The page has one width for life** (§6.2). It lays out at the width its ink was
+   first drawn at and scales to the window, so Stage Manager, Split View or a bigger
+   iPad can never re-wrap the words out from under the strokes.
+5. **The order judge tracks the pen along the taught path instead of snapping each
+   sample to the nearest point of it** (§8.1a). Nearest-point reading flickered
+   between parts of a letter that pass close to themselves — the bar of an *e* and
+   the arc that comes back round to it, the tail of a *y* and the line drawn down over
+   it, every stem and its bowl — and docked letters drawn exactly as taught: on a
+   realistic pen, a correct *e* lost its 20% three times in four. Direction is now the
+   net motion of a part's first visit, so a pen that runs up a stem to begin it from
+   the top has not drawn it upwards; where a pen lands between parts, the part it goes
+   on to move along is the one it meant. `FormationJudgeRealismTests` traces every
+   character with a wobbling, mis-landing pen and requires no false docks — and still
+   requires every backwards or out-of-order trace to be caught.
+6. **The remediation modal waits until the child is done with the word** (§8.1b). A
+   word reads as complete the moment its last letter has any ink, and the stem of a
+   *t* arrives before its crossbar; the modal used to open over a letter the child was
+   about to finish. It now waits until every letter of the word is fully covered, or
+   until the pen lands on another word.
+7. **"Hear what I said" is gone.** The microphone feeds the recogniser and nothing
+   else; no audio is recorded or kept. `WritingSession.audioData` and
+   `spokenDuration` remain in the schema, unread, so existing stores need no migration.
 
 ---
 
@@ -441,7 +482,7 @@ is empty. `SFSpeechRecognizer`, on-device, `en-US`, live partial results, up to 
 minutes**. The words land on the page *as the child says them* — in the journal face, on
 the ruled lines, in the pale spoken tier — so the page is the live transcript. While
 listening, the footer becomes a level meter, the elapsed time, and *I'm done talking*.
-**The audio is recorded and kept** (§10.4).
+**The audio is not kept** (§10.4, v3.0) — it goes to the recogniser and nowhere else.
 
 **A pause ends an utterance, not the take.** `SFSpeechRecognizer` hands back one utterance
 at a time and numbers each from zero, so its latest hypothesis is only ever the *tail* of
@@ -644,10 +685,9 @@ Still the heart of the app, showing the **whole entry as one page**:
 - Switching uses a horizontal 3-D flip (0.35 s), which reads to a child as "turning the
   page over". Reduce Motion replaces it with a cross-fade.
 - Below the page, **one stats row for the entry**: accuracy, stars, word count, and
-  **"Hear what I said"** — the recording the child made when they dictated it. One entry has
-  one recording, so there is nothing to slice and nothing to list.
+  *(v3.0: the recording and "Hear what I said" are gone — see §10.4.)*
 - **The page scrolls.** A long entry is never truncated.
-- **⋯ menu:** Edit · Hear what I said · Write it all again · Share as PDF · Rename · Delete.
+- **⋯ menu:** Edit · Write it all again · Share as PDF · Rename · Delete.
 - **Edit** opens the page exactly as it stands — the words, the record and the child's
   ink — finished or not, with no warning, because nothing is being destroyed. A line is
   written again by tapping it in Edit (§4.4), which is the only re-tracing a child ever
@@ -928,25 +968,35 @@ Strokes are archived as a compact binary blob, not JSON. A ten-line page traced 
 runs 15,000–40,000 sample points; JSON would be several megabytes per entry, which is
 unacceptable when the goal is to keep every page forever and eventually sync it.
 
-### 6.1 Format `HJST` v1
+### 6.1 Format `HJST` v2
 
 ```
 Header (8 bytes)
   magic        4  "HJST"
-  version      1  0x01
+  version      1  0x02   (0x01 still decodes; see below)
   flags        1  reserved (0)
   strokeCount  2  UInt16, little-endian
 
 Per stroke
   pointCount   2  UInt16
-  points[]     10 bytes each:
+  points[]     14 bytes each (10 in v1):
      x         4  Float32   canvas coordinates
      y         4  Float32
      force     1  UInt8     force × 255, clamped
      inside    1  UInt8     0 = outside letter, 1 = inside
+     letter    4  Int32     index of the glyph the point was drawn against, −1 if none
+                           (v2 only)
 ```
 
 The blob is then compressed with `Compression` / LZFSE.
+
+**Why the letter is stored (v2).** The record is derived from which letters have ink,
+and ink is attributed to the row in hand *as it is drawn*. An archive that keeps only
+positions has to re-derive that attribution against the mask when the page reopens, and
+a descender's tail re-read against the whole page can land on the row below and
+unfinish a line the child finished — the page would reopen with a shorter record than
+it closed with. v2 makes a restore exact. A v1 archive decodes unattributed and the
+canvas attributes it afresh, as before.
 
 **Measured expectation:** 6,000 points → 60 KB raw → ~18–24 KB compressed, so a ten-line
 page lands around 120 KB. **One archive per entry, not per attempt** — re-tracing a line
@@ -955,26 +1005,47 @@ produces on the order of 200 MB of ink, plus voice. Both are viable keepsakes an
 iCloud payloads.
 
 **The eraser edits the archive.** Erasing removes points from the in-memory stroke set
-before encoding; a stroke that loses its middle becomes two strokes. Nothing is written
-until Done, so the archive is always the finished state.
+before encoding; a stroke that loses its middle becomes two strokes.
+
+**The archive is written on every stroke** (v3.0) — pen-up, undo, erase, clear and a
+restore each re-encode the ink to the entry and save the store at once. Done adds the
+score and nothing else. Two rules keep this safe:
+
+- **Only a surface that has put the entry's ink back may write it.** A canvas carries
+  a *provenance* — fresh, pending, restored or lost — and the view model refuses to
+  write the archive, or to move the record, on the word of a canvas that is pending or
+  lost. The bug this closes: finishing an entry, reading it, and tapping *Write on this
+  page* built a new surface from a stale cache with no ink in it; that surface reported
+  an empty record and wrote an empty archive over the child's page. The next surface is
+  now always staged from the entry.
+- **Never an empty archive over ink**, except by the child's own undo or clear on a
+  surface that accounts for the archive — then the empty page is the truth.
 
 **The `inside` flag is trace-specific.** It records whether a point fell inside the guide
 letterform. Copy mode has no letterform under the pen, so the flag is meaningless there —
 see §7.4. Reserve `flags` bit 0 to mean "no per-point inside data" before shipping, so a
 Copy-mode archive is not misread as an all-outside trace.
 
-### 6.2 Replay
+### 6.2 Replay — and one width for life
 
 ```swift
 enum StrokeArchive {
     static func encode(_ strokes: [TracingStroke]) throws -> Data
     static func decode(_ data: Data) throws -> [TracingStroke]
+    static func decodeArchive(_ data: Data) throws -> Decoded   // strokes + whether attributed
 }
 ```
 
 Rendering an archived attempt into a view of a different size uses an aspect-fit transform
 derived from the stored `canvasWidth/Height`. Aspect ratio is preserved; the drawing is
 letterboxed rather than stretched, because stretched handwriting looks wrong immediately.
+
+**The writing surface does the same** (v3.0). Greedy word wrap at any other width puts
+different words under the child's strokes, so once an entry has ink its page lays out at
+`canvasWidth` for life and `ScrollingCanvas` scales the canvas to the window. Stage
+Manager, Split View and a bigger iPad show the same page larger or smaller; they never
+re-wrap it. Touches arrive in canvas coordinates, so the pen and the eraser need no
+conversion — only scrolling does.
 
 `CustomStrokeRenderer` takes an ink mode:
 
@@ -1150,11 +1221,37 @@ The judgment runs at pen-up, never mid-stroke, and re-runs when ink changes — 
 eraser, clear, or a restored archive (stroke order is chronological in the archive by
 construction, so an old entry re-scores identically).
 
+**How the judge reads a real pen (v3.0).** Letterforms pass close to themselves — the
+bar of an *e* starts two points from the arc that comes back round to it, the tail of a
+*y* runs up the same line its second stroke runs down, every stem meets its bowl — and
+snapping each sample to the nearest point of the taught path flickered between those
+parts, producing "backwards" verdicts for letters drawn exactly as taught. So:
+
+- **The pen is tracked along the path.** Its position along a part is carried forward
+  and only moves as far as the pen moves; a part is only surrendered once the pen is
+  clearly off it.
+- **Where a pen lands between parts, the part it goes on to move along is the one it
+  meant** — judged over the next stroke-width or two, weighted by closeness, among the
+  parts it actually stays with. A pen plainly *on* one part (half as far from it as from
+  any other) is tracing that part whichever way it is going, which is what makes a stem
+  drawn bottom-up through the start of its hump still read as a stem drawn upwards.
+- **Direction is the net motion of a part's first visit**, not its opening travel: a pen
+  that runs up a stem to begin it from the top and then draws it down has drawn it down.
+- **A genuine visit covers a substantial share of the part** — enough travel and at
+  least 40% of its length — so a landing beside a junction is not a visit to the wrong
+  part.
+- **A tap is a dot** when an *i* or *j* has one near enough to be meant.
+
+`FormationJudgeRealismTests` traces every character on real Jua geometry with a
+wobbling, mis-landing pen, forty times each, and requires no false docks — steady hand
+or shaky — while still requiring every backwards and every out-of-order trace to be
+caught.
+
 ### 8.1b The remediation modal
 
-The discount is a nudge; the modal is the lesson. **When a word's last letter gets ink
-and the pen lifts**, if any of its letters took the order discount, a modal covers the
-whole page — chrome included:
+The discount is a nudge; the modal is the lesson. **When a word is complete and the
+child is done with it**, if any of its letters took the order discount, a modal covers
+the whole page — chrome included:
 
 ```
 ┌──────────────────────────────────┐
@@ -1200,6 +1297,13 @@ whole page — chrome included:
   per sitting; a stroke that finishes two qualifying words queues the second modal
   behind the first; and a page restored from its archive never prompts for words that
   arrived already written — their discounts still apply, silently.
+- **Not before the child is done with the word** (v3.0). A word reads as complete the
+  moment its last letter has *any* ink, and a letter with several parts gets its first
+  part first: the stem of a *t* completes the word before the crossbar exists. The
+  modal used to open there, over a letter the child was about to finish. Now a
+  qualifying word waits until every one of its letters is fully covered — every part
+  of every formation visited — or until the child's pen lands on another word, which is
+  them saying they are done with this one.
 - The trace in the modal does not replace the ink on the page — the page keeps what
   the child wrote; only the order verdict is forgiven.
 
@@ -1280,33 +1384,15 @@ requested only when Take Photo is tapped. Photo library, via `PhotosPicker`, whi
 permission prompt. Every permission has a working fallback: refusing the microphone leaves
 the keyboard, refusing the camera leaves the photo library and the initial-letter avatar.
 
-### 10.4 The child's voice
+### 10.4 The child's voice — retired
 
-Each dictation is recorded before it is transcribed, and **the recording is kept whole**
-(`WritingSession.audioData`, AAC mono 32 kbps, external storage). There is nothing to slice
-any more: one entry has one recording, and *"Hear what I said"* sits on the entry. The
-recording keeps the **whole telling**, including words that never get written — the voice
-is its own artefact (below), and the spoken-until-written rule (§4.4) governs text, not
-sound. Deleting the entry deletes it all.
-
-Size is the thing to watch. A five-minute take is ~1.2 MB, and a child who fills the cap
-every day for five years would accumulate over 2 GB. In practice entries are far shorter
-than the cap — the fixture entry is 41 seconds, ~160 KB — and a second dictation appended
-to the same page is concatenated into the same recording. If the totals ever become a
-problem, the fix is a retention setting with the size stated, not silent trimming.
-
-This is the most sensitive data the app holds, and it is worth being explicit about:
-
-- It **never leaves the iPad**. There is no network code.
-- It is covered by the same courtesy-lock caveat as everything else (§10.3): a PIN is not
-  encryption.
-- Deleting an entry deletes its recording. Deleting a profile deletes all of them.
-- The explainer screen says so in words a child can read: *"Your voice stays on this iPad."*
-
-The reason to keep it is simple and it is not a feature request from the child: in three
-years, the page in their handwriting *paired with* their five-year-old voice saying it
-is the artefact. You cannot record 2026 retroactively — capture from day one even if
-playback UI comes later.
+*(v3.0)* The recording and *"Hear what I said"* are gone. The microphone feeds the
+speech recogniser and nothing else: no audio file is written, nothing is sliced,
+nothing is kept. The explainer screen's promise — *"Your voice stays on this iPad"* —
+is now literally true of the sound as well as the words: it never exists as a file.
+`WritingSession.audioData` and `spokenDuration` stay in the schema, unread, so existing
+stores need no migration; deleting an entry still deletes whatever an older build stored
+there.
 
 ### 10.3 PINs and the missing parent gate — read this
 

@@ -27,9 +27,12 @@ final class WritingSession {
     var spokenBuffer: String = ""
     /// Everything the recogniser heard, verbatim.
     var rawTranscript: String = ""
+    /// Retired alongside `audioData`; kept for the schema, never read.
     var spokenDuration: Double = 0
 
-    /// The child's voice for the whole sitting (§10.4).
+    /// Retired — playback of the child's voice was removed, and nothing writes or reads
+    /// these any more. They stay in the schema so existing stores need no migration;
+    /// deleting an entry still deletes whatever an older build stored here.
     @Attribute(.externalStorage) var audioData: Data?
 
     // The writing itself. Only the latest pass is kept — re-tracing replaces.
@@ -45,8 +48,11 @@ final class WritingSession {
     /// the tracing clears them along with the ink they excused.
     var remediatedCharIndices: [Int] = []
 
+    /// The width the page laid out at when its ink was first drawn — the width it lays
+    /// out at for life, scaled to whatever window shows it (§6.2).
     var canvasWidth: Double = 0
     var canvasHeight: Double = 0
+    /// The ink, HJST (§6.1). Written on every stroke, not only at Done.
     @Attribute(.externalStorage) var strokeArchive: Data?
     @Attribute(.externalStorage) var thumbnailData: Data?
 
@@ -136,8 +142,12 @@ final class WritingSession {
         letterAccuracies = result.letterAccuracies
         strokeArchive = strokes
         thumbnailData = thumbnail
-        canvasWidth = canvas.width
-        canvasHeight = canvas.height
+        // A size of zero means the caller had no surface to measure; the width the ink
+        // was drawn at is not something to lose.
+        if canvas.width > 0 {
+            canvasWidth = canvas.width
+            canvasHeight = canvas.height
+        }
     }
 
     static func wordCount(_ text: String) -> Int {

@@ -20,7 +20,7 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | 2 · Dictate → check → write; scrolling page, eraser, per-letter scoring | ✅ |
 | 3 · Word progress, resuming where the child left off, Results | ✅ |
 | 4 · Journal list, Entry Detail with the typed/handwritten flip | ✅ |
-| 5 · Stroke archive, thumbnails, voice capture and playback | ✅ |
+| 5 · Stroke archive, thumbnails (voice playback retired in v3.0) | ✅ |
 | 6 · Font and size pickers, per-glyph masks | ✅ |
 | 7 · Progress, badges, streaks | ✅ |
 | 8 · Export (page **and** book), Settings, accessibility pass | ✅ page + book; accessibility pass outstanding |
@@ -29,7 +29,7 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · One screen; spoken-until-written record; commit-on-finish; fix-a-word (v2.5) | ✅ |
 | — · Free row selection; derived record; pencil never scrolls (v2.6) | ✅ |
 
-**51 tests across 8 suites, all passing.**
+**107 tests across 15 suites, all passing.**
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -63,6 +63,43 @@ spec first, then the code.
 
 ---
 
+## v3.0 — the ink is never lost, the judge grades a real pen, the modal waits
+
+Four reports from a child's iPad, and what was behind each:
+
+**1. Tracings intermittently lost.** Two causes. (a) Finishing an entry, reading it
+and tapping *Write on this page* built the writing surface from a cache staged when
+the page *opened* — empty for a new entry — so the surface came up with no ink,
+derived an empty record and wrote an empty archive over the child's page. The next
+surface is now always staged from the entry, and a surface that has not put the
+entry's ink back (`TracingCanvasView.provenance`) can neither write the archive nor
+move the record. (b) Nothing ever called `context.save()`; the archive was written to
+the model only when a row completed or at Done, and the store was left to autosave.
+Now every stroke, undo and erase writes the archive and saves the store
+(`WriteSessionViewModel.inkChanged`). Two smaller holes closed on the way: `HJST` v2
+stores each point's letter so a reopened page re-derives exactly the record it closed
+with, and the page lays out at the width its ink was drawn at, scaled to the window,
+so a resized window can never re-wrap the words out from under the strokes.
+`InkPersistenceTests` drives the real canvas → controller → view model → store chain.
+
+**2. A correct lowercase *e* docked 20%.** `FormationJudgeRealismTests` traces every
+character with a realistic pen; the old judge docked a correct *e* 31 times in 40 (and
+*y* 23, *u* 17, *9* 15, *m* 12, *n* and *r* 10, *T* 8 …). Three mechanisms, all in
+`FormationOrder.analyze`: nearest-point projection flickering between parts of a
+letter that pass close to themselves; a pen landing beside a junction being read as a
+first visit to the wrong part; and the tail of one part overlapping the start of the
+next (*u*, *y*). The judge now tracks the pen along the path, decides landings by the
+part the pen goes on to move along, judges direction on a visit's net motion, and
+requires a genuine visit to cover 40% of its part. 0 false docks in 62 × 40 traces,
+steady hand or shaky, and every backwards or out-of-order trace still caught.
+
+**3. "Hear what I said" removed.** No audio is recorded or kept.
+
+**4. The modal opened before a *t* was finished.** A word reads as complete when its
+last letter has any ink; the stem of a *t* completes the word before the crossbar
+exists. `detectFormationHelp` now holds a qualifying word until every letter is fully
+covered or the pen lands on another word.
+
 ## Two bugs the tests caught before they shipped
 
 **1. Glyph boxes were one surface-inset to the left of their ink.**
@@ -95,7 +132,7 @@ appears in the picker.
 | One scrolling page, no sentence splitting | Splitting made the child's own words feel like exercises and made the app carry a splitter, a fit rule, a review UI and a queue whose only job was to work around a fixed-height surface. Scrolling removes the problem. |
 | Words never reached are not scored | A child who writes 9 of 30 words has not failed the other 21. Skipping letters *inside* a word they started still scores zero. |
 | Live vs final accuracy | The live readout counts only letters the child has started; the zero-penalty lands at Done. A live figure with the penalty would start at 0% and crawl for the whole sentence, which reads as continuous failure. |
-| Audio kept whole per entry | Superseded the v2.2 per-sentence slicing: with no sentences there is nothing to slice, and *"Hear what I said"* sits on the entry. `AudioSlicer` is now unused by the entry flow. |
+| Audio kept whole per entry | Superseded the v2.2 per-sentence slicing — and retired in v3.0: no audio is recorded or kept, `AudioSlicer` is deleted, and the schema keeps `audioData`/`spokenDuration` unread so no migration is needed. |
 | Eraser re-tallies from scratch | Cheaper than unpicking, and it cannot drift from the strokes. |
 
 ---

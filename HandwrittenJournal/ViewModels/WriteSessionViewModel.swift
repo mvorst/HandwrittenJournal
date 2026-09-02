@@ -12,6 +12,13 @@ import SwiftData
 /// `recordLength` marks the boundary. The record is derived from the ink — the unbroken
 /// run of fully-traced rows from the top of the page (`onRecordChange`) — and everything
 /// downstream — journal, exports, counts — reads only the record.
+///
+/// **The ink is saved as it lands.** Every stroke, undo and erase writes the archive to
+/// the entry and saves the store (§6); Done adds the score, nothing more. A crash, a
+/// jettison or a lost surface costs at most the stroke in hand. And the surface that
+/// writes the archive must first have put the archive back: a surface that could not —
+/// or that never got the chance — is not allowed to overwrite it, and the record the
+/// entry already holds is never shortened on its word.
 @Observable
 @MainActor
 final class WriteSessionViewModel {
@@ -92,24 +99,18 @@ final class WriteSessionViewModel {
     /// Character count of the record prefix of `basePageText`.
     private(set) var recordLength = 0
 
-    /// The record's ink, put back when the page reopens — without it the next Done would
-    /// record an empty page over the child's work.
+    /// What the next writing surface is built from: the entry's ink, put back so the
+    /// child carries on rather than starting again. **Staged from the session, never
+    /// cached across a surface's life** — the surface is torn down for the results and
+    /// for reading, and the one built after it must see everything the entry holds.
     private(set) var restoredStrokes: [TracingStroke] = []
-    /// The canvas width that ink was drawn at, so the page can tell whether it is able to
-    /// put it back at all.
+    /// Whether that archive carries each point's letter (HJST v2).
+    private(set) var restoredAttributed = false
+    /// The canvas width the ink was drawn at — the width the page lays out at for life.
     private(set) var restoredWidth: CGFloat = 0
     /// Letters remediated in earlier sittings (§8.1b), by character position — the
     /// surface keeps their order discount lifted when the ink comes back.
     private(set) var restoredRemediated: [Int] = []
-
-    /// How much record the page opened with, and whether the ink has accounted for it yet.
-    ///
-    /// **The record is derived from ink, so a restore that does not land looks exactly like
-    /// a child who erased everything.** Until the page has re-derived at least what it
-    /// opened with, a shorter answer is the restore failing, not the child changing their
-    /// mind, and it must not be written to the entry.
-    private var recordFloor = 0
-    private var inkAccountedFor = true
     /// Where the page opens: the first unwritten word.
     private(set) var startWord = 0
     /// Bumped when the page has to be rebuilt from nothing. The writing surface restores
@@ -140,12 +141,27 @@ final class WriteSessionViewModel {
     private func adopt(_ session: WritingSession) {
         basePageText = session.pageText
         recordLength = session.transcript.count
-        startWord = session.wordsWritten
-        restoredStrokes = Self.decode(session.strokeArchive)
+        stageSurface()
+    }
+
+    /// Stages what the next writing surface is built from, straight from the session.
+    /// Called wherever a surface may be built next: opening, leaving Edit, finishing,
+    /// saying more, starting over.
+    private func stageSurface() {
+        guard let session else {
+            restoredStrokes = []
+            restoredAttributed = false
+            restoredWidth = 0
+            restoredRemediated = []
+            startWord = 0
+            return
+        }
+        let decoded = Self.decode(session.strokeArchive)
+        restoredStrokes = decoded.strokes
+        restoredAttributed = decoded.attributed
         restoredWidth = session.canvasWidth
         restoredRemediated = session.remediatedCharIndices
-        recordFloor = session.transcript.count
-        inkAccountedFor = restoredStrokes.isEmpty
+        startWord = session.wordsWritten
     }
 
     /// §4.7 "Write This Again": the words stay, the tracing is replaced. The whole entry
@@ -176,6 +192,7 @@ final class WriteSessionViewModel {
 
     private func wireController() {
         controller.onRecordChange = { [weak self] newLength in self?.recordChanged(newLength) }
+        controller.onInkChange = { [weak self] in self?.inkChanged() }
         controller.onSelectRow = { [weak self] _ in self?.rowSelected() }
         controller.onEditWord = { [weak self] range, word in self?.wordHeld(range, word) }
         controller.onFormationHelp = { [weak self] request in self?.formationHelpNeeded(request) }
@@ -211,6 +228,7 @@ final class WriteSessionViewModel {
             controller.markRemediated(letter: letter.glyph)
             session?.remediatedCharIndices.append(letter.charIndex)
         }
+        save()
     }
 
     /// Every lesson traced and the child tapped through — the modal closes and any
@@ -222,9 +240,11 @@ final class WriteSessionViewModel {
         presentNextFormationHelp()
     }
 
-    private static func decode(_ archive: Data?) -> [TracingStroke] {
-        guard let archive else { return [] }
-        return (try? StrokeArchive.decode(archive)) ?? []
+    private static func decode(_ archive: Data?) -> StrokeArchive.Decoded {
+        guard let archive, let decoded = try? StrokeArchive.decodeArchive(archive) else {
+            return StrokeArchive.Decoded(strokes: [], attributed: false)
+        }
+        return decoded
     }
 
     // MARK: - Derived
@@ -258,9 +278,9 @@ final class WriteSessionViewModel {
         guard mic == .idle, editing == nil else { return }
         switch speech.currentStatusWithoutPrompting() {
         case .ready: startListening()
-        case .unknown: stage = .explainPermission
-        case .microphoneDenied, .speechDenied: stage = .unavailable("The microphone is switched off")
-        case .unavailable(let message): stage = .unavailable(message)
+        case .unknown: leaveSurface(for: .explainPermission)
+        case .microphoneDenied, .speechDenied: leaveSurface(for: .unavailable("The microphone is switched off"))
+        case .unavailable(let message): leaveSurface(for: .unavailable(message))
         }
     }
 
@@ -270,9 +290,17 @@ final class WriteSessionViewModel {
         case .ready:
             stage = .writing
             startListening()
-        case .unavailable(let message): stage = .unavailable(message)
-        default: stage = .unavailable("The microphone is switched off")
+        case .unavailable(let message): leaveSurface(for: .unavailable(message))
+        default: leaveSurface(for: .unavailable("The microphone is switched off"))
         }
+    }
+
+    /// Any stage but the page tears the writing surface down, and the one built when
+    /// the page returns must start from the entry as it stands now — not from what was
+    /// staged when the page opened.
+    private func leaveSurface(for next: Stage) {
+        setAsideInk()
+        stage = next
     }
 
     /// Back to the page from the permission or unavailable screens.
@@ -286,7 +314,7 @@ final class WriteSessionViewModel {
             mic = .listening
             Haptics.tap()
         } catch {
-            stage = .unavailable("The microphone could not start")
+            leaveSurface(for: .unavailable("The microphone could not start"))
         }
     }
 
@@ -302,7 +330,7 @@ final class WriteSessionViewModel {
         } else {
             appendDictation(heard)
         }
-        attachAudio()
+        speech.reset()
         Haptics.tap()
     }
 
@@ -327,6 +355,7 @@ final class WriteSessionViewModel {
         if let session {
             session.rawTranscript += (session.rawTranscript.isEmpty ? "" : "\n") + trimmed
         }
+        save()
     }
 
     /// Speech recognition drops capitals and doubles spaces on young voices often enough
@@ -340,41 +369,44 @@ final class WriteSessionViewModel {
         return String(first).uppercased() + out
     }
 
-    private func attachAudio() {
-        guard let url = speech.recordingURL, speech.elapsed > 0 else { return }
-        let take = 0...max(0.2, speech.elapsed)
-        guard let session else { return }
-        let duration = speech.elapsed
-        Task { [weak self] in
-            let existing = session.audioData
-            let joined = await AudioSlicer.append(existing, recording: url, range: take)
-            await MainActor.run {
-                if let joined { session.audioData = joined }
-                session.spokenDuration += duration
-                AudioSlicer.discardMaster(at: url)
-                // The slicer finishes on its own time. If the child has already started
-                // the next take, resetting now would stop it and delete its recording;
-                // `start()` has replaced everything a reset would clear anyway.
-                if self?.speech.isRecording == false { self?.speech.reset() }
-            }
-        }
-    }
-
     // MARK: - The page
 
     /// The unbroken run of fully-traced rows grew or shrank — the record follows the ink.
     private func recordChanged(_ newLength: Int) {
-        if !inkAccountedFor {
-            // The restored ink has not come back yet — on this page it may never, if it was
-            // drawn at a width that lays these words out differently. Either way the entry
-            // keeps the record it already had.
-            guard newLength >= recordFloor else { return }
-            inkAccountedFor = true
-        }
+        // Only a surface whose ink is the entry's ink can move the record. One that has
+        // not put the archive back — or could not — reports an empty page, and that is
+        // the restore failing, not the child changing their mind.
+        guard controller.accountsForArchive else { return }
         recordLength = min(newLength, basePageText.count)
         persist()
-        // The record's ink is worth keeping every time it changes, not only at Done.
-        if let session, let archive = controller.archive() { session.strokeArchive = archive }
+        save()
+    }
+
+    /// A stroke landed, or was undone, erased or cleared: the archive follows the ink
+    /// at once (§6). The score waits for Done; the ink does not.
+    private func inkChanged() {
+        guard controller.accountsForArchive else { return }
+        ensureSession()
+        guard let session else { return }
+        if let archive = controller.archive() { session.strokeArchive = archive }
+        let canvas = controller.canvasSize
+        if canvas.width > 0 {
+            session.canvasWidth = canvas.width
+            session.canvasHeight = canvas.height
+        }
+        session.thumbnailData = controller.thumbnail()
+        save()
+    }
+
+    /// Writes the store now. SwiftData would get round to it — usually — but a child's
+    /// page is not something to lose to a crash between two autosaves.
+    private func save() {
+        guard context.hasChanges else { return }
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Saving the journal failed: \(error)")
+        }
     }
 
     /// A row was selected: the mic stops, the cap banner clears, and the word under edit
@@ -427,6 +459,7 @@ final class WriteSessionViewModel {
         guard !replacement.isEmpty, let out = substituting(range, with: replacement) else { return false }
         basePageText = out
         persist()
+        save()
         Haptics.tap()
         return true
     }
@@ -465,10 +498,16 @@ final class WriteSessionViewModel {
     /// Stopping part-way is ordinary, so this is the same action whether the child wrote
     /// three words or all of them. Every row with any ink counts — they traced it — and
     /// its untouched letters score zero.
+    ///
+    /// The ink is already saved — every stroke saw to that — so what Done adds is the
+    /// score. A surface that does not stand for the entry's ink (a restore that could
+    /// not land) has nothing honest to score and records nothing.
     func finishWriting() {
         if mic == .listening { dictationEnded() }
         editing = nil
-        guard let result = controller.finishEntry(streak: profile.currentStreak) else {
+        guard controller.accountsForArchive,
+              let result = controller.finishEntry(streak: profile.currentStreak) else {
+            stageSurface()
             stage = .results
             return
         }
@@ -477,16 +516,19 @@ final class WriteSessionViewModel {
             stage = .results
             return
         }
-        // Never write an empty archive over ink that is already saved — a restore that
-        // silently failed looks the same as a cleared page from here.
-        let strokes = controller.strokeCount > 0 ? controller.archive() : session.strokeArchive
+        let canvas = controller.canvasSize
         session.record(result,
-                       strokes: strokes,
+                       strokes: controller.archive() ?? session.strokeArchive,
                        thumbnail: controller.thumbnail() ?? session.thumbnailData,
-                       canvas: controller.canvasSize)
+                       canvas: canvas.width > 0 ? canvas
+                                                : CGSize(width: session.canvasWidth, height: session.canvasHeight))
         session.endedAt = .now
         lastResult = result
         applyProgress(result: result)
+        save()
+        // The surface is torn down for the results; whatever is built next starts
+        // from the entry as it now stands.
+        stageSurface()
         Haptics.success()
         stage = .results
     }
@@ -525,22 +567,21 @@ final class WriteSessionViewModel {
         micTapped()
     }
 
-    /// Leaving the writing surface — switching to reading, or the page closing. The
-    /// surface is rebuilt from the archive next time, so the archive has to be current
-    /// first, and the captured width has to match it or the reading page cannot lay the
-    /// guide back under the ink (§4.7).
+    /// Leaving the writing surface — switching to reading, the page closing — or about
+    /// to build one. Whatever the surface on screen holds is written to the entry (if
+    /// it stands for the entry's ink), and the next surface is staged from the entry.
     func setAsideInk() {
-        guard let session, controller.strokeCount > 0, inkAccountedFor else { return }
-        if let archive = controller.archive() { session.strokeArchive = archive }
-        if let thumbnail = controller.thumbnail() { session.thumbnailData = thumbnail }
-        let canvas = controller.canvasSize
-        if canvas.width > 0 {
-            session.canvasWidth = canvas.width
-            session.canvasHeight = canvas.height
+        if let session, controller.isAttached, controller.accountsForArchive {
+            if let archive = controller.archive() { session.strokeArchive = archive }
+            if let thumbnail = controller.thumbnail() { session.thumbnailData = thumbnail }
+            let canvas = controller.canvasSize
+            if canvas.width > 0 {
+                session.canvasWidth = canvas.width
+                session.canvasHeight = canvas.height
+            }
+            save()
         }
-        restoredStrokes = Self.decode(session.strokeArchive)
-        restoredWidth = session.canvasWidth
-        startWord = session.wordsWritten
+        stageSurface()
     }
 
     private func reloadFromSession() {
@@ -553,9 +594,9 @@ final class WriteSessionViewModel {
 
     /// An entry with nothing in it should not clutter the journal.
     func discardIfEmpty() {
-        guard let session, session.transcript.isEmpty, session.spokenBuffer.isEmpty,
-              session.audioData == nil else { return }
+        guard let session, session.transcript.isEmpty, session.spokenBuffer.isEmpty else { return }
         context.delete(session)
         self.session = nil
+        save()
     }
 }

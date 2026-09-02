@@ -5,8 +5,8 @@ import AVFoundation
 /// Long-form on-device dictation. DESIGN_DOCUMENT.md §4.4.
 ///
 /// The child talks for as long as they like, up to five minutes. Nothing is committed
-/// until they stop. The audio is recorded alongside the transcript so it can be sliced
-/// into per-sentence clips afterwards (§10.4).
+/// until they stop. Only the transcript is kept — the audio goes to the recogniser and
+/// nowhere else.
 @Observable
 @MainActor
 final class SpeechRecognitionService {
@@ -29,7 +29,6 @@ final class SpeechRecognitionService {
     private(set) var isRecording = false
     private(set) var elapsed: TimeInterval = 0
     private(set) var level: Double = 0
-    private(set) var recordingURL: URL?
 
     /// Everything heard in this take — the utterances the recogniser has finished and the
     /// one it is still working on, together.
@@ -42,7 +41,6 @@ final class SpeechRecognitionService {
     private let engine = AVAudioEngine()
     private let sink = AudioSink()
     private var task: SFSpeechRecognitionTask?
-    private var file: AVAudioFile?
     private var timer: Timer?
     private var startedAt: Date?
     /// Consecutive recognition failures with nothing heard between them. A recogniser that
@@ -95,23 +93,17 @@ final class SpeechRecognitionService {
         failures = 0
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
 
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("session-\(UUID().uuidString).caf")
-        file = try AVAudioFile(forWriting: url, settings: format.settings)
-        recordingURL = url
-
-        // The tap outlives any one recognition task: the microphone and the recording run
-        // for the whole take while the task underneath them is replaced at every pause.
+        // The tap outlives any one recognition task: the microphone runs for the whole
+        // take while the task underneath it is replaced at every pause.
         let sink = self.sink
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             sink.append(buffer)
-            try? self?.file?.write(from: buffer)
             let rms = Self.rms(buffer)
             Task { @MainActor in self?.level = rms }
         }
@@ -207,7 +199,6 @@ final class SpeechRecognitionService {
         task?.finish()
         task = nil
         sink.use(nil)
-        file = nil
         level = 0
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
@@ -217,8 +208,6 @@ final class SpeechRecognitionService {
         take = SpokenTake()
         elapsed = 0
         didReachCap = false
-        if let url = recordingURL { try? FileManager.default.removeItem(at: url) }
-        recordingURL = nil
     }
 
     /// The audio tap runs on a render thread while the request it feeds is swapped on the

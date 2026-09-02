@@ -1,6 +1,6 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v2.9
+## Penpot handoff, v3.0
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
@@ -125,6 +125,31 @@ decision and rejected proposal):
   restructured writing rules (the dashed-outer/solid-baseline gray rules are the spec),
   a red margin rule, and any tracing-typeface change.
 
+**What changed in v3.0 — reconciled with the built app:**
+
+This revision was written *from* the code rather than ahead of it. Where the Penpot file
+and `HandwrittenJournal/` disagreed, the app won and the wireframes were changed to match.
+
+- **Three screens the app has and the wireframes did not.** `Practice Letters` (frame 49),
+  the letter-formation help modal (frame 50) and the photo-framing step (frame 51).
+- **The entry page carries a `View` / `Edit` switch** in its toolbar, and Write's toolbar
+  carries the `⋯` entry menu. Reading and writing are one screen in two modes (§13.4).
+- **Journal Home lost the "Your writing" card**, gained *Practice my letters* under
+  New Entry, gained the search field and export button in its navigation bar, and now
+  lists entries as `Row / Session` with **badges above the journal, not below**.
+- **The resume board is gone.** There is no "you were writing" card anywhere in the app.
+- **`Left-handed layout` and `Sound` are stored but inert** — nothing reads them. Frame 48
+  is marked NOT BUILT rather than describing a layout the app never produces.
+- **Copy corrected throughout** to the exact strings in the code — Results, the writing
+  footer hints, Journal Home's empty state, Entry Detail's stats, the overflow menu, the
+  permission screens and both Settings screens.
+- **`Varela Round` replaces `Baloo 2`** in the curated face list (§7.2).
+- **The badge set is the app's eight** (§10.7), and the icon sheet is exactly the symbols
+  the app asks for (§9).
+- **Retired components deleted from the library**, not just annotated: `Card / Session`,
+  `Row / Draft`, `Pager / Attempt`, `Cell / Calendar`, `Writing so far`,
+  `Toggle / TypedHandwritten` and `Sheet / Parent gate`.
+
 **What changed in v2.9 — the journal reads only as handwriting:**
 
 - **The typed reading of an entry is gone.** Entry Detail always shows the child's own
@@ -160,9 +185,9 @@ One Penpot file: **`Wireframes`**.
 |---|---|
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
-| `02 · Profiles` | Frames 1–6 |
+| `02 · Profiles` | Frames 1–6, 51 |
 | `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43 |
-| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–48 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
 | `99 · Scratch` | Anything in progress; never referenced by development |
 
@@ -242,6 +267,7 @@ names in `AppConstants.swift`.
 | `ink-outside` | `#FF3B30` | Stroke outside the letter (while writing) |
 | `ink-inside-cb` | `#007AFF` | Colorblind scheme, inside |
 | `ink-outside-cb` | `#FF9500` | Colorblind scheme, outside |
+| `practice-path` | `#AF52DE` | The stroke-order path on the practice sheet and in the formation-help modal (frames 49, 50). Purple is the one hue with no other meaning in the app |
 
 ### 5.3 Guide layer
 
@@ -249,7 +275,7 @@ names in `AppConstants.swift`.
 |---|---|---|
 | `guide-text` | `#000000` @ 80% | The letters being traced — **only the line in hand** (§11.11) |
 | `spoken-text` | `#5B6B8C` @ 42% | Dictated words waiting to be written. Deliberately cooler as well as lighter than `guide-text`, so "not yet real" reads at a glance and survives a squint |
-| `guide-faint` | `#000000` @ 15% | The letterforms left under a traced row's ink — legible enough to read, faint enough that the ink is unmistakably the text now (v2.6) |
+| `guide-faint` | `guide-text` × 0.18 (≈ `#000000` @ 14%) | The letterforms left under a traced row's ink — legible enough to read, faint enough that the ink is unmistakably the text now (v2.6). **Not a standalone token in `AppConstants.swift`**: the canvas draws `guide-text` at `TracingCanvas.tracedGuideAlpha`, and the settle animation interpolates to it |
 | `rule-line` | `#E5E5EA` | Baselines, ascender and descender rules |
 
 ### 5.4 Text
@@ -351,7 +377,7 @@ letterform and the mask renderer has nothing useful to work with.
 |---|---|---|---|
 | `jua` | Jua | 400 | Rounded and heavy. **Default.** |
 | `andika` | Andika | 700 | Drawn by SIL specifically for beginning readers. |
-| `baloo` | Baloo 2 | 700 | Very open letters, thick strokes. |
+| `varela` | Varela Round | 400 | Very open letters, evenly rounded. |
 | `sniglet` | Sniglet | 800 | The thickest — easiest to stay inside. |
 | `comic` | Comic Neue | 700 | Looks like classroom printing. |
 
@@ -497,7 +523,7 @@ Stars rate **one tracing**. They no longer accumulate toward anything.
 | `Ring / Results` | 220 outer diameter, 18 pt stroke, `paper-sunk` track, `action` progress, round cap, starts at 12 o'clock clockwise. `numeral-xl` centred with `caption` label 8 pt below. Shows the **session** accuracy. |
 | `Ring / Compact` | 120 outer, 12 pt stroke, same construction |
 | `Button / Toolbar / Active` | 44 × 44, `action` fill, `radius` 12, icon in `text-on-action`. Used for the eraser while it is selected. |
-| `Segmented` | h 44, `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3 pt with `shadow-card`. Used for Trace/Copy and the 30d/90d/All range. |
+| `Segmented` | h 44 (h 48 in a toolbar), `radius-pill`, `paper-sunk` track, selected segment `paper-raised` inset 3–4 pt with `shadow-card`. Two uses only: **`Segmented / View · Edit`** 200 × 48 in the entry-page toolbar (§13.4), and the export scope (This entry / This month / Everything). There is **no** Trace/Copy switch — Copy is not built — and **no** date-range filter on Progress. |
 
 `Bar / Level` and `Pager / Attempt` are both **retired** — there is no ladder and no
 attempt history.
@@ -507,16 +533,20 @@ attempt history.
 | Component | Spec |
 |---|---|
 | `Row / Session` (**the main screen's journal list**) | h 132, full content width, `paper-raised`, `radius-card`, `shadow-card`, 16 pt padding. Thumbnail 160 × 100 `radius-chip` leading; then date + time `body-em`, the opening words of the entry in `body` truncated to one line, metadata `caption` in `text-secondary` reading *"N words · NN% · Font Size"* — the entry's per-letter accuracy over the words the child actually started; `Stars / Row` trailing, vertically centred. |
-| `Card / Entry stats` (entry detail) | Full content width × 96, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Compact`; word count `body-em` with a one-line note `caption` beneath; `speaker.wave.2.fill` 24 pt + "Hear what I said" `body-em` in `action` trailing. **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback. |
+| `Card / Entry stats` (entry detail) | Full content width × 112, `paper-sunk`, `radius-card`. Accuracy `numeral-l` with "accuracy" `caption` beneath at 28 pt in; `Stars / Row`; then a three-line stack — word count `body-em` ("48 of 48 words"), a one-line note `caption` ("You finished the whole thing." / "N words are still waiting on the page."), and the setup summary `caption` ("Jua · Large · Trace") — **One row per entry** — `Row / Sentence` is retired, and with it the per-sentence playback; *"Hear what I said"* is retired too (v3.0 — no audio is kept). The setup summary lives **inside** the card, not below it. |
 | `Writing progress` | Full width of the footer. `paper-sunk` capsule track 8 pt tall, `action` fill to `wordsWritten / totalWords`, caption "15 of 48 words" beneath in `text-secondary`. Replaces the sentence queue. In the footer it is 190 pt wide, not full width — the accuracy hint sits to its left. |
 | `Level meter` | 420 × 40 (280 wide in the listening bar). 5 pt bars, 5 pt gaps, `action`, with the tail in `star-off`. Purely decorative in the wireframe; a real implementation reads the input level. |
 | `Mic / Footer` | 64 pt circle, `action` fill, `mic.fill` 28 pt in `text-on-action`. Muted state (listening finished at the cap): `paper-sunk` fill, `text-secondary` glyph. Drawn large — 176 pt — in the centre of an empty page (frame 20). |
 | `Listening bar` | Replaces the footer while recording: `Level meter` 280 wide leading, elapsed `numeral-l` over "of 5:00" `caption`, `Button / Primary` "I'm done talking" 260 × 64 trailing. |
 | ~~`End-of-line check`~~ | **Retired in v2.6** — finishing is automatic (the row fills) and selection is free (any row, any tap). Do not reuse. |
 | `Word being fixed` | A spoken word under edit: rounded rect at `radius-chip`, `action` stroke 2 pt over a 10% `action` tint, caret trailing, keyboard up (frame 22). |
+| `Word editor footer` | Replaces the footer while a word is under edit (frame 22): "Fix the word:" / "Fix these words:" `body` in `text-secondary`, a `paper-sunk` field at `radius-button`, `Button / Primary` "✓ Fix it", `Button / Secondary` "🎤 Say it again", and a `Button / Text` "Never mind". |
 | `Thumbnail` | Aspect 5:3, `paper` fill, 1 pt `divider` stroke, handwriting in `ink-natural` at ~10% of the thumbnail width per em. **Never accuracy colours.** |
-| ~~`Toggle / TypedHandwritten`~~ | **Retired in v2.9** — the journal reads only as handwriting; there is no typed page to flip to. Do not reuse. |
-| ~~`Cell / Calendar`~~ | **Retired in v2.7** — the calendar screen is gone. Do not reuse. |
+| ~~`Toggle / TypedHandwritten`~~ | **Retired in v2.9** — the journal reads only as handwriting; there is no typed page to flip to. Deleted from the library in v3.0. Do not confuse it with `Segmented / View · Edit`, which switches *modes*, not renderings. |
+| ~~`Cell / Calendar`~~ | **Retired in v2.7** — the calendar screen is gone. Deleted from the library in v3.0. Do not reuse. |
+| ~~`Card / Session`~~ | **Retired in v3.0** — Journal Home lists entries as `Row / Session`, never as a card grid. Deleted from the library. |
+| ~~`Row / Draft`~~ | **Retired in v2.2** — an unfinished session *is* the draft, and it appears as an ordinary `Row / Session`. Deleted from the library in v3.0. |
+| ~~`Writing so far`~~ | **Retired in v2.4** — finished lines stay where they were written. Deleted from the library in v3.0. |
 | `Font option` | Full content width × 176, `radius-card`. Selected: `paper-raised`, `shadow-card`, 3 pt `action` stroke, `checkmark` 24 pt trailing. Unselected: `paper-sunk`. Name `headline`, reason `caption`, then a live preview of the sample line at 46 / 60 on one ruled line. |
 | `Size option` | Full content width, height = size × 1.5 + 56. Same selected treatment. Label `body-em`, "NN pt" `caption` trailing, then a live preview at the real size. |
 
@@ -527,16 +557,28 @@ attempt history.
 shadow, icon 40 pt in `star-off`, label `caption` in `text-secondary`. Label wraps to two
 lines maximum, centred, 88 pt wide. The home strip uses 64 pt tiles with **no labels**.
 
-Badges no longer reference levels. `DESIGN_DOCUMENT.md` §8 owns the list.
+Badges no longer reference levels. `DESIGN_DOCUMENT.md` §8 owns the list; `BadgeEngine.swift`
+is the authority, and the library must carry exactly its eight, in its order:
+
+| Badge | Symbol |
+|---|---|
+| First Entry | `pencil.line` |
+| Sharp Shooter | `star.fill` |
+| 5-Day Streak | `flame.fill` |
+| Ten Entries | `calendar` |
+| Perfect Week | `star.circle` |
+| 1,000 Words | `checkmark.seal` |
+| Every Font | `textformat` |
+| Neat Writer | `hand.thumbsup` |
 
 ### 10.8 Chrome
 
 | Component | Spec |
 |---|---|
-| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. Leading back button, centred `title-1` title, trailing actions 16 pt apart. |
+| `Toolbar` | h 72, `paper` fill, 1 pt `divider` bottom edge. Leading back button (a plain text button — no chevron on the entry page), centred title, trailing actions. The **entry page** toolbar (view, edit and every Write state) reads: leading "Back" / "I'm finished", the date, `Segmented / View · Edit` at x 394, then the mode's tools at a 52 pt pitch ending with `ellipsis.circle` at x 766. |
 | `Sheet / Modal` | width to content, `radius-sheet`, `paper-raised`, `shadow-modal`, centred, on `overlay-scrim` |
 | `Sheet / PIN pad` | 700 × 800 |
-| `Menu / Overflow` | 324 wide, rows h 60, `radius` 16, `paper-raised`, `shadow-modal`, hairline between rows inset 20 pt |
+| `Menu / Overflow` | 320 wide, rows h 60, `radius` 16, `paper-raised`, `shadow-modal`, hairline between rows inset 20 pt. Four rows, in this order: *Write it all again*, *Share as PDF*, *Rename this entry*, then a divider and *Delete this entry* in `danger`. (*Hear what I said* was retired in v3.0.) |
 | `Row / Setting` | h 64, full width, label `body` leading, control trailing, 1 pt `divider` bottom inset 16 pt leading |
 | `Keyboard` | h 316, `paper-sunk`, 1 pt `divider` top edge. Four rows, key h 62, gap 10, row gap 12, keys `paper-raised` with `radius` 8 and `shadow-card`; modifier keys `star-off`. |
 | `Empty state` | Icon 72 pt in `star-off`, `title-2` heading 24 pt below, `body` explanation in `text-secondary` 12 pt below, optional `Button / Primary` 32 pt below. Vertically centred in its area. |
@@ -801,7 +843,7 @@ somewhere other than where they would write it.
 
 ## 12. Frame Inventory
 
-33 frames, all portrait 834 × 1194.
+39 frames, all portrait 834 × 1194.
 
 ### `02 · Profiles`
 
@@ -811,20 +853,21 @@ somewhere other than where they would write it.
 | 2 | Profile Picker — first launch, empty | Add tile with empty-state copy |
 | 3 | PIN Pad — entering | 2 of 4 dots filled |
 | 4 | PIN Pad — wrong PIN | Danger dots mid-shake |
-| 5 | Profile Editor — new, empty | Empty avatar, empty name, "No PIN", Font/Size/Mode rows |
-| 6 | Profile Editor — existing, with photo | Populated, PIN set, Delete visible; Choose Photo + Remove |
+| 5 | Profile Editor — new, empty | Empty avatar; **Take Photo + Choose Photo**; name field with "1–20 characters"; a single *Use a 4-digit PIN* toggle, off; Font/Size/Mode rows (Mode has no chevron) |
+| 6 | Profile Editor — existing, with photo | Populated; the photo carries its own destructive **✕ badge** (there is no "Remove" button) and "Tap the photo to move or zoom it"; PIN toggle on with a four-digit field; Delete Profile visible |
+| 51 | Photo framing — move and zoom | `AvatarCropView`: black ground, square framing window with the circular mask drawn over it, "Drag to move · pinch to zoom", Cancel + "✓ Use Photo". Reached from both photo buttons and from tapping the avatar |
 
 ### `03 · Journal`
 
 | # | Frame | Notes |
 |---|---|---|
-| 9 | Journal Home — populated | **The main screen**: New Entry, then badges, then every entry newest first as `Row / Session`. No resume card, no "Your writing" card. |
-| 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey |
-| 12 | Journal Home — search active | Query "grandma", 2 results, keyboard up. Search lives in this screen's toolbar. |
-| 15 | Entry Detail | The entry as the child wrote it, in `ink-natural`; one `Card / Entry stats` beneath. The only reading — frame 14 (Typed) is retired (v2.9). |
-| 18 | Entry Detail — overflow menu open | Edit / Hear what I said / Share as PDF / Rename / Delete |
-| 19 | Export preview — one entry | Scope selector, one PDF page, the entry as one continuous flow |
-| 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, size and options |
+| 9 | Journal Home — populated | **The main screen**: a navigation bar with the search field and the export button, then the profile header, **New Entry** with *Practice my letters* beneath it, then **Badges**, then every entry newest first as `Row / Session`. No resume card, no "Your writing" card, no card grid. |
+| 10 | Journal Home — empty | New profile, no sessions, no streak, badges grey; "Your journal is empty" / "Tap New Entry and tell me about your day." under a `book.closed` glyph |
+| 12 | Journal Home — search active | Query "grandma", "2 results", keyboard up. Search is `.searchable` in this screen's navigation bar. |
+| 15 | Entry Detail | The **View** mode of the entry page: the child's own strokes in `ink-natural`, `Segmented / View · Edit` in the toolbar, one `Card / Entry stats` beneath, then `Button / Primary` "Write on this page" + `Button / Secondary` "Share". No "How it went" heading. Frame 14 (Typed) is retired (v2.9). |
+| 18 | Entry Detail — overflow menu open | Write it all again / Share as PDF / Rename this entry / — / Delete this entry |
+| 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", both option toggles |
+| 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. **Known defect:** Journal Home's export button opens `ExportView` with no session, which hides the scope control and leaves the scope at *This entry*, so that route renders a one-page PDF |
 
 ### `04 · Write`
 
@@ -834,39 +877,45 @@ Every frame here is a **state of the same screen** (§11.13).
 |---|---|---|
 | 20 | Write — the page, nothing said yet | Empty rules, centre mic invitation, "Type it instead"; Done disabled |
 | 21 | Write — the page, listening | Words land as `spoken-text` live, caret at the end; listening bar footer |
-| 22 | Write — fixing a word I misheard | One spoken word boxed in `action`, keyboard over the footer |
-| 24 | Write — everything said, nothing written yet | Whole telling as untraced text; "Tap a line to write it" |
+| 22 | Write — fixing a word I misheard | One spoken word boxed in `action`; the `Word editor footer` (§10.6) replaces the normal footer, keyboard beneath it |
+| 24 | Write — everything said, nothing written yet | Whole telling as spoken text; footer reads "Nothing written yet" / "Write with your pencil — hold a word to fix it" |
 | 25 | Write — the page, part written | 3 traced (faint + graphite), 1 selected at 55%, untraced below; 15 of 48 |
 | 26 | Write — the page at Extra Large | 96 pt; fewer words per line, a much taller page |
 | 27 | Write — the page at Extra Small | 30 pt; the whole 48-word entry fits one window |
-| 29 | Results — the whole entry written, 3 stars | 91%, everything said was written, +224 points |
-| 30 | Results — stopped part way, 2 stars + new badge | 78%, 32 words written, 16 still spoken, +183 points |
+| 29 | Results — the whole entry written, 3 stars | "You wrote everything you said!" / "All 48 words, in your own hand"; 91%, +224 points, the finish message, the page preview, then **See my page** (primary) + *Say something new* + *See My Journal* |
+| 30 | Results — stopped part way, 2 stars + new badge | "Great writing, Milo!" / "You wrote 32 words today"; 78%, +183 points, "16 words you said are still spoken…", the new badge, then **See my page** + *See My Journal*. *Say something new* appears only when everything said was written |
 | 40 | Write — microphone access | Child-legible explainer shown *before* the iOS prompt |
-| 41 | Write — microphone unavailable | Denied or unsupported; typing onto the page becomes the primary path |
+| 41 | Write — microphone unavailable | Denied or unsupported; typing onto the page is the whole fallback — there is **no "Open iPad Settings" button** on this screen |
 | 42 | Write — recording stopped at five minutes | A banner over the page, said warmly; 112 words ≈ 20 minutes of writing |
 | 44 | Write — tapping a traced row to fix it | Row 2 re-selected: black letterforms, its ink back in accuracy colours |
 | 45 | Write — more said, added to the page | Scrolled; 10 written lines above, new spoken text below, 48 of 58 words |
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
-| 48 | Write — left-handed layout | §16 variant: toolbar and footer actions mirrored |
+| 48 | Write — left-handed layout — **NOT BUILT** | The profile stores `isLeftHanded` and Settings offers the toggle, but nothing in the app reads it. The real screen is frame 25. Kept as design intent, marked so nobody builds against it |
+| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries undo + clear; the footer carries the prompt and, once there is ink, the accuracy. Nothing is scored, saved or counted |
+| 50 | Write — letter formation help | §8.1b: a word finished with letters in the wrong order. A modal over the whole screen, chrome included — the word with its wrong letters in `ink-outside`, then a carousel of up to three lesson tiles, the live one bordered in `action`. Only tracing every red letter correctly closes it |
 
 Frames 23, 28 and 36 are **retired**: 23 was the splitter, 28 the ink-only reveal (the page
 now reveals a line at a time, in place, §11.10) and 36 the append screen, which frames 25
 and 45 cover between them. Frames 20, 21, 22 and 42 keep their numbers but are **no longer
 screens** — they are states of the page (v2.5).
 
-**§16 variants** are frames 46–48, built as states of frame 25.
+**§16 variants** are frames 46 and 47, built as states of frame 25. Frame 48 is a variant
+the app does not produce (see above).
 
 ### `05 · Progress & Settings`
 
 | # | Frame | Notes |
 |---|---|---|
-| 31 | Progress — by mode and font | Chart with two setting-change markers, per-setting table |
-| 32 | Progress — insufficient data | Fewer than 5 tracings at one setting; empty state |
-| 33 | Settings — profile | Profile, Writing (font/size/mode + toggles), Feedback, Danger zone |
-| 34 | Settings — app | iCloud row disabled, About, two plain-language notes |
-| 38 | Settings — font picker | Five curated faces, live previews, selected state |
-| 39 | Settings — font size picker | Five sizes, live previews, the "ready to move down" nudge |
+| 31 | Progress — by mode and font | Chart with two setting-change markers (**no date-range switch and no x-axis labels** — the app hides that axis), per-setting table, the size nudge, then the stats card (Sessions written / Words written / Days journaled / Longest streak) |
+| 32 | Progress — insufficient data | Fewer than 5 **entries** at one setting; empty state, plus the same copy-mode note under the table |
+| 33 | Settings — profile | A single **"Name, photo and PIN"** row that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback; Danger zone with its caption; then *Switch to someone else* |
+| 34 | Settings — app | iCloud row disabled, Version, **three** plain-language notes. No "What's new" or "Privacy" rows |
+| 38 | Settings — font picker | Five curated faces (Jua, Andika, Varela Round, Sniglet, Comic Neue), live previews, selected state |
+| 39 | Settings — font size picker | Five sizes, live previews. **The nudge is not here** — it belongs to Settings and Progress (§13.5) |
+
+All six present as **sheets** with a trailing *Done*, not as pushed screens with a back
+button — Progress, Settings and both pickers are `.sheet` presentations in the app.
 
 ---
 
@@ -892,19 +941,25 @@ Row pitch is 340 pt. The selected profile carries a 3 pt `action` ring inset −
 
 | Element | x | y | Size |
 |---|---|---|---|
-| `Avatar / M` (tap to switch user) | 24 | 32 | 56 |
-| Switch-user badge, `arrow.triangle.2.circlepath` 14 pt | 64 | 72 | 22 |
-| Name, `display` | 96 | 30 | — |
-| Streak, flame 20 pt + `body` in `streak-flame` | 96 | 82 | — |
-| Progress button, `Button / Toolbar` | 706 | 36 | 44 |
-| Settings button, `Button / Toolbar` | 766 | 36 | 44 |
-| "Your writing" card, `paper-sunk`, `radius-card` | 24 | 150 | 786 × 96 |
-| — "YOUR WRITING" `caption`; "Jua · Large · Trace" `headline`; "Change ›" trailing | | | |
-| `Button / Primary` "✎ New Entry" | 257 | 290 | 320 × 72 |
-| "My Journal" `title-2` | 24 | 404 | — |
-| Session cards, 3 then 2, `Card / Session`, 24 pt gaps | centred | 456 / 716 | 200 × 240 |
-| "Badges" `title-2` | 24 | 980 | — |
-| Badge strip: 64 pt circles, 20 pt gaps, no labels | centred | 1030 | 652 × 64 |
+| Navigation bar — search field `paper-sunk` pill, `magnifyingglass` 20 pt + "Search what you said" | 24 | 14 | 700 × 44 |
+| — export button, `Button / Toolbar` `square.and.arrow.up` | 766 | 14 | 44 |
+| `Avatar / M` (tap to switch user) | 24 | 104 | 56 |
+| Switch-user badge, `arrow.triangle.2.circlepath` 14 pt | 64 | 144 | 22 |
+| Name, `display` | 96 | 102 | — |
+| Streak, flame 20 pt + `body` in `streak-flame` | 96 | 154 | — |
+| Progress button, `Button / Toolbar` | 706 | 108 | 44 |
+| Settings button, `Button / Toolbar` | 766 | 108 | 44 |
+| `Button / Primary` "✎ New Entry" | 257 | 236 | 320 × 72 |
+| `Button / Text` "ABc Practice my letters" | centred | 320 | — |
+| "Badges" `title-2` + rule | 24 | 400 | — |
+| Badge strip: 64 pt circles, 20 pt gaps, no labels, **left-aligned and horizontally scrollable** | 24 | 450 | 652 × 64 |
+| "My Journal" `title-2` + rule | 24 | 570 | — |
+| `Row / Session`, 16 pt gaps, newest first | 24 | 622, 770, 918, 1066 | 786 × 132 |
+
+There is **no** "Your writing" card and **no** card grid. Badges come **before** the journal.
+When a search is active the section header reads "N results" and the rows are the matches;
+when nothing matches, an `Empty state` reading "Nothing found" / "Search looks at what you
+said, not how you wrote it.".
 
 ### 13.3 Frame 25 — Write, the page part written *(the defining screen of v2.5)*
 
@@ -932,8 +987,9 @@ Milo" `title-1`, a two-line `body` caption, and "Type it instead" as a text butt
 **Frame 21** (listening) swaps the footer for the `Listening bar` (§10.6) and centres
 *"Nothing goes in your journal until you write it."* in `caption` just above it.
 
-**Frame 22** (fixing a word) draws the `Word being fixed` treatment and the keyboard over
-the bottom 320 pt; the footer is behind it.
+**Frame 22** (fixing a word) draws the `Word being fixed` treatment on the page, replaces
+the footer with the `Word editor footer` (§10.6) at y 790–874, and puts the keyboard in the
+bottom 320 pt.
 
 **Frame 42** (the cap) lays a 660 × 116 `paper-raised` banner over the page at y = 100 —
 muted mic well, "That's a whole lot of story!" `headline`, one `body` line beneath — and
@@ -948,20 +1004,26 @@ in accuracy colours, the traced rows around it faint-grey under graphite. No ban
 The entry always reads as the child's own handwriting (v2.9) — natural ink over the
 faint guide, never a typed rendering and never accuracy colours. Frame 14 is retired.
 
+**Reading and writing are one screen.** Frame 15 is that screen in **View** mode; every
+frame on `04 · Write` is the same screen in **Edit** mode. The `Segmented / View · Edit`
+control in the toolbar is how a finger moves between them — and putting the pencil on a
+page being read switches to Edit by itself.
+
 | Element | x | y | Size |
 |---|---|---|---|
-| `Toolbar` — back leading, "Wednesday, March 4" centred `title-1`, `ellipsis.circle` trailing | 0 | 0 | 834 × 72 |
-| Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 96 | 786 × 700 |
+| `Toolbar` — "Back" (plain text, no chevron) at x 24, the date at x 110, `Segmented / View · Edit` (View selected) at x 542, `ellipsis.circle` at x 758 | 0 | 0 | 834 × 72 |
+| Page surface, `paper`, 1 pt `divider`, `radius-card`, scrolls | 24 | 96 | 786 × 748 |
 | — the entry flows continuously, 32 pt inner padding, ruled; the page keeps ruling below the last word; scrollbar when it overflows | | | |
-| "How it went" `body-em` + rule | 24 | 820 | — |
-| `Card / Entry stats` (§10.6) | 24 | 858 | 786 × 96 |
-| "Jua · Large · Trace" `caption` trailing | 24 | 976 | — |
-| `Button / Primary` "Edit" | 137 | 1070 | 268 × 64 |
-| `Button / Secondary` "Share" | 429 | 1074 | 268 × 56 |
+| `Card / Entry stats` (§10.6) — the setup summary is its third line | 24 | 858 | 786 × 112 |
+| `Button / Primary` "✎ Write on this page" | 119 | 1070 | 340 × 64 |
+| `Button / Secondary` "Share" | 475 | 1074 | 240 × 56 |
 
-### 13.5 Frame 39 — Font size picker
+There is **no** "How it went" section heading: the stats card is unlabelled.
 
-The nudge at the foot of this screen is the only thing that replaces level progression:
+### 13.5 The size nudge — frames 33 and 31
+
+The nudge is the only thing that replaces level progression. It appears in **Settings**
+(under WRITING) and in **Progress** (under the table) — never in the size picker itself:
 
 > *"Milo has been above 90% for two weeks — Small might be ready to try."*
 
@@ -1081,15 +1143,21 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] The page part written — traced above, one row selected, untraced below (frame 25)
 - [ ] A traced row re-selected for fixing (frame 44)
 - [ ] More dictation appended to an existing page (frame 45)
-- [ ] An entry long enough to scroll both the writing page and Entry Detail (frames 25, 45, 14, 15)
+- [ ] An entry long enough to scroll both the writing page and Entry Detail (frames 25, 45, 15)
 - [ ] Search with results (frame 12)
 - [ ] Eraser selected, mid-correction (frame 25 variant)
 - [ ] Microphone not yet granted (frame 40) and refused (frame 41)
 - [ ] Whole-journal export (frame 43)
-- [ ] Progress with fewer than 5 tracings at one setting (frame 32)
+- [ ] Progress with fewer than 5 entries at one setting (frame 32)
 - [ ] Guide lines toggled off (frame 46)
 - [ ] Colourblind ink scheme (frame 47)
-- [ ] Left-handed layout — toolbar and footer actions mirrored (frame 48)
+- [ ] ~~Left-handed layout — toolbar and footer actions mirrored (frame 48)~~ — **not built.**
+      `isLeftHanded` is stored and the Settings toggle writes it, but nothing reads it.
+      `soundEnabled` is inert the same way: the toggle exists, no sound is played.
+- [ ] Letter practice — the alphabet worksheet (frame 49)
+- [ ] A word finished with letters in the wrong order — the formation-help modal (frame 50)
+- [ ] Framing a profile photo — move and zoom (frame 51)
+- [ ] Camera refused after a photo was taken once — the "Camera is turned off" alert
 - [ ] Extra Large and Extra Small size extremes (frames 26, 27)
 
 Not required for v1 wireframes: dark mode, iPhone, landscape, offline or error states, Copy
@@ -1110,6 +1178,7 @@ Development then starts at Phase 1 in `DESIGN_DOCUMENT.md` §15.
 
 ---
 
-*Document version: 2.7*
+*Document version: 3.0*
 *Last updated: 2026-09-01*
 *Companion to DESIGN_DOCUMENT.md v2.6*
+*v3.0 was reconciled against the built app — where the two disagreed, the app won.*

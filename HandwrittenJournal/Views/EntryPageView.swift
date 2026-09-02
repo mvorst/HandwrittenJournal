@@ -28,9 +28,12 @@ struct EntryPageView: View {
     @State var model: WriteSessionViewModel
     @State private var mode: Mode
     @State var typedText = ""
+    /// Whether the typing box is open. Kept apart from `typing`: a `@FocusState` can
+    /// only be set once a view is bound to it, so opening the box *by* focusing it
+    /// never opened it at all.
+    @State var showTyping = false
     @FocusState var typing: Bool
 
-    @State private var player = ClipPlayer()
     @State private var strokes: [TracingStroke] = []
     @State private var showExport = false
     @State private var showDeleteConfirm = false
@@ -89,7 +92,7 @@ struct EntryPageView: View {
             Button("Delete", role: .destructive) { deleteEntry() }
             Button("Keep it", role: .cancel) {}
         } message: {
-            Text("Grown-ups only. The handwriting and the recording go with it.")
+            Text("Grown-ups only. The handwriting goes with it.")
         }
     }
 
@@ -103,10 +106,11 @@ struct EntryPageView: View {
     // MARK: - Switching
 
     /// Edit is where the ink is made, so leaving it is the moment to keep the ink: the
-    /// surface is torn down here and rebuilt from the archive when the child comes back.
+    /// surface is torn down here and rebuilt from the archive when the child comes back
+    /// — and coming back is the moment to stage that rebuild from the entry itself.
     func show(_ next: Mode) {
         guard next != mode else { return }
-        if mode == .edit { model.setAsideInk() }
+        if mode == .edit || next == .edit { model.setAsideInk() }
         model.cancelEdit()
         model.isEraserActive = false
         if model.mic == .listening { model.dictationEnded() }
@@ -183,12 +187,6 @@ struct EntryPageView: View {
     /// The ⋯ menu — everything that is about the entry rather than about the page.
     var entryMenu: some View {
         Menu {
-            if let audio = model.session?.audioData, let id = model.session?.id {
-                Button { player.play(audio, id: id) } label: {
-                    Label(player.playingID == id ? "Stop" : "Hear what I said",
-                          systemImage: "speaker.wave.2.fill")
-                }
-            }
             if model.session?.hasWriting == true {
                 Button { confirmStartOver = true } label: {
                     Label("Write it all again", systemImage: "arrow.counterclockwise")
@@ -282,8 +280,8 @@ struct EntryPageView: View {
         return max(200, min(content, session.canvasHeight) * scale)
     }
 
-    /// One row for the whole entry: accuracy, words, and the recording the child made when
-    /// they said it. There is nothing below entry level to report on (§4.7).
+    /// One row for the whole entry: accuracy and words. There is nothing below entry
+    /// level to report on (§4.7).
     private var metadata: some View {
         HStack(spacing: Tokens.Space.s5) {
             if let session = model.session {
@@ -307,16 +305,6 @@ struct EntryPageView: View {
                     Text(model.setup.summary).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                 }
                 Spacer()
-                if let audio = session.audioData {
-                    Button { player.play(audio, id: session.id) } label: {
-                        HStack(spacing: Tokens.Space.s2) {
-                            Image(systemName: "speaker.wave.2.fill").font(.system(size: 24))
-                            Text(player.playingID == session.id ? "Stop" : "Hear what I said").font(.hjBodyEm)
-                        }
-                        .foregroundStyle(Tokens.Colour.action)
-                    }
-                    .buttonStyle(PressableStyle())
-                }
             }
         }
         .padding(Tokens.Space.s4)
@@ -392,19 +380,21 @@ struct EntryPageView: View {
     /// as spoken text and are no more real until they are written.
     var typeBox: some View {
         VStack(spacing: Tokens.Space.s3) {
-            if typing {
+            if showTyping {
                 TextField("Type what you want to write", text: $typedText, axis: .vertical)
                     .font(.hjBody).lineLimit(3...8)
                     .padding(Tokens.Space.s4).sunkCard(radius: Tokens.Radius.button)
                     .focused($typing)
+                    .onAppear { typing = true }
                     .padding(.horizontal, Tokens.Layout.screenMargin)
                 PrimaryButton(title: "Put it on the page", systemImage: "checkmark", enabled: !typedText.isEmpty) {
                     typing = false
+                    showTyping = false
                     model.useTyped(typedText)
                     typedText = ""
                 }
             } else {
-                TextButton(title: "Type it instead", systemImage: "keyboard") { typing = true }
+                TextButton(title: "Type it instead", systemImage: "keyboard") { showTyping = true }
             }
         }
     }

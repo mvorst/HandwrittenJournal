@@ -25,9 +25,13 @@ struct TracingSurface: UIViewRepresentable {
     /// An earlier tracing of this same page, put back so the child carries on rather than
     /// starting again.
     var restoring: [TracingStroke] = []
-    /// The canvas width that tracing was drawn at. The strokes are only put back when this
-    /// page lays out the same way, because ink cannot be moved to letters it never covered.
+    /// The canvas width that tracing was drawn at. The page lays itself out at that width
+    /// and scales to fit the window, because ink cannot be moved to letters it never
+    /// covered: greedy word wrap at any other width puts other words under it.
     var restoredWidth: CGFloat = 0
+    /// Whether the archive carries each point's letter (HJST v2), so the restore keeps
+    /// the attribution the record was derived from.
+    var restoredAttributed = false
     /// Letters remediated in the help modal in an earlier sitting (§8.1b), by character
     /// position — their order discount stays lifted when the page reopens.
     var restoredRemediatedChars: [Int] = []
@@ -36,13 +40,20 @@ struct TracingSurface: UIViewRepresentable {
 
     func makeUIView(context: Context) -> ScrollingCanvas {
         let view = ScrollingCanvas()
+        // The page lays out at the width its ink was drawn at, whatever the window is.
+        view.layoutWidth = restoredWidth
         // The archive must be staged before the text lands: the canvas derives the record
         // from the ink, and a text without its ink would briefly report an empty record.
-        if !restoring.isEmpty { view.canvas.restore(restoring, capturedWidth: restoredWidth) }
+        if !restoring.isEmpty {
+            view.canvas.restore(restoring, capturedWidth: restoredWidth, attributed: restoredAttributed)
+        }
         if !restoredRemediatedChars.isEmpty {
             view.canvas.restoreRemediated(charIndices: restoredRemediatedChars)
         }
         view.apply(text: text, setup: setup)
+        // Attached before anything can fire: every report below goes through the
+        // controller, and a report that arrived before it knew its canvas would be lost.
+        controller.attach(view)
         view.canvas.onProgress = { accuracy, words, hasInk in
             Task { @MainActor in
                 controller.liveAccuracy = accuracy
@@ -64,14 +75,17 @@ struct TracingSurface: UIViewRepresentable {
         view.canvas.onFormationHelpNeeded = { request in
             Task { @MainActor in controller.onFormationHelp?(request) }
         }
+        view.canvas.onInkChange = {
+            Task { @MainActor in controller.onInkChange?() }
+        }
         Task { @MainActor in
-            controller.attach(view)
             view.focus(word: startAtWord, animated: false)
         }
         return view
     }
 
     func updateUIView(_ view: ScrollingCanvas, context: Context) {
+        view.layoutWidth = restoredWidth
         view.apply(text: text, setup: setup)
         view.focus(word: startAtWord, animated: true)
         view.canvas.showGuideLines = showGuideLines
@@ -88,9 +102,23 @@ struct TracingSurface: UIViewRepresentable {
 }
 
 /// A scroll view whose content is one tall `TracingCanvasView`.
+///
+/// **The page has one width for life.** The canvas lays out at `layoutWidth` — the
+/// width the entry's ink was first drawn at — and is scaled to the window. Greedy word
+/// wrap at a different width would put different words under the child's strokes, so
+/// a page opened in a narrower or wider window (Stage Manager, Split View, a bigger
+/// iPad) keeps its geometry and shrinks or grows as a whole, the way the reading view
+/// already does. Touches arrive in the canvas's own coordinates, so the pen and the
+/// eraser need no conversion; only scrolling does.
 final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
 
     let canvas = TracingCanvasView()
+    /// The width the canvas lays out at, or 0 to take the window's.
+    var layoutWidth: CGFloat = 0 {
+        didSet { if layoutWidth != oldValue { setNeedsLayout() } }
+    }
+    /// Window points per canvas point.
+    private(set) var scale: CGFloat = 1
     private var appliedText = ""
     private var appliedSetup: WritingSetup?
     private var focusedWord: Int?
@@ -140,10 +168,22 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
         guard bounds.width > 0 else { return }
-        let height = max(bounds.height, canvas.requiredHeight(forWidth: bounds.width))
-        if canvas.frame.size != CGSize(width: bounds.width, height: height) {
-            canvas.frame = CGRect(x: 0, y: 0, width: bounds.width, height: height)
-            contentSize = canvas.frame.size
+        let width = layoutWidth > 0 ? layoutWidth : bounds.width
+        let zoom = bounds.width / width
+        let height = max(bounds.height / zoom, canvas.requiredHeight(forWidth: width))
+        let size = CGSize(width: width, height: height)
+        if canvas.bounds.size != size || abs(scale - zoom) > 0.0001 {
+            scale = zoom
+            // A transformed view's frame is undefined; size it by bounds and place it
+            // by centre.
+            canvas.transform = .identity
+            canvas.bounds = CGRect(origin: .zero, size: size)
+            canvas.transform = CGAffineTransform(scaleX: zoom, y: zoom)
+            canvas.center = CGPoint(x: size.width * zoom / 2, y: size.height * zoom / 2)
+            // Rasterise at the scale the page is shown at, so a page grown to a wider
+            // window is not a blown-up bitmap.
+            canvas.contentScaleFactor = min(4, UIScreen.main.scale * max(1, zoom))
+            contentSize = CGSize(width: size.width * zoom, height: size.height * zoom)
         }
     }
 
@@ -170,8 +210,10 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
         }
     }
 
+    /// `rect` is in canvas points; the offset is in window points.
     private func scroll(to rect: CGRect, animated: Bool) {
-        let target = max(0, min(rect.minY - bounds.height * 0.3, max(0, contentSize.height - bounds.height)))
+        let top = rect.minY * scale
+        let target = max(0, min(top - bounds.height * 0.3, max(0, contentSize.height - bounds.height)))
         setContentOffset(CGPoint(x: 0, y: target), animated: animated)
     }
 
@@ -185,7 +227,7 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
     }
 
     func scrollByLines(_ lines: Int, animated: Bool = true) {
-        let step = (appliedSetup.map(MaskRenderer.lineAdvance(for:)) ?? 96) * CGFloat(lines)
+        let step = (appliedSetup.map(MaskRenderer.lineAdvance(for:)) ?? 96) * CGFloat(lines) * scale
         let target = max(0, min(contentOffset.y + step, max(0, contentSize.height - bounds.height)))
         setContentOffset(CGPoint(x: 0, y: target), animated: animated)
     }
@@ -211,11 +253,20 @@ final class TracingController {
     var onEditWord: ((ClosedRange<Int>, String) -> Void)?
     /// §8.1b — a word was finished with letters drawn in the wrong order.
     var onFormationHelp: ((FormationHelpRequest) -> Void)?
+    /// The finished ink changed; the archive should follow it (§6).
+    var onInkChange: (() -> Void)?
 
-    private weak var scroller: ScrollingCanvas?
+    // Not observed: it is set from inside a SwiftUI update, and nothing draws from it.
+    @ObservationIgnored private weak var scroller: ScrollingCanvas?
     private var canvas: TracingCanvasView? { scroller?.canvas }
 
     func attach(_ scroller: ScrollingCanvas) { self.scroller = scroller }
+
+    /// Whether a surface is on screen to speak for.
+    var isAttached: Bool { canvas != nil }
+    /// Whether the surface's ink stands for the entry's archive — false while a
+    /// restore is pending or failed, and when there is no surface at all.
+    var accountsForArchive: Bool { canvas?.accountsForArchive ?? false }
 
     func refresh() {
         hasSelection = canvas?.selectedRow != nil

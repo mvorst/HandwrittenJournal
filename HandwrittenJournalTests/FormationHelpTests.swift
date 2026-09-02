@@ -70,6 +70,44 @@ struct FormationHelpTests {
         #expect(picked.charIndex == canvas.charIndex(ofGlyph: picked.glyph))
     }
 
+    @Test("A word is not interrupted while its last letter is still being written")
+    func helpWaitsForTheLetterToBeFinished() {
+        // "at": the a drawn line-before-circle, then the t. The stem of the t gives the
+        // word ink on every letter — but the t has a crossbar still to come, and the
+        // modal must not cover it.
+        let canvas = makeCanvas(text: "at")
+        var requests: [FormationHelpRequest] = []
+        canvas.onFormationHelpNeeded = { requests.append($0) }
+
+        canvas.addInk(formationInk(for: 0, in: canvas) { $0.reverse() })
+        let t = formationInk(for: 1, in: canvas)
+        #expect(t.count == 2, "a t is a stem and a crossbar")
+        canvas.addInk([t[0]])
+        #expect(requests.isEmpty, "the stem alone completes the word, but not the letter")
+
+        canvas.addInk([t[1]])
+        #expect(requests.count == 1, "the crossbar finishes the letter — now the word can ask")
+        #expect(requests.first?.letters.map(\.character) == ["a"])
+    }
+
+    @Test("Moving on to another word is finishing with the last one")
+    func helpFiresWhenThePenMovesOn() {
+        let canvas = makeCanvas(text: "at it")
+        var requests: [FormationHelpRequest] = []
+        canvas.onFormationHelpNeeded = { requests.append($0) }
+
+        canvas.addInk(formationInk(for: 0, in: canvas) { $0.reverse() })
+        canvas.addInk([formationInk(for: 1, in: canvas)[0]])   // the t's stem only
+        #expect(requests.isEmpty)
+
+        // The child leaves the t uncrossed and starts the next word: that is them
+        // saying they are done with "at".
+        let i = canvas.layout.glyphBoxes.firstIndex { $0.character == "i" }!
+        canvas.addInk([formationInk(for: i, in: canvas)[0]])
+        #expect(requests.count == 1)
+        #expect(requests.first?.wordText == "at")
+    }
+
     @Test("Every wrong letter becomes a lesson — one per distinct character, in reading order")
     func lessonsCoverEveryWrongLetter() {
         func letter(_ character: Character, glyph: Int, offset: Int) -> FormationHelpRequest.Letter {

@@ -25,6 +25,7 @@ extension EntryPageView {
                                    startAtWord: model.startWord,
                                    restoring: model.restoredStrokes,
                                    restoredWidth: model.restoredWidth,
+                                   restoredAttributed: model.restoredAttributed,
                                    restoredRemediatedChars: model.restoredRemediated,
                                    controller: $model.controller)
                         // Replacing a tracing means a page with no ink on it, and the surface

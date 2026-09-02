@@ -6,14 +6,29 @@ import Compression
 /// A two-line sentence traced by a child runs 3,000–8,000 points. JSON would be ~400 KB
 /// per sentence, which is unacceptable when the goal is to keep every sentence forever
 /// and eventually sync it. This lands at ~20 KB compressed.
+///
+/// **v2 carries each point's letter.** The record is derived from which letters have
+/// ink, and ink is attributed to the row in hand as it is drawn; an archive that stores
+/// only positions has to re-derive that against the mask when the page reopens, and a
+/// descender's tail re-read against the whole page can land on the row below and
+/// unfinish a line the child finished. Storing the attribution makes a restored page
+/// reopen with exactly the record it closed with. v1 archives still decode; their
+/// points come back unattributed and the canvas attributes them afresh.
 enum StrokeArchive {
 
     enum ArchiveError: Error { case badMagic, badVersion, truncated, compressionFailed }
 
     static let magic: [UInt8] = Array("HJST".utf8)
-    static let version: UInt8 = 1
+    static let version: UInt8 = 2
     /// §6.1 — set when per-point inside data is meaningless, as it will be in Copy mode.
     static let flagNoInsideData: UInt8 = 1 << 0
+
+    /// What a decode hands back: the strokes, and whether their points carry the letter
+    /// they were drawn against.
+    struct Decoded {
+        let strokes: [TracingStroke]
+        let attributed: Bool
+    }
 
     // MARK: - Encode
 
@@ -32,6 +47,7 @@ enum StrokeArchive {
                 raw.appendLE(Float32(p.location.y))
                 raw.append(UInt8(clamping: Int((p.force * 255).rounded())))
                 raw.append(p.isInside ? 1 : 0)
+                raw.appendLE(Int32(clamping: p.letterIndex))
             }
         }
         return try compress(raw)
@@ -40,6 +56,10 @@ enum StrokeArchive {
     // MARK: - Decode
 
     static func decode(_ data: Data) throws -> [TracingStroke] {
+        try decodeArchive(data).strokes
+    }
+
+    static func decodeArchive(_ data: Data) throws -> Decoded {
         let raw = try decompress(data)
         var cursor = 0
 
@@ -49,7 +69,10 @@ enum StrokeArchive {
 
         try need(8)
         guard Array(raw[0..<4]) == magic else { throw ArchiveError.badMagic }
-        guard raw[4] == version else { throw ArchiveError.badVersion }
+        let version = raw[4]
+        guard version == 1 || version == 2 else { throw ArchiveError.badVersion }
+        let attributed = version >= 2
+        let pointSize = attributed ? 14 : 10
         cursor = 6
         let strokeCount = Int(raw.readLE(UInt16.self, at: &cursor))
 
@@ -58,7 +81,7 @@ enum StrokeArchive {
         for _ in 0..<strokeCount {
             try need(2)
             let pointCount = Int(raw.readLE(UInt16.self, at: &cursor))
-            try need(pointCount * 10)
+            try need(pointCount * pointSize)
             var stroke = TracingStroke()
             stroke.points.reserveCapacity(pointCount)
             for _ in 0..<pointCount {
@@ -66,14 +89,15 @@ enum StrokeArchive {
                 let y = raw.readLE(Float32.self, at: &cursor)
                 let force = CGFloat(raw[raw.startIndex + cursor]) / 255; cursor += 1
                 let inside = raw[raw.startIndex + cursor] == 1; cursor += 1
+                let letter = attributed ? Int(raw.readLE(Int32.self, at: &cursor)) : -1
                 stroke.points.append(StrokePoint(location: CGPoint(x: CGFloat(x), y: CGFloat(y)),
                                                  force: force,
                                                  isInside: inside,
-                                                 letterIndex: -1))
+                                                 letterIndex: letter))
             }
             strokes.append(stroke)
         }
-        return strokes
+        return Decoded(strokes: strokes, attributed: attributed)
     }
 
     // MARK: - LZFSE

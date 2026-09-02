@@ -86,9 +86,15 @@ final class TracingCanvasView: UIView {
     var onSelectRow: ((Int) -> Void)?
     /// An untraced word was held for fixing: its character range and current text.
     var onEditWord: ((ClosedRange<Int>, String) -> Void)?
-    /// §8.1b — a word was just finished with letters drawn in the wrong order. Fired at
-    /// pen-up, once per word; the view model presents the remediation modal.
+    /// §8.1b — a word was finished with letters drawn in the wrong order, and the child
+    /// is done with it. Fired at pen-up, once per word; the view model presents the
+    /// remediation modal.
     var onFormationHelpNeeded: ((FormationHelpRequest) -> Void)?
+    /// The finished ink changed — a stroke landed, was undone, erased or cleared, or an
+    /// archive was put back. Fired after the tally and the record have caught up, so
+    /// the view model can keep the archive current on every one of them: a crash or a
+    /// jettison between two strokes must cost one stroke, never a page (§6).
+    var onInkChange: (() -> Void)?
 
     // MARK: - State
 
@@ -108,6 +114,11 @@ final class TracingCanvasView: UIView {
     private var pendingRemediatedChars: [Int]?
     private var promptedWords: Set<Int> = []
     private var knownCompletedWords: Set<Int> = []
+    /// Words complete with wrong-order letters, waiting for the child to be done with
+    /// them before the modal interrupts (§8.1b).
+    private var pendingHelpWords: Set<Int> = []
+    /// Letters whose ink covers every part of their formation, per the judge.
+    private var coveredLetters: Set<Int> = []
     private var suppressHelpPrompts = false
     private var current: TracingStroke?
     private var committedImage: UIImage?
@@ -117,6 +128,29 @@ final class TracingCanvasView: UIView {
     private var pendingRestore: [TracingStroke]?
     /// The canvas width the pending archive was drawn at, or 0 when it is not known.
     private var restoreWidth: CGFloat = 0
+    /// Whether the staged archive carries each point's letter (HJST v2), so a restore
+    /// keeps the attribution the record was derived from.
+    private var restoreAttributed = false
+    /// A restore landed during this rebuild; the ink report is owed once the record
+    /// has caught up.
+    private var restoredThisBuild = false
+
+    /// Whether the ink on this canvas stands for the archive it was given (§6). A
+    /// surface that never put its archive back must not be allowed to write one.
+    enum InkProvenance {
+        /// Nothing was asked to be restored — every stroke here is this sitting's.
+        case fresh
+        /// An archive is staged and waits for the layout it belongs to.
+        case pending
+        /// The archive is on the page; the strokes here are it plus this sitting's.
+        case restored
+        /// The archive could not be put back, or the ink was wiped by a relayout. The
+        /// strokes here no longer stand for the entry's ink.
+        case lost
+    }
+    private(set) var provenance: InkProvenance = .fresh
+    /// True when an archive written from this canvas would be the whole truth.
+    var accountsForArchive: Bool { provenance == .fresh || provenance == .restored }
 
     /// Glyph index -> row, so a stroke point can be coloured without a lookup per segment.
     private var lineOfGlyph: [Int] = []
@@ -223,6 +257,9 @@ final class TracingCanvasView: UIView {
         if pendingRestore != nil {
             applyRestore()
         } else if !keepInk {
+            // Ink under a layout that moved is nobody's handwriting any more — and it
+            // no longer stands for the entry's archive, which must be left alone.
+            if !strokes.isEmpty { provenance = .lost }
             strokes.removeAll()
             current = nil
             selectedRow = nil
@@ -230,12 +267,18 @@ final class TracingCanvasView: UIView {
             remediatedLetters = []
             promptedWords = []
             knownCompletedWords = []
+            pendingHelpWords = []
+            coveredLetters = []
             stopSettleLink()
         }
         if let row = selectedRow, (maskRenderer.layout.scorableByLine[row] ?? []).isEmpty {
             selectedRow = nil
         }
         retally()
+        if restoredThisBuild {
+            restoredThisBuild = false
+            onInkChange?()
+        }
         onLayoutChange?(bounds.height)
     }
 
@@ -256,10 +299,13 @@ final class TracingCanvasView: UIView {
     }
 
     private func clearForEmptyText() {
+        if !strokes.isEmpty { provenance = .lost }
         strokes.removeAll()
         current = nil
         selectedRow = nil
         settling = [:]
+        pendingHelpWords = []
+        coveredLetters = []
         builtForText = ""
         recordEnd = 0
         stopSettleLink()
@@ -344,11 +390,22 @@ final class TracingCanvasView: UIView {
     /// Puts an archived tracing back on the page. The record re-derives from the ink, so
     /// a restored page reports the same boundary it was saved with.
     ///
-    /// `capturedWidth` is the width the strokes were drawn at; pass 0 when it is not known.
-    func restore(_ archived: [TracingStroke], capturedWidth: CGFloat = 0) {
+    /// `capturedWidth` is the width the strokes were drawn at; pass 0 when it is not
+    /// known. `attributed` says the archive carries each point's letter (HJST v2), so
+    /// the restore can keep the attribution instead of re-deriving it.
+    func restore(_ archived: [TracingStroke], capturedWidth: CGFloat = 0, attributed: Bool = false) {
         pendingRestore = archived
         restoreWidth = capturedWidth
-        if !maskRenderer.layout.glyphBoxes.isEmpty { applyRestore(); retally() }
+        restoreAttributed = attributed
+        provenance = .pending
+        if !maskRenderer.layout.glyphBoxes.isEmpty {
+            applyRestore()
+            retally()
+            if restoredThisBuild {
+                restoredThisBuild = false
+                onInkChange?()
+            }
+        }
     }
 
     /// **An archive only means anything at the width it was captured at.** Greedy word wrap
@@ -364,7 +421,7 @@ final class TracingCanvasView: UIView {
     private func applyRestore() {
         guard let restored = pendingRestore else { return }
         pendingRestore = nil
-        guard canRestore() else { return }
+        guard canRestore() else { provenance = .lost; return }
         // Re-attribution tests every point against the mask bitmap, and while dictating the
         // mask is skipped because nobody can trace yet. Reopening a finished page and
         // tapping the mic does both at once, so without this every restored point would
@@ -376,17 +433,37 @@ final class TracingCanvasView: UIView {
         settling = [:]
         // Restored words are already written — they never prompt for help (§8.1b).
         suppressHelpPrompts = true
-        reattribute()
+        pendingHelpWords = []
+        reattribute(keepingStored: restoreAttributed)
+        provenance = .restored
+        restoredThisBuild = true
     }
 
-    /// Recomputes every point's letter and inside-ness against the current mask.
-    /// Only needed on restore — appends and gated edits cannot move inked glyphs.
-    private func reattribute() {
+    /// Puts every point on its letter.
+    ///
+    /// An archive from HJST v2 on carries the letter each point was drawn against, and
+    /// that attribution is kept: it is what the record was derived from when the page
+    /// was saved, so the page reopens with exactly the record it closed with. Deriving
+    /// it again against the mask is not the same thing — ink was attributed to the row
+    /// in hand as it was drawn, and a descender's tail re-read against the whole page
+    /// can land on the row below and unfinish a line the child finished. A point whose
+    /// stored letter is not on this layout (an older archive, or one saved against
+    /// other text) is attributed afresh.
+    private func reattribute(keepingStored: Bool) {
+        let boxes = maskRenderer.layout.glyphBoxes
         for s in strokes.indices {
             for p in strokes[s].points.indices {
-                let location = strokes[s].points[p].location
-                strokes[s].points[p].letterIndex = maskRenderer.glyphIndex(at: location) ?? -1
-                strokes[s].points[p].isInside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
+                let point = strokes[s].points[p]
+                if keepingStored {
+                    let stored = point.letterIndex
+                    if stored < 0 { continue }
+                    if boxes.indices.contains(stored), boxes[stored].isScorable,
+                       boxes[stored].rect.insetBy(dx: -24, dy: -24).contains(point.location) {
+                        continue
+                    }
+                }
+                strokes[s].points[p].letterIndex = maskRenderer.glyphIndex(at: point.location) ?? -1
+                strokes[s].points[p].isInside = maskRenderer.isInsideLetter(point: point.location, tolerance: 2)
             }
         }
     }
@@ -431,6 +508,7 @@ final class TracingCanvasView: UIView {
               let index = strokes.lastIndex(where: { self.row(of: $0) == row }) else { return }
         strokes.remove(at: index)
         retally()
+        onInkChange?()
     }
 
     func clearSelected() {
@@ -440,6 +518,7 @@ final class TracingCanvasView: UIView {
         strokes = remaining
         current = nil
         retally()
+        onInkChange?()
     }
 
     private func applyErase(at point: CGPoint) {
@@ -451,6 +530,7 @@ final class TracingCanvasView: UIView {
         guard result.strokes.count != mine.count || !result.touchedLetters.isEmpty else { return }
         strokes = others + result.strokes
         retally()
+        onInkChange?()
     }
 
     var selectedRowHasInk: Bool {
@@ -632,7 +712,8 @@ final class TracingCanvasView: UIView {
         eraserCentre = nil
         if let finished, !finished.isEmpty {
             strokes.append(finished)
-            retally()
+            retally(penUpOn: word(of: finished))
+            onInkChange?()
             maybeAdvance()
             return
         }
@@ -651,13 +732,23 @@ final class TracingCanvasView: UIView {
             }
             if !stroke.isEmpty { strokes.append(stroke) }
         }
-        retally()
+        retally(penUpOn: strokes.last.flatMap { word(of: $0) })
+        onInkChange?()
         maybeAdvance()
+    }
+
+    /// The word a stroke was written on — that of the first letter it touched.
+    private func word(of stroke: TracingStroke) -> Int? {
+        let boxes = maskRenderer.layout.glyphBoxes
+        guard let point = stroke.points.first(where: { $0.letterIndex >= 0 }),
+              boxes.indices.contains(point.letterIndex) else { return nil }
+        return boxes[point.letterIndex].wordIndex
     }
 
     // MARK: - Scoring and the record
 
-    private func retally() {
+    /// `penUpOn` is the word the stroke that caused this landed on, when a pen-up did.
+    private func retally(penUpOn word: Int? = nil) {
         let boxes = maskRenderer.layout.glyphBoxes
         adoptPendingRemediations(boxes: boxes)
         var fresh = ScoringEngine.Tally(wordOfLetter: boxes.map(\.wordIndex),
@@ -670,7 +761,7 @@ final class TracingCanvasView: UIView {
         }
         applyFormationOrder(to: &fresh, boxes: boxes)
         tally = fresh
-        detectFormationHelp(boxes: boxes)
+        detectFormationHelp(boxes: boxes, penUpOn: word)
         recomputeRecord()
         redrawCommitted()
         reportProgress()
@@ -680,16 +771,21 @@ final class TracingCanvasView: UIView {
     /// §8.1a — letters whose ink clearly took the wrong path (parts out of the taught
     /// order, or against their taught direction) take the order discount. The judge
     /// caches per-letter verdicts, so only letters whose ink changed are re-judged.
-    /// A letter the child remediated in the help modal (§8.1b) is not re-docked.
+    /// A letter the child remediated in the help modal (§8.1b) is not re-docked. The
+    /// same reading says which letters are fully covered — every part of their
+    /// formation visited — which is what the help prompt waits for.
     private func applyFormationOrder(to tally: inout ScoringEngine.Tally,
                                      boxes: [MaskRenderer.GlyphBox]) {
+        coveredLetters = []
         guard let judge = orderJudge else { return }
         for (letter, penPaths) in FormationOrderJudge.penPathsByLetter(in: strokes) {
-            guard boxes.indices.contains(letter), boxes[letter].isScorable,
-                  !remediatedLetters.contains(letter) else { continue }
+            guard boxes.indices.contains(letter), boxes[letter].isScorable else { continue }
             let signature = FormationOrderJudge.signature(of: penPaths, box: boxes[letter])
-            if judge.followedFormation(penPaths: penPaths, glyph: letter,
-                                       box: boxes[letter], signature: signature) == false {
+            let analysis = judge.analysis(penPaths: penPaths, glyph: letter,
+                                          box: boxes[letter], signature: signature)
+            // No formation (punctuation): nothing to cover, nothing to dock.
+            if analysis?.coveredAllStrokes != false { coveredLetters.insert(letter) }
+            if analysis?.followed == false, !remediatedLetters.contains(letter) {
                 tally.markOrder(letter: letter, followed: false)
             }
         }
@@ -697,11 +793,19 @@ final class TracingCanvasView: UIView {
 
     // MARK: - Formation help (§8.1b)
 
-    /// Fires the help request when a word crosses into fully-inked with letters that
-    /// took the order discount. The transition is what fires it — a word completed by
-    /// the child's own pen, never one that arrived complete from a restored archive —
-    /// and each word asks at most once per sitting.
-    private func detectFormationHelp(boxes: [MaskRenderer.GlyphBox]) {
+    /// Offers help for a word that is complete with letters that took the order
+    /// discount — but not before the child is done with it.
+    ///
+    /// A word reads as complete the moment its last letter has *any* ink, and a letter
+    /// with several parts gets its first part first: the stem of a `t` completes the
+    /// word before the crossbar exists, and a modal there would cover a letter the
+    /// child was about to finish. So a qualifying word waits in `pendingHelpWords`
+    /// until either every inked letter of it is fully covered — every part of every
+    /// formation visited — or the child's pen lands on some other word, which is the
+    /// child saying they are done with this one. Each word asks at most once per
+    /// sitting, and only a word completed under the child's own pen ever asks: a page
+    /// restored from its archive arrives with its words already written.
+    private func detectFormationHelp(boxes: [MaskRenderer.GlyphBox], penUpOn penWord: Int?) {
         guard orderJudge != nil else { return }
         var glyphsOfWord: [Int: [Int]] = [:]
         for (i, box) in boxes.enumerated() where box.isScorable {
@@ -714,8 +818,17 @@ final class TracingCanvasView: UIView {
         knownCompletedWords = completed
         if suppressHelpPrompts { suppressHelpPrompts = false; return }
 
-        for word in newly.sorted() where !promptedWords.contains(word) {
-            guard let glyphs = glyphsOfWord[word] else { continue }
+        // A word undone back to incomplete waits to be completed again.
+        pendingHelpWords.formUnion(newly.subtracting(promptedWords))
+        pendingHelpWords.formIntersection(completed)
+
+        for word in pendingHelpWords.sorted() {
+            guard let glyphs = glyphsOfWord[word] else { pendingHelpWords.remove(word); continue }
+            let finished = glyphs.allSatisfy { coveredLetters.contains($0) }
+            let movedOn = penWord != nil && penWord != word
+            guard finished || movedOn else { continue }
+            pendingHelpWords.remove(word)
+            promptedWords.insert(word)
             let letters = glyphs.enumerated().compactMap { offset, glyph -> FormationHelpRequest.Letter? in
                 guard !tally.followedOrder[glyph] else { return nil }
                 return FormationHelpRequest.Letter(glyph: glyph,
@@ -724,7 +837,6 @@ final class TracingCanvasView: UIView {
                                                    character: boxes[glyph].character)
             }
             guard !letters.isEmpty else { continue }
-            promptedWords.insert(word)
             let text = String(glyphs.map { boxes[$0].character })
             onFormationHelpNeeded?(FormationHelpRequest(word: word, wordText: text, letters: letters))
         }

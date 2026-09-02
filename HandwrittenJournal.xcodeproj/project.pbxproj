@@ -34,8 +34,10 @@
 		7FE57D239864EF7B0D6BA657 /* ComicNeue-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */; };
 		8216FCB39BD51B0295C0AD31 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3033F0B636553128B47F4A /* AppConstants.swift */; };
 		84191D67968C7A843016FF81 /* SettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C88AFDA0126B8062E8265A /* SettingsViews.swift */; };
+		854F03C3488ED18FC75794DA /* InkPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */; };
 		884A75A67585757E9D4AFE3E /* LevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */; };
 		8DE8F9234DC0953EC86E8539 /* FormationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA62A4FC0D722C71522254 /* FormationTests.swift */; };
+		9CBD2324A4BD06D2B252F431 /* FormationJudgeRealismTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */; };
 		9F59E692FD3E5649E9301E81 /* EntryPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B904A0AA8DDA8DE52E76FD /* EntryPageView.swift */; };
 		A7DFD42C044E86217A7C9501 /* TracingCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */; };
 		AC82591A30AB1A1A61476F03 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556A107FFF646240E5A9E99 /* ExportView.swift */; };
@@ -49,7 +51,6 @@
 		C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */; };
 		C2CC0DEC06096D16C27F1B66 /* FormationOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD596BF6CEDD9D5110B21FA /* FormationOrder.swift */; };
 		C59E67BB86F195FAA5B274B5 /* TracingStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0C2B2EC71FF3BF52EB64DB /* TracingStroke.swift */; };
-		C6DCA43DCEF2EA65B713A198 /* AudioSlicer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD36CDAC298CDD793313BF66 /* AudioSlicer.swift */; };
 		CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF65435FDC814C776ACC456 /* PracticeCanvas.swift */; };
 		CC0392E6540B6B7A7A5348F1 /* PageRenderCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */; };
 		CCC557FF30FC7B4A9A912634 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD28F6BA541DAD897935A6B5 /* SpeechRecognitionService.swift */; };
@@ -85,9 +86,11 @@
 		1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
 		27B904A0AA8DDA8DE52E76FD /* EntryPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryPageView.swift; sourceTree = "<group>"; };
 		2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sniglet-ExtraBold.ttf"; sourceTree = "<group>"; };
+		30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationJudgeRealismTests.swift; sourceTree = "<group>"; };
 		317224CDD6345354B4506405 /* MaskRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskRenderer.swift; sourceTree = "<group>"; };
 		36FC8914863613ACF75C8F46 /* LetterFormations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterFormations.swift; sourceTree = "<group>"; };
 		376D4EEB2D8D809E08A27F93 /* LICENSES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSES.md; sourceTree = "<group>"; };
+		386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkPersistenceTests.swift; sourceTree = "<group>"; };
 		39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingSurface.swift; sourceTree = "<group>"; };
 		4547D52B725113BA1F2962C1 /* BadgeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngine.swift; sourceTree = "<group>"; };
 		47228A13921D57051339E56C /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
@@ -123,7 +126,6 @@
 		AA678BED1B99E37DA5D78365 /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		ACED7D009F8A919086DBC977 /* StrokeArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeArchive.swift; sourceTree = "<group>"; };
 		B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ComicNeue-Bold.ttf"; sourceTree = "<group>"; };
-		BD36CDAC298CDD793313BF66 /* AudioSlicer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSlicer.swift; sourceTree = "<group>"; };
 		C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingCanvas.swift; sourceTree = "<group>"; };
 		C6511FA804CE4B985F4F5567 /* WritingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSession.swift; sourceTree = "<group>"; };
 		CA34850BB29742A4A5C0721F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -185,8 +187,10 @@
 				83203735DA55F589A277AF90 /* ArchiveTests.swift */,
 				4C8504149D1903CBF173B098 /* DictationTests.swift */,
 				51F95991343AC36B24264278 /* FormationHelpTests.swift */,
+				30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */,
 				7E2DC18A0F1D004D4E2AEFD7 /* FormationOrderTests.swift */,
 				4CEA62A4FC0D722C71522254 /* FormationTests.swift */,
+				386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */,
 				7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */,
 				98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */,
 				7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */,
@@ -223,7 +227,6 @@
 		922454E6ABB4F82C79250629 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				BD36CDAC298CDD793313BF66 /* AudioSlicer.swift */,
 				4547D52B725113BA1F2962C1 /* BadgeEngine.swift */,
 				95491F9A2EF3940543FC21A8 /* FontRegistry.swift */,
 				6FD596BF6CEDD9D5110B21FA /* FormationOrder.swift */,
@@ -383,7 +386,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8216FCB39BD51B0295C0AD31 /* AppConstants.swift in Sources */,
-				C6DCA43DCEF2EA65B713A198 /* AudioSlicer.swift in Sources */,
 				E43F6A8C6A33D49D3BE7D7B9 /* AvatarCropView.swift in Sources */,
 				007EE8BED1E481D3F484BC98 /* BadgeEngine.swift in Sources */,
 				0FE2C289B321CAE400F2DA44 /* CameraPicker.swift in Sources */,
@@ -431,8 +433,10 @@
 				B559FA1425DAEE503E2DF976 /* ArchiveTests.swift in Sources */,
 				6BCBBD703B5BF7059E32AF07 /* DictationTests.swift in Sources */,
 				17281D15BE97C918B4F44D36 /* FormationHelpTests.swift in Sources */,
+				9CBD2324A4BD06D2B252F431 /* FormationJudgeRealismTests.swift in Sources */,
 				21B6507309DB92A055FE409E /* FormationOrderTests.swift in Sources */,
 				8DE8F9234DC0953EC86E8539 /* FormationTests.swift in Sources */,
+				854F03C3488ED18FC75794DA /* InkPersistenceTests.swift in Sources */,
 				227E5247202726BD7CDA4CB2 /* LineStateTests.swift in Sources */,
 				F13A8D7D93E78C7B04B2B3B1 /* MaskDiagnosticTests.swift in Sources */,
 				3F75CA4CA2CC6541C38DC011 /* MaskRendererTests.swift in Sources */,
@@ -465,8 +469,6 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -637,8 +639,6 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
