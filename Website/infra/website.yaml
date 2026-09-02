@@ -1,0 +1,369 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Handwritten Journal website. A private S3 bucket behind CloudFront (origin access
+  control), a CloudFront Function for clean URLs and the www redirect, security
+  headers, access logs, a Route53 hosted zone, and - once the domain is delegated
+  and AttachDomain is flipped to true - an ACM certificate plus apex and www alias
+  records.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: { default: Domain }
+        Parameters: [DomainName, HostedZoneId, AttachDomain]
+      - Label: { default: Housekeeping }
+        Parameters: [ResourcePrefix, LogRetentionDays]
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: handwrittenjournal.app
+    Description: Apex domain the site is served from. www.<DomainName> redirects to it.
+    AllowedPattern: '^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$'
+  HostedZoneId:
+    Type: String
+    Default: ''
+    Description: >-
+      Route53 hosted zone ID for DomainName if one already exists (for example one
+      Route53 created when the domain was registered). Leave empty and the stack
+      creates the zone.
+  AttachDomain:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: >-
+      Flip to true once DomainName's nameservers point at the hosted zone. Requests
+      the certificate and attaches DomainName and www.DomainName to the distribution.
+  ResourcePrefix:
+    Type: String
+    Default: handwrittenjournal
+    AllowedPattern: '^[a-z0-9-]{1,40}$'
+    Description: Prefix for resources that need account-unique names.
+  LogRetentionDays:
+    Type: Number
+    Default: 90
+    MinValue: 1
+    Description: Days to keep CloudFront access logs.
+
+Conditions:
+  CreateHostedZone: !Equals [!Ref HostedZoneId, '']
+  UseCustomDomain: !Equals [!Ref AttachDomain, 'true']
+
+Resources:
+  # ---------------------------------------------------------------- DNS
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Condition: CreateHostedZone
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: !Sub 'Handwritten Journal website (${AWS::StackName})'
+
+  # ---------------------------------------------------------------- Buckets
+  LogsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub 'us-east-1.logs.${DomainName}'
+      OwnershipControls:
+        Rules:
+          # CloudFront standard logging writes with a bucket ACL, so ACLs stay enabled here.
+          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-logs
+            Status: Enabled
+            ExpirationInDays: !Ref LogRetentionDays
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub 'us-east-1.www.${DomainName}'
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-old-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${SiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+          # ListBucket lets S3 answer a missing object with 404 instead of 403.
+          - Sid: AllowCloudFrontList
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:ListBucket
+            Resource: !GetAtt SiteBucket.Arn
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  # ---------------------------------------------------------------- CloudFront
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ResourcePrefix}-site-oac'
+        Description: Signs CloudFront requests to the Handwritten Journal site bucket.
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  ViewerRequestFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub '${ResourcePrefix}-viewer-request'
+      AutoPublish: true
+      FunctionConfig:
+        Comment: www redirect and clean URLs for the Handwritten Journal website
+        Runtime: cloudfront-js-2.0
+      FunctionCode: !Sub |
+        // Handwritten Journal website - viewer-request function.
+        //   1. www.<domain>  -> https://<domain>          (301, path and query kept)
+        //   2. /path/        -> /path/index.html          (directory-style clean URLs)
+        //   3. /path         -> https://<host>/path/      (301 to the canonical form;
+        //                                                  paths with an extension and
+        //                                                  /.well-known/ are left alone)
+        var APEX = '${DomainName}';
+
+        function queryString(q) {
+          // Keys and values arrive exactly as written in the URL (still percent-encoded),
+          // so they are joined back together without encoding them again.
+          var parts = [];
+          for (var key in q) {
+            var entry = q[key];
+            if (entry.multiValue) {
+              for (var i = 0; i < entry.multiValue.length; i++) {
+                parts.push(key + '=' + entry.multiValue[i].value);
+              }
+            } else if (entry.value === '') {
+              parts.push(key);
+            } else {
+              parts.push(key + '=' + entry.value);
+            }
+          }
+          return parts.length ? '?' + parts.join('&') : '';
+        }
+
+        function redirect(location) {
+          return {
+            statusCode: 301,
+            statusDescription: 'Moved Permanently',
+            headers: { location: { value: location } }
+          };
+        }
+
+        function handler(event) {
+          var request = event.request;
+          var host = request.headers.host ? request.headers.host.value : '';
+          var uri = request.uri;
+          var qs = queryString(request.querystring);
+
+          if (host === 'www.' + APEX) {
+            return redirect('https://' + APEX + uri + qs);
+          }
+
+          if (uri.endsWith('/')) {
+            request.uri = uri + 'index.html';
+            return request;
+          }
+
+          if (uri.indexOf('/.well-known/') === 0) {
+            return request;
+          }
+
+          var last = uri.substring(uri.lastIndexOf('/') + 1);
+          if (last.indexOf('.') === -1) {
+            return redirect('https://' + host + uri + '/' + qs);
+          }
+          return request;
+        }
+
+  SecurityHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub '${ResourcePrefix}-security-headers'
+        Comment: HSTS and the usual hardening headers for a static site.
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 63072000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
+        CustomHeadersConfig:
+          Items:
+            - Header: Permissions-Policy
+              Value: camera=(), microphone=(), geolocation=(), payment=()
+              Override: true
+
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Condition: UseCustomDomain
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub 'www.${DomainName}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !If [CreateHostedZone, !Ref HostedZone, !Ref HostedZoneId]
+        - DomainName: !Sub 'www.${DomainName}'
+          HostedZoneId: !If [CreateHostedZone, !Ref HostedZone, !Ref HostedZoneId]
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'Handwritten Journal website (${DomainName})'
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_100
+        DefaultRootObject: index.html
+        Aliases: !If
+          - UseCustomDomain
+          - [!Ref DomainName, !Sub 'www.${DomainName}']
+          - !Ref AWS::NoValue
+        ViewerCertificate: !If
+          - UseCustomDomain
+          - AcmCertificateArn: !Ref Certificate
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+        Origins:
+          - Id: site-bucket
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+        DefaultCacheBehavior:
+          TargetOriginId: site-bucket
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # AWS managed CachingOptimized
+          ResponseHeadersPolicyId: !Ref SecurityHeadersPolicy
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt ViewerRequestFunction.FunctionARN
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 404
+            ResponsePagePath: /404.html
+            ErrorCachingMinTTL: 60
+          - ErrorCode: 404
+            ResponseCode: 404
+            ResponsePagePath: /404.html
+            ErrorCachingMinTTL: 60
+        Logging:
+          Bucket: !GetAtt LogsBucket.DomainName
+          Prefix: cloudfront/
+          IncludeCookies: false
+
+  DnsRecords:
+    Type: AWS::Route53::RecordSetGroup
+    Condition: UseCustomDomain
+    Properties:
+      HostedZoneId: !If [CreateHostedZone, !Ref HostedZone, !Ref HostedZoneId]
+      Comment: Handwritten Journal website - apex and www to CloudFront
+      RecordSets:
+        - Name: !Ref DomainName
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's fixed hosted zone ID
+            EvaluateTargetHealth: false
+        - Name: !Ref DomainName
+          Type: AAAA
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
+            EvaluateTargetHealth: false
+        - Name: !Sub 'www.${DomainName}'
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
+            EvaluateTargetHealth: false
+        - Name: !Sub 'www.${DomainName}'
+          Type: AAAA
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
+            EvaluateTargetHealth: false
+
+Outputs:
+  SiteURL:
+    Description: Where the site is served from right now
+    Value: !If [UseCustomDomain, !Sub 'https://${DomainName}', !Sub 'https://${Distribution.DomainName}']
+  DistributionId:
+    Value: !Ref Distribution
+  DistributionDomainName:
+    Value: !GetAtt Distribution.DomainName
+  SiteBucketName:
+    Value: !Ref SiteBucket
+  LogsBucketName:
+    Value: !Ref LogsBucket
+  HostedZoneIdInUse:
+    Value: !If [CreateHostedZone, !Ref HostedZone, !Ref HostedZoneId]
+  NameServers:
+    Condition: CreateHostedZone
+    Description: Point the domain's registrar at these four nameservers
+    Value: !Join [' ', !GetAtt HostedZone.NameServers]

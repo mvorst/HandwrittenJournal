@@ -3,18 +3,27 @@ import SwiftUI
 /// Input level while recording. Decorative, but it tells a child the iPad is listening.
 struct LevelMeter: View {
     let level: Double
-    var barCount = 42
+
+    private static let barWidth: CGFloat = 5
+    private static let gap: CGFloat = 5
 
     var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<barCount, id: \.self) { i in
-                let phase = Double(i) / Double(barCount)
-                let envelope = sin(phase * .pi * 3.1) * 0.5 + 0.5
-                let height = max(4, 40 * (0.15 + envelope * 0.85 * max(0.12, level)))
-                Capsule()
-                    .fill(phase > 0.82 ? Tokens.Colour.starOff : Tokens.Colour.action)
-                    .frame(width: 5, height: height)
+        // As many bars as the width given holds (v3.3): the meter takes the room it is
+        // offered — 280 pt in the portrait bar, the rail's width in landscape — rather
+        // than a fixed count that overran both and pushed the rail off the screen.
+        GeometryReader { geo in
+            let barCount = max(1, Int((geo.size.width + Self.gap) / (Self.barWidth + Self.gap)))
+            HStack(spacing: Self.gap) {
+                ForEach(0..<barCount, id: \.self) { i in
+                    let phase = Double(i) / Double(barCount)
+                    let envelope = sin(phase * .pi * 3.1) * 0.5 + 0.5
+                    let height = max(4, 40 * (0.15 + envelope * 0.85 * max(0.12, level)))
+                    Capsule()
+                        .fill(phase > 0.82 ? Tokens.Colour.starOff : Tokens.Colour.action)
+                        .frame(width: Self.barWidth, height: height)
+                }
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .frame(height: 40)
         .animation(.easeOut(duration: 0.12), value: level)

@@ -449,6 +449,7 @@ extension EntryPageView {
                 .frame(height: 40)
             Text(listeningCaption)
                 .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
         .padding(Tokens.Layout.screenMargin)

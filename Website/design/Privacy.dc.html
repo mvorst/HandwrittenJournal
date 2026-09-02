@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+  <style>
+    body { margin: 0; background: #FAF5E8; color: #1C1C1E; font-family: 'Nunito', -apple-system, 'SF Pro Rounded', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #007AFF; text-decoration: none; }
+    a:hover { color: #0060D0; text-decoration: underline; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3, p { margin: 0; }
+  </style>
+</helmet>
+<div style="width: 1440px; min-height: 100%; background: #FAF5E8; display: flex; flex-direction: column;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; width: 1120px; margin: 0 auto; height: 88px;">
+    <a href="/" style="display: flex; align-items: center; gap: 12px; color: #1C1C1E;">
+      <img src="icon.jpg" alt="" style="width: 40px; height: 40px; border-radius: 22%; box-shadow: 0 3px 0 rgba(0,0,0,0.10);">
+      <span style="font-weight: 800; font-size: 20px; letter-spacing: -0.2px;">Handwritten Journal</span>
+    </a>
+    <nav style="display: flex; align-items: center; gap: 32px; font-weight: 600; font-size: 16px;">
+      <a href="/#how" style="color: #3A3A3C;">How it works</a>
+      <a href="/#grown-ups" style="color: #3A3A3C;">For grown-ups</a>
+      <a href="/support" style="color: #3A3A3C;">Support</a>
+      <a href="/privacy" style="color: #007AFF;">Privacy</a>
+      <a href="/#download" style="display: inline-flex; align-items: center; background: #1C1C1E; color: #FFFFFF; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 15px;">Download on the App Store</a>
+    </nav>
+  </header>
+
+  <main style="width: 760px; margin: 0 auto; padding: 48px 0 96px; display: flex; flex-direction: column; gap: 36px; flex-grow: 1;">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <h1 style="font-size: 48px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1;">Privacy policy</h1>
+      <p style="font-size: 15px; color: #6C6C70; font-weight: 600;">Last updated: [DATE]</p>
+    </div>
+
+    <div style="background: #F1E8D3; border-radius: 20px; padding: 24px 28px; display: flex; flex-direction: column; gap: 8px;">
+      <p style="font-size: 24px; font-weight: 800; line-height: 1.25;">Handwritten Journal does not collect any data.</p>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">The app has no user accounts, no servers and no networking code. It does not contain analytics, crash reporting or advertising software of any kind.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <h2 style="font-size: 22px; font-weight: 800;">What the app stores on your device</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 17px; line-height: 1.55; color: #3A3A3C;">
+        <div style="display: flex; gap: 14px; align-items: flex-start;"><span style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #F28522; margin-top: 9px;"></span><p>Profiles: a name, an optional photo, an optional PIN (stored only as a salted hash), and writing settings.</p></div>
+        <div style="display: flex; gap: 14px; align-items: flex-start;"><span style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #F28522; margin-top: 9px;"></span><p>Journal entries: the words your child spoke, the strokes they wrote, accuracy scores and dates.</p></div>
+      </div>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">All of it is written to storage on your iPad and protected by iOS file protection. None of it is transmitted anywhere.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="font-size: 22px; font-weight: 800;">Speech recognition</h2>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">Speech is converted to text using Apple's on-device speech recognition. The app requires on-device recognition, so the audio is not sent to Apple's servers for this purpose.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="font-size: 22px; font-weight: 800;">Sharing</h2>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">The only way information leaves your device is if an adult exports a page or the journal as a PDF and shares it. What happens to that file afterwards is governed by whatever app or service you send it to.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="font-size: 22px; font-weight: 800;">Deletion</h2>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">Deleting an entry deletes its writing and its scores. Deleting a profile deletes everything belonging to that profile. Deleting the app removes all of it.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="font-size: 22px; font-weight: 800;">Children</h2>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;">This app is designed for children. Because it collects nothing and transmits nothing, it does not knowingly or unknowingly collect personal information from anyone, of any age.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="font-size: 22px; font-weight: 800;">Contact</h2>
+      <p style="font-size: 17px; line-height: 1.55; color: #3A3A3C;"><a href="mailto:hello@handwrittenjournal.app" style="font-weight: 700;">hello@handwrittenjournal.app</a></p>
+    </div>
+  </main>
+
+  <footer style="background: #F1E8D3; padding: 48px 0;">
+    <div style="width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 40px;">
+      <div style="display: flex; flex-direction: column; gap: 10px; max-width: 420px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="icon.jpg" alt="" style="width: 32px; height: 32px; border-radius: 22%;">
+          <span style="font-weight: 800; font-size: 17px;">Handwritten Journal</span>
+        </div>
+        <p style="font-size: 15px; color: #6C6C70; line-height: 1.5;">Made by Matt Vorst, an independent developer. iPad only, iOS 18 or later.</p>
+        <p style="font-size: 14px; color: #8E8E93;">© 2026 Matt Vorst</p>
+      </div>
+      <nav style="display: flex; gap: 56px; font-size: 15px; font-weight: 600;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="/#how" style="color: #3A3A3C;">How it works</a>
+          <a href="/#grown-ups" style="color: #3A3A3C;">For grown-ups</a>
+          <a href="/#download" style="color: #3A3A3C;">Download</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="/support" style="color: #3A3A3C;">Support</a>
+          <a href="/privacy" style="color: #3A3A3C;">Privacy policy</a>
+          <a href="/#press" style="color: #3A3A3C;">Press kit</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="color: #6C6C70; font-weight: 400;">Contact</span>
+          <a href="mailto:hello@handwrittenjournal.app">hello@handwrittenjournal.app</a>
+        </div>
+      </nav>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+</body>
+</html>

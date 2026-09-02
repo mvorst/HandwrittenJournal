@@ -133,7 +133,7 @@ For 1.x releases, keep the same shape: one plain sentence, then bullets. Do not 
 | Primary category | **Education** | Where the whole competitive set lives (see `COMPETITION.md`). |
 | Secondary category | **Kids → Ages 6–8** *(decision required — read §2.1)* | Or leave secondary empty and stay out of the Kids category entirely. |
 | Age rating | **4+** — every questionnaire answer is "None"/"No" | No violence, no ads, no user-generated content shared anywhere, no web views, no gambling, no unrestricted web access. |
-| Price | *Your decision* — the category norm is free with an unlock in the $3–$10 band | Whatever you pick, §1.5's copy must match: it currently claims no advertising, so do not add ads. |
+| Price | **Free** *(decided 2026-09-02)* — no in-app purchases in 1.0; upgrades may be sold later | §1.5 claims no advertising; keep it. The copy never says "free forever" or "no in-app purchases", so a later upgrade changes nothing here. If purchases arrive while the app is listed in Kids, they must sit behind a parental gate (Guideline 1.3). |
 
 ### 2.1 The Kids Category decision — flag this before you submit
 
@@ -329,7 +329,7 @@ in the same commit.
 
 - [ ] **Decide the Kids category question** (§2.1) — and if yes, build the gate in front of Share/Export
 - [ ] Hold-to-confirm on Delete Profile and Reset Progress (`DESIGN_DOCUMENT.md` §10.3)
-- [ ] Confirm the pricing/IAP configuration matches §1.5's "no advertising" claim
+- [ ] Set the price to Free in App Store Connect; no in-app purchases configured for 1.0
 - [ ] Verify the five bundled typefaces are licensed for app embedding and redistribution, and add any attribution their licences require to Settings › About
 - [ ] Host the privacy policy (§8) and the support page (§7); paste both URLs
 - [ ] Shoot 8 iPad 13" portrait screenshots per §5 with a profile whose handwriting looks like a real child's, not test ink

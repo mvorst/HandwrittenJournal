@@ -82,8 +82,11 @@ struct FormationHelpOverlay: View {
             .padding(.bottom, Tokens.Space.s5)
         }
         .frame(maxWidth: help.lessons.count > 1 ? 920 : 660)
-        .background(Tokens.Colour.paperRaised, in: RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .hjShadow(Tokens.Elevation.modal)
+        // The shadow is the card's, not its contents' — cast from the composed view it
+        // would ghost every label as a second, offset copy.
+        .background(RoundedRectangle(cornerRadius: Tokens.Radius.card)
+            .fill(Tokens.Colour.paperRaised)
+            .hjShadow(Tokens.Elevation.modal))
         .padding(Tokens.Space.s6)
     }
 

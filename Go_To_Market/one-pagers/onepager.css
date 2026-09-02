@@ -1,0 +1,76 @@
+/* Handwritten Journal one-pagers — print-ready US Letter, the app's own palette
+   (STYLE_GUIDE.md): paper cream, white cards, cut-paper shadows, action blue. */
+@page { size: letter; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #FAF5E8; }
+body { font-family: -apple-system, "SF Pro Text", "SF Pro Rounded", "Helvetica Neue", Arial, sans-serif;
+       color: #1C1C1E; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; padding: 0.34in 0.48in 0.3in; overflow: hidden; position: relative;
+        background: #FAF5E8; display: flex; flex-direction: column; }
+.page.paper-lines { background: #FAF5E8; }
+
+/* header */
+.head { display: flex; align-items: center; gap: 0.16in; margin-bottom: 0.12in; }
+.head img.icon { width: 0.62in; height: 0.62in; border-radius: 22%; box-shadow: 0 3px 0 rgba(0,0,0,0.10); }
+.head .title { flex: 1; }
+.head h1 { font-size: 19pt; margin: 0; letter-spacing: -0.2pt; line-height: 1.05; }
+.head .tag { font-size: 9.5pt; color: #6C6C70; margin-top: 3pt; }
+.chip { font-size: 8.5pt; font-weight: 700; color: #007AFF; background: #E3F0FF; border-radius: 999px;
+        padding: 4pt 10pt; white-space: nowrap; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1fr 2.3in; gap: 0.26in; align-items: start; }
+.hero h2 { font-size: 16.5pt; line-height: 1.12; margin: 0 0 6pt; letter-spacing: -0.2pt; }
+.hero .lead { font-size: 9.8pt; line-height: 1.4; margin: 0 0 7pt; }
+.hero ul { margin: 0; padding-left: 0; list-style: none; }
+.hero li { font-size: 9pt; line-height: 1.36; margin: 0 0 4pt; padding-left: 13pt; position: relative; }
+.hero li::before { content: ""; position: absolute; left: 0; top: 4.5pt; width: 5.5pt; height: 5.5pt; border-radius: 50%; background: #F28522; }
+.hero li b { color: #1C1C1E; }
+.shot { border: 3px solid #E5DCC6; border-radius: 12pt; overflow: hidden; background: #fff;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.08); }
+.shot img { display: block; width: 100%; }
+.caption { font-size: 7.4pt; color: #6C6C70; text-align: center; margin-top: 5pt; line-height: 1.3; }
+
+/* steps */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.14in; margin: 0.14in 0 0; }
+.step { background: #fff; border-radius: 10pt; padding: 7pt 9pt 7pt; box-shadow: 0 3px 0 rgba(0,0,0,0.08); }
+.step .n { display: inline-block; width: 16pt; height: 16pt; border-radius: 50%; background: #007AFF; color: #fff;
+           font-weight: 700; font-size: 9pt; text-align: center; line-height: 16pt; margin-bottom: 3pt; }
+.step h3 { font-size: 10pt; margin: 0 0 2pt; }
+.step p { font-size: 8.4pt; line-height: 1.36; margin: 0; color: #3A3A3C; }
+
+/* two-column section */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.16in; margin-top: 0.14in; }
+.cols h3, .facts h3 { font-size: 10.5pt; margin: 0 0 4pt; }
+.cols p, .cols li { font-size: 8.7pt; line-height: 1.38; }
+.cols p { margin: 0 0 4pt; }
+.cols ul { margin: 0; padding-left: 12pt; }
+.cols li { margin-bottom: 3pt; }
+.sunk { background: #F1E8D3; border-radius: 10pt; padding: 8pt 11pt; }
+.card { background: #fff; border-radius: 10pt; padding: 8pt 11pt; box-shadow: 0 3px 0 rgba(0,0,0,0.08); }
+
+/* facts grid */
+.facts { margin-top: 0.14in; }
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.09in; }
+.fact { background: #fff; border-radius: 8pt; padding: 6pt 7pt; box-shadow: 0 3px 0 rgba(0,0,0,0.08); }
+.fact b { display: block; font-size: 8pt; margin-bottom: 1pt; line-height: 1.2; }
+.fact span { font-size: 7pt; color: #3A3A3C; line-height: 1.3; display: block; }
+
+/* quote */
+.quote { border-left: 3pt solid #F28522; padding: 2pt 0 2pt 9pt; font-size: 8.8pt; line-height: 1.4; color: #3A3A3C; font-style: italic; }
+
+/* table */
+table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+th, td { text-align: left; padding: 4pt 6pt; border-bottom: 1px solid #E5E5EA; vertical-align: top; line-height: 1.32; }
+th { font-size: 8.5pt; color: #6C6C70; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3pt; }
+td.yes { color: #43A047; font-weight: 700; }
+td.no { color: #B8AE98; }
+
+/* footer */
+.foot { margin-top: auto; padding-top: 0.1in; border-top: 1px solid #E5DCC6; display: flex; align-items: flex-end; justify-content: space-between; gap: 0.2in; }
+.foot .price { font-size: 11pt; font-weight: 700; }
+.foot .price small { font-size: 8pt; font-weight: 500; color: #6C6C70; }
+.foot .links { text-align: right; font-size: 8.3pt; color: #3A3A3C; line-height: 1.45; }
+.foot .links b { color: #007AFF; }
+.draft { position: absolute; left: 0.48in; bottom: 0.1in; font-size: 6.2pt; color: #B8AE98; }
+.badge { display: inline-block; background: #1C1C1E; color: #fff; border-radius: 6pt; padding: 4pt 9pt; font-size: 8.3pt; font-weight: 600; margin-top: 4pt; }

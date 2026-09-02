@@ -1,0 +1,48 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 5000,
+      "title": "Home · desktop"
+    },
+    {
+      "file": "Mobile.dc.html",
+      "x": 1560,
+      "y": 0,
+      "w": 390,
+      "h": 6500,
+      "title": "Home · phone"
+    },
+    {
+      "file": "Support.dc.html",
+      "x": 2070,
+      "y": 0,
+      "w": 1440,
+      "h": 1900,
+      "title": "Support"
+    },
+    {
+      "file": "Privacy.dc.html",
+      "x": 3630,
+      "y": 0,
+      "w": 1440,
+      "h": 2100,
+      "title": "Privacy policy"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "assumptions",
+      "x": 0,
+      "y": -300,
+      "w": 640,
+      "text": "Assumptions to check\n• Domain: handwrittenjournal.app is assumed (available, not yet registered). The footer, email and links use it.\n• Email: hello@handwrittenjournal.app is the placeholder the one-pagers already use.\n• App Store: the black pill stands in for Apple's official badge asset; the link is empty until the app is listed.\n• The one-pager and press-kit cards link nowhere until the PDFs are uploaded.\n• Hero: a placeholder frame for the 30-second preview video (autoplay muted, captions).\n• Screenshots are the simulator drafts with synthesised handwriting; reshoot on a real iPad.\n• Beyond the GTM plan §5.5 list, two sections were added: Marked as they write, and Settings, not rewards. Both are easy to cut."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

@@ -175,8 +175,9 @@ struct PinPadView: View {
                     .padding(.vertical, Tokens.Space.s5)
             }
             .frame(width: 700)
-            .background(Tokens.Colour.paperRaised, in: RoundedRectangle(cornerRadius: Tokens.Radius.sheet))
-            .hjShadow(Tokens.Elevation.modal)
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.sheet)
+                .fill(Tokens.Colour.paperRaised)
+                .hjShadow(Tokens.Elevation.modal))
         }
         .presentationBackground(.clear)
     }

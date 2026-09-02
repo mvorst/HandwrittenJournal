@@ -101,6 +101,7 @@ enum DemoData {
             session.canvasWidth = width
             session.canvasHeight = page.height
             session.strokeArchive = try? StrokeArchive.encode(page.strokes)
+            session.thumbnailData = thumbnail(for: page.strokes, setup: milo.setup)
             context.insert(session)
         }
 
@@ -125,7 +126,43 @@ enum DemoData {
         unfinished.canvasWidth = width
         unfinished.canvasHeight = page.height
         unfinished.strokeArchive = try? StrokeArchive.encode(page.strokes)
+        unfinished.thumbnailData = thumbnail(for: page.strokes, setup: milo.setup)
         context.insert(unfinished)
+    }
+
+    /// The journal list's thumbnail, as `TracingCanvasView.thumbnail(width:)` draws it
+    /// when an entry is finished: the ink's bounds on paper, graphite, 320 pt wide. Seeded
+    /// entries never pass through a finish, so the harness draws theirs the same way.
+    @MainActor
+    static func thumbnail(for strokes: [TracingStroke], setup: WritingSetup,
+                          width: CGFloat = 320) -> Data? {
+        guard let first = strokes.first else { return nil }
+        var ink = first.bounds()
+        for stroke in strokes.dropFirst() { ink = ink.union(stroke.bounds()) }
+        ink = ink.insetBy(dx: -8, dy: -8)
+        guard ink.width > 0, ink.height > 0 else { return nil }
+        let scale = width / ink.width
+        let size = CGSize(width: width, height: min(ink.height * scale, width * 1.2))
+        let widthScale = setup.size.size / 72
+        return UIGraphicsImageRenderer(size: size).image { ctx in
+            UIColor(Tokens.Colour.paper).setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            let cg = ctx.cgContext
+            cg.scaleBy(x: scale, y: scale)
+            cg.translateBy(x: -ink.minX, y: -ink.minY)
+            cg.setLineCap(.round)
+            cg.setLineJoin(.round)
+            cg.setStrokeColor(UIColor(Tokens.Colour.inkNatural).cgColor)
+            for stroke in strokes where stroke.points.count > 1 {
+                for i in 1..<stroke.points.count {
+                    let a = stroke.points[i - 1], b = stroke.points[i]
+                    cg.setLineWidth((1.5 + 3.5 * (a.force + b.force) / 2) * widthScale)
+                    cg.move(to: a.location)
+                    cg.addLine(to: b.location)
+                    cg.strokePath()
+                }
+            }
+        }.pngData()
     }
 
     // MARK: - Stroke dump for automation

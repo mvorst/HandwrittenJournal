@@ -336,10 +336,14 @@ silently fell back to the system face.
 5. **Entry Detail keeps a Rename action the wireframe's ⋯ menu does not show.** Frame 18
    draws four items; renaming is a real feature with nowhere else to live, so it is a fifth.
    Worth resolving in the wireframe rather than the code.
-6. **`DemoData`'s synthetic handwriting is crude.** It walks the spine of each glyph, which
-   reads as a squiggle rather than a letter. It is DEBUG-only scaffolding whose job is to
-   prove the archive → decode → replay pipeline, which it does. Real tracing renders the
-   child's actual pen input and looks correct.
+6. **`DemoData`'s synthetic handwriting follows the taught formations** (2026-09-02). Each
+   seeded letter is written along its `LetterFormations` path by a hand that wobbles — a
+   slow sideways drift, jitter, a size and position nudge per letter, an overshoot where
+   the pen lifts — with the fixture's `accuracy` setting how far it strays; punctuation
+   still walks the glyph spine. Seeded entries carry a list thumbnail drawn the way
+   `TracingCanvasView.thumbnail` draws one, and fixtures are captured at the device's own
+   page width so the editor can restore their ink. Still DEBUG-only scaffolding; real
+   tracing renders the child's actual pen input.
 7. **Copy mode is not built** and should not be until it has a scoring algorithm of its own
    — see `DESIGN_DOCUMENT.md` §7.5.
 8. **Destructive actions are ungated.** Delete Profile and Reset Progress use a plain
@@ -352,6 +356,10 @@ silently fell back to the system face.
 
 ```bash
 xcrun simctl launch <device> com.mattvorst.education.handwrittenjournal \
-  -seed YES -screen trace     # start | trace | journal | progress | settings | write
+  -seed YES -screen trace     # start | trace | journal | progress | settings | write | practice
   -orientation landscape      # v3.3 — start in landscape (portrait is the default)
+  -dumpStrokes YES            # write Documents/demo_strokes.json: glyph boxes and the
+                              # synthesised ink for the unfinished fixture at this device's
+                              # page width, for replaying as real touches
+                              # (Go_To_Market/screenshots/SCREENSHOTS.md)
 ```
