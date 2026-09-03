@@ -43,9 +43,9 @@ loop that Speech Journal-style classroom practice does by hand on paper.
 - **Lead:** They will write it because they said it.
 - **Support:** Green ink inside the letter, red outside, while they write. A letter drawn
   backwards gets taught on the spot. Every finished page joins the journal, newest first.
-- **Reassure:** Free, and not because you are the product: nothing leaves the iPad. No
-  account, no ads, no sign-in, no audio recorded. You choose the letter style and size;
-  nothing has to be earned.
+- **Reassure:** Their journal never leaves the iPad. No account, no ads, no sign-in, no
+  audio recorded; anonymous crash and usage data only, never sold. The basic app is always
+  free. You choose the letter style and size; nothing has to be earned.
 - **Close:** Do it for a day and you have a page. Do it for a year and you have a book in
   their own hand.
 
@@ -60,8 +60,8 @@ loop that Speech Journal-style classroom practice does by hand on paper.
 - **Support:** Per-letter accuracy scoring; stroke order and direction judged against
   ball-and-stick print formations; a wrong-order letter triggers a demonstrate-then-trace
   lesson for that letter, once per word; a practice sheet with every letter and numeral
-  animating its strokes; finger or stylus; left-handed layout; colour-blind ink pair;
-  progress kept per font-and-size setting so a change of size never looks like regression.
+  animating its strokes; Apple Pencil; left-handed layout; colour-blind ink pair; progress
+  kept per font-and-size setting so a change of size never looks like regression.
 - **Be honest:** Not a clinical tool. Print only, one letter style family (five typefaces,
   all print), English only. Grading is a difficulty dial set by a grown-up, not a norm.
 
@@ -76,10 +76,11 @@ loop that Speech Journal-style classroom practice does by hand on paper.
 
 ### Administrators and technology coordinators
 
-- **Lead:** Collects nothing, so there is nothing to agree to.
-- **Support:** App Privacy label *Data Not Collected*; no network code, no analytics, no
-  advertising, on-device speech recognition; free through Apps and Books, nothing to
-  license; a one-page privacy statement is available for district forms.
+- **Lead:** The children's work never leaves the iPad, and the data the app does send is
+  anonymous and never sold.
+- **Support:** App Privacy label declares anonymous crash and usage data, nothing about
+  the child; no account, no advertising, on-device speech recognition; free through Apps
+  and Books, nothing to license; a one-page data statement lists exactly what is sent.
 
 ### Press and reviewers
 
@@ -95,7 +96,9 @@ loop that Speech Journal-style classroom practice does by hand on paper.
 | Claim | Exact wording | Source |
 |---|---|---|
 | Speech stays on the device | "Speech is recognised on the iPad. No audio is recorded or kept." | §10.1, §10.4 |
-| No data | "There is no account, no server, no analytics and no advertising. Nothing leaves the iPad unless a grown-up taps Share." | §10.1 |
+| The journal stays home | "Your child's journal never leaves the iPad. Nothing they write leaves it unless a grown-up taps Share." | §10.1 |
+| What is collected | "The app sends anonymous crash reports and usage statistics so we can fix problems and improve it. They contain no journal content and no names, and we will never sell them." | §10.5 (decided 2026-09-02) |
+| Free | "The basic app is always free, because we want children to thrive. Some additional features may be paid, because we will never sell your data." | `GO_TO_MARKET_PLAN.md` §4 |
 | Per-letter grading | "Marked letter by letter, as they write. Half a letter scores like half a letter." | §8.1 |
 | Stroke order | "Stroke order is taught, not just shape. A letter drawn out of order keeps 80% of its score, and the page teaches that one letter before carrying on." | §8.1a, §8.1b |
 | The settle | "Finish a line and the guide underneath disappears. What is left is their handwriting, exactly where they wrote it." | §11.11 |
@@ -105,7 +108,7 @@ loop that Speech Journal-style classroom practice does by hand on paper.
 | Export | "Export a page, or the whole book, as a PDF." | §4.8 |
 | Profiles | "Several children, one iPad — a profile each, with an optional PIN." | §4.1, §10.3 |
 | Ages | "Made for children roughly five to eight who can speak in sentences and are learning to form their letters." | §1.1 |
-| Device | "iPad, held like a notebook. Apple Pencil recommended; a finger works." | §1, §12 |
+| Device | "iPad with iOS 18 or later, held like a notebook. Requires Apple Pencil." | §1, §10.5 |
 
 **Numbers we do not use:** minutes per day, weeks to improvement, percentages of anything.
 The app has no research behind it and the plan does not pretend otherwise.
@@ -116,11 +119,12 @@ The app has no research behind it and the plan does not pretend otherwise.
 
 | They say | We say |
 |---|---|
-| "Does it need an Apple Pencil?" | It is best with one. A finger works, and there is a switch for it in the child's profile. |
+| "Does it need an Apple Pencil?" | Yes. The app requires an Apple Pencil — any model your iPad supports. |
 | "My child can't be understood by Siri." | The words stay editable until they are written, so a misheard word never has to enter the record. And there is always *Type it instead*. |
-| "Is it a subscription?" | No. It is free, with no ads and no account. Everything in this version is included. |
-| "Why is it free?" | Because the journal is the point, and it should be there for every child. Upgrades may come later; nothing a child has written will ever sit behind one. |
-| "Where does the data go?" | Nowhere. There is no account and no server. The only thing that can leave is a PDF a grown-up exports. |
+| "Is it a subscription?" | No. The basic app is always free, with no ads and no account. Some additional features may be paid later; there is no subscription. |
+| "Why is it free?" | Because we want children to thrive. Some additional features may be paid, because we will never sell your data. Nothing a child has written will ever sit behind a purchase. |
+| "Where does the data go?" | The journal stays on the iPad; the only way it leaves is a PDF a grown-up exports. The app sends anonymous crash reports and usage statistics — which features are used and what went wrong — never the words, never a name, never sold. |
+| "What exactly do you collect?" | Crash reports and usage statistics with the app version, iPad model and iOS version, tied to a random identifier that is not linked to you. No journal content, no names, no photos, no voice, no location. |
 | "What if we lose the iPad?" | Export the book to Files or iCloud Drive now and then; the whole journal is one PDF. There is no cloud sync yet. |
 | "Is it cursive?" | No. Print only, in five typefaces. |
 | "Does it teach reading?" | No. It assumes the child can read the sentence they just said. |
@@ -150,7 +154,9 @@ marketing keeps that voice.
 - *Gamified, AI-powered, revolutionary, magical, unlock, level up, boost, master.*
 - *Clinical, therapy, dysgraphia, intervention, evidence-based* — we are not those things and OTs will respect the line.
 - Fake urgency, countdowns, "limited time".
-- *Free forever*, *no in-app purchases ever*, *nothing to buy*, *we will never charge* — upgrades may come; write sentences that survive them (`GO_TO_MARKET_PLAN.md` §4.1).
+- *The app is free forever*, *no in-app purchases ever*, *nothing to buy* — say *the basic app is always free*, with *basic*, and *some additional features may be paid* (`GO_TO_MARKET_PLAN.md` §4.1).
+- *No analytics*, *collects nothing*, *Data Not Collected*, *nothing leaves the iPad* — the app sends anonymous crash and usage data. Say *the journal never leaves the iPad*.
+- *A finger works*, *Pencil recommended* — an Apple Pencil is required.
 - Screenshots or clips with children's faces or names. Hands and pages only.
 
 ---
@@ -158,24 +164,24 @@ marketing keeps that voice.
 ## 7. Boilerplate
 
 **25 words.** Handwritten Journal is an iPad app where a child says what happened today and
-writes it in their own hand. Every page is kept. Nothing leaves the iPad.
+writes it in their own hand. Every page is kept. The journal never leaves the iPad.
 
 **50 words.** Handwritten Journal turns what a child says about their day into a ruled page
 they write over in their own hand. Ink is marked letter by letter as they write, stroke order
 is taught on the spot, and every finished page joins a journal that becomes a book in their
-handwriting. iPad only, free, and nothing leaves the device.
+handwriting. iPad only, free, and the journal never leaves the device.
 
 **100 words.** Handwritten Journal is an iPad app for children of roughly five to eight who
 are learning to form their letters. The child says what happened today; the words appear on a
-ruled page in big, friendly letters; they write over them with a pencil or a finger. Ink
+ruled page in big, friendly letters; they write over them with an Apple Pencil. Ink
 inside the letter turns green and ink outside turns red, as they write. A letter drawn out of
 order is taught before they carry on. When a line is finished the guide disappears and their
 handwriting stays. Each page joins the journal, newest first, and the whole book exports as a
-PDF. It is free, with no account, no advertising and no server; speech is recognised on the
-iPad and no audio is kept.
+PDF. The basic app is always free, with no account and no advertising; the journal never
+leaves the iPad, and speech is recognised on it with no audio kept.
 
-**Maker.** Handwritten Journal is made by Matt Vorst, an independent developer.
-*(Add location and one sentence of background before publishing.)*
+**Maker.** Handwritten Journal is made by Matt Vorst, an independent developer in Ohio.
+*(Add one sentence of background before publishing.)*
 
 ---
 

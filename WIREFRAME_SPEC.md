@@ -1,12 +1,28 @@
 # Handwritten Journal — Wireframe Specification
 
-## Penpot handoff, v3.3
+## Penpot handoff, v3.4
 
 Companion to `DESIGN_DOCUMENT.md`. That document decides *what the app does*; this one
 decides *what it measures*, so full-fidelity wireframes can be built in Penpot without
 inventing numbers. Every value here is a decision, not a suggestion — if a number is
 wrong, change it here and the code will follow, because `AppConstants.swift` is generated
 from §5–§9 of this file.
+
+**What changed in v3.4 — the welcome, and a voice** (drawn and built 2026-09-02):
+
+- **Four new frames on `02 · Profiles`, 55–58: the welcome** (§13.7). Once per iPad,
+  before the Profile Picker: a grown-up agrees to the terms and the privacy policy (55),
+  says whether the iPad should talk (56), then the child traces a big A on a one-letter
+  practice sheet — an Apple Pencil found (57) or a finger seen (58). Only the agreement
+  step returns when the terms' date changes.
+- **`Sound` is `Voice feedback`** (frame 33): the stored toggle finally reads — the iPad
+  says whose turn it is, names the letter to trace and cheers a finished line
+  (`DESIGN_DOCUMENT.md` §4.12). Seeded per profile from frame 56's answer.
+- **Frame 34 gained a LEGAL section** — *Terms of use* and *Privacy policy* as
+  `Row / Link`, with the date a grown-up agreed — and its third note now says the
+  microphone feeds recognition and nothing else (the recording note was stale since v3.0).
+- `Row / Link` joins the chrome (§10.8); `checkmark.seal`, `speaker.wave.2.fill` and
+  `checkmark.circle.fill` were already on the icon sheet.
 
 **What changed in v2.0** (see `PENPOT_HANDOFF.md` §2 for the full rationale):
 
@@ -137,9 +153,10 @@ decision and rejected proposal):
   right-handed child, right when *Left-handed layout* is on, or pinned by the new
   **Controls in landscape** setting (§13.6).
 - **Journal Home** is two columns in landscape — the dashboard at 560 on the left, the
-  journal on the right — and in **both** orientations only the entries scroll: the header,
-  the deck, the points card, the badges, the journal header and the search field stay put
-  (§13.2, §13.6).
+  journal on the right — and in **both** orientations the header, the deck, the points
+  card, the journal header and the search field stay put; the entries scroll. **Badges**
+  are a sideways strip in portrait; in landscape they wrap into rows and scroll up and
+  down within the dashboard column (§13.2, §13.6).
 - **Entry Detail, Results, the Profile Picker and Practice** re-flow (§13.6); the sheets —
   Progress, Settings, the pickers, Export — keep their portrait layout, centred by the
   system.
@@ -212,7 +229,8 @@ and `HandwrittenJournal/` disagreed, the app won and the wireframes were changed
   New Entry, gained the search field and export button in its navigation bar, and now
   lists entries as `Row / Session` with **badges above the journal, not below**.
 - **The resume board is gone.** There is no "you were writing" card anywhere in the app.
-- **`Left-handed layout` and `Sound` are stored but inert** — nothing reads them. Frame 48
+- **`Left-handed layout` and `Sound` are stored but inert** — nothing reads them (both
+  since built: v3.2 and v3.4). Frame 48
   is marked NOT BUILT rather than describing a layout the app never produces.
 - **Copy corrected throughout** to the exact strings in the code — Results, the writing
   footer hints, Journal Home's empty state, Entry Detail's stats, the overflow menu, the
@@ -259,7 +277,7 @@ One Penpot file: **`Wireframes`**.
 |---|---|
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
-| `02 · Profiles` | Frames 1–6, 51 |
+| `02 · Profiles` | Frames 1–6, 51, and the welcome — 55–58 (v3.4) |
 | `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
@@ -680,6 +698,7 @@ is the authority, and the library must carry exactly its eight, in its order:
 | `Sheet / Badge` (v3.2) | 480 wide, `radius-sheet`, `paper-raised`, `shadow-modal`, centred on `overlay-scrim`. `Badge / Tile` at 88 pt, 40 pt from the top; name `title-2` 24 pt below; then *Earned* (`checkmark.circle.fill` 15 pt, `success`) or *Not earned yet* (`circle.dashed`, `text-secondary`) in `caption`; one `body` line, centred, 32 pt side padding — what earned it, or what will; `Button / Primary` "Got it" 32 pt below and 32 pt from the bottom. `xmark` 20 pt in a 44 pt `paper-sunk` disc, 16 pt in from the top-trailing corner. Closes on the button, the ✕ or the scrim; springs in and out (§4). |
 | `Menu / Overflow` | 320 wide, rows h 60, `radius` 16, `paper-raised`, `shadow-modal`, hairline between rows inset 20 pt. Four rows, in this order: *Write it all again*, *Share as PDF*, *Rename this entry*, then a divider and *Delete this entry* in `danger`. (*Hear what I said* was retired in v3.0.) |
 | `Row / Setting` | h 64, full width, label `body` leading, control trailing, 1 pt `divider` bottom inset 16 pt leading |
+| `Row / Link` (v3.4) | `Row / Setting` for a page that opens in Safari: label `body` in `action`, `square.and.arrow.up` 20 pt in `action` trailing (the app draws `arrow.up.right.square`), the same hairline. Frames 55 and 34. |
 | `Keyboard` | h 316, `paper-sunk`, 1 pt `divider` top edge. Four rows, key h 62, gap 10, row gap 12, keys `paper-raised` with `radius` 8 and `shadow-card`; modifier keys `star-off`. |
 | `Search field` (v3.1) | Full content width × 44, `paper-sunk`, `radius-pill`, 16 pt padding: `magnifyingglass` 20 pt in `text-secondary`, "Search what you said" `body`, `xmark.circle.fill` in `star-off` trailing once there is a query. Sits under the My Journal header, above the rows. |
 | `Empty state` | Icon 72 pt in `star-off`, `title-2` heading 24 pt below, `body` explanation in `text-secondary` 12 pt below, optional `Button / Primary` 32 pt below. Vertically centred in its area. |
@@ -985,9 +1004,12 @@ talking*, the `Segmented / View · Edit` control, the toolbar's *I'm finished* (
 
 ## 12. Frame Inventory
 
-42 frames, all portrait 834 × 1194 — plus 11 landscape frames at 1194 × 834 on page
+46 frames, all portrait 834 × 1194 — plus 11 landscape frames at 1194 × 834 on page
 `06 · Landscape` (v3.3), one per screen family, each numbered after the portrait frame it
-mirrors (01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49).
+mirrors (01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49). The welcome (55–58, v3.4) has no
+landscape frame: frames 55 and 56 are the page's width centred and scroll; frame 57's
+letter step puts its words, status and buttons in a 420 pt column beside the sheet so
+that it never scrolls (a sheet in a scroll view would scroll under a finger, not ink).
 
 ### `02 · Profiles`
 
@@ -1000,6 +1022,10 @@ mirrors (01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49).
 | 5 | Profile Editor — new, empty | Empty avatar; **Take Photo + Choose Photo**; name field with "1–20 characters"; a single *Use a 4-digit PIN* toggle, off; Font/Size/Mode rows (Mode has no chevron) |
 | 6 | Profile Editor — existing, with photo | Populated; the photo carries its own destructive **✕ badge** (there is no "Remove" button) and "Tap the photo to move or zoom it"; PIN toggle on with a four-digit field; Delete Profile visible |
 | 51 | Photo framing — move and zoom | `AvatarCropView`: black ground, square framing window with the circular mask drawn over it, "Drag to move · pinch to zoom", Cancel + "✓ Use Photo". Reached from both photo buttons and from tapping the avatar |
+| 55 | Welcome — a grown-up agrees | v3.4, §13.7. Step dots, the `checkmark.seal` well, "A grown-up needs to agree", two `Row / Link` rows (Terms of use · Privacy policy), the sunk privacy note, `Button / Primary` "✓ I agree" and its caption. Shown once per iPad before frame 2; returns alone when the terms' date changes |
+| 56 | Welcome — voice feedback | The `speaker.wave.2.fill` well, "Should the iPad talk?", the one-paragraph explanation, `Button / Secondary` "Hear it", `Button / Primary` "Yes, talk to me", `Button / Text` "No thanks, stay quiet", the caption naming the per-profile switch |
+| 57 | Welcome — trace a letter | "Let's check your Apple Pencil": a 320 × 400 practice sheet with one big A (Jua at the sheet's 300 pt cap, the formation arrows, live ink), the status "That's an Apple Pencil — you're ready!" in `success`, `Button / Primary` "Let's write" enabled, `Button / Text` "I don't have an Apple Pencil" |
+| 58 | Welcome — that was a finger | Frame 57 after a finger stroke: the status "That was a finger. Try the Apple Pencil." with `hand.thumbsup` in `star-on`, "Let's write" disabled. A pencil stroke turns it back into 57 |
 
 ### `03 · Journal`
 
@@ -1059,8 +1085,8 @@ screens** — they are states of the page (v2.5).
 |---|---|---|
 | 31 | Progress — by mode and font | Chart with two setting-change markers (**no date-range switch and no x-axis labels** — the app hides that axis), per-setting table, the size nudge, then the stats card (Sessions written / Words written / Days journaled / Longest streak) |
 | 32 | Progress — insufficient data | Fewer than 5 **entries** at one setting; empty state, plus the same copy-mode note under the table |
-| 33 | Settings — profile | A single **"Name, photo and PIN"** row that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback; Danger zone with its caption; then *Switch to someone else* |
-| 34 | Settings — app | iCloud row disabled, Version, **three** plain-language notes. No "What's new" or "Privacy" rows |
+| 33 | Settings — profile | A single **"Name, photo and PIN"** row that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback — **Voice feedback** (v3.4, with its one-line subtitle), Haptics, the colourblind scheme; Danger zone with its caption; then *Switch to someone else* |
+| 34 | Settings — app | iCloud row disabled, Version, **LEGAL** (v3.4): *Terms of use* and *Privacy policy* as `Row / Link` with "A grown-up agreed on 2 September 2026." beneath, then **three** plain-language notes — PIN, destructive actions, and the microphone feeding recognition and nothing else. No "What's new" row |
 | 38 | Settings — font picker | Five curated faces (Jua, Andika, Varela Round, Sniglet, Comic Neue), live previews, selected state |
 | 39 | Settings — font size picker | Five sizes, live previews. **The nudge is not here** — it belongs to Settings and Progress (§13.5) |
 
@@ -1204,7 +1230,7 @@ rest of the screen is laid out around it.
 |---|---|
 | Write (20, 24, 25, 48) | The page column, 834 wide, beside a 360 rail on the free-hand side (§11.1). The toolbar stretches: Back leading, the date centred, the tools trailing at 52 pt. |
 | Practice (49) | The sheet keeps its portrait width so the letters keep their size; the prompt, the legend and the award stack in the rail. |
-| Journal Home (09) | The dashboard column — header, the deck stacked, points, badges — at 560 on the left; the journal — its header with Progress and Settings trailing, the search field, the rows — on the right. In both orientations only the rows scroll. |
+| Journal Home (09) | The dashboard column — header, the deck stacked, points, badges — at 560 on the left; the journal — its header with Progress and Settings trailing, the search field, the rows — on the right. The rows scroll in both orientations; the badges wrap into rows and scroll vertically in landscape only. |
 | Entry Detail (15) | The reading page at its width; the stats card and the two actions in the column beside it — on the rail's side, so the page stays put when the pencil lands and Edit takes over. |
 | Results (29) | The score on the left, the page preview and its setup on the right, *Back to my journal* under both. |
 | Profile Picker (01) | One row of four at the same 96 pt gaps. |
@@ -1216,6 +1242,50 @@ rail sits away from the writing hand — left, or right with *Left-handed layout
 nothing else mirrors.
 
 ---
+
+### 13.7 The welcome (v3.4) — frames 55–58
+
+Once per iPad, before frame 2. The column is the page's width (786 content) centred in
+both orientations; in landscape frames 55 and 56 scroll, and 57/58 lay the words, the
+status and the buttons in a 420 pt column beside the sheet instead. Step dots at y 39, centred: 10 pt capsules 6
+apart, the current one 28 wide, done and current in `action`, the rest `star-off`. *Back*
+(`Button / Text`) at x 24, y 32 on every step but the first.
+
+| Frame 55 — a grown-up agrees | x | y | Size |
+|---|---|---|---|
+| Well — 176 disc `paper-sunk`, `checkmark.seal` 84 pt `action` | 329 | 112 | 176 |
+| "A grown-up needs to agree", `title-1`, centred | — | 320 | — |
+| Explanation, `body`, `text-secondary`, centred | 64 | 373 | 706 × 48 |
+| `Row / Link` Terms of use · Privacy policy | 24 | 453 | 786 × 64 each |
+| Privacy note — sunk card, `lock.fill` 26 pt | 24 | 605 | 786 × 120 |
+| `Button / Primary` "✓ I agree" | 277 | 765 | 280 × 64 |
+| Caption, `caption`, centred | 64 | 845 | 706 |
+
+| Frame 56 — voice feedback | x | y | Size |
+|---|---|---|---|
+| Well, `speaker.wave.2.fill` | 329 | 112 | 176 |
+| "Should the iPad talk?", `title-1` | — | 320 | — |
+| Explanation, `body`, three lines | 64 | 373 | 706 × 72 |
+| `Button / Secondary` "Hear it" | 307 | 485 | 220 × 56 |
+| `Button / Primary` "Yes, talk to me" | 252 | 581 | 330 × 64 |
+| `Button / Text` "No thanks, stay quiet" | — | 661 | h 44 |
+| Caption | 64 | 725 | 706 |
+
+| Frames 57 · 58 — trace a letter | x | y | Size |
+|---|---|---|---|
+| "Let's check your Apple Pencil", `title-1` | — | 112 | — |
+| Explanation, `body`, two lines | 64 | 165 | 706 × 48 |
+| Practice sheet — `paper`, `radius-card`, 1 pt `divider`, `shadow-card` | 257 | 245 | 320 × 400 |
+| — the letter: Jua 300 pt in `guide-text`, laid out from the 40 pt inset; rules at the sheet's y 80 (dashed), 296 (baseline), 359 (dashed) | | | |
+| — the formation: three `practice-path` 2 pt strokes with arrowheads; live ink 5 pt in `ink-inside` / `ink-outside` | | | |
+| Status line, `headline` — 57: `checkmark.circle.fill` + `success`; 58: `hand.thumbsup` `star-on` + `text-primary` | — | 665 | h 34 |
+| `Button / Primary` "Let's write" — enabled on 57, `action-disabled` on 58 | 277 | 721 | 280 × 64 |
+| `Button / Text` "I don't have an Apple Pencil" | — | 801 | h 44 |
+
+The sheet is 320 wide on purpose: the practice sheet sizes its letter to its width
+(capped at 300 pt) and lays it out from the left inset, so a narrow sheet is what centres
+a single letter. A finger is allowed to draw on it so that it can be recognised as a
+finger.
 
 ## 14. Sample Content
 
@@ -1314,6 +1384,8 @@ guide layer (writing frames keep it; journal frames do not).
 
 ## 16. States and Edge Cases Checklist
 
+- [ ] First launch — the welcome: a grown-up agrees (frame 55), the voice question (56), the letter traced with a pencil (57) and with a finger (58)
+- [ ] The terms' date changed since they were agreed — the agreement step alone (frame 55)
 - [ ] First launch — no profiles exist (frame 2)
 - [ ] New profile — no sessions, no streak, all badges grey (frame 10)
 - [ ] Wrong PIN (frame 4)
@@ -1339,7 +1411,7 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] Guide lines toggled off (frame 46)
 - [ ] Colourblind ink scheme (frame 47)
 - [ ] Left-handed layout — the handle gutter mirrored to the right (frame 48). Nothing
-      else moves. `soundEnabled` is still inert: the toggle exists, no sound is played.
+      else moves. `soundEnabled` is **Voice feedback** since v3.4 (frame 33).
 - [ ] Letter practice — the alphabet worksheet (frame 49)
 - [ ] A word finished with letters in the wrong order — the formation-help modal (frame 50)
 - [ ] Framing a profile photo — move and zoom (frame 51)
@@ -1364,7 +1436,7 @@ Development then starts at Phase 1 in `DESIGN_DOCUMENT.md` §15.
 
 ---
 
-*Document version: 3.0*
-*Last updated: 2026-09-01*
-*Companion to DESIGN_DOCUMENT.md v2.6*
+*Document version: 3.4*
+*Last updated: 2026-09-02*
+*Companion to DESIGN_DOCUMENT.md v3.4*
 *v3.0 was reconciled against the built app — where the two disagreed, the app won.*

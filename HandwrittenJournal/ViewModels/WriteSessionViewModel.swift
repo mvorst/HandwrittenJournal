@@ -249,6 +249,7 @@ final class WriteSessionViewModel {
         formationHelp = FormationHelp(wordText: request.wordText,
                                       wrongOffsets: request.wrongOffsets,
                                       lessons: lessons)
+        Telemetry.log(.formationHelpShown(letters: lessons.count))
         Haptics.tap()
     }
 
@@ -353,6 +354,7 @@ final class WriteSessionViewModel {
             tool = .pen
             try speech.start()
             mic = .listening
+            Voice.setListening(true)
             Haptics.tap()
         } catch {
             leaveSurface(for: .unavailable("The microphone could not start"))
@@ -363,8 +365,12 @@ final class WriteSessionViewModel {
     func dictationEnded() {
         guard mic == .listening else { return }
         speech.stop()
+        Voice.setListening(false)
         mic = speech.didReachCap ? .capped : .idle
         let heard = Self.tidy(speech.transcript)
+        Telemetry.log(.dictationEnded(seconds: Int(speech.elapsed.rounded()),
+                                      words: WritingSession.wordCount(heard),
+                                      reachedCap: speech.didReachCap))
         let firstTelling = !pageHasInk
         if let range = replacing {
             replacing = nil
@@ -389,7 +395,10 @@ final class WriteSessionViewModel {
     private func wordsLanded(firstTelling: Bool) {
         guard !basePageText.isEmpty else { return }
         controller.selectFirstUnwrittenRow()
-        if firstTelling, mic != .capped { showYourTurn = true }
+        if firstTelling, mic != .capped {
+            showYourTurn = true
+            Voice.say(.yourTurn)
+        }
     }
 
     func dismissCapBanner() {
@@ -437,9 +446,12 @@ final class WriteSessionViewModel {
         // not put the archive back — or could not — reports an empty page, and that is
         // the restore failing, not the child changing their mind.
         guard controller.accountsForArchive else { return }
+        let grew = min(newLength, basePageText.count) > recordLength
         recordLength = min(newLength, basePageText.count)
         persist()
         save()
+        // A line settled under the child's pen — the one moment a cheer belongs (§4.12).
+        if grew { Voice.sayLineDone() }
     }
 
     /// A stroke landed, or was undone, erased or cleared: the archive follows the ink
@@ -502,6 +514,7 @@ final class WriteSessionViewModel {
         if tool.editsWords { tool = .pen }
         let text = Self.tidy(draft)
         guard !text.isEmpty else { return }
+        Telemetry.log(.wordsTyped(words: WritingSession.wordCount(text)))
         let firstTelling = !pageHasInk
         appendDictation(text)
         wordsLanded(firstTelling: firstTelling)
@@ -641,6 +654,9 @@ final class WriteSessionViewModel {
         // from the entry as it now stands.
         stageSurface()
         Haptics.success()
+        if let result = lastResult {
+            Voice.say(.entryFinished(name: profile.name, finishedEverything: result.finishedEverything))
+        }
         stage = .results
     }
 
@@ -679,6 +695,8 @@ final class WriteSessionViewModel {
         lastResult = result
         applyProgress(result: result, replacing: earlier)
         save()
+        Telemetry.log(.entryFinished(result: result, setup: session.setup,
+                                     minutes: Int((Date.now.timeIntervalSince(session.startedAt) / 60).rounded())))
         return result
     }
 
@@ -708,6 +726,7 @@ final class WriteSessionViewModel {
         let earned = BadgeEngine.newlyEarned(from: snapshot, existing: profile.earnedBadgeIDs)
         newBadges = earned
         profile.earnedBadgeIDs.append(contentsOf: earned.map(\.id))
+        for badge in earned { Telemetry.log(.badgeEarned(id: badge.id)) }
     }
 
     /// Leaving the writing surface — switching to reading, the page closing — or about

@@ -78,6 +78,7 @@ struct JournalHomeView: View {
             }
         }
         .animation(Tokens.Motion.spring, value: shownBadge)
+        .onAppear { Telemetry.screen(.journal) }
         .task {
             #if DEBUG
             switch DemoData.screen {
@@ -95,13 +96,13 @@ struct JournalHomeView: View {
     // MARK: - Dashboard
 
     /// Everything above the journal: the header, the action deck, the points card and
-    /// the badges. It never scrolls (v3.3).
+    /// the badges. Only the badges scroll, and only in landscape, where they wrap (v3.3).
     private func dashboard(_ layout: ScreenLayout) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             header(showsButtons: !layout.isLandscape)
             actionDeck(layout)
             pointsCard(layout)
-            badgesSection
+            badgesSection(layout)
         }
     }
 
@@ -234,7 +235,10 @@ struct JournalHomeView: View {
 
     // MARK: - Badges
 
-    private var badgesSection: some View {
+    /// In portrait the tiles are one strip that scrolls sideways. In landscape the
+    /// dashboard column is narrow and tall, so the tiles wrap into rows and the section
+    /// scrolls up and down instead — the only part of the dashboard that scrolls.
+    private func badgesSection(_ layout: ScreenLayout) -> some View {
         let earned = BadgeEngine.all.filter { profile.earnedBadgeIDs.contains($0.id) }.count
         return VStack(alignment: .leading, spacing: Tokens.Space.s4) {
             SectionHeader(title: "Badges", trailing: AnyView(
@@ -242,23 +246,34 @@ struct JournalHomeView: View {
                     .font(.hjCaption)
                     .foregroundStyle(Tokens.Colour.textSecondary)
             ))
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    ForEach(BadgeEngine.all) { badge in
-                        let earned = profile.earnedBadgeIDs.contains(badge.id)
-                        // Every tile is a button: a tap opens the badge's card (v3.2).
-                        Button { shownBadge = badge } label: {
-                            BadgeTile(badge: badge, earned: earned)
-                        }
-                        .buttonStyle(PressableStyle())
-                        .accessibilityLabel(earned ? "\(badge.name), earned" : "\(badge.name), not earned yet")
-                        .accessibilityHint("Shows what this badge is for")
+            if layout.isLandscape {
+                ScrollView(.vertical, showsIndicators: false) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 64), spacing: 20)], spacing: 20) {
+                        badgeTiles
                     }
+                    .padding(.vertical, Tokens.Space.s1)
                 }
-                .padding(.vertical, Tokens.Space.s1)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) { badgeTiles }
+                        .padding(.vertical, Tokens.Space.s1)
+                }
             }
         }
         .padding(.top, Tokens.Space.s6)
+    }
+
+    private var badgeTiles: some View {
+        ForEach(BadgeEngine.all) { badge in
+            let earned = profile.earnedBadgeIDs.contains(badge.id)
+            // Every tile is a button: a tap opens the badge's card (v3.2).
+            Button { shownBadge = badge } label: {
+                BadgeTile(badge: badge, earned: earned)
+            }
+            .buttonStyle(PressableStyle())
+            .accessibilityLabel(earned ? "\(badge.name), earned" : "\(badge.name), not earned yet")
+            .accessibilityHint("Shows what this badge is for")
+        }
     }
 
     // MARK: - Entries

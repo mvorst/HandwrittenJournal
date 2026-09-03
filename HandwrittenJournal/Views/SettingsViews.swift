@@ -60,7 +60,10 @@ struct ProfileSettingsView: View {
                     nudge
 
                     section("FEEDBACK") {
-                        SettingRow(title: "Sound") {
+                        // v3.4 — `soundEnabled` is voice feedback: the iPad speaking at the
+                        // moments a grown-up beside the child would (§4.12).
+                        SettingRow(title: "Voice feedback",
+                                   subtitle: "Says whose turn it is and cheers a finished line") {
                             Toggle("", isOn: $profile.soundEnabled).labelsHidden().tint(Tokens.Colour.action)
                         }
                         SettingRow(title: "Haptics") {
@@ -96,8 +99,18 @@ struct ProfileSettingsView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
         .task { setup = profile.setup }
-        .onChange(of: setup) { profile.setup = setup }
+        .onAppear { Telemetry.screen(.profileSettings) }
+        .onChange(of: setup) { _, setup in
+            // Compared with the profile, not the previous state: the first change is the
+            // load from the profile itself, which is not a choice.
+            let before = profile.setup
+            profile.setup = setup
+            if before.face != setup.face || before.size != setup.size {
+                Telemetry.log(.typefaceChanged(setup: setup))
+            }
+        }
         .onChange(of: profile.hapticsEnabled) { Haptics.configure(enabled: profile.hapticsEnabled) }
+        .onChange(of: profile.soundEnabled) { Voice.configure(enabled: profile.soundEnabled) }
         .sheet(isPresented: $showFontPicker) { FontPickerView(setup: $setup).presentationDetents([.large]) }
         .sheet(isPresented: $showSizePicker) { SizePickerView(setup: $setup).presentationDetents([.large]) }
         .sheet(isPresented: $showEditor) {
@@ -151,6 +164,8 @@ struct ProfileSettingsView: View {
 /// Frame 34.
 struct AppSettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    let onboarding: Onboarding = .shared
 
     var body: some View {
         NavigationStack {
@@ -171,11 +186,21 @@ struct AppSettingsView: View {
                         Text(Self.version).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     }
 
+                    // v3.4 — what the welcome asked a grown-up to agree to, kept reachable.
+                    Text("LEGAL").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                        .padding(.top, Tokens.Space.s7)
+                    LinkRow(title: "Terms of use") { openURL(Onboarding.termsURL) }
+                    LinkRow(title: "Privacy policy") { openURL(Onboarding.privacyURL) }
+                    Text(agreedLine)
+                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                        .padding(.top, Tokens.Space.s3)
+
                     Text("GOOD TO KNOW").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                         .padding(.top, Tokens.Space.s7)
                     note("A profile PIN is a courtesy lock, not security. It keeps a brother or sister out of someone else's journal — it will not stop a determined grown-up, and nothing here is encrypted.")
                     note("Deleting a profile or resetting progress cannot be undone. Both are marked \u{201C}grown-ups only\u{201D} but the app does not check.")
-                    note("Your child's voice is recorded so each sentence can be played back. It never leaves this iPad, and deleting a sentence deletes its recording.")
+                    note("The microphone feeds speech recognition on this iPad and nothing else. No audio is recorded or kept, and the words your child says never leave the iPad.")
+                    note("The app sends anonymous crash reports and usage statistics so we can fix problems and improve it \u{2014} which screens are used, how long a session lasts, which typeface is chosen. Never the words on a page, ink, names, photos or voice, and never sold. The privacy policy has the details.")
                 }
                 .padding(.horizontal, Tokens.Layout.screenMargin)
                 .padding(.bottom, Tokens.Space.s8)
@@ -185,6 +210,7 @@ struct AppSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
+        .onAppear { Telemetry.screen(.appSettings) }
     }
 
     private func note(_ text: String) -> some View {
@@ -193,6 +219,13 @@ struct AppSettingsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .sunkCard()
             .padding(.top, Tokens.Space.s3)
+    }
+
+    private var agreedLine: String {
+        guard let date = onboarding.termsAcceptedAt, onboarding.hasAcceptedCurrentTerms else {
+            return "Not yet agreed on this iPad."
+        }
+        return "A grown-up agreed on \(date.formatted(date: .long, time: .omitted))."
     }
 
     static var version: String {

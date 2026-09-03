@@ -68,6 +68,9 @@ final class SpeechRecognitionService {
 
     /// Current status without prompting — used to decide whether to show the explainer.
     func currentStatusWithoutPrompting() -> Availability {
+        #if DEBUG
+        if Self.fakeScript != nil { return .ready }
+        #endif
         guard let recogniser, recogniser.isAvailable else {
             return .unavailable("Speech recognition is not available on this iPad.")
         }
@@ -91,6 +94,9 @@ final class SpeechRecognitionService {
         elapsed = 0
         didReachCap = false
         failures = 0
+        #if DEBUG
+        if let script = Self.fakeScript { startFake(script); return }
+        #endif
 
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
@@ -232,6 +238,34 @@ final class SpeechRecognitionService {
             request?.endAudio()
         }
     }
+
+    // MARK: - Simulator hook
+
+    #if DEBUG
+    /// `-fakeDictation "words to say"` — the simulator has no microphone, so a scripted take
+    /// stands in for one: each word arrives as a cumulative partial result, two a second,
+    /// through the same path a real hypothesis takes.
+    static var fakeScript: String? { UserDefaults.standard.string(forKey: "fakeDictation") }
+
+    private func startFake(_ script: String) {
+        let words = script.split(separator: " ").map(String.init)
+        var spoken = 0
+        startedAt = .now
+        isRecording = true
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, let started = self.startedAt else { return }
+                self.elapsed = Date.now.timeIntervalSince(started)
+                self.level = Double.random(in: 0.2...0.8)
+                if spoken < words.count {
+                    spoken += 1
+                    self.take.hear(words.prefix(spoken).joined(separator: " "))
+                    print("fakeDictation heard: \(self.take.text)")
+                }
+            }
+        }
+    }
+    #endif
 
     // MARK: - Helpers
 

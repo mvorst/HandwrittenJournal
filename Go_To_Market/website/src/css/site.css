@@ -89,6 +89,13 @@ p { margin: 0 0 1em; }
 .btn-secondary { background: var(--card); color: var(--action); border-color: var(--action); }
 .btn-dark { background: var(--ink); color: #fff; }
 .btn svg { width: 20px; height: 20px; }
+/* Apple's App Store badge, used as supplied: minimum 40px tall on screen, clear space of a
+   quarter of its height on every side, never recoloured or reshaped. */
+.badge-link { display: inline-block; line-height: 0; padding: 10px; margin: -10px; border-radius: 8px; }
+.badge-link img { height: 40px; width: auto; }
+.badge-link.badge-lg { padding: 14px; margin: -14px; }
+.badge-link.badge-lg img { height: 56px; }
+.nav .badge-link { margin-left: 0.4rem; }
 
 /* ---------- hero ---------- */
 .hero { padding: 3.5rem 0 2.5rem; }
@@ -222,6 +229,7 @@ section.alt { background: var(--paper-sunk); }
   .nav.open { display: flex; }
   .nav a { padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
   .nav .btn { margin-top: 0.8rem; border-bottom: 0; }
+  .nav .badge-link { margin: 0.9rem 0 0; padding: 0; border-bottom: 0; }
   .nav-toggle { display: inline-block; }
   .downloads { grid-template-columns: 1fr; }
 }

@@ -24,8 +24,17 @@ final class PracticeController {
     private(set) var formationComplete = false
     /// §8.1b — grows by one each time finished ink turns out wrong-order.
     private(set) var attemptFailures = 0
+    /// v3.4 — how many strokes have begun on this sheet, and what began the last one.
+    /// The welcome's pencil check watches for `.pencil` (frame 57).
+    private(set) var inkBegins = 0
+    private(set) var lastInkTouch: UITouch.TouchType?
 
     fileprivate weak var canvas: PracticeCanvasView?
+
+    fileprivate func inkBegan(_ type: UITouch.TouchType) {
+        lastInkTouch = type
+        inkBegins += 1
+    }
 
     fileprivate func sync() {
         guard let canvas else { return }
@@ -55,6 +64,10 @@ struct PracticeSurface: UIViewRepresentable {
     var sheetText = PracticeSheet.text
     var autoSelectSoleGlyph = false
     var requireFullFormation = false
+    /// §8.1b — centre each row instead of running it from the left edge. The
+    /// remediation modal's sheet holds one letter, and a letter that does not fill the
+    /// row belongs in the middle of it.
+    var centred = false
     /// §8.3 (v3.1) — the letters that have already earned today, by points, so the
     /// sheet can colour what is done. Empty on the remediation modal's sheet.
     var completed: [Character: Int] = [:]
@@ -67,10 +80,12 @@ struct PracticeSurface: UIViewRepresentable {
         view.canvas.colourBlind = colourBlind
         view.canvas.autoSelectSoleGlyph = autoSelectSoleGlyph
         view.canvas.requireFullFormation = requireFullFormation
+        view.canvas.centred = centred
         view.canvas.completed = completed
         view.canvas.text = sheetText
         controller.canvas = view.canvas
         view.canvas.onStateChange = { [weak controller] in controller?.sync() }
+        view.canvas.onInkBegan = { [weak controller] in controller?.inkBegan($0) }
         view.setFingerDraws(allowFinger)
         return view
     }
@@ -136,6 +151,10 @@ final class PracticeCanvasView: UIView {
     /// formation followed in order *and* every one of its strokes covered, not just
     /// enough good ink. Off for the practice sheet, on for the remediation modal.
     var requireFullFormation = false
+    /// §8.1b — rows centre in the sheet rather than starting at its left edge. Set
+    /// before the sheet is first laid out; the modal's one letter is otherwise pinned
+    /// to the left with the rest of the row empty.
+    var centred = false { didSet { if centred != oldValue { rebuild() } } }
     /// §8.3 (v3.1) — the letters that have already earned today, by points. Each draws
     /// in its status colour so the sheet shows what is done; the letter in hand always
     /// draws in the guide colour, or its own green ink would vanish into a green letter.
@@ -143,6 +162,8 @@ final class PracticeCanvasView: UIView {
         didSet { if completed != oldValue { setNeedsDisplay() } }
     }
     var onStateChange: (() -> Void)?
+    /// A stroke began, and what began it (v3.4): `.pencil`, or a finger.
+    var onInkBegan: ((UITouch.TouchType) -> Void)?
 
     private(set) var phase: PracticePhase = .idle
 
@@ -255,7 +276,8 @@ final class PracticeCanvasView: UIView {
         orderJudge = FormationOrderJudge(setup: sheetSetup)
         let pixels = bounds.width * bounds.height * 4
         let scale: CGFloat = pixels > 40_000_000 ? 1 : min(2, UIScreen.main.scale)
-        maskRenderer.generate(text: text, setup: sheetSetup, canvasSize: bounds.size, screenScale: scale)
+        maskRenderer.generate(text: text, setup: sheetSetup, canvasSize: bounds.size, screenScale: scale,
+                              alignment: centred ? .center : .left)
         // Geometry moved under everything; selection and ink are void.
         clearDemo()
         strokes = []
@@ -448,6 +470,7 @@ final class PracticeCanvasView: UIView {
         }
         guard selectedGlyph != nil else { return }
         current = TracingStroke()
+        onInkBegan?(.pencil)
         add(touch)
         setNeedsDisplay()
     }
@@ -475,6 +498,7 @@ final class PracticeCanvasView: UIView {
             }
             guard selectedGlyph != nil else { return }
             current = TracingStroke()
+            onInkBegan?(active.type)
             // The whole buffered head, so the stroke begins where the touch did.
             for sample in pending.head { append(location: sample.location, force: sample.force) }
             setNeedsDisplay()
@@ -498,6 +522,7 @@ final class PracticeCanvasView: UIView {
             if autoSelectSoleGlyph, hasInk, pending.canDraw,
                maskRenderer.glyphIndex(at: pending.point, slack: 10) == selectedGlyph {
                 current = TracingStroke()
+                onInkBegan?(active.type)
                 append(location: pending.point, force: 0.55)
                 endStroke()
                 return

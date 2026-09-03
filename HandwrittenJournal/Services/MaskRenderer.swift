@@ -136,7 +136,8 @@ final class MaskRenderer {
                   inset: CGFloat = Tokens.Layout.surfaceInset,
                   topPadding: CGFloat = Tokens.Space.s7,
                   screenScale: CGFloat = UIScreen.main.scale,
-                  layoutOnly: Bool = false) -> Layout {
+                  layoutOnly: Bool = false,
+                  alignment: NSTextAlignment = .left) -> Layout {
 
         scale = screenScale
         width = max(0, Int(canvasSize.width * screenScale))
@@ -149,7 +150,7 @@ final class MaskRenderer {
             return layout
         }
 
-        let attributed = Self.attributedString(text: text, setup: setup)
+        let attributed = Self.attributedString(text: text, setup: setup, alignment: alignment)
         let textWidth = canvasSize.width - inset * 2
         let frameRect = CGRect(x: inset, y: 0, width: textWidth, height: canvasSize.height)
         let framePath = CGPath(rect: frameRect, transform: nil)
@@ -166,7 +167,8 @@ final class MaskRenderer {
                               topPadding: topPadding,
                               lineSpacing: Self.lineAdvance(for: setup))
 
-        guideSource = GuideSource(text: text, setup: setup, frameRect: frameRect, canvasHeight: canvasSize.height)
+        guideSource = GuideSource(text: text, setup: setup, frameRect: frameRect,
+                                  canvasHeight: canvasSize.height, alignment: alignment)
         guideCaches = [:]
         if !layoutOnly {
             renderBitmap(frame: ctFrame, canvasSize: canvasSize, topPadding: topPadding, screenScale: screenScale)
@@ -178,11 +180,12 @@ final class MaskRenderer {
 
     static func attributedString(text: String,
                                  setup: WritingSetup,
-                                 colour: UIColor = .white) -> NSAttributedString {
+                                 colour: UIColor = .white,
+                                 alignment: NSTextAlignment = .left) -> NSAttributedString {
         NSAttributedString(string: text, attributes: [
             .font: setup.uiFont(),
             .foregroundColor: colour,
-            .paragraphStyle: paragraphStyle(for: setup),
+            .paragraphStyle: paragraphStyle(for: setup, alignment: alignment),
         ])
     }
 
@@ -223,11 +226,16 @@ final class MaskRenderer {
         return max(1, origins[0].y - origins[1].y)
     }
 
-    static func paragraphStyle(for setup: WritingSetup) -> NSParagraphStyle {
+    /// `alignment` is the journal page's `.left` everywhere but the remediation modal,
+    /// whose one-letter sheet centres so the letter does not huddle at the left edge.
+    /// The measured glyph boxes and the drawn guide both follow the frame's own line
+    /// origins, so a centred line scores exactly where it is drawn.
+    static func paragraphStyle(for setup: WritingSetup,
+                               alignment: NSTextAlignment = .left) -> NSParagraphStyle {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = max(0, setup.size.lineSpacing - naturalAdvance(for: setup))
         paragraph.lineBreakMode = .byWordWrapping
-        paragraph.alignment = .left
+        paragraph.alignment = alignment
         return paragraph
     }
 
@@ -436,7 +444,8 @@ final class MaskRenderer {
     private func guideLines(colour: UIColor) -> GuideCache? {
         if let cached = guideCaches[colour.description] { return cached }
         guard let source = guideSource else { return nil }
-        let attributed = Self.attributedString(text: source.text, setup: source.setup, colour: colour)
+        let attributed = Self.attributedString(text: source.text, setup: source.setup,
+                                               colour: colour, alignment: source.alignment)
         let framesetter = CTFramesetterCreateWithAttributedString(attributed)
         let path = CGPath(rect: source.frameRect, transform: nil)
         let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, attributed.length), path, nil)
@@ -478,7 +487,8 @@ final class MaskRenderer {
             guide = cached.guide
         } else {
             let attributed = NSMutableAttributedString(
-                attributedString: Self.attributedString(text: source.text, setup: source.setup, colour: colour))
+                attributedString: Self.attributedString(text: source.text, setup: source.setup,
+                                                        colour: colour, alignment: source.alignment))
             for item in overrides {
                 attributed.addAttribute(.foregroundColor, value: item.colour,
                                         range: NSRange(location: item.index, length: 1))
@@ -516,6 +526,7 @@ final class MaskRenderer {
         let setup: WritingSetup
         let frameRect: CGRect
         let canvasHeight: CGFloat
+        let alignment: NSTextAlignment
     }
     private var guideSource: GuideSource?
 

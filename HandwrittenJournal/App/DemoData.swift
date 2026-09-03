@@ -46,6 +46,20 @@ enum DemoData {
         }
     }
 
+    /// v3.4 — the welcome is settled whenever the harness is driving, so a screenshot
+    /// run lands on the screen it asked for; `-screen welcome` asks for the welcome
+    /// itself, on a fresh iPad.
+    @MainActor
+    static func settleWelcome(_ onboarding: Onboarding) {
+        if screen == "welcome" { onboarding.reset(); return }
+        guard wantsSeed || screen != nil else { return }
+        if !onboarding.hasAcceptedCurrentTerms { onboarding.acceptTerms() }
+        if !onboarding.isComplete {
+            onboarding.recordPencilCheck(.pencil)
+            onboarding.finish()
+        }
+    }
+
     @MainActor
     static func seedIfNeeded(_ context: ModelContext) {
         guard wantsSeed else { return }

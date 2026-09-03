@@ -56,6 +56,7 @@ struct ProfilePickerView: View {
             PinPadView(profile: profile) { selected = profile }
         }
         .sheet(isPresented: $showAppSettings) { AppSettingsView().presentationDetents([.large]) }
+        .onAppear { Telemetry.screen(.profilePicker) }
     }
 
     private var emptyState: some View {

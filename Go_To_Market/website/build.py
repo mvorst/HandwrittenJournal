@@ -168,8 +168,8 @@ def build_og(dist_assets, css_name):
     h1{{font-size:74px;line-height:1.05;margin:0 0 18px;letter-spacing:-1px}} p{{font-size:30px;line-height:1.35;margin:0;color:#3A3A3C}}
     .free{{display:inline-block;margin-top:26px;background:#007AFF;color:#fff;font-weight:700;font-size:26px;border-radius:14px;padding:12px 22px}}
     </style></head><body><div class="wrap"><img src="{dist_assets}/icon-512.png"><div><h1>Say it. Write it. Keep it.</h1>
-    <p>An iPad journal where a child says what happened today and writes it in their own hand. Every page is kept. Nothing leaves the iPad.</p>
-    <span class="free">Free · no ads · no account</span></div></div></body></html>"""
+    <p>An iPad journal where a child says what happened today and writes it in their own hand. Every page is kept. The journal never leaves the iPad.</p>
+    <span class="free">The basic app is always free · no ads · we never sell your data</span></div></div></body></html>"""
     tmp = os.path.join(DIST, "_og.html")
     with open(tmp, "w") as f:
         f.write(html)
@@ -178,6 +178,23 @@ def build_og(dist_assets, css_name):
                     f"--screenshot={os.path.join(dist_assets, 'img', 'og.png')}", f"file://{tmp}"],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os.unlink(tmp)
+
+
+# ----------------------------------------------------------------------------- analytics
+def ga_snippet(measurement_id):
+    """Google Analytics 4 (gtag.js). Loaded from Google's servers as Google's snippet does,
+    except that it is skipped entirely when the browser sends the Global Privacy Control
+    signal. Set ga_measurement_id in site.config.json; the placeholder still builds."""
+    if not measurement_id:
+        return ""
+    if measurement_id.startswith("G-X"):
+        print("  (ga_measurement_id is still the placeholder — set it in site.config.json)")
+    return ("<script>(function(){if(navigator.globalPrivacyControl){return;}"
+            "var s=document.createElement('script');s.async=true;"
+            "s.src='https://www.googletagmanager.com/gtag/js?id=%s';document.head.appendChild(s);"
+            "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;"
+            "gtag('js',new Date());gtag('config','%s',{anonymize_ip:true});})();</script>\n"
+            % (measurement_id, measurement_id))
 
 
 # ----------------------------------------------------------------------------- pages
@@ -242,7 +259,12 @@ def main():
         "CSS": css_name,
         "JS": js_name,
         "HERO_SVG": hero_svg(),
+        "GA": ga_snippet(CONFIG.get("ga_measurement_id", "")),
+        "ANALYTICS_PROVIDER": CONFIG.get("analytics_provider", "[analytics provider]"),
+        "ANALYTICS_RETENTION": CONFIG.get("analytics_retention", "[retention period]"),
     }
+    for badge in ("app-store-badge-black.svg", "app-store-badge-white.svg"):
+        shutil.copy(os.path.join(SRC, "assets", badge), os.path.join(assets, badge))
     with open(os.path.join(SRC, "partials", "head.html")) as f:
         head = f.read()
     with open(os.path.join(SRC, "partials", "foot.html")) as f:

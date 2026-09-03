@@ -54,6 +54,7 @@ struct ProgressReportView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
+        .onAppear { Telemetry.screen(.progress) }
     }
 
     private var chart: some View {

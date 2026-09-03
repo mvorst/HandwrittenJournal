@@ -124,6 +124,7 @@ struct FormationHelpOverlay: View {
                                 sheetText: String(lesson.character),
                                 autoSelectSoleGlyph: true,
                                 requireFullFormation: true,
+                                centred: true,
                                 controller: practice)
                     .id(index)
             } else {

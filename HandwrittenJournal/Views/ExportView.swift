@@ -82,6 +82,7 @@ struct ExportView: View {
         }
         .task(id: taskKey) { rebuild() }
         .sheet(item: $shareURL) { url in ShareSheet(items: [url]) }
+        .onAppear { Telemetry.screen(.export) }
     }
 
     private var taskKey: String { "\(scope)-\(includeTyped)-\(includeAccuracy)" }
@@ -103,6 +104,7 @@ struct ExportView: View {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
         try? document.write(to: url)
         shareURL = url
+        Telemetry.log(.exportShared(scope: "\(scope)", entries: sessions.count))
     }
 }
 

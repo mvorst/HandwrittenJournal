@@ -39,6 +39,7 @@ struct PracticeView: View {
         }
         .background(Tokens.Colour.paper)
         .navigationTitle("Practice Letters")
+        .onAppear { Telemetry.screen(.practice) }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { todayPill }
@@ -51,10 +52,18 @@ struct PracticeView: View {
         }
         // §8.3 — the moment a letter flips green is the moment it earns. The ledger says
         // no to a letter that has already earned as much today, so retracing is free.
-        .onChange(of: controller.phase) { _, phase in
-            if case .traced(let char) = phase {
+        .onChange(of: controller.phase) { before, phase in
+            switch phase {
+            case .traced(let char):
                 lastAward = profile.awardPractice(character: char, followedOrder: controller.followedOrder)
-            } else {
+                Telemetry.log(.practiceTraced(followedOrder: controller.followedOrder))
+                Voice.say(.practiceTraced(char, followedOrder: controller.followedOrder))
+            case .yourTurn(let char):
+                lastAward = 0
+                // Said only when the demo hands over — a pen that is already writing
+                // does not need telling (§4.12).
+                if case .watching = before { Voice.say(.practiceYourTurn(char)) }
+            default:
                 lastAward = 0
             }
         }

@@ -247,9 +247,27 @@ final class ScrollingCanvas: UIScrollView, UIScrollViewDelegate {
 
     /// While dictating, the newest words stay in view — above the stage, when the mic is
     /// standing on the page.
+    ///
+    /// The tail is the last *line of text*, not the foot of the canvas: the canvas is
+    /// never shorter than the window, so scrolling to its foot on a page with three
+    /// lines on it pushed those lines up under the toolbar — the child saw empty rules
+    /// while they talked, and their words only once the stop brought the inset down.
+    /// Scrolls only as far as it must to keep that line, and the one after it, clear
+    /// of the stage.
     func followTail() {
         layoutIfNeeded()
-        let target = max(0, contentSize.height + contentInset.bottom - bounds.height)
+        let lines = canvas.layout.lineCount
+        guard lines > 0, let last = canvas.rect(forLine: lines - 1) else { return }
+        let advance = appliedSetup.map(MaskRenderer.lineAdvance(for:)) ?? 96
+        let tailTop = last.minY * scale
+        let tailBottom = (last.maxY + advance) * scale
+        let window = bounds.height - contentInset.bottom
+        let maxOffset = max(0, contentSize.height + contentInset.bottom - bounds.height)
+
+        var target = contentOffset.y
+        if tailBottom > target + window { target = tailBottom - window }
+        if tailTop < target { target = tailTop }
+        target = max(0, min(target, maxOffset))
         if abs(contentOffset.y - target) > 4 {
             setContentOffset(CGPoint(x: 0, y: target), animated: false)
         }

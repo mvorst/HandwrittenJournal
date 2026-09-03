@@ -7,7 +7,47 @@ Penpot file: **`Wireframes`**. Rebuilt for v2.0, revised for v2.1–v2.6 on 2026
 revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code),
 for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below), swept against the
 app for v3.1/v3.2 on 2026-09-02 (§1.-1 — the exploration pages promoted and deleted), and
-given a landscape page the same day (§1.-2).
+given a landscape page the same day (§1.-2), and the welcome frames the same day
+again (§1.-3).
+
+## 1.-3 The welcome and a voice *(drawn and built 2026-09-02, v3.4)*
+
+Four frames added to `02 · Profiles` on a third row (y 2588): **55 — Welcome — a grown-up
+agrees**, **56 — Welcome — voice feedback**, **57 — Welcome — trace a letter** and **58 —
+Welcome — that was a finger**. `WIREFRAME_SPEC.md` §13.7 has the coordinates;
+`DESIGN_DOCUMENT.md` §4.0 and §4.12 the behaviour. Two existing frames were edited in
+place: **33** (the *Sound* row is now *Voice feedback* with a one-line subtitle) and
+**34** (a LEGAL section — *Terms of use*, *Privacy policy*, the agreed-on line — and the
+third note rewritten: the microphone feeds recognition and nothing else).
+
+**What the frames settle.** The welcome is one screen family with three steps and a
+step-dot header; every step is the page's width, centred, so there is no landscape frame
+(in landscape the app scrolls 55 and 56, and puts 57's words and buttons beside the sheet
+rather than let the sheet scroll).
+Frame 57's letter sheet is the practice sheet (frame 49) at 320 × 400 with one character
+on it, drawn the way frame 49 draws: rules at 40 pt insets, the letter as Jua text, the
+formation as thin `practice-path` strokes with arrowheads, the child's ink over it. The
+two rows that open Safari are a new `Row / Link` (§10.8) — `Row / Setting` with the label
+in `action` and `square.and.arrow.up` trailing; the app draws `arrow.up.right.square`,
+which the icon sheet does not have.
+
+**What the app does differently from the frames** (built the same day):
+
+- The welcome's privacy note mirrors the *published* policy's summary (no account; the
+  journal never leaves the iPad; the policy explains the anonymous crash reports and
+  usage statistics — `DESIGN_DOCUMENT.md` §10.5), not the older "no analytics" line.
+- The step dots are drawn by the app at the same sizes; *Back* returns to the previous
+  step, and agreeing twice is harmless.
+- A finger stroke on frame 57's sheet inks (the sheet allows a finger so it can be
+  recognised); the frames draw the same ink on 57 and 58 and change only the status line
+  and the button state.
+
+**How they were built.** The `storage` helpers from the landscape pass, extended: boards
+with `clipContent = false`, library typographies by name, icons by the SVG round-trip
+from the Foundations sheet (ink → the wanted colour, paper cut-outs → the surface colour,
+stroke-based icons scaled by 32), buttons as boards with an estimated label width, and
+the letter sheet as a clipping board with Jua applied via `penpot.fonts.findByName`.
+Each frame was one `execute_code` call and was exported at 0.5× to check.
 
 ## 1.-2 Landscape — page `06 · Landscape` *(drawn and adopted 2026-09-02, v3.3)*
 
@@ -154,14 +194,14 @@ Every page was swept for the v2.8 token values (`WIREFRAME_SPEC.md` §5/§8,
 |---|---|---|
 | `00 · Foundations` | 26 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, icon sheet | 5 |
 | `01 · Components` | §10.1–§10.8, including both states of `Sheet / Badge` | 7 |
-| `02 · Profiles` | Frames 1–6, 51 | 7 |
+| `02 · Profiles` | Frames 1–6, 51, and the welcome 55–58 (§1.-3) | 11 |
 | `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 | 8 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 — every one a state of the single v3.2 screen | 21 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 | 6 |
 | `06 · Landscape` | Landscape versions of frames 01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49 and a notes board (§1.-2) | 12 |
 | `99 · Scratch` | Font calibration check; never referenced by development | 1 |
 
-**42 portrait artboards at 834 × 1194** — every one verified for overflow — plus **11 landscape artboards at 1194 × 834** on `06 · Landscape` (§1.-2).
+**46 portrait artboards at 834 × 1194** — every one verified for overflow — plus **11 landscape artboards at 1194 × 834** on `06 · Landscape` (§1.-2).
 
 **Library:** 23 colors, 20 typographies, 31 components.
 

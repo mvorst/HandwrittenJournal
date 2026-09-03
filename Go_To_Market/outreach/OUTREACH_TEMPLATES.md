@@ -21,9 +21,10 @@ carry on. When a line is finished the guide disappears and their handwriting sta
 page is kept, dated, and exports as a PDF.
 
 It is not a clinical tool, and I would rather you told me where it falls short than
-recommended something you would not use. Print only, five typefaces, English, iPad, Pencil
-or finger, left-handed layout, a colour-blind ink option, and nothing leaves the device —
-no account, no analytics, no audio kept.
+recommended something you would not use. Print only, five typefaces, English, iPad with
+Apple Pencil, left-handed layout, a colour-blind ink option, and the child's journal never
+leaves the device — no account, no audio kept; the app sends only anonymous crash and
+usage data, which we will never sell.
 
 It is free on the App Store: <link>. The one-page summary for therapists is attached. If
 you try it with a child on your caseload and have five minutes to tell me what you would
@@ -59,7 +60,8 @@ What it does: a child says what happened today, the words appear on a ruled page
 write over them in their own hand. The app marks each letter as they write, teaches stroke
 order when a letter is drawn out of order, and keeps every finished page as a dated journal
 that exports to PDF for the portfolio or the parent conference. Several children share one
-iPad with a profile each. No logins, no Wi-Fi, no data collected.
+iPad with a profile each. No logins, no accounts; the children's work never leaves the
+iPad. It needs an Apple Pencil per iPad.
 
 What the pilot asks of you: install it on the classroom iPads (it is free, through Apps and
 Books or the App Store), use it as a centre or a station for a few weeks, and fill in one
@@ -86,13 +88,16 @@ Hi <first name>,
 <Teacher> has agreed to pilot Handwritten Journal in <grade>. Before anything is installed,
 here is what your office usually needs:
 
-- **Data:** the app collects no data of any kind. The App Store privacy label is *Data Not
-  Collected*. There is no account, no server, no analytics, no advertising; speech
-  recognition runs on the iPad and no audio is recorded. Privacy policy: <URL>.
+- **Data:** the children's work never leaves the iPad — there is no account and no server
+  holding a child's writing, no advertising, and speech recognition runs on the iPad with
+  no audio recorded. The app sends anonymous crash reports and usage statistics (app
+  version, iPad model, iOS version, which features were used) tied to a random identifier;
+  they identify no child and are never sold. Privacy policy: <URL>; a one-page data
+  statement is attached for your student-data form.
 - **Purchasing:** nothing to purchase. The app is free; distribute it through Apps and
   Books in Apple School Manager like any other app. No licences, no per-seat cost, and no
   in-app purchases in this version.
-- **Requirements:** iPad, iOS 18 or later. Apple Pencil recommended; finger tracing works.
+- **Requirements:** iPad, iOS 18 or later, and an Apple Pencil for each iPad.
 - **Agreements:** if the district has a student-data-privacy form, send it over and I will
   complete it — most items are "not applicable" because nothing is collected, but I will
   sign it.
@@ -119,11 +124,13 @@ Three things worth a look:
 
 1. It grades letter by letter as the child writes, judges stroke order, and teaches a
    letter drawn backwards on the spot — during real writing, not in a drill.
-2. It keeps everything and shares nothing: no account, no analytics, no ads, on-device
-   speech, no audio stored. The App Store label is *Data Not Collected*.
+2. The child's journal never leaves the iPad: no account, no ads, on-device speech, no
+   audio stored. The only data it sends is anonymous crash and usage statistics, and it
+   will never be sold.
 3. It is a keepsake first. The whole journal exports as a PDF book.
 
-Free, with no ads and no account. Ages five to eight. iPad only.
+The basic app is always free, with no ads and no account. Ages five to eight. iPad with
+Apple Pencil.
 
 Press kit with screenshots, a 30-second clip and a fact sheet: <URL>. I am glad to answer
 questions or do a short call.
@@ -160,9 +167,11 @@ Use their submission route for apps; paste the App Store link and the following.
 
 - **Age:** 5–8. Requires speaking in sentences and beginning letter formation.
 - **Category:** Education (handwriting, journalling).
-- **Price:** Free. No ads, no subscriptions, no in-app purchases in this version.
-- **Privacy:** Data Not Collected. No account, no server, no analytics, no ads. On-device
-  speech recognition; no audio recorded.
+- **Price:** The basic app is always free; additional features may be paid. No ads, no
+  subscriptions, no in-app purchases in this version.
+- **Privacy:** the child's journal never leaves the iPad. No account, no ads. On-device
+  speech recognition; no audio recorded. Anonymous crash reports and usage statistics
+  only, never sold.
 - **What it is:** a journal a child dictates and then writes in their own hand, with
   per-letter accuracy feedback and stroke-order teaching; a practice sheet; badges,
   stars and streaks with nothing to unlock.
@@ -179,8 +188,9 @@ Use their submission route for apps; paste the App Store link and the following.
 Day (23 January) / New Year / Back to School
 
 **What is new or notable:** The only app where a child's own spoken words become the
-handwriting they practise. Speech is recognised on the device and no audio is kept; the app
-has no network code at all and carries the *Data Not Collected* label. Per-letter accuracy
+handwriting they practise. Speech is recognised on the device and no audio is kept; the
+child's journal never leaves the iPad, and the app sends only anonymous crash and usage
+data. Per-letter accuracy
 feedback and stroke-order teaching happen during real writing; every finished page is kept
 as a dated journal in the child's own hand and exports as a PDF book. Full support for
 Apple Pencil, left-handed layout, colour-blind ink, Dynamic Type; several profiles per
@@ -198,9 +208,10 @@ honestly rather than as an ad. It is called Handwritten Journal. Your child says
 happened today, the words show up on a ruled page, and they write over them in their own
 hand — green ink inside the letter, red outside, while they write. When a line is done the
 guide disappears and their handwriting stays. Every page is kept as a journal and exports as
-a PDF. No account, no ads, nothing leaves the iPad. It is free — and not because you are
-the product; it collects nothing. iPad only, best with a Pencil though a finger works. Ages
-roughly 5–8. Happy to answer questions here.
+a PDF. No account, no ads; the journal never leaves the iPad, and the only data the app
+sends is anonymous crash and usage statistics, which we will never sell. The basic app is
+always free. iPad only, Apple Pencil required. Ages roughly 5–8. Happy to answer questions
+here.
 
 ---
 
@@ -212,8 +223,8 @@ roughly 5–8. Happy to answer questions here.
    today.* (Screenshot 1.)
 3. **The book.** *Do it for a day and you have a page. Do it for a year and you have a
    book in their own hand.* (Journal home screenshot.)
-4. **Privacy.** *Free, and not because you are the product. No account. No ads. No server.
-   Speech stays on the iPad and no audio is kept.* (Plain text card on paper cream.)
+4. **Privacy.** *Their journal never leaves the iPad. No account. No ads. We will never
+   sell your data.* (Plain text card on paper cream.)
 5. **The lesson.** *A letter drawn backwards stops the page, teaches that one letter, and
    lets them carry on.* (Remediation screenshot.)
 

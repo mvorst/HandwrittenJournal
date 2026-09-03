@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.3
+## Design Document v3.4
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -12,6 +12,30 @@ Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
 
 ---
+
+## 0.13 What Changed in v3.4
+
+**The welcome, and a voice.** Drawn as frames 55–58 on the Penpot page `02 · Profiles`
+and built the same day (2026-09-02); `WIREFRAME_SPEC.md` §13.7 has the numbers.
+
+1. **The app opens once, per iPad, on a welcome** (§4.0), before the Profile Picker. A
+   grown-up agrees to the terms of use and the privacy policy — both open in Safari from
+   the screen — says whether the iPad should talk, then hands the iPad over for the
+   child to trace a big A with the Apple Pencil. The letter is the practice sheet with
+   one character on it, and the first stroke reports what made it: an Apple Pencil
+   enables *Let's write*; a finger is told so; *I don't have an Apple Pencil* carries on
+   regardless. The pencil is required (§10.5); the welcome is where the app says so.
+2. **Voice feedback** (§4.12). The iPad speaks, briefly, at the moments a grown-up
+   sitting beside the child would: *Your turn — write it!* when a take ends, a short
+   cheer when a line settles, the results headline, and on the practice sheet the letter
+   to trace and *Nice big G!*. It never reads the journal aloud and never speaks while
+   the microphone listens. Per profile: the **Voice feedback** switch under FEEDBACK is
+   the old inert *Sound* toggle given a job, seeded from the welcome's answer.
+3. **App Settings gained a LEGAL section** — the terms and the privacy policy, and the
+   date a grown-up agreed — and lost a stale note that said the child's voice was
+   recorded (it has not been since v3.0).
+4. `Onboarding` (§5.1a) keeps the welcome's answers in `UserDefaults` with the terms'
+   date, so a change to the terms brings the agreement step back on its own.
 
 ## 0.12 What Changed in v3.3
 
@@ -415,6 +439,9 @@ What is new:
 ## 3. User Flow
 
 ```
+Welcome ── once per iPad: a grown-up agrees · should the iPad talk? · trace a letter
+      │
+      ▼
 Profile Picker ──(PIN if set)──▶ Journal Home
                                      │
                           ┌──────────┴───────────┐
@@ -461,6 +488,68 @@ not lifetime totals, which would make each sitting feel smaller than the last.
 All screens are designed portrait, 834 × 1194 — see `WIREFRAME_SPEC.md` §13 for
 coordinates — and since v3.3 each also lays out in landscape, 1194 × 834, by the rules in
 §0.12 and `WIREFRAME_SPEC.md` §13.6.
+
+### 4.0 Welcome — once per iPad *(v3.4)*
+
+```
+┌────────────────────────────┐ ┌────────────────────────────┐ ┌────────────────────────────┐
+│           ●○○              │ │ Back      ○●○              │ │ Back      ○○●              │
+│         (✓ seal)           │ │        (speaker)           │ │ Let's check your Apple     │
+│ A grown-up needs to agree  │ │  Should the iPad talk?     │ │ Pencil                     │
+│  Terms of use          ↗   │ │       [ Hear it ]          │ │      ┌────────┐            │
+│  Privacy policy        ↗   │ │   [ Yes, talk to me ]      │ │      │   A    │ one-letter │
+│ ▒ what stays on the iPad ▒ │ │   No thanks, stay quiet    │ │      └────────┘ sheet      │
+│       [ ✓ I agree ]        │ │                            │ │ ✓ That's an Apple Pencil   │
+│                            │ │                            │ │     [ Let's write ]        │
+│                            │ │                            │ │ I don't have an Apple Pencil│
+└────────────────────────────┘ └────────────────────────────┘ └────────────────────────────┘
+        frame 55                        frame 56                     frames 57 · 58
+```
+
+Three screens before anyone has a profile, shown once and never again unless the terms
+change. A grown-up holds the iPad for the first two; the third is the child's, and it
+leads straight into *Add someone*. Every screen is the page's width, centred, in both
+orientations; the grown-up's two steps scroll when the window is short, and the letter
+step never does — in landscape the words and the buttons sit in a column beside the
+sheet, because a letter sheet inside a scroll view would scroll under a finger instead
+of inking, and the sheet keeps its size.
+
+**1. A grown-up agrees (frame 55).** The seal, *A grown-up needs to agree*, a line saying
+why (the app is made for children; a parent, guardian or teacher agrees on their behalf),
+two rows that open `handwrittenjournal.app/terms/` and `/privacy/` in Safari, a sunk note
+that mirrors the policy's summary — *no account; what your child says and writes never
+leaves this iPad unless a grown-up shares a PDF; the privacy policy explains the
+anonymous crash reports and usage statistics* (§10.5) — and *I agree*, with a caption
+saying what the tap accepts. No scroll-to-the-bottom, no checkbox: the documents are a
+tap away and the button says what it does.
+
+**2. Should the iPad talk? (frame 56).** What voice feedback is, in one paragraph (§4.12),
+*Hear it* to play the preview line, then *Yes, talk to me* or *No thanks, stay quiet*.
+The caption says where the switch lives afterwards. The answer seeds every new
+profile's **Voice feedback**; it is not a second, app-wide switch.
+
+**3. Trace a letter (frames 57, 58).** *Hand the iPad to your writer.* The practice sheet
+(§4.11) with a single big **A** on it — Jua, the formation arrows, the live green and red
+ink — 320 × 400 so the letter sits at the sheet's 300 pt cap. A finger is allowed to
+draw here so that it can be recognised as a finger. The first stroke reports what made
+it: an **Apple Pencil** flips the status to *That's an Apple Pencil — you're ready!*
+with a success haptic and enables *Let's write*; a **finger** shows *That was a finger.
+Try the Apple Pencil* (frame 58) and leaves the button disabled, until a pencil stroke
+lands. *I don't have an Apple Pencil* records that and carries on. The pencil is
+required (§10.5) and the product page says so; the welcome is where the app itself says
+so, at the door, with the letter as proof. It informs rather than locks because a
+grown-up may be setting up before the pencil is out of its box, and because App Review
+may not have one to hand. **Finger tracing allowed** stays the per-profile setting it
+is until §10.5's removal lands. If voice feedback was chosen, both outcomes are said
+aloud too.
+
+**Order.** The grown-up's steps come first — they are holding the iPad, and the
+agreement must precede use — and the child's step last, so the traced letter flows into
+making their profile. The steps are one array (`WelcomeStep`); reordering is one line.
+
+**What comes back.** `Onboarding` (§5.1a) records the agreement with the terms' date.
+When that date changes, the agreement step alone returns; the pencil and the voice were
+settled and stay settled. Nothing else in the app asks again.
 
 ### 4.1 Profile Picker (launch screen)
 
@@ -900,10 +989,13 @@ suggestion to a grown-up. It never changes anything by itself.
 ### 4.10 Settings
 
 Per profile: name, photo, PIN, **font, font size, mode**, guide lines, finger tracing,
-left-handed layout, sound, haptics, colorblind ink scheme, reset progress.
+left-handed layout, controls in landscape, **voice feedback** (v3.4 — §4.12), haptics,
+colorblind ink scheme, reset progress.
 
-App-wide: iCloud sync (disabled, "Coming soon"), about, and two plain-language notes — one
-saying PINs are a courtesy lock, one saying destructive actions are not gated.
+App-wide: iCloud sync (disabled, "Coming soon"), about, **legal** (v3.4) — the terms of
+use and the privacy policy, opened in Safari, and the date a grown-up agreed to them on
+the welcome — and three plain-language notes: PINs are a courtesy lock, destructive
+actions are not gated, and the microphone feeds speech recognition and nothing else.
 
 ---
 
@@ -974,6 +1066,36 @@ double-story letters and differing hooks make one data set dishonest across face
 locking the sheet to the default face keeps every arrow truthful. Reduce Motion skips
 the animation and shows the numbered guide immediately.
 
+### 4.12 Voice feedback *(v3.4)*
+
+The iPad speaks — briefly, and only at the moments a grown-up sitting beside the child
+would. Cues, not narration:
+
+| Moment | Said |
+|---|---|
+| A take ends and the first line comes up on its own (§4.4) | *Your turn. Write it!* — the callout, said as well as shown |
+| A line settles under the child's pen — its words join the record | *Nice line.* · *Lovely writing.* · *That line is yours now.* · *Keep going.* — in rotation, so it is never a metronome |
+| *I'm finished* | The results headline: *You wrote everything you said!* or *Great writing, Milo!* |
+| The practice demo hands over (§4.11) | *Your turn. Trace big G.* — only when the arrows finish; a pen already writing is not told |
+| A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* |
+| The welcome's pencil check (§4.0) | *That's an Apple Pencil. You're ready to write!* · *That was a finger. Try the Apple Pencil.* |
+
+Rules:
+
+- **Never the journal.** No cue takes words from the page. §17 stands — the child using
+  this app can read, and the page is theirs to read.
+- **Never into the microphone.** While a take is listening nothing is said, and starting
+  a take cuts a cue off; a cue spoken into the recogniser would land on the page as the
+  child's words.
+- **Per profile.** `UserProfile.soundEnabled` — the switch is **Voice feedback** under
+  FEEDBACK (frame 33), with a line saying what it does — seeded from the welcome's
+  answer when the profile is made, and a sibling can have it the other way.
+- **On device.** `AVSpeechSynthesizer`, on an audio session of its own so it never has
+  to fight the microphone's, at a shade under the default rate. Nothing of the child's
+  leaves the iPad (§10.1 stands).
+- **Back scores silently** (§4.4): only *I'm finished* speaks the headline. Reopening an
+  entry says nothing until a line settles again.
+
 ## 5. Data Model
 
 SwiftData, authored to CloudKit's constraints from day one (§9).
@@ -1010,7 +1132,7 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
 
     // Preferences
     var isLeftHanded: Bool = false
-    var soundEnabled: Bool = true
+    var soundEnabled: Bool = true          // v3.4: voice feedback (§4.12), seeded by the welcome
     var hapticsEnabled: Bool = true
     var guideLinesEnabled: Bool = true
     var allowFingerTracing: Bool = false
@@ -1021,6 +1143,15 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
 
 }
 ```
+
+### 5.1a Onboarding — not in the store *(v3.4)*
+
+The welcome's answers belong to the iPad, not to a child, and must exist before the first
+profile does, so they live in `UserDefaults` (`Onboarding`): `termsAcceptedAt` and the
+`termsVersion` they were given under, `pencilCheck` (unchecked · pencil · noPencil),
+`voiceFeedbackDefault` and `completedAt`. `termsVersion` is the *Last updated* date at
+the top of the terms and the privacy policy; bumping the constant brings the agreement
+step back alone (§4.0). Nothing here syncs, and nothing here is personal.
 
 ### 5.2 WritingSession
 
@@ -1548,9 +1679,10 @@ intent is visible.
 
 ### 10.1 What leaves the device
 
-Nothing, unless a grown-up taps Share. Speech recognition is on-device
-(`requiresOnDeviceRecognition = true`). There is no analytics SDK, no crash reporter, no
-network code at all in v1.
+Nothing of the child's, unless a grown-up taps Share. Speech recognition is on-device
+(`requiresOnDeviceRecognition = true`). The build today has no analytics SDK, no crash
+reporter and no network code; **§10.5 (2026-09-02) adds anonymous crash reports and usage
+statistics for 1.0** — the journal itself still never leaves the device.
 
 ### 10.2 Permissions
 
@@ -1559,6 +1691,12 @@ Microphone and speech recognition, preceded by a **child-legible explainer scree
 requested only when Take Photo is tapped. Photo library, via `PhotosPicker`, which needs no
 permission prompt. Every permission has a working fallback: refusing the microphone leaves
 the keyboard, refusing the camera leaves the photo library and the initial-letter avatar.
+
+**Terms and privacy** (v3.4). A grown-up agrees to the terms of use and the privacy policy
+on the welcome (§4.0), before the first profile exists. Both open in Safari from the
+welcome and from App Settings › Legal, where the date of agreement is shown. The
+agreement is recorded with the terms' date, so a change to either document asks again —
+and only for that.
 
 ### 10.4 The child's voice — retired
 
@@ -1569,6 +1707,44 @@ is now literally true of the sound as well as the words: it never exists as a fi
 `WritingSession.audioData` and `spokenDuration` stay in the schema, unread, so existing
 stores need no migration; deleting an entry still deletes whatever an older build stored
 there.
+
+### 10.5 Decisions of 2026-09-02 — not yet built
+
+Three product decisions taken while preparing the go-to-market material
+(`Go_To_Market/`). None is in the build yet; the marketing copy, the App Store listing
+and the privacy policy already describe the app as if they were, so they are 1.0 work.
+
+1. **Crash reports and usage statistics will be collected.** Anonymous: crash traces with
+   app version, iPad model, iOS version and the screen at the time; usage events (entry
+   dictated or typed, practice sheet opened, typeface changed, session length, export
+   used); a random per-install identifier. Never the words on the page, ink, names,
+   photos, voice or precise location. Internal operations only — never advertising or
+   profiling (COPPA's internal-operations exception) — and a provider that keeps the Kids
+   Category open (App Review Guideline 1.3: no PII or device information to third parties).
+   This supersedes §10.1's "no network code": the *journal* never leaves the device; the
+   diagnostics do. Provider and event list: `Go_To_Market/GO_TO_MARKET_PLAN.md` §5.6.
+   The App Privacy label, the listing's privacy paragraph and the policy change in the
+   same release (`APP_STORE_LISTING.md` §3).
+
+   **Usage statistics are built (2026-09-02): Google Analytics for Firebase**, via
+   `Services/Telemetry.swift`. The package is `FirebaseAnalyticsCore`, so
+   the advertising identifier can never be read; `Info.plist` (from `project.yml`) turns
+   off IDFV collection, every advertising consent and automatic screen reporting, and
+   starts collection *off* — nothing is sent until a grown-up taps *I agree* on the
+   welcome (§4.0), after which `Telemetry` turns it on. The only identifier is Firebase's
+   random per-install app-instance ID. Screens are named by hand; the events are the
+   §5.6 list — welcome finished, profile created, typeface changed, dictation ended
+   (seconds, word *count*), words typed (count), formation help shown, entry finished
+   (counts, stars, accuracy, minutes, face and size IDs), badge earned, practice letter
+   traced, export shared. No parameter can carry text, a name or a photo. Crash reports
+   are **not** built yet — Crashlytics or Apple's crash logs, still to decide.
+2. **Apple Pencil is required.** The finger-tracing profile switch (§12) is to be removed
+   or hidden; palm rejection (§4.4) stays. Every product-page and marketing surface says
+   "Requires Apple Pencil".
+3. **Pricing.** "The basic app is always free because we want our children to thrive. We
+   may introduce additional features that will be paid because we will never sell your
+   data." No in-app purchases in 1.0; any later purchase sits behind a grown-up gate and
+   never locks a page a child has written.
 
 ### 10.3 PINs and the missing parent gate — read this
 
@@ -1623,7 +1799,12 @@ Reduce Motion replaces the flip and the settle with cross-fades.
   subject of the exercise, not chrome.
 - VoiceOver labels on every control; the journal page reads its transcript, not its strokes.
 - Colorblind ink scheme swaps green/red for blue/orange, per profile.
-- Finger tracing is a per-profile toggle for children without a stylus.
+- Finger tracing is a per-profile toggle for children without a stylus — **superseded by
+  §10.5: Apple Pencil is required; the toggle is to be removed or hidden.** The welcome's
+  pencil check (§4.0, v3.4) is where the requirement is put to the grown-up.
+- Voice feedback (§4.12) is a per-profile cue track for a child who cannot yet read the
+  chrome — whose turn it is, which letter, that a line is done. It is not a screen
+  reader; VoiceOver is separate and still owed by the accessibility pass.
 - Left-handed layout mirrors the toolbar actions so a hand does not cover the writing.
 - Minimum tap target 44 × 44; child-facing primary actions at least 280 × 64.
 
@@ -1729,6 +1910,7 @@ defer it.
 | **Scrolling a surface you are drawing on** | Touch-count separation plus a button that scrolls with no gesture at all (§4.4). Watch this in testing — it is the one interaction a five-year-old could genuinely fight |
 | **A very long entry makes a very tall mask bitmap** | The renderer drops to 1× above ~40 MP rather than allocating tens of megabytes |
 | Voice recordings are the most sensitive data here | On-device only, deleted with the entry, stated plainly in child-legible copy (§10.4) |
+| **A cue spoken into the microphone** would land on the page as the child's words | Nothing is said while a take listens, and starting a take cuts a cue off (§4.12) |
 | Scroll gesture vs. pencil stroke | Writing surface never scrolls; only the read-only panel does |
 | Stroke archive growth | Measured at ~20 KB/attempt; 40 MB over five years |
 | A child changes their own font/size constantly | Settings are per profile and reachable; accepted — the Progress table stays honest either way |
@@ -1747,7 +1929,8 @@ defer it.
 - Languages other than English
 - Attempt history — only the latest tracing is kept, by decision
 - Stroke replay animation
-- Read-aloud of journal text — the child using this app can read
+- Read-aloud of journal text — the child using this app can read. (Voice feedback, §4.12,
+  says whose turn it is and cheers a line; it never reads the page.)
 - Writing prompts or suggestions — this is a journal, not a teacher
 
 ---
@@ -1760,5 +1943,5 @@ defer it.
 
 ---
 
-*Document version: 2.6*
-*Last updated: 2026-08-27*
+*Document version: 3.4*
+*Last updated: 2026-09-02*

@@ -30,8 +30,9 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · Free row selection; derived record; pencil never scrolls (v2.6) | ✅ |
 | — · One mic that stops in place; your-turn callout; row handles + palm rejection; ABC tool fixes and adds words; crayon doodles in every export; Back scores; home-only results (v3.2, from Penpot `14 · Write`) | ✅ |
 | — · Landscape: the page keeps its portrait width, the footer becomes a rail on the free-hand side, Journal Home is two columns with only the entries scrolling (v3.3, from Penpot `06 · Landscape`) | ✅ |
+| — · The welcome — a grown-up agrees to the terms and privacy policy, chooses voice feedback, the child traces a letter with the Apple Pencil — and voice feedback itself (v3.4, from Penpot frames 55–58) | ✅ |
 
-**146 tests across 22 suites, all passing.**
+**157 tests across 23 suites, all passing.**
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -64,6 +65,59 @@ HandwrittenJournal/
 spec first, then the code.
 
 ---
+
+## v3.4 — the welcome and a voice (built)
+
+Built from the Penpot frames 55–58 on `02 · Profiles` on 2026-09-02 (`DESIGN_DOCUMENT.md`
+§0.13, §4.0, §4.12; `WIREFRAME_SPEC.md` §13.7). Three things the app settles once per
+iPad before the first profile: a grown-up agrees to the terms of use and the privacy
+policy, says whether the iPad should talk, and the child traces a big A so the app can
+see an Apple Pencil.
+
+- **`Onboarding`** (`Models/Onboarding.swift`) — `UserDefaults`, not the store: the
+  answers belong to the iPad and must exist before any profile. The agreement is kept
+  with `termsVersion` (the documents' *Last updated* date); `stepsDue` is the whole
+  welcome on a fresh iPad and the agreement alone after the terms change. `RootView`
+  shows `WelcomeView` while `needsWelcome`, and the swap to the Profile Picker is the
+  observable flipping — no callback.
+- **`WelcomeView`** (`Views/WelcomeView.swift`) — the three steps from `stepsDue`, a
+  step-dot header with *Back*, the page's width centred in both orientations. The
+  letter step is `PracticeSurface` with `sheetText: "A"` and `autoSelectSoleGlyph`, in
+  a 320 × 400 card: the sheet sizes its letter to its width (capped at 300 pt) and lays
+  it out from the left inset, so a narrow sheet is what centres a single letter. A
+  finger is allowed to ink so that it can be recognised. **The letter step is never in a
+  `ScrollView`** — SwiftUI's vertical scroll view claims a one-finger drag even when its
+  content fits (its bounce behaviour is `.automatic`), and the first smoke test's stroke
+  scrolled instead of inking; the grown-up's steps scroll with `.basedOnSize`, and in
+  landscape the words and buttons sit beside the sheet so the step fits.
+- **The pencil check is one callback.** `PracticeCanvasView.onInkBegan(UITouch.TouchType)`
+  fires where a stroke actually begins — the pencil path, the finger path, and the
+  finger tap-dot — and `PracticeController` publishes `inkBegins` / `lastInkTouch`.
+  `.pencil` enables *Let's write*; anything else shows *That was a finger*; *I don't
+  have an Apple Pencil* records `noPencil` and carries on, because a grown-up may be
+  setting up before the pencil is unboxed and App Review may not have one. The pencil
+  requirement (§10.5) is stated here, at the door; `Finger tracing allowed` is untouched.
+- **`Voice`** (`Services/VoiceFeedback.swift`) — like `Haptics`: configured per profile
+  from `soundEnabled` (the toggle that was inert since v3.0, now *Voice feedback* under
+  FEEDBACK), a `Cue` enum whose `text` is pure and tested, and a `VoiceSpeaker` so the
+  tests record instead of speaking. `AVSpeechSynthesizer` runs with
+  `usesApplicationAudioSession = false` so it never fights the microphone's `.record`
+  category. `setListening(true)` from `startListening` stops and mutes it; nothing is
+  said while a take is live. Cues: `wordsLanded` (*Your turn*), `recordChanged` when the
+  record *grows* (a rotating cheer — a restore reports the length it already had, so
+  opening an entry says nothing), `finishWriting` (the headline), and the practice
+  phases (`.yourTurn` only when coming from `.watching`; `.traced`). Nothing reads the
+  page.
+- **New profiles** start with `soundEnabled = Onboarding.shared.voiceFeedbackDefault`
+  (`ProfileEditorView.save`).
+- **App Settings** — a LEGAL section (`LinkRow` opens the terms and the policy in Safari,
+  the agreed-on date beneath) and the third note rewritten: the old one still said the
+  child's voice was recorded, which has been false since v3.0.
+- **Harness** — `DemoData.settleWelcome`: a seeded or `-screen` launch settles the
+  welcome so it lands where it asked; `-screen welcome` resets it to a fresh iPad.
+- `WelcomeFlowTests` (11): what a fresh iPad owes, persistence across a relaunch, the
+  agreement alone after a terms change, reset, the URLs, cue copy, rotation, silence
+  when off and while listening, the welcome's forced preview, the profile switch.
 
 ## v3.3 — landscape (built)
 
@@ -238,6 +292,10 @@ greedy wrap can never pull later words up under the child's ink.
 - **Dictation streams onto the page.** While listening the canvas skips the mask bitmap
   (`generate(layoutOnly:)`) and re-lays text per partial result; the scroll view follows
   the tail; a caret marks where the next word lands. Taking a line stops the mic.
+  The tail is the *last line of text*, not the foot of the canvas (fixed 2026-09-02):
+  the canvas is never shorter than the window, so `followTail` scrolling to its foot
+  plus the stage inset pushed the words up under the toolbar — the child saw empty
+  rules until stop. `-fakeDictation` reproduces it in the simulator.
 - **Fix-a-word**: a tap on a spoken word reports its character range; the view model
   presents an editor bar (the word stays boxed on the page) and splices the fix into the
   buffer. Only the spoken tier is editable, so nothing written can ever reflow.
@@ -349,6 +407,22 @@ silently fell back to the system face.
 8. **Destructive actions are ungated.** Delete Profile and Reset Progress use a plain
    confirmation. A press-and-hold would stop a six-year-old; recorded as an accepted risk
    in §10.3.
+9. **Usage analytics are built; crash reporting is not** (`DESIGN_DOCUMENT.md` §10.5,
+   2026-09-02). Google Analytics for Firebase through `Services/Telemetry.swift` — off
+   until the welcome's *I agree*, no advertising identifier, no IDFV, hand-named screens
+   and a fixed event list that carries counts and setting IDs only. The Firebase project
+   is `handwritten-journal`; `Resources/GoogleService-Info.plist` came from its console
+   with `IS_ANALYTICS_ENABLED` false, so Google Analytics must be enabled on the project
+   (Project settings › Integrations) and the plist re-downloaded before events show up.
+   Crash reports still need a provider (Crashlytics, or Apple's crash logs alone); the
+   App Privacy label must ship with this build (`APP_STORE_LISTING.md` §3).
+10. **Apple Pencil is now required** (§10.5), but the build still offers the finger-tracing
+   switch per profile. Remove or hide it, and keep palm rejection. The welcome's pencil
+   check (v3.4) says so at the door but does not lock: *I don't have an Apple Pencil*
+   carries on — decide whether that escape survives the removal.
+11. **The simulator cannot make a pencil touch**, so the welcome's letter step can only be
+   smoke-tested down the finger path (*That was a finger* → *I don't have an Apple
+   Pencil*). The pencil path needs a device.
 
 ## Debug harness
 
@@ -357,9 +431,17 @@ silently fell back to the system face.
 ```bash
 xcrun simctl launch <device> com.mattvorst.education.handwrittenjournal \
   -seed YES -screen trace     # start | trace | journal | progress | settings | write | practice
+                              # | welcome — v3.4: reset the welcome and open it on a fresh iPad;
+                              # every other seeded or -screen launch settles it first
   -orientation landscape      # v3.3 — start in landscape (portrait is the default)
   -dumpStrokes YES            # write Documents/demo_strokes.json: glyph boxes and the
                               # synthesised ink for the unfinished fixture at this device's
                               # page width, for replaying as real touches
                               # (Go_To_Market/screenshots/SCREENSHOTS.md)
+  -fakeDictation "words…"     # the simulator has no microphone: the mic runs a scripted
+                              # take instead, one word per half-second arriving as a
+                              # cumulative partial result through the real path, until stop
+  -FIRDebugEnabled            # Firebase's own flag: a DEBUG build sends analytics only with
+                              # it (and only after the terms are agreed), to DebugView in the
+                              # Firebase console; without it the harness sends nothing
 ```

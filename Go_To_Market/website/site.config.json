@@ -1,9 +1,14 @@
 {
   "site_url": "https://handwrittenjournal.app",
   "root": "/",
-  "app_store_url": "https://apps.apple.com/app/handwritten-journal/id0000000000",
+  "app_store_url": "https://apps.apple.com/us/app/handwritten-journal/id6807460004",
   "support_email": "hello@handwrittenjournal.app",
   "developer": "Matt Vorst",
   "updated": "2 September 2026",
-  "year": "2026"
+  "year": "2026",
+  "ga_measurement_id": "G-GM5KY417PW",
+  "ga_property_id": "552627864",
+  "ga_account_id": "406804850",
+  "analytics_provider": "Google (Google Analytics for Firebase, with no advertising identifier and no advertising features enabled)",
+  "analytics_retention": "14 months"
 }
