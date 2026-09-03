@@ -49,14 +49,20 @@ stroke-based icons scaled by 32), buttons as boards with an estimated label widt
 the letter sheet as a clipping board with Jua applied via `penpot.fonts.findByName`.
 Each frame was one `execute_code` call and was exported at 0.5× to check.
 
-**v3.6 (2026-09-02, built, not drawn) — frame 59, *You'll need an Apple Pencil*.** The
-app no longer lets *I don't have an Apple Pencil* through: the tap shows a page in place
-of the letter — the well (`applepencil.and.scribble`), why the pencil is the point, three
-sunk notes, a `Row / Link` to Apple's compatibility table, *Back to the letter* and a
-caption — and the pencil check stays owed until a pencil traces the letter.
-`WIREFRAME_SPEC.md` §13.7 has the layout in the app's numbers; the frame is owed on
-`02 · Profiles` after 58, built like 55 (well, title, body, sunk notes, link row,
-primary button, caption).
+**v3.6 (2026-09-02) — frame 59, *You'll need an Apple Pencil*, drawn after 58 (x 3736,
+row 3).** *I don't have an Apple Pencil* no longer carries straight on: the tap shows this
+page in place of the letter — the well, why the pencil is the point, three sunk notes, a
+`Row / Link` to Apple's compatibility table, *Back to the letter*, *Skip for now* and a
+caption. *Skip for now* finishes the welcome for that launch only; the pencil check is
+back at the next, until a pencil traces the letter. Frame 57's annotation was rewritten
+to say so. Built with the same `storage` helpers as 55–58 (still in the plugin after the
+v3.4 pass). Deviations: the icon sheet has no `applepencil.and.scribble`,
+`hand.raised.slash`, `pencil.tip.crop.circle` or `applepencil`, so the frame draws
+`pencil.line` in the well and the third note and `hand.thumbsup` and
+`checkmark.circle.fill` in the first two; the app draws the SF Symbols. The imported
+`pencil.line` renders its body filled unless its path is given a fill in the surface
+colour — done on 59 and on 57/58's buttons. `WIREFRAME_SPEC.md` §13.7 has the
+coordinates.
 
 ## 1.-2 Landscape — page `06 · Landscape` *(drawn and adopted 2026-09-02, v3.3)*
 

@@ -299,18 +299,15 @@ enum ScoringEngine {
 
     /// Copy shown on Reveal.
     static func finishMessage(for result: ScoreResult) -> String {
+        // The singular forms ("1 letter was skipped.") are the catalog's plural variants.
         if result.unfinishedLetters > 0 {
-            return result.unfinishedLetters == 1
-                ? "1 letter was skipped."
-                : "\(result.unfinishedLetters) letters were skipped."
+            return String(localized: "\(result.unfinishedLetters) letters were skipped.")
         }
         if result.outOfOrderLetters > 0 {
-            return result.outOfOrderLetters == 1
-                ? "1 letter was drawn in a different order — the practice page shows the way."
-                : "\(result.outOfOrderLetters) letters were drawn in a different order — the practice page shows the way."
+            return String(localized: "\(result.outOfOrderLetters) letters were drawn in a different order — the practice page shows the way.")
         }
-        if result.finishedEverything { return "You wrote everything you said — nice work." }
-        return "Every letter you wrote was finished."
+        if result.finishedEverything { return String(localized: "You wrote everything you said — nice work.") }
+        return String(localized: "Every letter you wrote was finished.")
     }
 
     /// The line under the points on Reveal (v3.5): what the score is made of, so the
@@ -319,18 +316,22 @@ enum ScoringEngine {
     /// is a score carried over unchanged from an earlier sitting.
     static func breakdown(for result: ScoreResult) -> String? {
         guard result.breakdownAddsUp, result.lettersWritten > 0 else { return nil }
-        var parts = ["\(result.lettersWritten) \(result.lettersWritten == 1 ? "letter" : "letters") +\(result.letterPoints)"]
+        var parts = [result.lettersWritten == 1
+            ? String(localized: "1 letter +\(result.letterPoints)")
+            : String(localized: "\(result.lettersWritten) letters +\(result.letterPoints)")]
         if result.completedWords > 0 {
-            parts.append("\(result.completedWords) whole \(result.completedWords == 1 ? "word" : "words") +\(result.wordPoints)")
+            parts.append(result.completedWords == 1
+                ? String(localized: "1 whole word +\(result.wordPoints)")
+                : String(localized: "\(result.completedWords) whole words +\(result.wordPoints)"))
         }
         if result.orderedWords > 0 {
-            parts.append("\(result.orderedWords) in order +\(result.orderPoints)")
+            parts.append(String(localized: "\(result.orderedWords) in order +\(result.orderPoints)"))
         }
         if result.stars > 0 {
-            parts.append("\(String(repeating: "★", count: result.stars)) +\(result.starBonus)")
+            parts.append(String(localized: "\(String(repeating: "★", count: result.stars)) +\(result.starBonus)"))
         }
-        if result.streakBonus > 0 { parts.append("streak +\(result.streakBonus)") }
-        if result.sessionBonus > 0 { parts.append("finished +\(result.sessionBonus)") }
+        if result.streakBonus > 0 { parts.append(String(localized: "streak +\(result.streakBonus)")) }
+        if result.sessionBonus > 0 { parts.append(String(localized: "finished +\(result.sessionBonus)")) }
         return parts.joined(separator: " · ")
     }
 }

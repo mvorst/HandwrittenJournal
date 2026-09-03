@@ -34,7 +34,7 @@ struct BadgeDetailOverlay: View {
             HStack(spacing: Tokens.Space.s1) {
                 Image(systemName: earned ? "checkmark.circle.fill" : "circle.dashed")
                     .font(.system(size: 15, weight: .semibold))
-                Text(earned ? "Earned" : "Not earned yet")
+                (earned ? Text("Earned") : Text("Not earned yet"))
                     .font(.hjCaption)
             }
             .foregroundStyle(earned ? Tokens.Colour.success : Tokens.Colour.textSecondary)

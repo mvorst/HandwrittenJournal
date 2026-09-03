@@ -153,7 +153,7 @@ struct PinPadView: View {
                     .padding(.top, Tokens.Space.s7)
                 Text(profile.name).font(.hjTitle2).foregroundStyle(Tokens.Colour.textPrimary)
                     .padding(.top, Tokens.Space.s5)
-                Text(wrong ? "Try again" : "Enter your secret PIN")
+                (wrong ? Text("Try again") : Text("Enter your secret PIN"))
                     .font(.hjBody)
                     .foregroundStyle(wrong ? Tokens.Colour.danger : Tokens.Colour.textSecondary)
                     .padding(.top, Tokens.Space.s2)

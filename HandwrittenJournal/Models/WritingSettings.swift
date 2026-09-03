@@ -18,15 +18,15 @@ struct JournalFace: Identifiable, Hashable, Sendable {
 
     static let all: [JournalFace] = [
         .init(id: "jua",     label: "Jua",        postScriptName: "Jua-Regular",
-              reason: "Rounded and heavy. The default."),
+              reason: String(localized: "Rounded and heavy. The default.")),
         .init(id: "andika",  label: "Andika",     postScriptName: "Andika-Bold",
-              reason: "Designed for children learning to read."),
+              reason: String(localized: "Designed for children learning to read.")),
         .init(id: "varela",  label: "Varela Round", postScriptName: "VarelaRound-Regular",
-              reason: "Very open letters, evenly rounded."),
+              reason: String(localized: "Very open letters, evenly rounded.")),
         .init(id: "sniglet", label: "Sniglet",    postScriptName: "Sniglet-ExtraBold",
-              reason: "The thickest — easiest to stay inside."),
+              reason: String(localized: "The thickest — easiest to stay inside.")),
         .init(id: "comic",   label: "Comic Neue", postScriptName: "ComicNeue-Bold",
-              reason: "Looks like classroom printing."),
+              reason: String(localized: "Looks like classroom printing.")),
     ]
 
     static let `default` = all[0]
@@ -58,11 +58,11 @@ struct JournalSize: Identifiable, Hashable, Sendable {
     let lineSpacing: CGFloat
 
     static let all: [JournalSize] = [
-        .init(id: "xl", label: "Extra Large", size: 96, lineSpacing: 120),
-        .init(id: "l",  label: "Large",       size: 72, lineSpacing: 96),
-        .init(id: "m",  label: "Medium",      size: 56, lineSpacing: 72),
-        .init(id: "s",  label: "Small",       size: 42, lineSpacing: 56),
-        .init(id: "xs", label: "Extra Small", size: 30, lineSpacing: 40),
+        .init(id: "xl", label: String(localized: "Extra Large"), size: 96, lineSpacing: 120),
+        .init(id: "l",  label: String(localized: "Large"),       size: 72, lineSpacing: 96),
+        .init(id: "m",  label: String(localized: "Medium"),      size: 56, lineSpacing: 72),
+        .init(id: "s",  label: String(localized: "Small"),       size: 42, lineSpacing: 56),
+        .init(id: "xs", label: String(localized: "Extra Small"), size: 30, lineSpacing: 40),
     ]
 
     static let `default` = all[1]   // Large

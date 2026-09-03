@@ -7,8 +7,8 @@ import UIKit
 ///
 /// A fresh iPad owes the whole welcome; a finished one owes nothing until the terms
 /// change, and then only the agreement. The pencil check is owed until an Apple Pencil
-/// traces the letter — there is no way through without one (v3.6). The voice answer
-/// seeds new profiles. Cues are
+/// traces the letter; *Skip for now* lets a launch through and no more (v3.6). The voice
+/// answer seeds new profiles. Cues are
 /// short, never read the page, and are never spoken while the profile says no or the
 /// microphone is listening.
 @MainActor
@@ -78,19 +78,29 @@ struct WelcomeFlowTests {
         #expect(!onboarding.needsWelcome)
     }
 
-    @Test("There is no way through the welcome without an Apple Pencil")
-    func noPencilSettlesNothing() {
+    @Test("Skip for now lets this launch through and owes the check again at the next")
+    func skipForNow() {
         let defaults = freshDefaults()
         let onboarding = Onboarding(defaults: defaults)
         onboarding.acceptTerms()
         onboarding.chooseVoiceFeedback(true)
         #expect(onboarding.stepsDue == [.pencil])
-        // *I don't have an Apple Pencil* explains and records nothing (v3.6); even a
-        // finish written without the pencil does not settle the check.
+        // *I don't have an Apple Pencil* explains and records nothing; a finish written
+        // without the pencil does not settle the check either.
         onboarding.finish()
         #expect(onboarding.isComplete)
         #expect(onboarding.stepsDue == [.pencil], "the check is owed until a pencil traces the letter")
-        #expect(Onboarding(defaults: defaults).stepsDue == [.pencil])
+        // *Skip for now* (frame 59).
+        onboarding.skipPencilCheck()
+        #expect(!onboarding.needsWelcome, "through, for this launch")
+        #expect(onboarding.pencilCheck == .skipped)
+
+        let relaunched = Onboarding(defaults: defaults)
+        #expect(relaunched.pencilCheck == .skipped)
+        #expect(relaunched.stepsDue == [.pencil], "the check is back at the next launch, alone")
+        relaunched.recordPencilCheck(.pencil)
+        #expect(!relaunched.needsWelcome)
+        #expect(!Onboarding(defaults: defaults).needsWelcome, "a pencil settles it for good")
     }
 
     @Test("An iPad an earlier build let through without a pencil owes the check again")
@@ -127,7 +137,9 @@ struct WelcomeFlowTests {
     @Test("The why-a-pencil page has a screen name of its own")
     func noPencilScreen() {
         #expect(Telemetry.Screen.welcomeNoPencil.rawValue == "welcome_no_pencil")
-        #expect(Telemetry.Event.welcomeFinished(voice: true).parameters["voice"] as? Int == 1)
+        let skipped = Telemetry.Event.welcomeFinished(pencil: .skipped, voice: true).parameters
+        #expect(skipped["pencil"] as? String == "skipped")
+        #expect(skipped["voice"] as? Int == 1)
     }
 
     @Test("Reset returns the iPad to fresh")
@@ -157,7 +169,7 @@ struct WelcomeFlowTests {
     final class RecordingSpeaker: VoiceSpeaker {
         var spoken: [String] = []
         var stops = 0
-        func speak(_ text: String) { spoken.append(text) }
+        func speak(_ cue: Voice.Cue) { spoken.append(cue.text) }
         func stop() { stops += 1 }
     }
 
@@ -179,8 +191,11 @@ struct WelcomeFlowTests {
         #expect(Voice.Cue.practiceYourTurn("G").text == "Your turn. Trace big G.")
         #expect(Voice.Cue.practiceTraced("g", followedOrder: true).text == "Nice little g! Pick another letter.")
         #expect(Voice.Cue.practiceTraced("7", followedOrder: false).text == "Good the 7. Try the strokes in the arrow order.")
-        #expect(Voice.Cue.entryFinished(name: "Milo", finishedEverything: true).text == "You wrote everything you said!")
-        #expect(Voice.Cue.entryFinished(name: "Milo", finishedEverything: false).text == "Great writing, Milo!")
+        #expect(Voice.Cue.entryFinished(finishedEverything: true).text == "You wrote everything you said!")
+        // v3.7 — recorded once for everyone: the name stays on the screen, off the clip.
+        #expect(Voice.Cue.entryFinished(finishedEverything: false).text == "Great writing!")
+        #expect(Voice.Cue.pencilIntro.text == "Watch the arrows, then trace the big A with the Apple Pencil.")
+        #expect(Voice.Cue.helpFixed.text == "That's the way! Your word is fixed.")
         // §17 — the journal is never read aloud: no cue takes the page's words.
         for cue in [Voice.Cue.yourTurn, .lineDone(0), .lineDone(1), .preview, .pencilFound, .thatWasAFinger] {
             #expect(!cue.text.isEmpty && cue.text.count < 80, "\(cue) is a cue, not a reading")

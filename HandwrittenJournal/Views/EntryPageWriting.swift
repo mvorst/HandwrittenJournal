@@ -138,7 +138,7 @@ extension EntryPageView {
             ToolbarIconButton(systemImage: "scribble.variable", enabled: canEdit, active: crayon) {
                 model.toggleCrayon()
             }
-            .accessibilityLabel(crayon ? "Put the crayon down" : "Crayon — doodle anywhere, it never counts")
+            .accessibilityLabel(crayon ? Text("Put the crayon down") : Text("Crayon — doodle anywhere, it never counts"))
             ToolbarIconButton(systemImage: "textformat.abc", enabled: canEdit, active: model.tool.editsWords) {
                 model.toggleWordsTool()
             }
@@ -173,7 +173,7 @@ extension EntryPageView {
                     .padding(.bottom, Tokens.Space.s6)
             }
             stageButton(listening: listening)
-            Text(listening ? "Tap when you're done talking" : "Tap to start talking")
+            (listening ? Text("Tap when you're done talking") : Text("Tap to start talking"))
                 .font(.hjBodyEm).foregroundStyle(Tokens.Colour.textPrimary)
                 .padding(.top, Tokens.Space.s3)
             if listening {
@@ -227,7 +227,7 @@ extension EntryPageView {
             .frame(width: 232, height: 232)
         }
         .buttonStyle(PressableStyle())
-        .accessibilityLabel(listening ? "Stop talking" : "Start talking")
+        .accessibilityLabel(listening ? Text("Stop talking") : Text("Start talking"))
     }
 
     /// Frame 24 (v3.2) — the first telling just landed on a page with no ink. The callout
@@ -385,10 +385,10 @@ extension EntryPageView {
     }
 
     private var readout: String {
-        if model.pageText.isEmpty { return "Nothing said yet" }
+        if model.pageText.isEmpty { return String(localized: "Nothing said yet") }
         return model.controller.wordsWritten > 0
-            ? "So far: \(Int((model.controller.liveAccuracy * 100).rounded()))%"
-            : "Nothing written yet"
+            ? String(localized: "So far: \(Int((model.controller.liveAccuracy * 100).rounded()))%")
+            : String(localized: "Nothing written yet")
     }
 
     /// The three crayons (§5.6), where the readout usually sits, while the crayon is in
@@ -478,8 +478,8 @@ extension EntryPageView {
 
     private var listeningCaption: String {
         model.replacing == nil
-            ? "Nothing goes in your journal until you write it."
-            : "Say it again — the new words take the old ones' place."
+            ? String(localized: "Nothing goes in your journal until you write it.")
+            : String(localized: "Say it again — the new words take the old ones' place.")
     }
 
     /// §11.13 (v3.2) — the ABC tool's footer. With a word picked it fixes that word in
@@ -495,7 +495,7 @@ extension EntryPageView {
             }
             HStack(spacing: Tokens.Space.s4) {
                 if let editing = model.editing {
-                    Text(editing.isRun ? "Fix these words:" : "Fix the word:")
+                    (editing.isRun ? Text("Fix these words:") : Text("Fix the word:"))
                         .font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                         .fixedSize()
                     TextField("Word", text: Binding(
@@ -550,14 +550,14 @@ extension EntryPageView {
     private var hint: String {
         if model.tool.erases {
             return model.tool.drawsDoodles
-                ? "Rub out a doodle — nothing else is touched"
-                : "Rub out a letter to fix it — nothing else is lost"
+                ? String(localized: "Rub out a doodle — nothing else is touched")
+                : String(localized: "Rub out a letter to fix it — nothing else is lost")
         }
-        if model.tool.editsWords { return "Tap a word to fix it, or after the last word to add more" }
-        if model.pageText.isEmpty { return "Tap the big microphone to begin" }
-        if model.controller.hasSelection { return "Write over the dark letters" }
-        if model.hasSpokenText { return "Write with your pencil — ABC fixes a word or adds more" }
-        return "Tap the mic to say more — or a line's handle to pick it"
+        if model.tool.editsWords { return String(localized: "Tap a word to fix it, or after the last word to add more") }
+        if model.pageText.isEmpty { return String(localized: "Tap the big microphone to begin") }
+        if model.controller.hasSelection { return String(localized: "Write over the dark letters") }
+        if model.hasSpokenText { return String(localized: "Write with your pencil — ABC fixes a word or adds more") }
+        return String(localized: "Tap the mic to say more — or a line's handle to pick it")
     }
 
     // MARK: - Results
@@ -654,9 +654,9 @@ extension EntryPageView {
         VStack(spacing: Tokens.Space.s3) {
             PrimaryButton(title: "Back to my journal", systemImage: "book.closed",
                           minWidth: 340, height: 72) { dismissSession() }
-            Text(model.lastResult?.finishedEverything == true
-                 ? "Want to say more about today? Open this entry from your journal and tap the mic."
-                 : "Carry on any time: open this entry from your journal and the waiting words are still there.")
+            (model.lastResult?.finishedEverything == true
+                 ? Text("Want to say more about today? Open this entry from your journal and tap the mic.")
+                 : Text("Carry on any time: open this entry from your journal and the waiting words are still there."))
                 .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Tokens.Layout.screenMargin)
@@ -666,20 +666,23 @@ extension EntryPageView {
     }
 
     private var headline: String {
-        guard let result = model.lastResult, result.wordsWritten > 0 else { return "Saved for later" }
-        return result.finishedEverything ? "You wrote everything you said!" : "Great writing, \(profile.name)!"
+        guard let result = model.lastResult, result.wordsWritten > 0 else { return String(localized: "Saved for later") }
+        return result.finishedEverything
+            ? String(localized: "You wrote everything you said!")
+            : String(localized: "Great writing, \(profile.name)!")
     }
 
     private var subtitle: String {
         guard let result = model.lastResult, result.wordsWritten > 0 else {
-            return "Your words are waiting in the journal."
+            return String(localized: "Your words are waiting in the journal.")
         }
         if result.finishedEverything {
-            return result.wordsWritten == 1 ? "You wrote 1 word today" : "All \(result.wordsWritten) words, in your own hand"
+            return result.wordsWritten == 1
+                ? String(localized: "You wrote 1 word today")
+                : String(localized: "All \(result.wordsWritten) words, in your own hand")
         }
-        return result.wordsWritten == 1
-            ? "You wrote 1 word today"
-            : "You wrote \(result.wordsWritten) words today"
+        // "You wrote 1 word today" is the catalog's plural form of this key.
+        return String(localized: "You wrote \(result.wordsWritten) words today")
     }
 
     private func pagePreview(_ session: WritingSession) -> some View {

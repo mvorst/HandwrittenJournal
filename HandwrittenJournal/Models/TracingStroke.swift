@@ -77,9 +77,9 @@ enum Crayon: Int, CaseIterable, Identifiable {
 
     var name: String {
         switch self {
-        case .yellow: "Yellow crayon"
-        case .pink:   "Pink crayon"
-        case .lilac:  "Lilac crayon"
+        case .yellow: String(localized: "Yellow crayon")
+        case .pink:   String(localized: "Pink crayon")
+        case .lilac:  String(localized: "Lilac crayon")
         }
     }
 

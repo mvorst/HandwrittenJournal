@@ -49,7 +49,7 @@ struct ExportView: View {
                 }
 
                 VStack(spacing: Tokens.Space.s2) {
-                    Text("\(sessions.count) page\(sessions.count == 1 ? "" : "s")  ·  one per session, oldest first")
+                    Text("\(sessions.count) pages  ·  one per session, oldest first")   // "1 page" via the catalog
                         .font(.hjBody).foregroundStyle(Tokens.Colour.textPrimary)
                     Text("Everything is rendered on this iPad — nothing is uploaded.")
                         .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
@@ -74,7 +74,7 @@ struct ExportView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(scope == .everything ? "Make the book" : "Share") { share() }
+                    Button { share() } label: { scope == .everything ? Text("Make the book") : Text("Share") }
                         .fontWeight(.semibold)
                         .disabled(document == nil)
                 }

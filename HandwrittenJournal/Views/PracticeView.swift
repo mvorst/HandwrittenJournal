@@ -126,7 +126,7 @@ struct PracticeView: View {
     @ViewBuilder
     private var award: some View {
         if lastAward > 0 {
-            Text("+\(lastAward) \(lastAward == 1 ? "point" : "points")")
+            Text("+\(lastAward) points")   // "+1 point" via the catalog
                 .font(.hjNumeralL)
                 .foregroundStyle(Tokens.Colour.success)
                 .contentTransition(.numericText())
@@ -148,7 +148,7 @@ struct PracticeView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(today > 0 ? Tokens.Colour.starOn : Tokens.Colour.starOff)
-            Text(today > 0 ? "+\(today) today" : "0 today")
+            (today > 0 ? Text("+\(today) today") : Text("0 today"))
                 .font(.hjBodyEm)
                 .foregroundStyle(today > 0 ? Tokens.Colour.textPrimary : Tokens.Colour.textSecondary)
                 .monospacedDigit()
@@ -165,25 +165,20 @@ struct PracticeView: View {
     /// something to explain.
     private var legend: String? {
         guard case .idle = controller.phase, !profile.practiceLetters().isEmpty else { return nil }
-        let done = profile.colorBlindMode ? "Blue" : "Green"
-        return "\(done) letters are done for today. Orange ones earned 1 point — try them in the arrow order."
+        let done = profile.colorBlindMode ? String(localized: "Blue") : String(localized: "Green")
+        return String(localized: "\(done) letters are done for today. Orange ones earned 1 point — try them in the arrow order.")
     }
 
     private var prompt: String {
         switch controller.phase {
-        case .idle:                 return "Touch a letter to see how it's written"
-        case .watching(let char):   return "Watch how you write \(display(char))…"
-        case .yourTurn(let char):   return "Your turn — trace \(display(char))!"
+        case .idle:                 return String(localized: "Touch a letter to see how it's written")
+        case .watching(let char):   return String(localized: "Watch how you write \(Voice.letterName(char))…")
+        case .yourTurn(let char):   return String(localized: "Your turn — trace \(Voice.letterName(char))!")
         case .traced(let char):
             // §8.1a — traced, but not the way the arrows showed: nudge, don't scold.
             return controller.followedOrder
-                ? "Nice \(display(char))! Pick another letter."
-                : "Good \(display(char))! Try the strokes in the arrow order."
+                ? String(localized: "Nice \(Voice.letterName(char))! Pick another letter.")
+                : String(localized: "Good \(Voice.letterName(char))! Try the strokes in the arrow order.")
         }
-    }
-
-    private func display(_ char: Character) -> String {
-        if char.isNumber { return "the \(char)" }
-        return char.isUppercase ? "big \(char)" : "little \(char)"
     }
 }

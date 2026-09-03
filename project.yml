@@ -21,6 +21,10 @@ settings:
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "3"
     SWIFT_APPROACHABLE_CONCURRENCY: YES
+    # v3.7: every user-facing string lives in Resources/Localizable.xcstrings; the compiler
+    # extracts Text/LocalizedStringKey/String(localized:) literals into it on each build.
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
     # v3.3: both orientations, full screen only — a Split View or Slide Over window is
     # narrower than the page, and the page keeps its portrait width (WIREFRAME_SPEC.md §3).
@@ -32,6 +36,12 @@ targets:
     platform: iOS
     sources:
       - path: HandwrittenJournal
+        excludes: ["Resources/Voice"]
+      # The voice clips are a folder reference: the app looks them up in the bundle's
+      # `Voice/` subdirectory (Services/VoiceFeedback.swift). As loose files they would
+      # land flat in the bundle and nothing would be found.
+      - path: HandwrittenJournal/Resources/Voice
+        type: folder
     dependencies:
       - package: Firebase
         product: FirebaseAnalyticsCore

@@ -8,8 +8,8 @@ import SwiftUI
 /// The steps come from `Onboarding.stepsDue`, so a change to the terms brings back the
 /// agreement alone, and the pencil check stays until an Apple Pencil has traced the
 /// letter: *I don't have an Apple Pencil* opens a page that says why the app needs one
-/// (frame 59) and leads nowhere else. Both orientations: the column keeps the page's
-/// width, centred.
+/// (frame 59), and *Skip for now* there lets this launch through with the check owed
+/// again at the next. Both orientations: the column keeps the page's width, centred.
 struct WelcomeView: View {
     let onboarding: Onboarding
     @Environment(\.openURL) private var openURL
@@ -21,6 +21,8 @@ struct WelcomeView: View {
     @State private var fingerSeen = false
     /// Frame 59 — *You'll need an Apple Pencil*, shown in place of the letter.
     @State private var showingWhyPencil = false
+    /// The pencil check's narration has been said (v3.7).
+    @State private var introSaid = false
 
     /// The one letter of the pencil check. Capital A: the first letter a child learns,
     /// three straight strokes that read clearly at any size.
@@ -118,24 +120,24 @@ struct WelcomeView: View {
         }
     }
 
-    private func title(_ text: String) -> some View {
+    private func title(_ text: LocalizedStringKey) -> some View {
         Text(text).font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
             .multilineTextAlignment(.center)
     }
 
-    private func body(_ text: String) -> some View {
+    private func body(_ text: LocalizedStringKey) -> some View {
         Text(text).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: 706)
     }
 
-    private func caption(_ text: String) -> some View {
+    private func caption(_ text: LocalizedStringKey) -> some View {
         Text(text).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: 706)
     }
 
-    private func note(_ systemImage: String, _ text: String) -> some View {
+    private func note(_ systemImage: String, _ text: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: Tokens.Space.s3) {
             Image(systemName: systemImage)
                 .font(.system(size: 22, weight: .medium))
@@ -249,6 +251,16 @@ struct WelcomeView: View {
             }
         }
         .onChange(of: controller.inkBegins) { inkBegan() }
+        .onAppear { sayIntro() }
+    }
+
+    /// The child's step is narrated once, if the grown-up chose a voice: the arrows, the
+    /// letter and the pencil, said as the sheet appears (§4.12, v3.7). Coming back from
+    /// frame 59 does not repeat it.
+    private func sayIntro() {
+        guard !introSaid, onboarding.voiceFeedbackDefault else { return }
+        introSaid = true
+        Voice.say(.pencilIntro, always: true)
     }
 
     private var pencilBody: some View {
@@ -317,22 +329,23 @@ struct WelcomeView: View {
         }
     }
 
-    /// An Apple Pencil traced the letter — the only way the welcome ends.
+    /// An Apple Pencil traced the letter — the welcome is settled for good.
     private func finishCheck() {
         Haptics.tap()
         Voice.stop()
         onboarding.recordPencilCheck(.pencil)
         onboarding.finish()
-        Telemetry.log(.welcomeFinished(voice: onboarding.voiceFeedbackDefault))
+        Telemetry.log(.welcomeFinished(pencil: .pencil, voice: onboarding.voiceFeedbackDefault))
         reloadIfStillOwed()
     }
 
     // MARK: - Frame 59 — you'll need an Apple Pencil
 
-    /// *I don't have an Apple Pencil* let the welcome through in v3.4. It does not any
-    /// more: this is a handwriting app, so the page says why the pencil is the point,
-    /// helps find the right one, and offers the way back to the letter. Nothing here
-    /// records or finishes anything.
+    /// *I don't have an Apple Pencil* used to carry straight on (v3.4). Now it comes
+    /// here first: this is a handwriting app, so the page says why the pencil is the
+    /// point and helps find the right one. *Back to the letter* returns to the check;
+    /// *Skip for now* lets this launch through — the check is back the next time the
+    /// app opens, until a pencil traces the letter.
     private var whyPencilStep: some View {
         VStack(spacing: 0) {
             well("applepencil.and.scribble")
@@ -354,7 +367,9 @@ struct WelcomeView: View {
                 showingWhyPencil = false
             }
             .padding(.top, Tokens.Space.s7)
-            caption("Everything you've answered is saved. Come back with a pencil and the letter will be waiting.")
+            TextButton(title: "Skip for now") { skipCheck() }
+                .padding(.top, Tokens.Space.s3)
+            caption("Skipping lets you set up today. The letter will be back the next time the app opens, until it has seen an Apple Pencil.")
                 .padding(.top, Tokens.Space.s3)
         }
     }
@@ -364,6 +379,16 @@ struct WelcomeView: View {
         Voice.stop()
         showingWhyPencil = true
         Telemetry.screen(.welcomeNoPencil)
+    }
+
+    /// *Skip for now* — through for this launch only (§4.0, v3.6).
+    private func skipCheck() {
+        Haptics.tap()
+        Voice.stop()
+        onboarding.skipPencilCheck()
+        onboarding.finish()
+        Telemetry.log(.welcomeFinished(pencil: .skipped, voice: onboarding.voiceFeedbackDefault))
+        reloadIfStillOwed()
     }
 
     // MARK: - Steps
@@ -392,7 +417,7 @@ struct WelcomeView: View {
 /// and 34) and Apple's pencil table (frame 59). `Row / Setting` with the label in
 /// `action` and `arrow.up.right.square` trailing.
 struct LinkRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {

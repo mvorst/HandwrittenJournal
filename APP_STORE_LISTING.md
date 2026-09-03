@@ -11,9 +11,9 @@ home-screen name **Handwritten Journal**, on-device speech (`requiresOnDeviceRec
 **Decided 2026-09-02, not yet in the build:** Apple Pencil is required; the app will send
 anonymous crash reports and usage statistics; the basic app is always free and paid
 features may come later (`DESIGN_DOCUMENT.md` §10.5). The copy below already says so.
-Since v3.6 the welcome itself does not open without an Apple Pencil — *I don't have an
-Apple Pencil* explains why and returns to the letter; only the finger-tracing switch
-remains to be removed.
+Since v3.6 the welcome explains why an Apple Pencil is required before it lets anyone
+skip — *I don't have an Apple Pencil* opens the explanation, and a skip lasts one launch;
+only the finger-tracing switch remains to be removed.
 
 ---
 
@@ -264,7 +264,7 @@ No voice-over, no music bed with lyrics, captions only:
 Handwritten Journal is an offline iPad app for children aged roughly 5–8 who are learning to write. There is no account, no sign-in and no server, so no demo credentials are needed — launch it and create a profile.
 
 HOW TO SEE THE MAIN FEATURE IN 60 SECONDS
-1. On first launch a short welcome appears once: tap "I agree" to the terms and privacy policy, choose whether the iPad talks ("Yes, talk to me" or "No thanks"), then trace the big A with an Apple Pencil and tap "Let's write". The welcome cannot be finished without an Apple Pencil — this is a handwriting app — and "I don't have an Apple Pencil" explains why and returns to the letter.
+1. On first launch a short welcome appears once: tap "I agree" to the terms and privacy policy, choose whether the iPad talks ("Yes, talk to me" or "No thanks"), then trace the big A with an Apple Pencil and tap "Let's write". Without a Pencil, tap "I don't have an Apple Pencil": it explains why the app needs one (this is a handwriting app), and "Skip for now" carries on; the pencil check returns at the next launch until a Pencil has traced the letter.
 2. Create a profile (a name is enough; the PIN and photo are optional).
 3. Tap New Entry, then the microphone, and say a sentence out loud.
 4. Tap stop. The sentence appears on a ruled page in large letters.
@@ -310,7 +310,7 @@ Where is our data?
 Your child's journal is on your iPad and nowhere else. There is no account and no server holding a child's writing; pages are deleted with the entry or the profile that holds them. The app sends anonymous crash reports and usage statistics so we can improve it; they identify no one and are never sold.
 
 Do I need an Apple Pencil?
-Yes — any model your iPad supports. Handwritten Journal is a handwriting app, so it won't open without one: the first time it runs it asks your child to trace a letter with the pencil, and if there isn't one to hand it explains why it matters and which pencils fit your iPad.
+Yes — any model your iPad supports. Handwritten Journal is a handwriting app: the first time it runs it asks your child to trace a letter with the pencil, and if there isn't one to hand it explains why it matters and which pencils fit your iPad. You can skip that for now and set up; it asks again the next time the app opens.
 
 How do I print a page?
 Open an entry, tap the ⋯ menu and choose Share as PDF. To export the whole book, use Export from the journal toolbar.

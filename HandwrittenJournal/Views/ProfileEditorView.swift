@@ -43,7 +43,7 @@ struct ProfileEditorView: View {
                             .contentShape(Circle())
                             .onTapGesture { adjust() }
                             .accessibilityAddTraits(avatar == nil ? [] : .isButton)
-                            .accessibilityHint(avatar == nil ? "" : "Move and zoom the photo")
+                            .accessibilityHint(avatar == nil ? Text(verbatim: "") : Text("Move and zoom the photo"))
 
                         if avatar != nil {
                             Button {
@@ -219,7 +219,7 @@ struct ProfileEditorView: View {
     }
 
     @ViewBuilder
-    private func group<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func group<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: Tokens.Space.s2) {
             Text(title).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                 .padding(.top, Tokens.Space.s7)

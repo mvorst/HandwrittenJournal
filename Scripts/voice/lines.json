@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "preview",
+    "text": "Hi! I'm your journal. I'll tell you when it's your turn to write.",
+    "say": "Hi! I'm your journal. I'll tell you when it's your turn to write.",
+    "where": "Welcome, frame 56 — *Hear it*"
+  },
+  {
+    "id": "pencil-intro",
+    "text": "Watch the arrows, then trace the big A with the Apple Pencil.",
+    "say": "Watch the arrows, then trace the big A with the Apple Pencil.",
+    "where": "Welcome, frame 57 — the pencil check appears (if a voice was chosen)"
+  },
+  {
+    "id": "pencil-found",
+    "text": "That's an Apple Pencil. You're ready to write!",
+    "say": "That's an Apple Pencil. You're ready to write!",
+    "where": "Welcome, frame 57 — an Apple Pencil inks"
+  },
+  {
+    "id": "finger",
+    "text": "That was a finger. Try the Apple Pencil.",
+    "say": "That was a finger. Try the Apple Pencil.",
+    "where": "Welcome, frame 58 — a finger inks"
+  },
+  {
+    "id": "your-turn",
+    "text": "Your turn. Write it!",
+    "say": "Your turn. Write it!",
+    "where": "Write — a take ends and the first line comes up"
+  },
+  {
+    "id": "line-done-0",
+    "text": "Nice line.",
+    "say": "Nice line.",
+    "where": "Write — a line settles (1st in rotation)"
+  },
+  {
+    "id": "line-done-1",
+    "text": "Lovely writing.",
+    "say": "Lovely writing.",
+    "where": "Write — a line settles (2nd)"
+  },
+  {
+    "id": "line-done-2",
+    "text": "That line is yours now.",
+    "say": "That line is yours now.",
+    "where": "Write — a line settles (3rd)"
+  },
+  {
+    "id": "line-done-3",
+    "text": "Keep going.",
+    "say": "Keep going.",
+    "where": "Write — a line settles (4th)"
+  },
+  {
+    "id": "finished-all",
+    "text": "You wrote everything you said!",
+    "say": "You wrote everything you said!",
+    "where": "Results — *I'm finished*, everything written"
+  },
+  {
+    "id": "finished-some",
+    "text": "Great writing!",
+    "say": "Great writing!",
+    "where": "Results — *I'm finished*, words still waiting (the screen adds the name)"
+  },
+  {
+    "id": "help-next",
+    "text": "That's the way! Next letter.",
+    "say": "That's the way! Next letter.",
+    "where": "Formation help — a letter traced, more to come"
+  },
+  {
+    "id": "help-fixed",
+    "text": "That's the way! Your word is fixed.",
+    "say": "That's the way! Your word is fixed.",
+    "where": "Formation help — the last letter traced"
+  },
+  {
+    "id": "help-again",
+    "text": "Almost! Watch the arrows again. Start where they start.",
+    "say": "Almost! Watch the arrows again. Start where they start.",
+    "where": "Formation help — a wrong-order attempt is wiped"
+  },
+  {
+    "id": "trace-upper-A",
+    "text": "Your turn. Trace big A.",
+    "say": "Your turn. Trace big A.",
+    "where": "Practice sheet / formation help — the demo of big A hands over"
+  },
+  {
+    "id": "traced-good-upper-A",
+    "text": "Nice big A! Pick another letter.",
+    "say": "Nice big A! Pick another letter.",
+    "where": "Practice sheet — big A flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-A",
+    "text": "Good big A. Try the strokes in the arrow order.",
+    "say": "Good big A. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big A flips green, out of order"
+  },
+  {
+    "id": "trace-upper-B",
+    "text": "Your turn. Trace big B.",
+    "say": "Your turn. Trace big B.",
+    "where": "Practice sheet / formation help — the demo of big B hands over"
+  },
+  {
+    "id": "traced-good-upper-B",
+    "text": "Nice big B! Pick another letter.",
+    "say": "Nice big B! Pick another letter.",
+    "where": "Practice sheet — big B flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-B",
+    "text": "Good big B. Try the strokes in the arrow order.",
+    "say": "Good big B. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big B flips green, out of order"
+  },
+  {
+    "id": "trace-upper-C",
+    "text": "Your turn. Trace big C.",
+    "say": "Your turn. Trace big C.",
+    "where": "Practice sheet / formation help — the demo of big C hands over"
+  },
+  {
+    "id": "traced-good-upper-C",
+    "text": "Nice big C! Pick another letter.",
+    "say": "Nice big C! Pick another letter.",
+    "where": "Practice sheet — big C flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-C",
+    "text": "Good big C. Try the strokes in the arrow order.",
+    "say": "Good big C. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big C flips green, out of order"
+  },
+  {
+    "id": "trace-upper-D",
+    "text": "Your turn. Trace big D.",
+    "say": "Your turn. Trace big D.",
+    "where": "Practice sheet / formation help — the demo of big D hands over"
+  },
+  {
+    "id": "traced-good-upper-D",
+    "text": "Nice big D! Pick another letter.",
+    "say": "Nice big D! Pick another letter.",
+    "where": "Practice sheet — big D flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-D",
+    "text": "Good big D. Try the strokes in the arrow order.",
+    "say": "Good big D. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big D flips green, out of order"
+  },
+  {
+    "id": "trace-upper-E",
+    "text": "Your turn. Trace big E.",
+    "say": "Your turn. Trace big E.",
+    "where": "Practice sheet / formation help — the demo of big E hands over"
+  },
+  {
+    "id": "traced-good-upper-E",
+    "text": "Nice big E! Pick another letter.",
+    "say": "Nice big E! Pick another letter.",
+    "where": "Practice sheet — big E flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-E",
+    "text": "Good big E. Try the strokes in the arrow order.",
+    "say": "Good big E. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big E flips green, out of order"
+  },
+  {
+    "id": "trace-upper-F",
+    "text": "Your turn. Trace big F.",
+    "say": "Your turn. Trace big F.",
+    "where": "Practice sheet / formation help — the demo of big F hands over"
+  },
+  {
+    "id": "traced-good-upper-F",
+    "text": "Nice big F! Pick another letter.",
+    "say": "Nice big F! Pick another letter.",
+    "where": "Practice sheet — big F flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-F",
+    "text": "Good big F. Try the strokes in the arrow order.",
+    "say": "Good big F. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big F flips green, out of order"
+  },
+  {
+    "id": "trace-upper-G",
+    "text": "Your turn. Trace big G.",
+    "say": "Your turn. Trace big G.",
+    "where": "Practice sheet / formation help — the demo of big G hands over"
+  },
+  {
+    "id": "traced-good-upper-G",
+    "text": "Nice big G! Pick another letter.",
+    "say": "Nice big G! Pick another letter.",
+    "where": "Practice sheet — big G flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-G",
+    "text": "Good big G. Try the strokes in the arrow order.",
+    "say": "Good big G. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big G flips green, out of order"
+  },
+  {
+    "id": "trace-upper-H",
+    "text": "Your turn. Trace big H.",
+    "say": "Your turn. Trace big H.",
+    "where": "Practice sheet / formation help — the demo of big H hands over"
+  },
+  {
+    "id": "traced-good-upper-H",
+    "text": "Nice big H! Pick another letter.",
+    "say": "Nice big H! Pick another letter.",
+    "where": "Practice sheet — big H flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-H",
+    "text": "Good big H. Try the strokes in the arrow order.",
+    "say": "Good big H. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big H flips green, out of order"
+  },
+  {
+    "id": "trace-upper-I",
+    "text": "Your turn. Trace big I.",
+    "say": "Your turn. Trace big I.",
+    "where": "Practice sheet / formation help — the demo of big I hands over"
+  },
+  {
+    "id": "traced-good-upper-I",
+    "text": "Nice big I! Pick another letter.",
+    "say": "Nice big I! Pick another letter.",
+    "where": "Practice sheet — big I flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-I",
+    "text": "Good big I. Try the strokes in the arrow order.",
+    "say": "Good big I. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big I flips green, out of order"
+  },
+  {
+    "id": "trace-upper-J",
+    "text": "Your turn. Trace big J.",
+    "say": "Your turn. Trace big J.",
+    "where": "Practice sheet / formation help — the demo of big J hands over"
+  },
+  {
+    "id": "traced-good-upper-J",
+    "text": "Nice big J! Pick another letter.",
+    "say": "Nice big J! Pick another letter.",
+    "where": "Practice sheet — big J flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-J",
+    "text": "Good big J. Try the strokes in the arrow order.",
+    "say": "Good big J. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big J flips green, out of order"
+  },
+  {
+    "id": "trace-upper-K",
+    "text": "Your turn. Trace big K.",
+    "say": "Your turn. Trace big K.",
+    "where": "Practice sheet / formation help — the demo of big K hands over"
+  },
+  {
+    "id": "traced-good-upper-K",
+    "text": "Nice big K! Pick another letter.",
+    "say": "Nice big K! Pick another letter.",
+    "where": "Practice sheet — big K flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-K",
+    "text": "Good big K. Try the strokes in the arrow order.",
+    "say": "Good big K. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big K flips green, out of order"
+  },
+  {
+    "id": "trace-upper-L",
+    "text": "Your turn. Trace big L.",
+    "say": "Your turn. Trace big L.",
+    "where": "Practice sheet / formation help — the demo of big L hands over"
+  },
+  {
+    "id": "traced-good-upper-L",
+    "text": "Nice big L! Pick another letter.",
+    "say": "Nice big L! Pick another letter.",
+    "where": "Practice sheet — big L flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-L",
+    "text": "Good big L. Try the strokes in the arrow order.",
+    "say": "Good big L. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big L flips green, out of order"
+  },
+  {
+    "id": "trace-upper-M",
+    "text": "Your turn. Trace big M.",
+    "say": "Your turn. Trace big M.",
+    "where": "Practice sheet / formation help — the demo of big M hands over"
+  },
+  {
+    "id": "traced-good-upper-M",
+    "text": "Nice big M! Pick another letter.",
+    "say": "Nice big M! Pick another letter.",
+    "where": "Practice sheet — big M flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-M",
+    "text": "Good big M. Try the strokes in the arrow order.",
+    "say": "Good big M. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big M flips green, out of order"
+  },
+  {
+    "id": "trace-upper-N",
+    "text": "Your turn. Trace big N.",
+    "say": "Your turn. Trace big N.",
+    "where": "Practice sheet / formation help — the demo of big N hands over"
+  },
+  {
+    "id": "traced-good-upper-N",
+    "text": "Nice big N! Pick another letter.",
+    "say": "Nice big N! Pick another letter.",
+    "where": "Practice sheet — big N flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-N",
+    "text": "Good big N. Try the strokes in the arrow order.",
+    "say": "Good big N. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big N flips green, out of order"
+  },
+  {
+    "id": "trace-upper-O",
+    "text": "Your turn. Trace big O.",
+    "say": "Your turn. Trace big O.",
+    "where": "Practice sheet / formation help — the demo of big O hands over"
+  },
+  {
+    "id": "traced-good-upper-O",
+    "text": "Nice big O! Pick another letter.",
+    "say": "Nice big O! Pick another letter.",
+    "where": "Practice sheet — big O flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-O",
+    "text": "Good big O. Try the strokes in the arrow order.",
+    "say": "Good big O. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big O flips green, out of order"
+  },
+  {
+    "id": "trace-upper-P",
+    "text": "Your turn. Trace big P.",
+    "say": "Your turn. Trace big P.",
+    "where": "Practice sheet / formation help — the demo of big P hands over"
+  },
+  {
+    "id": "traced-good-upper-P",
+    "text": "Nice big P! Pick another letter.",
+    "say": "Nice big P! Pick another letter.",
+    "where": "Practice sheet — big P flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-P",
+    "text": "Good big P. Try the strokes in the arrow order.",
+    "say": "Good big P. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big P flips green, out of order"
+  },
+  {
+    "id": "trace-upper-Q",
+    "text": "Your turn. Trace big Q.",
+    "say": "Your turn. Trace big Q.",
+    "where": "Practice sheet / formation help — the demo of big Q hands over"
+  },
+  {
+    "id": "traced-good-upper-Q",
+    "text": "Nice big Q! Pick another letter.",
+    "say": "Nice big Q! Pick another letter.",
+    "where": "Practice sheet — big Q flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-Q",
+    "text": "Good big Q. Try the strokes in the arrow order.",
+    "say": "Good big Q. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big Q flips green, out of order"
+  },
+  {
+    "id": "trace-upper-R",
+    "text": "Your turn. Trace big R.",
+    "say": "Your turn. Trace big R.",
+    "where": "Practice sheet / formation help — the demo of big R hands over"
+  },
+  {
+    "id": "traced-good-upper-R",
+    "text": "Nice big R! Pick another letter.",
+    "say": "Nice big R! Pick another letter.",
+    "where": "Practice sheet — big R flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-R",
+    "text": "Good big R. Try the strokes in the arrow order.",
+    "say": "Good big R. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big R flips green, out of order"
+  },
+  {
+    "id": "trace-upper-S",
+    "text": "Your turn. Trace big S.",
+    "say": "Your turn. Trace big S.",
+    "where": "Practice sheet / formation help — the demo of big S hands over"
+  },
+  {
+    "id": "traced-good-upper-S",
+    "text": "Nice big S! Pick another letter.",
+    "say": "Nice big S! Pick another letter.",
+    "where": "Practice sheet — big S flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-S",
+    "text": "Good big S. Try the strokes in the arrow order.",
+    "say": "Good big S. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big S flips green, out of order"
+  },
+  {
+    "id": "trace-upper-T",
+    "text": "Your turn. Trace big T.",
+    "say": "Your turn. Trace big T.",
+    "where": "Practice sheet / formation help — the demo of big T hands over"
+  },
+  {
+    "id": "traced-good-upper-T",
+    "text": "Nice big T! Pick another letter.",
+    "say": "Nice big T! Pick another letter.",
+    "where": "Practice sheet — big T flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-T",
+    "text": "Good big T. Try the strokes in the arrow order.",
+    "say": "Good big T. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big T flips green, out of order"
+  },
+  {
+    "id": "trace-upper-U",
+    "text": "Your turn. Trace big U.",
+    "say": "Your turn. Trace big U.",
+    "where": "Practice sheet / formation help — the demo of big U hands over"
+  },
+  {
+    "id": "traced-good-upper-U",
+    "text": "Nice big U! Pick another letter.",
+    "say": "Nice big U! Pick another letter.",
+    "where": "Practice sheet — big U flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-U",
+    "text": "Good big U. Try the strokes in the arrow order.",
+    "say": "Good big U. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big U flips green, out of order"
+  },
+  {
+    "id": "trace-upper-V",
+    "text": "Your turn. Trace big V.",
+    "say": "Your turn. Trace big V.",
+    "where": "Practice sheet / formation help — the demo of big V hands over"
+  },
+  {
+    "id": "traced-good-upper-V",
+    "text": "Nice big V! Pick another letter.",
+    "say": "Nice big V! Pick another letter.",
+    "where": "Practice sheet — big V flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-V",
+    "text": "Good big V. Try the strokes in the arrow order.",
+    "say": "Good big V. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big V flips green, out of order"
+  },
+  {
+    "id": "trace-upper-W",
+    "text": "Your turn. Trace big W.",
+    "say": "Your turn. Trace big W.",
+    "where": "Practice sheet / formation help — the demo of big W hands over"
+  },
+  {
+    "id": "traced-good-upper-W",
+    "text": "Nice big W! Pick another letter.",
+    "say": "Nice big W! Pick another letter.",
+    "where": "Practice sheet — big W flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-W",
+    "text": "Good big W. Try the strokes in the arrow order.",
+    "say": "Good big W. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big W flips green, out of order"
+  },
+  {
+    "id": "trace-upper-X",
+    "text": "Your turn. Trace big X.",
+    "say": "Your turn. Trace big X.",
+    "where": "Practice sheet / formation help — the demo of big X hands over"
+  },
+  {
+    "id": "traced-good-upper-X",
+    "text": "Nice big X! Pick another letter.",
+    "say": "Nice big X! Pick another letter.",
+    "where": "Practice sheet — big X flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-X",
+    "text": "Good big X. Try the strokes in the arrow order.",
+    "say": "Good big X. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big X flips green, out of order"
+  },
+  {
+    "id": "trace-upper-Y",
+    "text": "Your turn. Trace big Y.",
+    "say": "Your turn. Trace big Y.",
+    "where": "Practice sheet / formation help — the demo of big Y hands over"
+  },
+  {
+    "id": "traced-good-upper-Y",
+    "text": "Nice big Y! Pick another letter.",
+    "say": "Nice big Y! Pick another letter.",
+    "where": "Practice sheet — big Y flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-Y",
+    "text": "Good big Y. Try the strokes in the arrow order.",
+    "say": "Good big Y. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big Y flips green, out of order"
+  },
+  {
+    "id": "trace-upper-Z",
+    "text": "Your turn. Trace big Z.",
+    "say": "Your turn. Trace big Z.",
+    "where": "Practice sheet / formation help — the demo of big Z hands over"
+  },
+  {
+    "id": "traced-good-upper-Z",
+    "text": "Nice big Z! Pick another letter.",
+    "say": "Nice big Z! Pick another letter.",
+    "where": "Practice sheet — big Z flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-upper-Z",
+    "text": "Good big Z. Try the strokes in the arrow order.",
+    "say": "Good big Z. Try the strokes in the arrow order.",
+    "where": "Practice sheet — big Z flips green, out of order"
+  },
+  {
+    "id": "trace-lower-a",
+    "text": "Your turn. Trace little a.",
+    "say": "Your turn. Trace little A.",
+    "where": "Practice sheet / formation help — the demo of little a hands over"
+  },
+  {
+    "id": "traced-good-lower-a",
+    "text": "Nice little a! Pick another letter.",
+    "say": "Nice little A! Pick another letter.",
+    "where": "Practice sheet — little a flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-a",
+    "text": "Good little a. Try the strokes in the arrow order.",
+    "say": "Good little A. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little a flips green, out of order"
+  },
+  {
+    "id": "trace-lower-b",
+    "text": "Your turn. Trace little b.",
+    "say": "Your turn. Trace little B.",
+    "where": "Practice sheet / formation help — the demo of little b hands over"
+  },
+  {
+    "id": "traced-good-lower-b",
+    "text": "Nice little b! Pick another letter.",
+    "say": "Nice little B! Pick another letter.",
+    "where": "Practice sheet — little b flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-b",
+    "text": "Good little b. Try the strokes in the arrow order.",
+    "say": "Good little B. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little b flips green, out of order"
+  },
+  {
+    "id": "trace-lower-c",
+    "text": "Your turn. Trace little c.",
+    "say": "Your turn. Trace little C.",
+    "where": "Practice sheet / formation help — the demo of little c hands over"
+  },
+  {
+    "id": "traced-good-lower-c",
+    "text": "Nice little c! Pick another letter.",
+    "say": "Nice little C! Pick another letter.",
+    "where": "Practice sheet — little c flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-c",
+    "text": "Good little c. Try the strokes in the arrow order.",
+    "say": "Good little C. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little c flips green, out of order"
+  },
+  {
+    "id": "trace-lower-d",
+    "text": "Your turn. Trace little d.",
+    "say": "Your turn. Trace little D.",
+    "where": "Practice sheet / formation help — the demo of little d hands over"
+  },
+  {
+    "id": "traced-good-lower-d",
+    "text": "Nice little d! Pick another letter.",
+    "say": "Nice little D! Pick another letter.",
+    "where": "Practice sheet — little d flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-d",
+    "text": "Good little d. Try the strokes in the arrow order.",
+    "say": "Good little D. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little d flips green, out of order"
+  },
+  {
+    "id": "trace-lower-e",
+    "text": "Your turn. Trace little e.",
+    "say": "Your turn. Trace little E.",
+    "where": "Practice sheet / formation help — the demo of little e hands over"
+  },
+  {
+    "id": "traced-good-lower-e",
+    "text": "Nice little e! Pick another letter.",
+    "say": "Nice little E! Pick another letter.",
+    "where": "Practice sheet — little e flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-e",
+    "text": "Good little e. Try the strokes in the arrow order.",
+    "say": "Good little E. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little e flips green, out of order"
+  },
+  {
+    "id": "trace-lower-f",
+    "text": "Your turn. Trace little f.",
+    "say": "Your turn. Trace little F.",
+    "where": "Practice sheet / formation help — the demo of little f hands over"
+  },
+  {
+    "id": "traced-good-lower-f",
+    "text": "Nice little f! Pick another letter.",
+    "say": "Nice little F! Pick another letter.",
+    "where": "Practice sheet — little f flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-f",
+    "text": "Good little f. Try the strokes in the arrow order.",
+    "say": "Good little F. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little f flips green, out of order"
+  },
+  {
+    "id": "trace-lower-g",
+    "text": "Your turn. Trace little g.",
+    "say": "Your turn. Trace little G.",
+    "where": "Practice sheet / formation help — the demo of little g hands over"
+  },
+  {
+    "id": "traced-good-lower-g",
+    "text": "Nice little g! Pick another letter.",
+    "say": "Nice little G! Pick another letter.",
+    "where": "Practice sheet — little g flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-g",
+    "text": "Good little g. Try the strokes in the arrow order.",
+    "say": "Good little G. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little g flips green, out of order"
+  },
+  {
+    "id": "trace-lower-h",
+    "text": "Your turn. Trace little h.",
+    "say": "Your turn. Trace little H.",
+    "where": "Practice sheet / formation help — the demo of little h hands over"
+  },
+  {
+    "id": "traced-good-lower-h",
+    "text": "Nice little h! Pick another letter.",
+    "say": "Nice little H! Pick another letter.",
+    "where": "Practice sheet — little h flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-h",
+    "text": "Good little h. Try the strokes in the arrow order.",
+    "say": "Good little H. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little h flips green, out of order"
+  },
+  {
+    "id": "trace-lower-i",
+    "text": "Your turn. Trace little i.",
+    "say": "Your turn. Trace little I.",
+    "where": "Practice sheet / formation help — the demo of little i hands over"
+  },
+  {
+    "id": "traced-good-lower-i",
+    "text": "Nice little i! Pick another letter.",
+    "say": "Nice little I! Pick another letter.",
+    "where": "Practice sheet — little i flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-i",
+    "text": "Good little i. Try the strokes in the arrow order.",
+    "say": "Good little I. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little i flips green, out of order"
+  },
+  {
+    "id": "trace-lower-j",
+    "text": "Your turn. Trace little j.",
+    "say": "Your turn. Trace little J.",
+    "where": "Practice sheet / formation help — the demo of little j hands over"
+  },
+  {
+    "id": "traced-good-lower-j",
+    "text": "Nice little j! Pick another letter.",
+    "say": "Nice little J! Pick another letter.",
+    "where": "Practice sheet — little j flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-j",
+    "text": "Good little j. Try the strokes in the arrow order.",
+    "say": "Good little J. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little j flips green, out of order"
+  },
+  {
+    "id": "trace-lower-k",
+    "text": "Your turn. Trace little k.",
+    "say": "Your turn. Trace little K.",
+    "where": "Practice sheet / formation help — the demo of little k hands over"
+  },
+  {
+    "id": "traced-good-lower-k",
+    "text": "Nice little k! Pick another letter.",
+    "say": "Nice little K! Pick another letter.",
+    "where": "Practice sheet — little k flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-k",
+    "text": "Good little k. Try the strokes in the arrow order.",
+    "say": "Good little K. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little k flips green, out of order"
+  },
+  {
+    "id": "trace-lower-l",
+    "text": "Your turn. Trace little l.",
+    "say": "Your turn. Trace little L.",
+    "where": "Practice sheet / formation help — the demo of little l hands over"
+  },
+  {
+    "id": "traced-good-lower-l",
+    "text": "Nice little l! Pick another letter.",
+    "say": "Nice little L! Pick another letter.",
+    "where": "Practice sheet — little l flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-l",
+    "text": "Good little l. Try the strokes in the arrow order.",
+    "say": "Good little L. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little l flips green, out of order"
+  },
+  {
+    "id": "trace-lower-m",
+    "text": "Your turn. Trace little m.",
+    "say": "Your turn. Trace little M.",
+    "where": "Practice sheet / formation help — the demo of little m hands over"
+  },
+  {
+    "id": "traced-good-lower-m",
+    "text": "Nice little m! Pick another letter.",
+    "say": "Nice little M! Pick another letter.",
+    "where": "Practice sheet — little m flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-m",
+    "text": "Good little m. Try the strokes in the arrow order.",
+    "say": "Good little M. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little m flips green, out of order"
+  },
+  {
+    "id": "trace-lower-n",
+    "text": "Your turn. Trace little n.",
+    "say": "Your turn. Trace little N.",
+    "where": "Practice sheet / formation help — the demo of little n hands over"
+  },
+  {
+    "id": "traced-good-lower-n",
+    "text": "Nice little n! Pick another letter.",
+    "say": "Nice little N! Pick another letter.",
+    "where": "Practice sheet — little n flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-n",
+    "text": "Good little n. Try the strokes in the arrow order.",
+    "say": "Good little N. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little n flips green, out of order"
+  },
+  {
+    "id": "trace-lower-o",
+    "text": "Your turn. Trace little o.",
+    "say": "Your turn. Trace little O.",
+    "where": "Practice sheet / formation help — the demo of little o hands over"
+  },
+  {
+    "id": "traced-good-lower-o",
+    "text": "Nice little o! Pick another letter.",
+    "say": "Nice little O! Pick another letter.",
+    "where": "Practice sheet — little o flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-o",
+    "text": "Good little o. Try the strokes in the arrow order.",
+    "say": "Good little O. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little o flips green, out of order"
+  },
+  {
+    "id": "trace-lower-p",
+    "text": "Your turn. Trace little p.",
+    "say": "Your turn. Trace little P.",
+    "where": "Practice sheet / formation help — the demo of little p hands over"
+  },
+  {
+    "id": "traced-good-lower-p",
+    "text": "Nice little p! Pick another letter.",
+    "say": "Nice little P! Pick another letter.",
+    "where": "Practice sheet — little p flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-p",
+    "text": "Good little p. Try the strokes in the arrow order.",
+    "say": "Good little P. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little p flips green, out of order"
+  },
+  {
+    "id": "trace-lower-q",
+    "text": "Your turn. Trace little q.",
+    "say": "Your turn. Trace little Q.",
+    "where": "Practice sheet / formation help — the demo of little q hands over"
+  },
+  {
+    "id": "traced-good-lower-q",
+    "text": "Nice little q! Pick another letter.",
+    "say": "Nice little Q! Pick another letter.",
+    "where": "Practice sheet — little q flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-q",
+    "text": "Good little q. Try the strokes in the arrow order.",
+    "say": "Good little Q. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little q flips green, out of order"
+  },
+  {
+    "id": "trace-lower-r",
+    "text": "Your turn. Trace little r.",
+    "say": "Your turn. Trace little R.",
+    "where": "Practice sheet / formation help — the demo of little r hands over"
+  },
+  {
+    "id": "traced-good-lower-r",
+    "text": "Nice little r! Pick another letter.",
+    "say": "Nice little R! Pick another letter.",
+    "where": "Practice sheet — little r flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-r",
+    "text": "Good little r. Try the strokes in the arrow order.",
+    "say": "Good little R. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little r flips green, out of order"
+  },
+  {
+    "id": "trace-lower-s",
+    "text": "Your turn. Trace little s.",
+    "say": "Your turn. Trace little S.",
+    "where": "Practice sheet / formation help — the demo of little s hands over"
+  },
+  {
+    "id": "traced-good-lower-s",
+    "text": "Nice little s! Pick another letter.",
+    "say": "Nice little S! Pick another letter.",
+    "where": "Practice sheet — little s flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-s",
+    "text": "Good little s. Try the strokes in the arrow order.",
+    "say": "Good little S. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little s flips green, out of order"
+  },
+  {
+    "id": "trace-lower-t",
+    "text": "Your turn. Trace little t.",
+    "say": "Your turn. Trace little T.",
+    "where": "Practice sheet / formation help — the demo of little t hands over"
+  },
+  {
+    "id": "traced-good-lower-t",
+    "text": "Nice little t! Pick another letter.",
+    "say": "Nice little T! Pick another letter.",
+    "where": "Practice sheet — little t flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-t",
+    "text": "Good little t. Try the strokes in the arrow order.",
+    "say": "Good little T. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little t flips green, out of order"
+  },
+  {
+    "id": "trace-lower-u",
+    "text": "Your turn. Trace little u.",
+    "say": "Your turn. Trace little U.",
+    "where": "Practice sheet / formation help — the demo of little u hands over"
+  },
+  {
+    "id": "traced-good-lower-u",
+    "text": "Nice little u! Pick another letter.",
+    "say": "Nice little U! Pick another letter.",
+    "where": "Practice sheet — little u flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-u",
+    "text": "Good little u. Try the strokes in the arrow order.",
+    "say": "Good little U. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little u flips green, out of order"
+  },
+  {
+    "id": "trace-lower-v",
+    "text": "Your turn. Trace little v.",
+    "say": "Your turn. Trace little V.",
+    "where": "Practice sheet / formation help — the demo of little v hands over"
+  },
+  {
+    "id": "traced-good-lower-v",
+    "text": "Nice little v! Pick another letter.",
+    "say": "Nice little V! Pick another letter.",
+    "where": "Practice sheet — little v flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-v",
+    "text": "Good little v. Try the strokes in the arrow order.",
+    "say": "Good little V. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little v flips green, out of order"
+  },
+  {
+    "id": "trace-lower-w",
+    "text": "Your turn. Trace little w.",
+    "say": "Your turn. Trace little W.",
+    "where": "Practice sheet / formation help — the demo of little w hands over"
+  },
+  {
+    "id": "traced-good-lower-w",
+    "text": "Nice little w! Pick another letter.",
+    "say": "Nice little W! Pick another letter.",
+    "where": "Practice sheet — little w flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-w",
+    "text": "Good little w. Try the strokes in the arrow order.",
+    "say": "Good little W. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little w flips green, out of order"
+  },
+  {
+    "id": "trace-lower-x",
+    "text": "Your turn. Trace little x.",
+    "say": "Your turn. Trace little X.",
+    "where": "Practice sheet / formation help — the demo of little x hands over"
+  },
+  {
+    "id": "traced-good-lower-x",
+    "text": "Nice little x! Pick another letter.",
+    "say": "Nice little X! Pick another letter.",
+    "where": "Practice sheet — little x flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-x",
+    "text": "Good little x. Try the strokes in the arrow order.",
+    "say": "Good little X. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little x flips green, out of order"
+  },
+  {
+    "id": "trace-lower-y",
+    "text": "Your turn. Trace little y.",
+    "say": "Your turn. Trace little Y.",
+    "where": "Practice sheet / formation help — the demo of little y hands over"
+  },
+  {
+    "id": "traced-good-lower-y",
+    "text": "Nice little y! Pick another letter.",
+    "say": "Nice little Y! Pick another letter.",
+    "where": "Practice sheet — little y flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-y",
+    "text": "Good little y. Try the strokes in the arrow order.",
+    "say": "Good little Y. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little y flips green, out of order"
+  },
+  {
+    "id": "trace-lower-z",
+    "text": "Your turn. Trace little z.",
+    "say": "Your turn. Trace little Z.",
+    "where": "Practice sheet / formation help — the demo of little z hands over"
+  },
+  {
+    "id": "traced-good-lower-z",
+    "text": "Nice little z! Pick another letter.",
+    "say": "Nice little Z! Pick another letter.",
+    "where": "Practice sheet — little z flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-lower-z",
+    "text": "Good little z. Try the strokes in the arrow order.",
+    "say": "Good little Z. Try the strokes in the arrow order.",
+    "where": "Practice sheet — little z flips green, out of order"
+  },
+  {
+    "id": "trace-digit-0",
+    "text": "Your turn. Trace the 0.",
+    "say": "Your turn. Trace the 0.",
+    "where": "Practice sheet / formation help — the demo of the 0 hands over"
+  },
+  {
+    "id": "traced-good-digit-0",
+    "text": "Nice the 0! Pick another letter.",
+    "say": "Nice the 0! Pick another letter.",
+    "where": "Practice sheet — the 0 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-0",
+    "text": "Good the 0. Try the strokes in the arrow order.",
+    "say": "Good the 0. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 0 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-1",
+    "text": "Your turn. Trace the 1.",
+    "say": "Your turn. Trace the 1.",
+    "where": "Practice sheet / formation help — the demo of the 1 hands over"
+  },
+  {
+    "id": "traced-good-digit-1",
+    "text": "Nice the 1! Pick another letter.",
+    "say": "Nice the 1! Pick another letter.",
+    "where": "Practice sheet — the 1 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-1",
+    "text": "Good the 1. Try the strokes in the arrow order.",
+    "say": "Good the 1. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 1 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-2",
+    "text": "Your turn. Trace the 2.",
+    "say": "Your turn. Trace the 2.",
+    "where": "Practice sheet / formation help — the demo of the 2 hands over"
+  },
+  {
+    "id": "traced-good-digit-2",
+    "text": "Nice the 2! Pick another letter.",
+    "say": "Nice the 2! Pick another letter.",
+    "where": "Practice sheet — the 2 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-2",
+    "text": "Good the 2. Try the strokes in the arrow order.",
+    "say": "Good the 2. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 2 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-3",
+    "text": "Your turn. Trace the 3.",
+    "say": "Your turn. Trace the 3.",
+    "where": "Practice sheet / formation help — the demo of the 3 hands over"
+  },
+  {
+    "id": "traced-good-digit-3",
+    "text": "Nice the 3! Pick another letter.",
+    "say": "Nice the 3! Pick another letter.",
+    "where": "Practice sheet — the 3 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-3",
+    "text": "Good the 3. Try the strokes in the arrow order.",
+    "say": "Good the 3. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 3 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-4",
+    "text": "Your turn. Trace the 4.",
+    "say": "Your turn. Trace the 4.",
+    "where": "Practice sheet / formation help — the demo of the 4 hands over"
+  },
+  {
+    "id": "traced-good-digit-4",
+    "text": "Nice the 4! Pick another letter.",
+    "say": "Nice the 4! Pick another letter.",
+    "where": "Practice sheet — the 4 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-4",
+    "text": "Good the 4. Try the strokes in the arrow order.",
+    "say": "Good the 4. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 4 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-5",
+    "text": "Your turn. Trace the 5.",
+    "say": "Your turn. Trace the 5.",
+    "where": "Practice sheet / formation help — the demo of the 5 hands over"
+  },
+  {
+    "id": "traced-good-digit-5",
+    "text": "Nice the 5! Pick another letter.",
+    "say": "Nice the 5! Pick another letter.",
+    "where": "Practice sheet — the 5 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-5",
+    "text": "Good the 5. Try the strokes in the arrow order.",
+    "say": "Good the 5. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 5 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-6",
+    "text": "Your turn. Trace the 6.",
+    "say": "Your turn. Trace the 6.",
+    "where": "Practice sheet / formation help — the demo of the 6 hands over"
+  },
+  {
+    "id": "traced-good-digit-6",
+    "text": "Nice the 6! Pick another letter.",
+    "say": "Nice the 6! Pick another letter.",
+    "where": "Practice sheet — the 6 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-6",
+    "text": "Good the 6. Try the strokes in the arrow order.",
+    "say": "Good the 6. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 6 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-7",
+    "text": "Your turn. Trace the 7.",
+    "say": "Your turn. Trace the 7.",
+    "where": "Practice sheet / formation help — the demo of the 7 hands over"
+  },
+  {
+    "id": "traced-good-digit-7",
+    "text": "Nice the 7! Pick another letter.",
+    "say": "Nice the 7! Pick another letter.",
+    "where": "Practice sheet — the 7 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-7",
+    "text": "Good the 7. Try the strokes in the arrow order.",
+    "say": "Good the 7. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 7 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-8",
+    "text": "Your turn. Trace the 8.",
+    "say": "Your turn. Trace the 8.",
+    "where": "Practice sheet / formation help — the demo of the 8 hands over"
+  },
+  {
+    "id": "traced-good-digit-8",
+    "text": "Nice the 8! Pick another letter.",
+    "say": "Nice the 8! Pick another letter.",
+    "where": "Practice sheet — the 8 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-8",
+    "text": "Good the 8. Try the strokes in the arrow order.",
+    "say": "Good the 8. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 8 flips green, out of order"
+  },
+  {
+    "id": "trace-digit-9",
+    "text": "Your turn. Trace the 9.",
+    "say": "Your turn. Trace the 9.",
+    "where": "Practice sheet / formation help — the demo of the 9 hands over"
+  },
+  {
+    "id": "traced-good-digit-9",
+    "text": "Nice the 9! Pick another letter.",
+    "say": "Nice the 9! Pick another letter.",
+    "where": "Practice sheet — the 9 flips green, in the arrow order"
+  },
+  {
+    "id": "traced-order-digit-9",
+    "text": "Good the 9. Try the strokes in the arrow order.",
+    "say": "Good the 9. Try the strokes in the arrow order.",
+    "where": "Practice sheet — the 9 flips green, out of order"
+  }
+]

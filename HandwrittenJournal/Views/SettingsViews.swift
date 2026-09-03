@@ -145,7 +145,7 @@ struct ProfileSettingsView: View {
     }
 
     @ViewBuilder
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         Text(title).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
             .padding(.top, Tokens.Space.s7).padding(.bottom, Tokens.Space.s2)
         content()
@@ -213,7 +213,7 @@ struct AppSettingsView: View {
         .onAppear { Telemetry.screen(.appSettings) }
     }
 
-    private func note(_ text: String) -> some View {
+    private func note(_ text: LocalizedStringKey) -> some View {
         Text(text).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
             .padding(Tokens.Space.s5)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -223,9 +223,9 @@ struct AppSettingsView: View {
 
     private var agreedLine: String {
         guard let date = onboarding.termsAcceptedAt, onboarding.hasAcceptedCurrentTerms else {
-            return "Not yet agreed on this iPad."
+            return String(localized: "Not yet agreed on this iPad.")
         }
-        return "A grown-up agreed on \(date.formatted(date: .long, time: .omitted))."
+        return String(localized: "A grown-up agreed on \(date.formatted(date: .long, time: .omitted)).")
     }
 
     static var version: String {

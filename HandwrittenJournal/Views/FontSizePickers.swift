@@ -30,7 +30,7 @@ struct FontPickerView: View {
                                 }
                             }
                             Text(face.reason).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                            GuidePreview(text: "I saw a red bird",
+                            GuidePreview(text: String(localized: "I saw a red bird"),
                                          setup: WritingSetup(face: face,
                                                              size: JournalSize(id: "preview", label: "Preview",
                                                                                size: 46, lineSpacing: 60),
@@ -88,7 +88,7 @@ struct SizePickerView: View {
                                         .foregroundStyle(Tokens.Colour.action)
                                 }
                             }
-                            GuidePreview(text: "I saw a bird",
+                            GuidePreview(text: String(localized: "I saw a bird"),
                                          setup: WritingSetup(face: setup.face, size: size, mode: .trace),
                                          showRules: false)
                                 .frame(height: size.size * 1.2)

@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Buttons (§10.1)
 
 struct PrimaryButton: View {
-    let title: String
+    let title: LocalizedStringKey
     var systemImage: String? = nil
     var minWidth: CGFloat = Tokens.Target.childPrimaryW
     var height: CGFloat = Tokens.Target.childPrimaryH
@@ -38,7 +38,7 @@ struct PrimaryButton: View {
 }
 
 struct SecondaryButton: View {
-    let title: String
+    let title: LocalizedStringKey
     var systemImage: String? = nil
     var minWidth: CGFloat = 220
     var destructive = false
@@ -66,7 +66,7 @@ struct SecondaryButton: View {
 }
 
 struct TextButton: View {
-    let title: String
+    let title: LocalizedStringKey
     var systemImage: String? = nil
     var trailingImage: String? = nil
     var tint: Color = Tokens.Colour.action
@@ -113,10 +113,10 @@ struct ActionTile: View {
     enum Style { case primary, secondary }
 
     let style: Style
-    let title: String
-    var subtitle: String? = nil
+    let title: LocalizedStringKey
+    var subtitle: LocalizedStringKey? = nil
     let systemImage: String
-    var chip: String? = nil
+    var chip: LocalizedStringKey? = nil
     var height: CGFloat = 128
     let action: () -> Void
 
@@ -162,13 +162,13 @@ struct ActionTile: View {
             .hjShadow(isPrimary ? Tokens.Elevation.card : Tokens.ShadowSpec(radius: 0, y: 0, opacity: 0))
         }
         .buttonStyle(PressableStyle())
-        .accessibilityLabel(chip.map { "\(title). \($0)" } ?? title)
+        .accessibilityLabel(chip.map { Text(title) + Text(verbatim: ". ") + Text($0) } ?? Text(title))
     }
 }
 
 /// "up to +230 points" / "+2 points a letter" — a caption capsule on a tile.
 struct PointsChip: View {
-    let text: String
+    let text: LocalizedStringKey
     var tint: Color = Tokens.Colour.action
     /// On the action-blue tile the capsule is a white wash; elsewhere a tint wash.
     var onAction = false
@@ -274,7 +274,7 @@ struct AccuracyRing: View {
     let accuracy: Double            // 0…1
     var diameter: CGFloat = 220
     var lineWidth: CGFloat = 18
-    var label: String? = "Accuracy"
+    var label: LocalizedStringKey? = "Accuracy"
     var tint: Color = Tokens.Colour.action
 
     var body: some View {
@@ -302,7 +302,7 @@ struct AccuracyRing: View {
 // MARK: - Segmented control (§10.5)
 
 struct SegmentedControl<T: Hashable>: View {
-    let options: [(value: T, label: String)]
+    let options: [(value: T, label: LocalizedStringKey)]
     @Binding var selection: T
     var height: CGFloat = 56
 
@@ -373,9 +373,7 @@ struct PointsTracker: View {
         // labels to nothing, so insist on the ideal width.
         .fixedSize(horizontal: true, vertical: false)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Last 7 days: " + days.map {
-            "\($0.date.formatted(.dateTime.weekday(.wide))) \($0.points)"
-        }.joined(separator: ", "))
+        .accessibilityLabel(Text("Last 7 days: \(days.map { "\($0.date.formatted(.dateTime.weekday(.wide))) \($0.points)" }.joined(separator: ", "))"))
     }
 
     private func fill(for day: PointsSummary.Day) -> Color {
@@ -395,7 +393,7 @@ struct PointsTracker: View {
 /// it filters, now that Journal Home has no navigation bar to put it in.
 struct SearchField: View {
     @Binding var text: String
-    var prompt = "Search what you said"
+    var prompt: LocalizedStringKey = "Search what you said"
 
     var body: some View {
         HStack(spacing: Tokens.Space.s3) {
@@ -424,7 +422,7 @@ struct SearchField: View {
 }
 
 struct SectionHeader: View {
-    let title: String
+    let title: LocalizedStringKey
     var trailing: AnyView? = nil
 
     var body: some View {
@@ -438,9 +436,9 @@ struct SectionHeader: View {
 
 struct EmptyStateView: View {
     let systemImage: String
-    let heading: String
-    let message: String
-    var actionTitle: String? = nil
+    let heading: LocalizedStringKey
+    let message: LocalizedStringKey
+    var actionTitle: LocalizedStringKey? = nil
     var actionImage: String? = nil
     var action: (() -> Void)? = nil
 
@@ -464,8 +462,8 @@ struct EmptyStateView: View {
 }
 
 struct SettingRow<Control: View>: View {
-    let title: String
-    var subtitle: String? = nil
+    let title: LocalizedStringKey
+    var subtitle: LocalizedStringKey? = nil
     var disabled = false
     @ViewBuilder var control: () -> Control
 

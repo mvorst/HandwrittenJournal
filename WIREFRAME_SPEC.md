@@ -1026,7 +1026,7 @@ that it never scrolls (a sheet in a scroll view would scroll under a finger, not
 | 56 | Welcome — voice feedback | The `speaker.wave.2.fill` well, "Should the iPad talk?", the one-paragraph explanation, `Button / Secondary` "Hear it", `Button / Primary` "Yes, talk to me", `Button / Text` "No thanks, stay quiet", the caption naming the per-profile switch |
 | 57 | Welcome — trace a letter | "Let's check your Apple Pencil": a 320 × 400 practice sheet with one big A (Jua at the sheet's 300 pt cap, the formation arrows, live ink), the status "That's an Apple Pencil — you're ready!" in `success`, `Button / Primary` "Let's write" enabled, `Button / Text` "I don't have an Apple Pencil" (opens frame 59 since v3.6) |
 | 58 | Welcome — that was a finger | Frame 57 after a finger stroke: the status "That was a finger. Try the Apple Pencil." with `hand.thumbsup` in `star-on`, "Let's write" disabled. A pencil stroke turns it back into 57 |
-| 59 | Welcome — you'll need an Apple Pencil | v3.6, §13.7. What *I don't have an Apple Pencil* opens in place of the letter: the `applepencil.and.scribble` well, "You'll need an Apple Pencil", why (this is a handwriting app), three sunk notes, `Row / Link` to Apple's compatibility table, `Button / Primary` "Back to the letter", the caption. Records nothing; the welcome cannot be finished from it. Built, not yet drawn |
+| 59 | Welcome — you'll need an Apple Pencil | v3.6, §13.7. What *I don't have an Apple Pencil* opens in place of the letter: the `applepencil.and.scribble` well, "You'll need an Apple Pencil", why (this is a handwriting app), three sunk notes, `Row / Link` to Apple's compatibility table, `Button / Primary` "Back to the letter", `Button / Text` "Skip for now", the caption. Only the skip records anything: it finishes the welcome for that launch, and 57 is back at the next |
 
 ### `03 · Journal`
 
@@ -1281,30 +1281,32 @@ apart, the current one 28 wide, done and current in `action`, the rest `star-off
 | — the formation: three `practice-path` 2 pt strokes with arrowheads; live ink 5 pt in `ink-inside` / `ink-outside` | | | |
 | Status line, `headline` — 57: `checkmark.circle.fill` + `success`; 58: `hand.thumbsup` `star-on` + `text-primary` | — | 665 | h 34 |
 | `Button / Primary` "Let's write" — enabled on 57, `action-disabled` on 58 | 277 | 721 | 280 × 64 |
-| `Button / Text` "I don't have an Apple Pencil" — opens frame 59 in place of the letter (v3.6); it no longer finishes the welcome | — | 801 | h 44 |
+| `Button / Text` "I don't have an Apple Pencil" — opens frame 59 in place of the letter (v3.6) | — | 801 | h 44 |
 
 The sheet is 320 wide on purpose: the practice sheet sizes its letter to its width
 (capped at 300 pt) and lays it out from the left inset, so a narrow sheet is what centres
 a single letter. A finger is allowed to draw on it so that it can be recognised as a
 finger.
 
-| Frame 59 — you'll need an Apple Pencil (v3.6; built, not drawn) | x | y | Size |
+| Frame 59 — you'll need an Apple Pencil (v3.6) | x | y | Size |
 |---|---|---|---|
-| Well, `applepencil.and.scribble` | 329 | 112 | 176 |
+| Well, `applepencil.and.scribble` (the frame draws `pencil.line`) | 329 | 112 | 176 |
 | "You'll need an Apple Pencil", `title-1` | — | 320 | — |
 | Explanation, `body`, four lines — this is a handwriting app; the grip, the pressure, the resting hand, every letter stroke by stroke; what the app teaches and grades, so it doesn't start without one | 64 | 373 | 706 × 96 |
-| Note — sunk card, `hand.raised.slash` 26 pt: "A finger isn't handwriting…" | 24 | 501 | 786 × 120 |
-| Note — `pencil.tip.crop.circle`: "The page is graded stroke by stroke…" | 24 | 633 | 786 × 120 |
-| Note — `applepencil`: "Any Apple Pencil that pairs with this iPad will do." | 24 | 765 | 786 × 72 |
+| Note — sunk card, `hand.raised.slash` 26 pt (drawn as `hand.thumbsup`): "A finger isn't handwriting…" | 24 | 501 | 786 × 120 |
+| Note — `pencil.tip.crop.circle` (drawn as `checkmark.circle.fill`): "The page is graded stroke by stroke…" | 24 | 633 | 786 × 120 |
+| Note — `applepencil` (drawn as `pencil.line`): "Any Apple Pencil that pairs with this iPad will do." | 24 | 765 | 786 × 72 |
 | `Row / Link` "Which Apple Pencil fits this iPad?" — Apple's compatibility table, in Safari | 24 | 849 | 786 × 64 |
 | `Button / Primary` "✎ Back to the letter" | 252 | 953 | 330 × 64 |
-| Caption — the answers so far are saved; come back with a pencil and the letter will be waiting | 64 | 1029 | 706 |
+| `Button / Text` "Skip for now" | — | 1033 | h 44 |
+| Caption — skipping lets you set up today; the letter is back next time, until a pencil has been seen | 64 | 1089 | 706 |
 
-Frame 59 is what *I don't have an Apple Pencil* opens, in place of the letter, and the
-only place the tap leads (v3.6): it explains why the pencil is the point, links to Apple's
-table, and returns. *Back* in the header returns to the letter as well. It records nothing
-and the welcome cannot be finished from it — the pencil check is owed until an Apple
-Pencil traces the letter. Built in the app and specified here; not yet drawn in Penpot.
+Frame 59 is what *I don't have an Apple Pencil* opens, in place of the letter (v3.6): it
+explains why the pencil is the point, links to Apple's table, and offers two ways out.
+*Back to the letter* (and *Back* in the header) return to 57. *Skip for now* finishes the
+welcome for this launch only — the pencil check is owed again at the next, until an Apple
+Pencil traces the letter. Drawn on `02 · Profiles` after 58 with the icon sheet's nearest
+icons (`PENPOT_HANDOFF.md` §1.-3).
 
 ## 14. Sample Content
 

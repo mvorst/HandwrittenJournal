@@ -326,7 +326,7 @@ final class WriteSessionViewModel {
         switch speech.currentStatusWithoutPrompting() {
         case .ready: startListening()
         case .unknown: leaveSurface(for: .explainPermission)
-        case .microphoneDenied, .speechDenied: leaveSurface(for: .unavailable("The microphone is switched off"))
+        case .microphoneDenied, .speechDenied: leaveSurface(for: .unavailable(String(localized: "The microphone is switched off")))
         case .unavailable(let message): leaveSurface(for: .unavailable(message))
         }
     }
@@ -338,7 +338,7 @@ final class WriteSessionViewModel {
             stage = .writing
             startListening()
         case .unavailable(let message): leaveSurface(for: .unavailable(message))
-        default: leaveSurface(for: .unavailable("The microphone is switched off"))
+        default: leaveSurface(for: .unavailable(String(localized: "The microphone is switched off")))
         }
     }
 
@@ -366,7 +366,7 @@ final class WriteSessionViewModel {
             Voice.setListening(true)
             Haptics.tap()
         } catch {
-            leaveSurface(for: .unavailable("The microphone could not start"))
+            leaveSurface(for: .unavailable(String(localized: "The microphone could not start")))
         }
     }
 
@@ -664,7 +664,7 @@ final class WriteSessionViewModel {
         stageSurface()
         Haptics.success()
         if let result = lastResult {
-            Voice.say(.entryFinished(name: profile.name, finishedEverything: result.finishedEverything))
+            Voice.say(.entryFinished(finishedEverything: result.finishedEverything))
         }
         stage = .results
     }

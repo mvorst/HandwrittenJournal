@@ -54,7 +54,7 @@ final class SpeechRecognitionService {
 
     func refreshAvailability() async {
         guard let recogniser, recogniser.isAvailable else {
-            availability = .unavailable("Speech recognition is not available on this iPad.")
+            availability = .unavailable(String(localized: "Speech recognition is not available on this iPad."))
             return
         }
         let speech = await withCheckedContinuation { continuation in
@@ -72,7 +72,7 @@ final class SpeechRecognitionService {
         if Self.fakeScript != nil { return .ready }
         #endif
         guard let recogniser, recogniser.isAvailable else {
-            return .unavailable("Speech recognition is not available on this iPad.")
+            return .unavailable(String(localized: "Speech recognition is not available on this iPad."))
         }
         switch SFSpeechRecognizer.authorizationStatus() {
         case .authorized: break

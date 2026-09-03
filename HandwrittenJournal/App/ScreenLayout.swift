@@ -56,7 +56,7 @@ enum RailSide: Int, CaseIterable, Identifiable {
 
     var id: Int { rawValue }
 
-    var label: String {
+    var label: LocalizedStringKey {
         switch self {
         case .auto:  return "Auto"
         case .left:  return "Left"

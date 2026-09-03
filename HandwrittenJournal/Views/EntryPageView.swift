@@ -373,13 +373,13 @@ struct EntryPageView: View {
 
     private func wordsBlock(_ session: WritingSession) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(session.hasWriting
-                 ? "\(session.wordsWritten) of \(session.totalWords) words"
-                 : "\(session.totalWords) words, not written yet")
+            (session.hasWriting
+                 ? Text("\(session.wordsWritten) of \(session.totalWords) words")
+                 : Text("\(session.totalWords) words, not written yet"))
                 .font(.hjBodyEm).foregroundStyle(Tokens.Colour.textPrimary)
-            Text(session.hasWriting && session.isComplete
-                 ? "You finished the whole thing."
-                 : "\(session.wordsRemaining) words are still waiting on the page.")
+            (session.hasWriting && session.isComplete
+                 ? Text("You finished the whole thing.")
+                 : Text("\(session.wordsRemaining) words are still waiting on the page."))
                 .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
             Text(model.setup.summary).font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
         }

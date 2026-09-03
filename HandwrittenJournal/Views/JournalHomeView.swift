@@ -149,9 +149,9 @@ struct JournalHomeView: View {
     /// Streak language is only ever positive: when it lapses, say nothing about losing it.
     private var streakText: String {
         switch profile.currentStreak {
-        case 0: return "Write today to start a streak"
-        case 1: return "1-day streak"
-        default: return "\(profile.currentStreak)-day streak"
+        case 0: return String(localized: "Write today to start a streak")
+        case 1: return String(localized: "1-day streak")
+        default: return String(localized: "\(profile.currentStreak)-day streak")
         }
     }
 
@@ -228,8 +228,8 @@ struct JournalHomeView: View {
     }
 
     private func pointsDelta(_ summary: PointsSummary) -> String {
-        if summary.today > 0 { return "+\(summary.today) today" }
-        return summary.total == 0 ? "Your first entry starts the count." : "Nothing yet today"
+        if summary.today > 0 { return String(localized: "+\(summary.today) today") }
+        return summary.total == 0 ? String(localized: "Your first entry starts the count.") : String(localized: "Nothing yet today")
     }
 
     // MARK: - Badges
@@ -270,7 +270,7 @@ struct JournalHomeView: View {
                 BadgeTile(badge: badge, earned: earned)
             }
             .buttonStyle(PressableStyle())
-            .accessibilityLabel(earned ? "\(badge.name), earned" : "\(badge.name), not earned yet")
+            .accessibilityLabel(earned ? Text("\(badge.name), earned") : Text("\(badge.name), not earned yet"))
             .accessibilityHint("Shows what this badge is for")
         }
     }
@@ -303,8 +303,9 @@ struct JournalHomeView: View {
         .padding(.top, layout.isLandscape ? Tokens.Space.s6 : Tokens.Space.s8)
     }
 
-    private var resultsTitle: String {
-        entries.isEmpty ? "No results" : "\(entries.count) result\(entries.count == 1 ? "" : "s")"
+    /// "1 result" is the catalog's plural form of the second key.
+    private var resultsTitle: LocalizedStringKey {
+        entries.isEmpty ? "No results" : "\(entries.count) results"
     }
 
     @ViewBuilder
@@ -373,8 +374,8 @@ struct EntryRow: View {
     }
 
     private var metadata: String {
-        let words = session.totalWords == 1 ? "1 word" : "\(session.totalWords) words"
-        guard session.hasWriting else { return "\(words) · not written yet" }
-        return "\(words)  ·  \(session.accuracyPercent)%  ·  \(session.setup.shortSummary)"
+        let words = String(localized: "\(session.totalWords) words")   // "1 word" via the catalog
+        guard session.hasWriting else { return String(localized: "\(words) · not written yet") }
+        return String(localized: "\(words)  ·  \(session.accuracyPercent)%  ·  \(session.setup.shortSummary)")
     }
 }

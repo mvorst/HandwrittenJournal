@@ -93,6 +93,6 @@ struct ProgressReport {
         guard recent.count >= 5 else { return nil }
         let mean = recent.reduce(0, +) / Double(recent.count)
         guard mean >= 0.90 else { return nil }
-        return "\(profile.name) has been above 90% for two weeks — \(smaller.label) might be ready to try."
+        return String(localized: "\(profile.name) has been above 90% for two weeks — \(smaller.label) might be ready to try.")
     }
 }

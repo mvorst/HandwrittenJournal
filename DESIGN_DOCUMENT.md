@@ -13,12 +13,43 @@ Build notes: `PENPOT_HANDOFF.md`.
 
 ---
 
+## 0.16 What Changed in v3.7
+
+**Every string in one catalog, and a recorded voice** (§4.12, built 2026-09-02).
+
+1. **The strings are localizable.** `Resources/Localizable.xcstrings` holds every
+   user-facing string — 359 keys at v3.7 — and `InfoPlist.xcstrings` the usage
+   descriptions. The design-system components take a `LocalizedStringKey`, computed copy
+   goes through `String(localized:)`, and counts are plural variations in the catalog
+   (*1 letter was skipped* / *3 letters were skipped*) rather than `== 1` branches in the
+   code. The app is still English-only — the recogniser is `en-US`, the sheet and the
+   formations are A–Z, a–z, 0–9 — but the words now sit in one place. `xcodebuild` does
+   not sync the catalog the way Xcode does; `Scripts/l10n/sync-catalog.py` does, after
+   a build.
+2. **The voice is a recording.** `AVSpeechSynthesizer` is gone. Every cue is a clip cut
+   once with a Gemini voice (`Leda`, `gemini-2.5-pro-preview-tts`) by
+   `Scripts/voice/build-clips.sh` from `Scripts/voice/lines.json`, bundled in
+   `Resources/Voice/` (200 clips, about 5 MB) and played with `AVAudioPlayer`. Nothing
+   is synthesised on the iPad, nothing is downloaded, nothing of the child's goes
+   anywhere (§10.1). One voice for the whole app; changing it is one command and a
+   release. A missing clip is silence, never a system voice.
+3. **Three more moments speak.** The pencil check narrates itself as it appears — *Watch
+   the arrows, then trace the big A with the Apple Pencil* — if the grown-up chose a
+   voice. The remediation modal (§8.1b) says *Your turn. Trace big G* when its demo hands
+   over, *That's the way! Next letter* and *That's the way! Your word is fixed* as the
+   letters are traced, and *Almost! Watch the arrows again. Start where they start* when
+   an attempt is wiped.
+4. **The results headline no longer says the name.** The clip says *Great writing!*;
+   *Great writing, Milo!* stays on the screen. A name cannot be recorded in advance, and
+   sending it to a voice service to be spoken would break §10.1.
+
 ## 0.15 What Changed in v3.6
 
-**The welcome does not open without an Apple Pencil** (§4.0, built 2026-09-02). v3.4's
-pencil check said the pencil was required and then let *I don't have an Apple Pencil*
-through anyway, recording `noPencil` and carrying on. This is a handwriting app, so it
-does not any more.
+**The welcome explains the Apple Pencil before it lets anyone past it** (§4.0, built
+2026-09-02; frame 59 drawn the same day). v3.4's pencil check said the pencil was
+required and then let *I don't have an Apple Pencil* straight through, recording
+`noPencil` and carrying on. This is a handwriting app, so the tap now leads to a page
+that says why — and a skip from there lasts one launch.
 
 1. ***I don't have an Apple Pencil* opens a page, not a door** — frame 59, *You'll need
    an Apple Pencil*: why the pencil is the point (the child writes with a pencil in their
@@ -26,18 +57,21 @@ does not any more.
    by stroke — and that is what the app teaches and grades), why a finger will not do (it
    is not handwriting, and it is wider than the strokes it would trace, so the scores
    would mean nothing), that any Apple Pencil that pairs with the iPad will do, a link to
-   Apple's compatibility table, and *Back to the letter*. Nothing on it records or
-   finishes anything.
+   Apple's compatibility table, then *Back to the letter* and, beneath it, *Skip for
+   now*. Only the skip records anything: the welcome is finished for this launch,
+   `pencilCheck` says *skipped*, and the check is back the next time the app opens.
 2. **The pencil check is owed until an Apple Pencil traces the letter.** Each step of the
    welcome now settles on its own (§5.1a): the agreement until the terms change, the
    voice question once answered, the pencil check once a pencil has been seen. A
    grown-up who puts the iPad down at the letter to find the pencil comes back to the
-   letter, not to the voice question; an iPad that v3.4 let through without a pencil
-   owes the check — alone — on its next launch.
-3. `noPencil` is gone from `Onboarding.PencilCheck` and the stored value reads as
-   unchecked. `welcome_finished` no longer carries a `pencil` parameter (it could only
-   ever say *pencil*); the page is the hand-named screen `welcome_no_pencil`, so the
-   analytics show how often the door is met (§10.5).
+   letter, not to the voice question; a skip lets one launch through and the check —
+   alone — returns at the next, as it does for an iPad that v3.4 let through without a
+   pencil.
+3. `noPencil` is gone from `Onboarding.PencilCheck` (the stored value reads as
+   unchecked) and `skipped` takes its place. `welcome_finished` says which way the
+   welcome ended (`pencil` = *pencil* or *skipped*), and the page is the hand-named
+   screen `welcome_no_pencil`, so the analytics show how often the door is met and how
+   often the skip is taken (§10.5).
 4. Not changed: **Finger tracing allowed** is still a per-profile switch (§10.5's removal
    is still owed), and the welcome's letter still accepts a finger so that it can say
    *That was a finger*.
@@ -574,15 +608,16 @@ coordinates — and since v3.3 each also lays out in landscape, 1194 × 834, by 
 │ ▒ any Apple Pencil will do▒│
 │  Which Pencil fits?    ↗   │
 │    [ Back to the letter ]  │
+│        Skip for now        │
 └────────────────────────────┘
         frame 59 (v3.6)
 ```
 
 Three steps before anyone has a profile, shown once and never again unless the terms
-change — and, since v3.6, not passed at all until an Apple Pencil has traced the letter;
-frame 59 is the page behind the third step for an iPad without one. A grown-up holds
-the iPad for the first two; the third is the child's, and it leads straight into *Add
-someone*. Every screen is the page's width, centred, in both
+change — and, since v3.6, not settled until an Apple Pencil has traced the letter: frame
+59 is the page behind the third step for an iPad without one, and its skip lasts one
+launch. A grown-up holds the iPad for the first two; the third is the child's, and it
+leads straight into *Add someone*. Every screen is the page's width, centred, in both
 orientations; the grown-up's two steps scroll when the window is short, and the letter
 step never does — in landscape the words and the buttons sit in a column beside the
 sheet, because a letter sheet inside a scroll view would scroll under a finger instead
@@ -609,15 +644,17 @@ draw here so that it can be recognised as a finger. The first stroke reports wha
 it: an **Apple Pencil** flips the status to *That's an Apple Pencil — you're ready!*
 with a success haptic and enables *Let's write*; a **finger** shows *That was a finger.
 Try the Apple Pencil* (frame 58) and leaves the button disabled, until a pencil stroke
-lands. If voice feedback was chosen, both outcomes are said aloud too. **Finger tracing
-allowed** stays the per-profile setting it is until §10.5's removal lands.
+lands. If voice feedback was chosen, the step narrates itself as it appears — *Watch the
+arrows, then trace the big A with the Apple Pencil* (v3.7), once, not again after frame
+59 — and both outcomes are said aloud too. **Finger tracing allowed** stays the
+per-profile setting it is until §10.5's removal lands.
 
 **3a. You'll need an Apple Pencil (frame 59, v3.6).** *I don't have an Apple Pencil*
-opens a page, not a door. This is a handwriting app: the pencil is required (§10.5), the
-product page says so, and since v3.6 the welcome does not open without one. v3.4 let the
-tap through, recording it, because a grown-up might be setting up before the pencil was
-out of its box and App Review might not have one to hand; both now get the page instead,
-and App Review is asked for a Pencil in the review notes. It is the grown-up's page again
+opens a page before any door. This is a handwriting app: the pencil is required (§10.5),
+the product page says so, and the welcome is where the app itself says why. v3.4 let the
+tap straight through, recording it, because a grown-up might be setting up before the
+pencil was out of its box and App Review might not have one to hand; both now read the
+page first, and can still skip from it — for one launch. It is the grown-up's page again
 — the well with `applepencil.and.scribble`, scrolling like frames 55 and 56 — and it
 says, in this order: why the pencil is the point (*your child writes with a pencil in
 their hand, just as they do on paper — the grip, the pressure, the hand resting on the
@@ -627,11 +664,14 @@ handwriting** (it builds none of the habits a pencil does, so the app would be
 practising the wrong thing), **the page is graded stroke by stroke** (a fingertip is
 wider than the strokes it would trace, so the scores would mean nothing), **any Apple
 Pencil that pairs with this iPad will do**; a `Row / Link` to Apple's compatibility
-table, *Which Apple Pencil fits this iPad?*; *Back to the letter*; and a caption —
-*everything you've answered is saved; come back with a pencil and the letter will be
-waiting*. *Back* in the header does the same as the button. Nothing on the page records
-or finishes anything, so the check stays owed (below). The page is a hand-named screen
-(`welcome_no_pencil`), so the analytics show how often the door is met.
+table, *Which Apple Pencil fits this iPad?*; *Back to the letter*; *Skip for now* as a
+text button beneath it; and a caption — *skipping lets you set up today; the letter will
+be back the next time the app opens, until it has seen an Apple Pencil*. *Back* in the
+header does the same as the primary button. *Skip for now* finishes the welcome for this
+launch only: it records `skipped`, the app goes on to the Profile Picker, and the pencil
+check — alone — is back at the next launch (below). The page is a hand-named screen
+(`welcome_no_pencil`) and `welcome_finished` says whether it ended in a pencil or a
+skip, so the analytics show how often the door is met and how often it is walked past.
 
 **Order.** The grown-up's steps come first — they are holding the iPad, and the
 agreement must precede use — and the child's step last, so the traced letter flows into
@@ -642,8 +682,9 @@ the agreement with the terms' date, and when that date changes the agreement ste
 returns. The voice question is settled by its answer and never asked again. The pencil
 check is settled only by an Apple Pencil tracing the letter: a grown-up who puts the
 iPad down at the letter to fetch the pencil comes back to the letter, not to the voice
-question, and an iPad that v3.4 let through without a pencil owes the check — alone —
-on its next launch. Nothing else in the app asks again.
+question; *Skip for now* is remembered for the launch it was tapped in and no longer, so
+the check — alone — is back at the next launch, as it is for an iPad that v3.4 let
+through without a pencil. Nothing else in the app asks again.
 
 ### 4.1 Profile Picker (launch screen)
 
@@ -1163,19 +1204,26 @@ double-story letters and differing hooks make one data set dishonest across face
 locking the sheet to the default face keeps every arrow truthful. Reduce Motion skips
 the animation and shows the numbered guide immediately.
 
-### 4.12 Voice feedback *(v3.4)*
+### 4.12 Voice feedback *(v3.4, v3.7)*
 
 The iPad speaks — briefly, and only at the moments a grown-up sitting beside the child
 would. Cues, not narration:
 
-| Moment | Said |
-|---|---|
-| A take ends and the first line comes up on its own (§4.4) | *Your turn. Write it!* — the callout, said as well as shown |
-| A line settles under the child's pen — its words join the record | *Nice line.* · *Lovely writing.* · *That line is yours now.* · *Keep going.* — in rotation, so it is never a metronome |
-| *I'm finished* | The results headline: *You wrote everything you said!* or *Great writing, Milo!* |
-| The practice demo hands over (§4.11) | *Your turn. Trace big G.* — only when the arrows finish; a pen already writing is not told |
-| A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* |
-| The welcome's pencil check (§4.0) | *That's an Apple Pencil. You're ready to write!* · *That was a finger. Try the Apple Pencil.* |
+| Moment | Said | Clip |
+|---|---|---|
+| *Hear it* on the welcome (§4.0) | *Hi! I'm your journal. I'll tell you when it's your turn to write.* | `preview` |
+| The welcome's pencil check appears (§4.0, v3.7) | *Watch the arrows, then trace the big A with the Apple Pencil.* — once, if the grown-up chose a voice | `pencil-intro` |
+| The pencil check's first stroke (§4.0) | *That's an Apple Pencil. You're ready to write!* · *That was a finger. Try the Apple Pencil.* | `pencil-found` · `finger` |
+| A take ends and the first line comes up on its own (§4.4) | *Your turn. Write it!* — the callout, said as well as shown | `your-turn` |
+| A line settles under the child's pen — its words join the record | *Nice line.* · *Lovely writing.* · *That line is yours now.* · *Keep going.* — in rotation, so it is never a metronome | `line-done-0…3` |
+| *I'm finished* | The results headline: *You wrote everything you said!* or *Great writing!* — the child's name stays on the screen (v3.7) | `finished-all` · `finished-some` |
+| The practice demo hands over (§4.11) — and the remediation modal's (§8.1b, v3.7) | *Your turn. Trace big G.* — only when the arrows finish; a pen already writing is not told | `trace-upper-G` |
+| A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* | `traced-good-upper-G` · `traced-order-upper-G` |
+| A remediation letter is traced (§8.1b, v3.7) | *That's the way! Next letter.* — or, for the last one, *That's the way! Your word is fixed.* | `help-next` · `help-fixed` |
+| A remediation attempt is wiped (§8.1b, v3.7) | *Almost! Watch the arrows again. Start where they start.* | `help-again` |
+
+Letters are named *big G*, *little g*, *the 7* — 62 characters, three clips each, so
+the practice sheet and the modal never stitch a sentence together from pieces.
 
 Rules:
 
@@ -1187,9 +1235,18 @@ Rules:
 - **Per profile.** `UserProfile.soundEnabled` — the switch is **Voice feedback** under
   FEEDBACK (frame 33), with a line saying what it does — seeded from the welcome's
   answer when the profile is made, and a sibling can have it the other way.
-- **On device.** `AVSpeechSynthesizer`, on an audio session of its own so it never has
-  to fight the microphone's, at a shade under the default rate. Nothing of the child's
-  leaves the iPad (§10.1 stands).
+- **Recorded, bundled, one voice** (v3.7). Every cue is an AAC clip in `Resources/Voice/`,
+  cut once from `Scripts/voice/lines.json` by `Scripts/voice/build-clips.sh` with a
+  Gemini voice — `Leda` on `gemini-2.5-pro-preview-tts`, asked to speak *warmly and
+  unhurried, like a kind teacher talking to a five-year-old* — and played with
+  `AVAudioPlayer` on a `.playback` session that ducks whatever else is on and hands it
+  back when the clip ends. The microphone sets its own `.record` session each time a
+  take starts, so the two never fight. Nothing is synthesised on the iPad — a missing
+  clip is silence, never a system voice — nothing is downloaded, and nothing of the
+  child's leaves the iPad (§10.1 stands): the one line that would have needed the
+  child's name lost it. `VoiceClipTests` checks that every cue has its clip and that the
+  manifest says what the cue says; `Scripts/voice/CLIPS.md` (generated with the clips)
+  lists every file with where it plays and its transcript.
 - **Back scores silently** (§4.4): only *I'm finished* speaks the headline. Reopening an
   entry says nothing until a line settles again.
 
@@ -1245,14 +1302,15 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
 
 The welcome's answers belong to the iPad, not to a child, and must exist before the first
 profile does, so they live in `UserDefaults` (`Onboarding`): `termsAcceptedAt` and the
-`termsVersion` they were given under, `pencilCheck` (unchecked · pencil — v3.4's
+`termsVersion` they were given under, `pencilCheck` (unchecked · pencil · skipped — v3.4's
 `noPencil` is no longer a value and reads as unchecked), `voiceFeedbackDefault` with
 whether it has been chosen at all, and `completedAt`, a date for the record. What is
 owed is decided step by step (v3.6): the agreement while `termsVersion` differs from the
 constant — it is the *Last updated* date at the top of the terms and the privacy policy,
 so bumping it brings the agreement step back alone — the voice question until it has an
-answer, and the pencil check until `pencilCheck` is `pencil` (§4.0). Nothing here syncs,
-and nothing here is personal.
+answer, and the pencil check until `pencilCheck` is `pencil`; *Skip for now* is held in
+memory for that launch and never stored as settled (§4.0). Nothing here syncs, and
+nothing here is personal.
 
 ### 5.2 WritingSession
 
@@ -1874,10 +1932,10 @@ and the privacy policy already describe the app as if they were, so they are 1.0
    are **not** built yet — Crashlytics or Apple's crash logs, still to decide.
 2. **Apple Pencil is required.** The finger-tracing profile switch (§12) is to be removed
    or hidden; palm rejection (§4.4) stays. Every product-page and marketing surface says
-   "Requires Apple Pencil". **The welcome enforces it (v3.6, built 2026-09-02):** the
-   app does not open until an Apple Pencil has traced the letter, and *I don't have an
-   Apple Pencil* explains why instead of letting the tap through (§4.0). The switch
-   itself is still in the build.
+   "Requires Apple Pencil". **The welcome puts it to the grown-up (v3.6, built
+   2026-09-02):** *I don't have an Apple Pencil* explains why before anything else, and a
+   skip from that page lasts one launch — the check returns until an Apple Pencil has
+   traced the letter (§4.0). The switch itself is still in the build.
 3. **Pricing.** "The basic app is always free because we want our children to thrive. We
    may introduce additional features that will be paid because we will never sell your
    data." No in-app purchases in 1.0; any later purchase sits behind a grown-up gate and
@@ -1938,8 +1996,8 @@ Reduce Motion replaces the flip and the settle with cross-fades.
 - Colorblind ink scheme swaps green/red for blue/orange, per profile.
 - Finger tracing is a per-profile toggle for children without a stylus — **superseded by
   §10.5: Apple Pencil is required; the toggle is to be removed or hidden.** The welcome's
-  pencil check (§4.0) is where the requirement is put to the grown-up, and since v3.6
-  the app does not open without one.
+  pencil check (§4.0) is where the requirement is put to the grown-up; since v3.6 the
+  explanation comes before any skip, and a skip lasts one launch.
 - Voice feedback (§4.12) is a per-profile cue track for a child who cannot yet read the
   chrome — whose turn it is, which letter, that a line is done. It is not a screen
   reader; VoiceOver is separate and still owed by the accessibility pass.

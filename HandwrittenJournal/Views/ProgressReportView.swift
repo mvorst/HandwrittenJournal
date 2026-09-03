@@ -126,13 +126,13 @@ struct ProgressReportView: View {
             statRow("Sessions written", "\(report.sessionCount)")
             statRow("Words written", "\(report.wordCount)")
             statRow("Days journaled", "\(report.daysJournaled)")
-            statRow("Longest streak", profile.longestStreak == 1 ? "1 day" : "\(profile.longestStreak) days")
+            statRow("Longest streak", String(localized: "\(profile.longestStreak) days"))
         }
         .padding(Tokens.Space.s5)
         .sunkCard()
     }
 
-    private func statRow(_ label: String, _ value: String) -> some View {
+    private func statRow(_ label: LocalizedStringKey, _ value: String) -> some View {
         HStack {
             Text(label).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
             Spacer()

@@ -48,7 +48,7 @@ struct WritingProgressBar: View {
                 }
             }
             .frame(height: 8)
-            Text(total > 0 ? "\(written) of \(total) words" : " ")
+            (total > 0 ? Text("\(written) of \(total) words") : Text(verbatim: " "))
                 .font(.hjCaption)
                 .foregroundStyle(Tokens.Colour.textSecondary)
         }

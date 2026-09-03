@@ -38,8 +38,13 @@ struct FormationHelpOverlay: View {
             // count, and that reset is not a failure.
             if new > old { attemptFailed() }
         }
-        .onChange(of: practice.phase) {
-            if case .traced = practice.phase { lessonTraced() }
+        .onChange(of: practice.phase) { before, phase in
+            switch phase {
+            case .traced: lessonTraced()
+            // Said only when the demo hands over, as on the practice sheet (§4.12, v3.7).
+            case .yourTurn(let char): if case .watching = before { Voice.say(.practiceYourTurn(char)) }
+            default: break
+            }
         }
     }
 
@@ -183,15 +188,15 @@ struct FormationHelpOverlay: View {
     private var allDone: Bool { completed.count == help.lessons.count }
 
     private var instruction: String {
-        if retrying { return "Almost! Watch the arrows again — start where they start." }
-        if allDone { return "That's the way! \(help.wordText) is fixed." }
+        if retrying { return String(localized: "Almost! Watch the arrows again — start where they start.") }
+        if allDone { return String(localized: "That's the way! \(help.wordText) is fixed.") }
         switch practice.phase {
         case .idle, .watching:
             return current == 0
-                ? "The red letters were written in a different order.\nWatch how \(letterName) is written…"
-                : "Now watch how \(letterName) is written…"
-        case .yourTurn: return "Your turn — trace \(letterName) just like the arrows!"
-        case .traced:   return "That's the way! Next letter…"
+                ? String(localized: "The red letters were written in a different order.\nWatch how \(letterName) is written…")
+                : String(localized: "Now watch how \(letterName) is written…")
+        case .yourTurn: return String(localized: "Your turn — trace \(letterName) just like the arrows!")
+        case .traced:   return String(localized: "That's the way! Next letter…")
         }
     }
 
@@ -201,6 +206,7 @@ struct FormationHelpOverlay: View {
         guard !completed.contains(current) else { return }
         completed.insert(current)
         onLessonComplete(help.lessons[current])
+        Voice.say(current + 1 < help.lessons.count ? .helpNext : .helpFixed)
         guard current + 1 < help.lessons.count else { return }
         Task {
             try? await Task.sleep(for: .seconds(1.1))
@@ -222,6 +228,7 @@ struct FormationHelpOverlay: View {
         guard !completed.contains(current), !retrying else { return }
         retrying = true
         Haptics.tap()
+        Voice.say(.helpAgain)
         Task {
             try? await Task.sleep(for: .seconds(1.6))
             retrying = false
@@ -229,9 +236,7 @@ struct FormationHelpOverlay: View {
     }
 
     private var letterName: String {
-        let character = help.lessons[min(current, help.lessons.count - 1)].character
-        if character.isNumber { return "the \(character)" }
-        return character.isUppercase ? "big \(character)" : "little \(character)"
+        Voice.letterName(help.lessons[min(current, help.lessons.count - 1)].character)
     }
 
     private var wrongColour: Color { colourBlind ? Tokens.Colour.inkOutsideCB : Tokens.Colour.inkOutside }

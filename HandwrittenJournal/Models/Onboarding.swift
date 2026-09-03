@@ -25,9 +25,13 @@ final class Onboarding {
         case unchecked
         /// An Apple Pencil traced the letter.
         case pencil
+        /// *Skip for now* on frame 59 (v3.6): the welcome was let through without a
+        /// pencil for that launch. The check is owed again at the next launch, until a
+        /// pencil traces the letter.
+        case skipped
         // `noPencil` — what builds up to v3.5 wrote when *I don't have an Apple Pencil*
-        // let the welcome through — is no longer a case. It reads as `unchecked`, so an
-        // iPad that was let through owes the check again (§4.0, v3.6).
+        // carried straight on — is no longer a case. It reads as `unchecked`, so an iPad
+        // that was let through owes the check again (§4.0, v3.6).
     }
 
     private enum Key {
@@ -51,6 +55,9 @@ final class Onboarding {
     /// until it has, and the question is asked once.
     private(set) var hasChosenVoiceFeedback: Bool
     private(set) var completedAt: Date?
+    /// *Skip for now* was tapped in this run of the app — not stored, so the check is
+    /// back at the next launch (§4.0, v3.6).
+    private(set) var skippedThisLaunch = false
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -72,15 +79,16 @@ final class Onboarding {
 
     /// The steps still owed, in the order they are shown. Each settles on its own: the
     /// agreement until the terms change, the voice question once it is answered, and the
-    /// pencil check until an Apple Pencil has traced the letter — *I don't have an Apple
-    /// Pencil* says why the app needs one and settles nothing (§4.0, v3.6). A fresh iPad
-    /// owes all three; one that an earlier build let through without a pencil owes the
-    /// check alone.
+    /// pencil check until an Apple Pencil has traced the letter. *I don't have an Apple
+    /// Pencil* says why the app needs one, and its *Skip for now* lets this launch
+    /// through without settling anything: the check is back next time (§4.0, v3.6). A
+    /// fresh iPad owes all three; one that skipped, or that an earlier build let through,
+    /// owes the check alone.
     var stepsDue: [WelcomeStep] {
         var due: [WelcomeStep] = []
         if !hasAcceptedCurrentTerms { due.append(.terms) }
         if !hasChosenVoiceFeedback { due.append(.voice) }
-        if !hasSeenPencil { due.append(.pencil) }
+        if !hasSeenPencil, !skippedThisLaunch { due.append(.pencil) }
         return due
     }
 
@@ -106,6 +114,13 @@ final class Onboarding {
         defaults.set(result.rawValue, forKey: Key.pencil)
     }
 
+    /// *Skip for now* (frame 59): through for this launch, remembered as skipped, and
+    /// owed again the next time the app starts.
+    func skipPencilCheck() {
+        recordPencilCheck(.skipped)
+        skippedThisLaunch = true
+    }
+
     /// Every step is answered. Only the agreement can be owed again after this.
     func finish(on date: Date = .now) {
         completedAt = date
@@ -119,6 +134,7 @@ final class Onboarding {
         pencilCheck = .unchecked
         voiceFeedbackDefault = true
         hasChosenVoiceFeedback = false
+        skippedThisLaunch = false
         completedAt = nil
         for key in [Key.acceptedAt, Key.acceptedVersion, Key.pencil, Key.voice, Key.completedAt] {
             defaults.removeObject(forKey: key)

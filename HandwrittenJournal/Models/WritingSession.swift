@@ -108,7 +108,7 @@ final class WritingSession {
     var firstLine: String {
         let source = transcript.isEmpty ? spokenBuffer : transcript
         let words = source.split(whereSeparator: \.isWhitespace).prefix(8).joined(separator: " ")
-        return words.isEmpty ? "Empty entry" : (words.count < source.count ? words + "…" : words)
+        return words.isEmpty ? String(localized: "Empty entry") : (words.count < source.count ? words + "…" : words)
     }
 
     /// The next few unwritten words — the resume card quotes the buffer, the one piece of
