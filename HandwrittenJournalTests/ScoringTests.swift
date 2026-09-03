@@ -76,23 +76,125 @@ struct PerLetterScoringTests {
         #expect(ScoringEngine.stars(forAccuracy: 0.40) == 0)
     }
 
-    @Test("Points reproduce the canonical figures: 183 and 224")
-    func canonicalPoints() {
-        var low = ScoringEngine.Tally(letterCount: 100)
-        for letter in 0..<100 {
-            for i in 0..<100 { low.record(letter: letter, isInside: i < 78) }
-        }
-        let a = ScoringEngine.score(tally: low, streak: 5)
-        #expect(a.stars == 2)
-        #expect(a.totalPoints == 183)     // 78 + 50 + 25 + 30
+    // MARK: - §8.3 (v3.5) — points scale with the writing
 
-        var high = ScoringEngine.Tally(letterCount: 100)
-        for letter in 0..<100 {
-            for i in 0..<100 { high.record(letter: letter, isInside: i < 94) }
+    /// A perfectly inked tally for `wordOf`, every letter drawn the way it is taught.
+    private func perfect(wordOf: [Int], alphanumeric: [Bool]? = nil, words: Int) -> ScoringEngine.Tally {
+        var tally = ScoringEngine.Tally(wordOfLetter: wordOf, alphanumeric: alphanumeric, totalWords: words)
+        for letter in wordOf.indices {
+            for _ in 0..<10 { tally.record(letter: letter, isInside: true) }
         }
-        let b = ScoringEngine.score(tally: high, streak: 5)
-        #expect(b.stars == 3)
-        #expect(b.totalPoints == 224)     // 94 + 75 + 25 + 30
+        return tally
+    }
+
+    @Test("A letter earns two points above 90%, one from 50%, nothing below")
+    func letterPoints() {
+        #expect(ScoringEngine.letterPoints(forAccuracy: 1.0) == 2)
+        #expect(ScoringEngine.letterPoints(forAccuracy: 0.91) == 2)
+        #expect(ScoringEngine.letterPoints(forAccuracy: 0.9) == 1, "exactly 90% is not above it")
+        #expect(ScoringEngine.letterPoints(forAccuracy: 0.5) == 1)
+        #expect(ScoringEngine.letterPoints(forAccuracy: 0.49) == 0)
+        #expect(ScoringEngine.letterPoints(forAccuracy: 0) == 0)
+    }
+
+    @Test("The worked example: \"I saw a red bird\", perfectly, on a five-day streak, is 127")
+    func workedExample() {
+        // I · saw · a · red · bird — 12 letters in five words, three of them whole words.
+        let wordOf = [0, 1, 1, 1, 2, 3, 3, 3, 4, 4, 4, 4]
+        let result = ScoringEngine.score(tally: perfect(wordOf: wordOf, words: 5), streak: 5)
+        #expect(result.lettersWritten == 12)
+        #expect(result.letterPoints == 24)
+        #expect(result.completedWords == 3)
+        #expect(result.wordPoints == 9)
+        #expect(result.orderedWords == 3)
+        #expect(result.orderPoints == 9)
+        #expect(result.stars == 3)
+        #expect(result.starBonus == 30)
+        #expect(result.streakBonus == 25)
+        #expect(result.sessionBonus == 30)
+        #expect(result.totalPoints == 127)
+        #expect(result.breakdownAddsUp)
+        #expect(ScoringEngine.breakdown(for: result)
+                == "12 letters +24 · 3 whole words +9 · 3 in order +9 · ★★★ +30 · streak +25 · finished +30")
+    }
+
+    @Test("A page of writing is worth more than a single letter")
+    func pointsScaleWithTheWriting() {
+        var one = ScoringEngine.Tally(wordOfLetter: [0], totalWords: 1)
+        for _ in 0..<10 { one.record(letter: 0, isInside: true) }
+        let single = ScoringEngine.score(tally: one, streak: 0)
+        #expect(single.totalPoints == 2 + 30 + 30, "one letter, three stars, the finish — no word bonus")
+
+        let wordOf = (0..<120).map { $0 / 4 }     // thirty four-letter words
+        let page = ScoringEngine.score(tally: perfect(wordOf: wordOf, words: 30), streak: 0)
+        #expect(page.letterPoints == 240)
+        #expect(page.wordPoints == 90)
+        #expect(page.orderPoints == 90)
+        #expect(page.totalPoints == 240 + 90 + 90 + 30 + 30)
+    }
+
+    @Test("The word bonus needs every letter inked and three letters or more")
+    func wordBonusRules() {
+        // "cat" with its last letter skipped is not a whole word.
+        var skipped = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
+        for letter in 0..<2 {
+            for _ in 0..<10 { skipped.record(letter: letter, isInside: true) }
+        }
+        let cut = ScoringEngine.score(tally: skipped, streak: 0)
+        #expect(cut.completedWords == 0)
+        #expect(cut.orderedWords == 0)
+        #expect(cut.wordPoints == 0)
+
+        // "an." — three glyphs, two of them letters. Punctuation is traced and scored like
+        // any glyph; it just does not make a word.
+        let dotted = ScoringEngine.score(tally: perfect(wordOf: [0, 0, 0], alphanumeric: [true, true, false], words: 1),
+                                         streak: 0)
+        #expect(dotted.lettersWritten == 3)
+        #expect(dotted.letterPoints == 6)
+        #expect(dotted.completedWords == 0)
+
+        // "2026" — digits make a word.
+        let year = ScoringEngine.score(tally: perfect(wordOf: [0, 0, 0, 0], words: 1), streak: 0)
+        #expect(year.completedWords == 1)
+        #expect(year.wordPoints == 3)
+    }
+
+    @Test("The order bonus is per whole word, and one letter out of order forfeits it")
+    func orderBonus() {
+        // Two whole words; one letter of the second was drawn the wrong way round.
+        var tally = perfect(wordOf: [0, 0, 0, 1, 1, 1], words: 2)
+        tally.markOrder(letter: 4, followed: false)
+        let result = ScoringEngine.score(tally: tally, streak: 0)
+        #expect(result.completedWords == 2)
+        #expect(result.orderedWords == 1)
+        #expect(result.orderPoints == 3)
+        #expect(result.outOfOrderLetters == 1)
+        // The discount still flows into the letter's own points: 100% × 0.8 is one point, not two.
+        #expect(result.letterPoints == 5 * 2 + 1)
+        #expect(abs(result.accuracy - (5 + 0.8) / 6) < 0.0001)
+    }
+
+    @Test("\"I\" and \"a\" earn their letter's points and nothing more")
+    func shortWordsEarnLettersOnly() {
+        let result = ScoringEngine.score(tally: perfect(wordOf: [0, 1], words: 2), streak: 0)
+        #expect(result.completedWords == 0)
+        #expect(result.orderedWords == 0)
+        #expect(result.letterPoints == 4)
+    }
+
+    @Test("Stars pay ten each and the finish thirty; a carried-over score has no breakdown")
+    func flatBonuses() {
+        let result = ScoringEngine.score(tally: perfect(wordOf: [0, 0, 0], words: 1), streak: 2)
+        #expect(result.starBonus == 30)
+        #expect(result.streakBonus == 10)
+        #expect(result.sessionBonus == 30)
+        #expect(result.totalPoints == 6 + 3 + 3 + 30 + 10 + 30)
+
+        let kept = result.keeping(points: 224, stars: 2)
+        #expect(kept.totalPoints == 224)
+        #expect(kept.stars == 2)
+        #expect(!kept.breakdownAddsUp)
+        #expect(ScoringEngine.breakdown(for: kept) == nil)
     }
 
     @Test("The streak bonus is capped at five days")

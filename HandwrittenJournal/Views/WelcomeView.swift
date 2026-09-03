@@ -1,12 +1,15 @@
 import SwiftUI
 
-/// Frames 55–58 — the welcome (v3.4). Shown once per iPad, before the Profile Picker:
-/// a grown-up agrees to the terms of use and the privacy policy, says whether the iPad
-/// should talk, then hands it over for the child to trace a letter with the Apple
-/// Pencil. The traced letter leads straight into *Add someone*.
+/// Frames 55–59 — the welcome (v3.4, v3.6). Shown once per iPad, before the Profile
+/// Picker: a grown-up agrees to the terms of use and the privacy policy, says whether
+/// the iPad should talk, then hands it over for the child to trace a letter with the
+/// Apple Pencil. The traced letter leads straight into *Add someone*.
 ///
 /// The steps come from `Onboarding.stepsDue`, so a change to the terms brings back the
-/// agreement alone. Both orientations: the column keeps the page's width, centred.
+/// agreement alone, and the pencil check stays until an Apple Pencil has traced the
+/// letter: *I don't have an Apple Pencil* opens a page that says why the app needs one
+/// (frame 59) and leads nowhere else. Both orientations: the column keeps the page's
+/// width, centred.
 struct WelcomeView: View {
     let onboarding: Onboarding
     @Environment(\.openURL) private var openURL
@@ -16,6 +19,8 @@ struct WelcomeView: View {
     @State private var controller = PracticeController()
     @State private var pencilSeen = false
     @State private var fingerSeen = false
+    /// Frame 59 — *You'll need an Apple Pencil*, shown in place of the letter.
+    @State private var showingWhyPencil = false
 
     /// The one letter of the pencil check. Capital A: the first letter a child learns,
     /// three straight strokes that read clearly at any size.
@@ -37,6 +42,9 @@ struct WelcomeView: View {
                     switch step {
                     case .terms:  scrolling(layout) { termsStep }
                     case .voice:  scrolling(layout) { voiceStep }
+                    // The grown-up's page again: it scrolls like the first two.
+                    case .pencil where showingWhyPencil:
+                        scrolling(layout) { whyPencilStep }
                     // Never in a scroll view: a one-finger drag on the letter would
                     // scroll instead of ink, and the sheet would never see it.
                     case .pencil: pencilStep(layout)
@@ -50,6 +58,7 @@ struct WelcomeView: View {
             Telemetry.screen(.welcome)
         }
         .animation(.easeInOut(duration: Tokens.Motion.standard), value: index)
+        .animation(.easeInOut(duration: Tokens.Motion.standard), value: showingWhyPencil)
     }
 
     // MARK: - Chrome
@@ -67,7 +76,8 @@ struct WelcomeView: View {
         .scrollBounceBehavior(.basedOnSize)
     }
 
-    /// Back on every step but the first, and one dot per step owed.
+    /// Back on every step but the first — and on the why-a-pencil page, where it
+    /// returns to the letter — and one dot per step owed.
     private var header: some View {
         ZStack {
             HStack(spacing: 6) {
@@ -80,8 +90,8 @@ struct WelcomeView: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Step \(index + 1) of \(steps.count)")
             HStack {
-                if index > 0 {
-                    TextButton(title: "Back") { index -= 1 }
+                if index > 0 || showingWhyPencil {
+                    TextButton(title: "Back") { goBack() }
                 }
                 Spacer()
             }
@@ -89,6 +99,14 @@ struct WelcomeView: View {
         }
         .frame(height: Tokens.Layout.toolbarHeight)
         .padding(.top, Tokens.Space.s2)
+    }
+
+    private func goBack() {
+        if showingWhyPencil {
+            showingWhyPencil = false
+        } else {
+            index -= 1
+        }
     }
 
     private func well(_ systemImage: String) -> some View {
@@ -255,10 +273,10 @@ struct WelcomeView: View {
     private var pencilButtons: some View {
         VStack(spacing: 0) {
             PrimaryButton(title: "Let's write", systemImage: "pencil.line", enabled: pencilSeen) {
-                finishCheck(.pencil)
+                finishCheck()
             }
             .padding(.top, Tokens.Space.s5)
-            TextButton(title: "I don't have an Apple Pencil") { finishCheck(.noPencil) }
+            TextButton(title: "I don't have an Apple Pencil") { explainPencil() }
                 .padding(.top, Tokens.Space.s3)
         }
     }
@@ -299,13 +317,53 @@ struct WelcomeView: View {
         }
     }
 
-    private func finishCheck(_ result: Onboarding.PencilCheck) {
+    /// An Apple Pencil traced the letter — the only way the welcome ends.
+    private func finishCheck() {
         Haptics.tap()
         Voice.stop()
-        onboarding.recordPencilCheck(result)
+        onboarding.recordPencilCheck(.pencil)
         onboarding.finish()
-        Telemetry.log(.welcomeFinished(pencil: result, voice: onboarding.voiceFeedbackDefault))
+        Telemetry.log(.welcomeFinished(voice: onboarding.voiceFeedbackDefault))
         reloadIfStillOwed()
+    }
+
+    // MARK: - Frame 59 — you'll need an Apple Pencil
+
+    /// *I don't have an Apple Pencil* let the welcome through in v3.4. It does not any
+    /// more: this is a handwriting app, so the page says why the pencil is the point,
+    /// helps find the right one, and offers the way back to the letter. Nothing here
+    /// records or finishes anything.
+    private var whyPencilStep: some View {
+        VStack(spacing: 0) {
+            well("applepencil.and.scribble")
+                .padding(.top, Tokens.Space.s6)
+            title("You'll need an Apple Pencil")
+                .padding(.top, Tokens.Space.s6)
+            body("This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.")
+                .padding(.top, Tokens.Space.s3)
+            VStack(spacing: Tokens.Space.s3) {
+                note("hand.raised.slash", "A finger isn't handwriting. Dragging a fingertip builds none of the habits a pencil does — how to hold it, how hard to press, where the hand rests — so the app would be practising the wrong thing.")
+                note("pencil.tip.crop.circle", "The page is graded stroke by stroke — where the ink went, in which direction, in what order. A fingertip is wider than the strokes it would trace, and the scores would mean nothing.")
+                note("applepencil", "Any Apple Pencil that pairs with this iPad will do.")
+            }
+            .padding(.top, Tokens.Space.s6)
+            LinkRow(title: "Which Apple Pencil fits this iPad?") { openURL(Onboarding.pencilCompatibilityURL) }
+                .padding(.top, Tokens.Space.s3)
+            PrimaryButton(title: "Back to the letter", systemImage: "pencil.line") {
+                Haptics.tap()
+                showingWhyPencil = false
+            }
+            .padding(.top, Tokens.Space.s7)
+            caption("Everything you've answered is saved. Come back with a pencil and the letter will be waiting.")
+                .padding(.top, Tokens.Space.s3)
+        }
+    }
+
+    private func explainPencil() {
+        Haptics.tap()
+        Voice.stop()
+        showingWhyPencil = true
+        Telemetry.screen(.welcomeNoPencil)
     }
 
     // MARK: - Steps
@@ -331,8 +389,8 @@ struct WelcomeView: View {
 }
 
 /// A row that opens a page in Safari — the terms and the privacy policy (frames 55
-/// and 34). `Row / Setting` with the label in `action` and `arrow.up.right.square`
-/// trailing.
+/// and 34) and Apple's pencil table (frame 59). `Row / Setting` with the label in
+/// `action` and `arrow.up.right.square` trailing.
 struct LinkRow: View {
     let title: String
     let action: () -> Void

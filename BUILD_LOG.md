@@ -31,8 +31,10 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · One mic that stops in place; your-turn callout; row handles + palm rejection; ABC tool fixes and adds words; crayon doodles in every export; Back scores; home-only results (v3.2, from Penpot `14 · Write`) | ✅ |
 | — · Landscape: the page keeps its portrait width, the footer becomes a rail on the free-hand side, Journal Home is two columns with only the entries scrolling (v3.3, from Penpot `06 · Landscape`) | ✅ |
 | — · The welcome — a grown-up agrees to the terms and privacy policy, chooses voice feedback, the child traces a letter with the Apple Pencil — and voice feedback itself (v3.4, from Penpot frames 55–58) | ✅ |
+| — · Points per letter and per whole word; an unchanged page keeps its score (v3.5) | ✅ |
+| — · The welcome does not open without an Apple Pencil: *I don't have an Apple Pencil* says why instead of carrying on, and each step of the welcome settles on its own (v3.6) | ✅ |
 
-**157 tests across 23 suites, all passing.**
+**159 tests across 23 suites, all passing** (the run that skips `PageRenderCheck`).
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -66,6 +68,68 @@ spec first, then the code.
 
 ---
 
+## v3.6 — the welcome does not open without an Apple Pencil (built)
+
+`DESIGN_DOCUMENT.md` §0.15 and §4.0, 2026-09-02. v3.4's pencil check let *I don't have an
+Apple Pencil* through; this is a handwriting app, so it no longer does.
+
+- **`WelcomeView`** — *I don't have an Apple Pencil* shows frame 59, *You'll need an Apple
+  Pencil*, in place of the letter (`showingWhyPencil`): the well, why the pencil is the
+  point, three sunk notes (a finger isn't handwriting; the page is graded stroke by
+  stroke; any Apple Pencil that pairs with the iPad will do), a `LinkRow` to Apple's
+  compatibility table (`Onboarding.pencilCompatibilityURL`), *Back to the letter*, and a
+  caption saying the answers so far are saved. It scrolls like the grown-up's steps, and
+  the header's *Back* returns to the letter too. `finishCheck()` runs only from *Let's
+  write*, which only a pencil stroke enables.
+- **`Onboarding.stepsDue` settles step by step.** The agreement until the terms change
+  (as before); the voice question until it has been answered (`hasChosenVoiceFeedback`,
+  from whether the key exists); the pencil check until `pencilCheck == .pencil`
+  (`hasSeenPencil`). `completedAt` is a record, not a gate. So a welcome interrupted at
+  the letter resumes at the letter, and an iPad v3.4 let through owes the check alone:
+  `PencilCheck.noPencil` is gone and the stored string reads as `unchecked`.
+- **`Telemetry`** — `welcome_finished` drops its `pencil` parameter (it could only ever
+  say *pencil*); the page is the hand-named screen `welcome_no_pencil`.
+- **Harness** — `DemoData.settleWelcome` answers the voice question and the pencil check
+  explicitly, so a seeded or `-screen` launch still lands where it asked.
+- Tests: `WelcomeFlowTests` gained four — no way through without a pencil, an iPad let
+  through by an earlier build owes the check again, a welcome interrupted at the letter
+  picks up at the letter, the screen name — and the existing ones now say that recording
+  the pencil is what settles the check.
+- Smoke-tested on the iPad Pro 11-inch (M5) simulator with `-screen welcome`: *I agree* →
+  *No thanks, stay quiet* → the letter → *I don't have an Apple Pencil* shows frame 59 →
+  *Back to the letter* returns to it; a finger stroke still says *That was a finger* and
+  leaves *Let's write* disabled; killing and relaunching the app lands on the letter
+  alone (one step dot — the agreement and the voice answer stood). The pencil path
+  itself still needs a device, as does landscape on the new page (it takes the same
+  scrolling column as frames 55 and 56).
+- Not done: frame 59 is not drawn in Penpot — `WIREFRAME_SPEC.md` §13.7 has the layout in
+  the app's numbers and `PENPOT_HANDOFF.md` §1.-3 says so. The finger-tracing switch is
+  still in the build (known gap 10).
+
+## v3.5 — points that scale with the writing (built)
+
+`DESIGN_DOCUMENT.md` §0.14 and §8.3, 2026-09-02.
+
+- **`ScoringEngine`** pays every inked letter 0, 1 or 2 by its discounted accuracy
+  (`letterPoints(forAccuracy:)`), three a whole word and three more when every letter of it
+  followed its formation, then stars × 10, the streak and the finish. `ScoreResult` carries
+  the pieces (`lettersWritten`, `letterPoints`, `completedWords`, `orderedWords`, …) and
+  `breakdown(for:)` renders the line Results shows under the points. `maxEntryPoints` is
+  gone with the New Entry chip. The `Tally` learned which glyphs are letters or digits
+  (`alphanumeric`, from `GlyphBox.isAlphanumeric`) for the three-letter rule.
+- **`WriteSessionViewModel` keeps a score that nothing changed.** It remembers the archive
+  bytes the entry was last scored against (`scoredArchive`, seeded from the entry when it is
+  reopened) and, when Back or *I'm finished* finds the ink identical, records the entry's
+  existing points and stars in place of the fresh result. Entries scored by earlier builds
+  keep their numbers until new ink lands on them; there is no migration.
+- **`DemoData`** seeds points with `seededPoints(text:accuracy:stars:)` — the fixture's
+  letters and whole words at its accuracy — in place of the old flat formula.
+- Tests: `PerLetterScoringTests` covers the thresholds, the worked example (127), the word
+  and order rules, punctuation and digits, and the carried-over score;
+  `WriteFlowTests.unchangedPageKeepsItsScore` covers the view model.
+- Not done: the Penpot frames (Journal Home's *+230* chip, Results' 224/183) still show the
+  v3.4 numbers; `WIREFRAME_SPEC.md` §14 says so.
+
 ## v3.4 — the welcome and a voice (built)
 
 Built from the Penpot frames 55–58 on `02 · Profiles` on 2026-09-02 (`DESIGN_DOCUMENT.md`
@@ -94,9 +158,10 @@ see an Apple Pencil.
   fires where a stroke actually begins — the pencil path, the finger path, and the
   finger tap-dot — and `PracticeController` publishes `inkBegins` / `lastInkTouch`.
   `.pencil` enables *Let's write*; anything else shows *That was a finger*; *I don't
-  have an Apple Pencil* records `noPencil` and carries on, because a grown-up may be
-  setting up before the pencil is unboxed and App Review may not have one. The pencil
-  requirement (§10.5) is stated here, at the door; `Finger tracing allowed` is untouched.
+  have an Apple Pencil* recorded `noPencil` and carried on, because a grown-up may be
+  setting up before the pencil is unboxed and App Review may not have one — **v3.6
+  closed that door** (above). The pencil requirement (§10.5) is stated here, at the
+  door; `Finger tracing allowed` is untouched.
 - **`Voice`** (`Services/VoiceFeedback.swift`) — like `Haptics`: configured per profile
   from `soundEnabled` (the toggle that was inert since v3.0, now *Voice feedback* under
   FEEDBACK), a `Cue` enum whose `text` is pure and tested, and a `VoiceSpeaker` so the
@@ -418,11 +483,13 @@ silently fell back to the system face.
    App Privacy label must ship with this build (`APP_STORE_LISTING.md` §3).
 10. **Apple Pencil is now required** (§10.5), but the build still offers the finger-tracing
    switch per profile. Remove or hide it, and keep palm rejection. The welcome's pencil
-   check (v3.4) says so at the door but does not lock: *I don't have an Apple Pencil*
-   carries on — decide whether that escape survives the removal.
+   check locks the door since v3.6 — *I don't have an Apple Pencil* explains and goes
+   back to the letter — so the switch is the last place a finger is offered.
 11. **The simulator cannot make a pencil touch**, so the welcome's letter step can only be
    smoke-tested down the finger path (*That was a finger* → *I don't have an Apple
-   Pencil*). The pencil path needs a device.
+   Pencil* → frame 59 → *Back to the letter*). The pencil path — and so the whole
+   welcome on a fresh install — needs a device; every seeded or `-screen` launch settles
+   the welcome first, which is how the rest of the app is reached in the simulator.
 
 ## Debug harness
 

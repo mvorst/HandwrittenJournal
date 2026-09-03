@@ -6,7 +6,9 @@ import UIKit
 /// v3.4 — the welcome and voice feedback.
 ///
 /// A fresh iPad owes the whole welcome; a finished one owes nothing until the terms
-/// change, and then only the agreement. The voice answer seeds new profiles. Cues are
+/// change, and then only the agreement. The pencil check is owed until an Apple Pencil
+/// traces the letter — there is no way through without one (v3.6). The voice answer
+/// seeds new profiles. Cues are
 /// short, never read the page, and are never spoken while the profile says no or the
 /// microphone is listening.
 @MainActor
@@ -29,6 +31,7 @@ struct WelcomeFlowTests {
         #expect(onboarding.stepsDue == [.terms, .voice, .pencil])
         #expect(!onboarding.hasAcceptedCurrentTerms)
         #expect(onboarding.pencilCheck == .unchecked)
+        #expect(!onboarding.hasChosenVoiceFeedback)
         #expect(onboarding.voiceFeedbackDefault, "the iPad talks unless a grown-up says otherwise")
     }
 
@@ -40,10 +43,12 @@ struct WelcomeFlowTests {
         onboarding.acceptTerms(on: agreed)
         #expect(onboarding.stepsDue == [.voice, .pencil], "agreeing is not the whole welcome")
         onboarding.chooseVoiceFeedback(false)
+        #expect(onboarding.stepsDue == [.pencil], "the voice question is asked once")
+        #expect(onboarding.needsWelcome, "the letter step is owed until a pencil traces it")
         onboarding.recordPencilCheck(.pencil)
-        #expect(onboarding.needsWelcome, "the letter step is owed until it is finished")
+        #expect(!onboarding.needsWelcome, "an Apple Pencil on the letter is what settles the check")
         onboarding.finish(on: agreed.addingTimeInterval(60))
-        #expect(!onboarding.needsWelcome)
+        #expect(onboarding.isComplete)
         #expect(onboarding.stepsDue.isEmpty)
 
         let relaunched = Onboarding(defaults: defaults)
@@ -59,7 +64,8 @@ struct WelcomeFlowTests {
         let defaults = freshDefaults()
         let earlier = Onboarding(defaults: defaults)
         earlier.acceptTerms()
-        earlier.recordPencilCheck(.noPencil)
+        earlier.chooseVoiceFeedback(true)
+        earlier.recordPencilCheck(.pencil)
         earlier.finish()
         // The terms were accepted under a version that is no longer current.
         defaults.set("2000-01-01", forKey: "welcome.termsVersion")
@@ -67,9 +73,61 @@ struct WelcomeFlowTests {
         let onboarding = Onboarding(defaults: defaults)
         #expect(onboarding.needsWelcome)
         #expect(onboarding.stepsDue == [.terms], "the pencil and the voice were settled already")
-        #expect(onboarding.pencilCheck == .noPencil)
+        #expect(onboarding.pencilCheck == .pencil)
         onboarding.acceptTerms()
         #expect(!onboarding.needsWelcome)
+    }
+
+    @Test("There is no way through the welcome without an Apple Pencil")
+    func noPencilSettlesNothing() {
+        let defaults = freshDefaults()
+        let onboarding = Onboarding(defaults: defaults)
+        onboarding.acceptTerms()
+        onboarding.chooseVoiceFeedback(true)
+        #expect(onboarding.stepsDue == [.pencil])
+        // *I don't have an Apple Pencil* explains and records nothing (v3.6); even a
+        // finish written without the pencil does not settle the check.
+        onboarding.finish()
+        #expect(onboarding.isComplete)
+        #expect(onboarding.stepsDue == [.pencil], "the check is owed until a pencil traces the letter")
+        #expect(Onboarding(defaults: defaults).stepsDue == [.pencil])
+    }
+
+    @Test("An iPad an earlier build let through without a pencil owes the check again")
+    func letThroughByAnEarlierBuild() {
+        let defaults = freshDefaults()
+        let earlier = Onboarding(defaults: defaults)
+        earlier.acceptTerms()
+        earlier.chooseVoiceFeedback(false)
+        earlier.finish()
+        // What v3.4's *I don't have an Apple Pencil* wrote before it carried on.
+        defaults.set("noPencil", forKey: "welcome.pencilCheck")
+
+        let onboarding = Onboarding(defaults: defaults)
+        #expect(onboarding.pencilCheck == .unchecked, "noPencil is not an answer any more")
+        #expect(onboarding.stepsDue == [.pencil], "the agreement and the voice stand")
+        #expect(!onboarding.voiceFeedbackDefault)
+        onboarding.recordPencilCheck(.pencil)
+        #expect(!onboarding.needsWelcome)
+    }
+
+    @Test("A welcome interrupted at the letter picks up at the letter")
+    func interruptedAtTheLetter() {
+        let defaults = freshDefaults()
+        let onboarding = Onboarding(defaults: defaults)
+        onboarding.acceptTerms()
+        onboarding.chooseVoiceFeedback(false)
+        // The grown-up put the iPad down to find the pencil, and the app was relaunched.
+        let relaunched = Onboarding(defaults: defaults)
+        #expect(relaunched.stepsDue == [.pencil], "the voice question is not asked twice")
+        #expect(relaunched.hasChosenVoiceFeedback)
+        #expect(!relaunched.voiceFeedbackDefault)
+    }
+
+    @Test("The why-a-pencil page has a screen name of its own")
+    func noPencilScreen() {
+        #expect(Telemetry.Screen.welcomeNoPencil.rawValue == "welcome_no_pencil")
+        #expect(Telemetry.Event.welcomeFinished(voice: true).parameters["voice"] as? Int == 1)
     }
 
     @Test("Reset returns the iPad to fresh")
@@ -83,6 +141,7 @@ struct WelcomeFlowTests {
         onboarding.reset()
         #expect(onboarding.stepsDue == [.terms, .voice, .pencil])
         #expect(onboarding.voiceFeedbackDefault)
+        #expect(!onboarding.hasChosenVoiceFeedback)
         #expect(Onboarding(defaults: defaults).stepsDue == [.terms, .voice, .pencil])
     }
 
@@ -90,6 +149,7 @@ struct WelcomeFlowTests {
     func urls() {
         #expect(Onboarding.termsURL.absoluteString == "https://handwrittenjournal.app/terms/")
         #expect(Onboarding.privacyURL.absoluteString == "https://handwrittenjournal.app/privacy/")
+        #expect(Onboarding.pencilCompatibilityURL.absoluteString == "https://support.apple.com/en-us/HT211029")
     }
 
     // MARK: - Voice feedback

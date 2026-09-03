@@ -314,6 +314,51 @@ struct WriteFlowTests {
         #expect(profile.totalStars == session.stars)
     }
 
+    @Test("A page left again with nothing changed keeps the score it has — even one from an older formula")
+    func unchangedPageKeepsItsScore() throws {
+        let context = try makeContext()
+        let (profile, model) = makeModel(in: context)
+        model.useTyped(Self.page)
+        let view = makeSurface(for: model)
+        guard let session = model.session else { Issue.record("no session"); return }
+
+        view.canvas.selectRow(0)
+        view.canvas.addInk(ink(row: 0, on: view.canvas))
+        profile.registerActivity()
+        model.saveScore()
+        let scored = session.points
+        #expect(scored > 0)
+
+        // Pretend an earlier build scored the entry: a number today's formula would never
+        // produce for this page.
+        session.points = 999
+        profile.totalPoints = 999
+        model.saveScore()
+        #expect(session.points == 999, "nothing changed, so nothing is re-scored")
+        #expect(profile.totalPoints == 999)
+
+        // A later sitting on the same entry, still unchanged: the same rule, judged
+        // against the entry's own archive.
+        let later = WriteSessionViewModel(profile: profile, context: context, resuming: session)
+        let reopened = makeSurface(for: later)
+        #expect(reopened.canvas.provenance == .restored)
+        later.finishWriting()
+        #expect(session.points == 999)
+        #expect(profile.totalPoints == 999)
+        #expect(later.lastResult?.totalPoints == 999, "the results show the score that stands")
+        #expect(later.lastResult.flatMap { ScoringEngine.breakdown(for: $0) } == nil,
+                "a carried-over score has no breakdown to show")
+
+        // New ink is a new page: scored afresh, and the profile moves by the difference.
+        reopened.canvas.selectRow(1)
+        reopened.canvas.addInk(ink(row: 1, on: reopened.canvas))
+        later.finishWriting()
+        #expect(session.points != 999)
+        #expect(session.points > scored)
+        #expect(profile.totalPoints == session.points)
+        #expect(later.lastResult.flatMap { ScoringEngine.breakdown(for: $0) } != nil)
+    }
+
     // MARK: - Whose turn it is
 
     @Test("Typed words land with the first line in hand and the page saying whose turn it is")

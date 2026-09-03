@@ -8,17 +8,39 @@ struct ScoreResult {
     let outOfOrderLetters: Int      // inked letters that took the order discount (§8.1a)
     let wordsWritten: Int
     let totalWords: Int
-    let stars: Int
-    let basePoints: Int
+    private(set) var stars: Int
+
+    // §8.3 (v3.5) — what the entry earned, piece by piece.
+    let lettersWritten: Int         // inked letters in the record
+    let letterPoints: Int           // 0, 1 or 2 per inked letter, by its accuracy
+    let completedWords: Int         // words of three letters or more with every letter inked
+    let wordPoints: Int
+    let orderedWords: Int           // completed words whose every letter followed its formation
+    let orderPoints: Int
     let starBonus: Int
     let streakBonus: Int
     let sessionBonus: Int
-    let totalPoints: Int
+    private(set) var totalPoints: Int
 
     var accuracyPercent: Int { Int((accuracy * 100).rounded()) }
     var everyLetterFinished: Bool { unfinishedLetters == 0 }
     var wordsRemaining: Int { max(0, totalWords - wordsWritten) }
     var finishedEverything: Bool { totalWords > 0 && wordsWritten >= totalWords }
+
+    /// Whether the pieces add up to the total. They do not for a score carried over from
+    /// an earlier sitting (§8.3), and the breakdown line then has nothing honest to say.
+    var breakdownAddsUp: Bool {
+        letterPoints + wordPoints + orderPoints + starBonus + streakBonus + sessionBonus == totalPoints
+    }
+
+    /// The same page scored again with nothing on it changed: the entry keeps the score
+    /// it already has (§8.3, v3.5).
+    func keeping(points: Int, stars: Int) -> ScoreResult {
+        var kept = self
+        kept.totalPoints = points
+        kept.stars = stars
+        return kept
+    }
 }
 
 /// DESIGN_DOCUMENT.md §8.1 — accuracy is graded per letter.
@@ -30,22 +52,45 @@ struct ScoreResult {
 /// finishing a line is a choice, not a certificate, and that anti-skip property is what
 /// made per-letter grading worth doing in the first place.
 ///
+/// §8.3 (v3.5): **points scale with the writing.** Every inked letter earns up to two by
+/// its accuracy, every whole word of three letters or more earns three, and three more
+/// when each of its letters was drawn the way the practice sheet teaches — so a page of
+/// writing is worth more than a single letter, which the old flat formula could not say.
+/// The stars, the streak and finishing still pay a little on top.
+///
 /// The older started-words rule (`score(tally:streak:)`) survives for the live figure and
 /// its tests; the app's final score goes through `score(tally:committed:...)`.
 enum ScoringEngine {
 
-    static let sessionBonus = 30
-    static let starValue = 25
+    /// The most an inked letter earns: two at better than 90%, one from 50%, nothing
+    /// below that.
+    static let letterValue = 2
+    static let fullLetterAbove = 0.9
+    static let halfLetterFrom = 0.5
+    /// A whole word — every letter inked — of at least this many letters (digits count,
+    /// punctuation does not) earns `wordBonus`…
+    static let wordBonus = 3
+    static let wordMinimumLetters = 3
+    /// …and `orderBonus` more when every letter in it followed its formation (§8.1a).
+    static let orderBonus = 3
+    static let starValue = 10
     static let streakStep = 5
     static let streakCap = 5
-    /// §8.3 — the most one entry can earn: 100 + 3 × 25 + 5 × 5 + 30. What the New Entry
-    /// tile on Journal Home promises (§4.3).
-    static let maxEntryPoints = 100 + 3 * starValue + streakCap * streakStep + sessionBonus
+    static let sessionBonus = 30
 
     /// §8.1a — a letter clearly drawn against its taught formation (parts out of the
     /// demonstrated order, or a part drawn against its demonstrated direction) keeps
-    /// only this fraction of its score: the 20% order discount.
+    /// only this fraction of its score: the 20% order discount. It flows through
+    /// everything derived from a letter's accuracy, its points included — a letter drawn
+    /// the wrong way round can earn one point, never two.
     static let orderDiscount = 0.8
+
+    /// §8.3 — what one inked letter is worth, by its (discounted) accuracy.
+    static func letterPoints(forAccuracy accuracy: Double) -> Int {
+        if accuracy > fullLetterAbove { return letterValue }
+        if accuracy >= halfLetterFrom { return 1 }
+        return 0
+    }
 
     // MARK: - Tally
 
@@ -56,6 +101,10 @@ enum ScoringEngine {
         /// indexed by glyph, and a glyph can be a space — which is never written and so
         /// must never be counted as one they skipped.
         private(set) var scorable: [Bool]
+        /// Whether each glyph is a letter or a digit — what counts towards a word's
+        /// three letters (§8.3). Punctuation is traced and scored, but "an." is not a
+        /// three-letter word.
+        private(set) var alphanumeric: [Bool]
         private(set) var inside: [Int]
         private(set) var total: [Int]
         /// Per glyph, false when the ink took the letter's parts out of the taught
@@ -63,9 +112,11 @@ enum ScoringEngine {
         private(set) var followedOrder: [Bool]
         let totalWords: Int
 
-        init(wordOfLetter: [Int], scorable: [Bool]? = nil, totalWords: Int) {
+        init(wordOfLetter: [Int], scorable: [Bool]? = nil, alphanumeric: [Bool]? = nil,
+             totalWords: Int) {
             self.wordOfLetter = wordOfLetter
             self.scorable = scorable ?? Array(repeating: true, count: wordOfLetter.count)
+            self.alphanumeric = alphanumeric ?? self.scorable
             self.totalWords = totalWords
             inside = Array(repeating: 0, count: wordOfLetter.count)
             total  = Array(repeating: 0, count: wordOfLetter.count)
@@ -119,7 +170,7 @@ enum ScoringEngine {
         /// Letters belonging to words the child has started — the scored population.
         /// Spaces are excluded: nobody writes a space, so counting one as unfinished
         /// would dock a perfectly written page a few percent for nothing.
-        private var scoredIndices: [Int] {
+        var scoredIndices: [Int] {
             let started = startedWords
             return wordOfLetter.indices.filter { scorable[$0] && started.contains(wordOfLetter[$0]) }
         }
@@ -178,60 +229,71 @@ enum ScoringEngine {
     /// line the child finished. Untouched committed letters score zero; uncommitted
     /// glyphs are simply not in the population.
     static func score(tally: Tally, committed: [Bool], totalWords: Int, streak: Int) -> ScoreResult {
-        let accuracies = tally.letterAccuracies
-        var sum = 0.0, count = 0, unfinished = 0, outOfOrder = 0
-        var writtenWords: Set<Int> = []
-        for i in tally.wordOfLetter.indices where i < committed.count && committed[i] && tally.scorable[i] {
-            sum += accuracies[i]
-            count += 1
-            if !tally.hasInk(letter: i) {
-                unfinished += 1
-            } else if !tally.followedOrder[i] {
-                outOfOrder += 1
-            }
-            writtenWords.insert(tally.wordOfLetter[i])
+        let population = tally.wordOfLetter.indices.filter {
+            $0 < committed.count && committed[$0] && tally.scorable[$0]
         }
+        return score(tally: tally, population: population, totalWords: totalWords, streak: streak)
+    }
+
+    /// The started-words rule: every scorable letter of every word with any ink.
+    static func score(tally: Tally, streak: Int) -> ScoreResult {
+        score(tally: tally, population: tally.scoredIndices, totalWords: tally.totalWords, streak: streak)
+    }
+
+    /// §8.3. Worked example: *"I saw a red bird"* traced perfectly, every letter the way
+    /// it is taught, on a five-day streak — 12 letters × 2 + 3 whole words × 3 + 3 in
+    /// order × 3 + 3 stars × 10 + 25 + 30 = **127**.
+    private static func score(tally: Tally, population: [Int], totalWords: Int, streak: Int) -> ScoreResult {
+        let accuracies = tally.letterAccuracies
+        var sum = 0.0, unfinished = 0, outOfOrder = 0, written = 0, letterPoints = 0
+        var glyphsOfWord: [Int: [Int]] = [:]
+        for i in population {
+            sum += accuracies[i]
+            glyphsOfWord[tally.wordOfLetter[i], default: []].append(i)
+            if tally.hasInk(letter: i) {
+                written += 1
+                letterPoints += self.letterPoints(forAccuracy: accuracies[i])
+                if !tally.followedOrder[i] { outOfOrder += 1 }
+            } else {
+                unfinished += 1
+            }
+        }
+        // A whole word: every letter inked, three or more of them letters or digits. The
+        // order bonus is only ever paid on top of the word bonus — "I" and "a" earn their
+        // letter's points and nothing more.
+        var completed = 0, ordered = 0
+        for glyphs in glyphsOfWord.values {
+            guard glyphs.allSatisfy({ tally.hasInk(letter: $0) }),
+                  glyphs.filter({ tally.alphanumeric[$0] }).count >= wordMinimumLetters else { continue }
+            completed += 1
+            if glyphs.allSatisfy({ tally.followedOrder[$0] }) { ordered += 1 }
+        }
+        let count = population.count
         let accuracy = count > 0 ? sum / Double(count) : 0
         let stars = stars(forAccuracy: accuracy)
-        let base = Int((accuracy * 100).rounded())
+        let wordPoints = completed * wordBonus
+        let orderPoints = ordered * orderBonus
         let starBonus = count > 0 ? stars * starValue : 0
         let streakBonus = count > 0 ? min(streak, streakCap) * streakStep : 0
+        let session = count > 0 ? sessionBonus : 0
         return ScoreResult(
             accuracy: accuracy,
             letterAccuracies: accuracies,
             unfinishedLetters: unfinished,
             outOfOrderLetters: outOfOrder,
-            wordsWritten: writtenWords.count,
+            wordsWritten: glyphsOfWord.count,
             totalWords: totalWords,
             stars: stars,
-            basePoints: base,
+            lettersWritten: written,
+            letterPoints: letterPoints,
+            completedWords: completed,
+            wordPoints: wordPoints,
+            orderedWords: ordered,
+            orderPoints: orderPoints,
             starBonus: starBonus,
             streakBonus: streakBonus,
-            sessionBonus: count > 0 ? sessionBonus : 0,
-            totalPoints: count > 0 ? base + starBonus + streakBonus + sessionBonus : 0
-        )
-    }
-
-    /// §8.3. Worked from §14: 78 + 50 + 25 + 30 = 183; 94 + 75 + 25 + 30 = 224.
-    static func score(tally: Tally, streak: Int) -> ScoreResult {
-        let accuracy = tally.finalAccuracy
-        let stars = stars(forAccuracy: accuracy)
-        let base = Int((accuracy * 100).rounded())
-        let starBonus = stars * starValue
-        let streakBonus = min(streak, streakCap) * streakStep
-        return ScoreResult(
-            accuracy: accuracy,
-            letterAccuracies: tally.letterAccuracies,
-            unfinishedLetters: tally.unfinishedCount,
-            outOfOrderLetters: tally.outOfOrderCount,
-            wordsWritten: tally.wordsWritten,
-            totalWords: tally.totalWords,
-            stars: stars,
-            basePoints: base,
-            starBonus: starBonus,
-            streakBonus: streakBonus,
-            sessionBonus: sessionBonus,
-            totalPoints: base + starBonus + streakBonus + sessionBonus
+            sessionBonus: session,
+            totalPoints: letterPoints + wordPoints + orderPoints + starBonus + streakBonus + session
         )
     }
 
@@ -249,5 +311,26 @@ enum ScoringEngine {
         }
         if result.finishedEverything { return "You wrote everything you said — nice work." }
         return "Every letter you wrote was finished."
+    }
+
+    /// The line under the points on Reveal (v3.5): what the score is made of, so the
+    /// total is checkable — *12 letters +24 · 3 whole words +9 · 3 in order +9 · ★★★ +30 ·
+    /// streak +25 · finished +30*. Nil when the pieces do not add up to the total, which
+    /// is a score carried over unchanged from an earlier sitting.
+    static func breakdown(for result: ScoreResult) -> String? {
+        guard result.breakdownAddsUp, result.lettersWritten > 0 else { return nil }
+        var parts = ["\(result.lettersWritten) \(result.lettersWritten == 1 ? "letter" : "letters") +\(result.letterPoints)"]
+        if result.completedWords > 0 {
+            parts.append("\(result.completedWords) whole \(result.completedWords == 1 ? "word" : "words") +\(result.wordPoints)")
+        }
+        if result.orderedWords > 0 {
+            parts.append("\(result.orderedWords) in order +\(result.orderPoints)")
+        }
+        if result.stars > 0 {
+            parts.append("\(String(repeating: "★", count: result.stars)) +\(result.starBonus)")
+        }
+        if result.streakBonus > 0 { parts.append("streak +\(result.streakBonus)") }
+        if result.sessionBonus > 0 { parts.append("finished +\(result.sessionBonus)") }
+        return parts.joined(separator: " · ")
     }
 }

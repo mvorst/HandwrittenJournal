@@ -54,10 +54,9 @@ enum DemoData {
         if screen == "welcome" { onboarding.reset(); return }
         guard wantsSeed || screen != nil else { return }
         if !onboarding.hasAcceptedCurrentTerms { onboarding.acceptTerms() }
-        if !onboarding.isComplete {
-            onboarding.recordPencilCheck(.pencil)
-            onboarding.finish()
-        }
+        if !onboarding.hasChosenVoiceFeedback { onboarding.chooseVoiceFeedback(true) }
+        if !onboarding.hasSeenPencil { onboarding.recordPencilCheck(.pencil) }
+        if !onboarding.isComplete { onboarding.finish() }
     }
 
     @MainActor
@@ -109,7 +108,8 @@ enum DemoData {
             session.tracedAt = start
             session.accuracy = fixture.accuracy
             session.stars = ScoringEngine.stars(forAccuracy: fixture.accuracy)
-            session.points = Int(fixture.accuracy * 100) + session.stars * 25 + 25 + 30
+            session.points = seededPoints(text: fixture.text, accuracy: fixture.accuracy,
+                                          stars: session.stars)
             let page = synthesisePage(text: fixture.text, setup: milo.setup,
                                       accuracy: fixture.accuracy, width: width)
             session.canvasWidth = width
@@ -132,6 +132,7 @@ enum DemoData {
         unfinished.tracedAt = unfinishedStart
         unfinished.accuracy = 0.91
         unfinished.stars = 3
+        unfinished.points = seededPoints(text: unfinishedRecord, accuracy: 0.91, stars: 3)
         // The ink covers the record only, but it is laid out against the whole page —
         // the spoken paragraph beneath changes nothing above it, and the editor lays the
         // page out the same way when it restores.
@@ -177,6 +178,24 @@ enum DemoData {
                 }
             }
         }.pngData()
+    }
+
+    /// §8.3 (v3.5) — a plausible score for seeded ink: every letter at the fixture's
+    /// accuracy, every whole word, most of them in order, then the stars, a five-day
+    /// streak and the finish. Not the engine's own reading of the synthesised strokes —
+    /// that would drift with the hand's wobble — and a seeded entry keeps this score
+    /// until new ink lands on it.
+    static func seededPoints(text: String, accuracy: Double, stars: Int) -> Int {
+        let words = text.split(whereSeparator: \.isWhitespace)
+        let letters = words.reduce(0) { sum, word in sum + word.count }
+        let whole = words.filter { word in
+            word.filter({ $0.isLetter || $0.isNumber }).count >= ScoringEngine.wordMinimumLetters
+        }.count
+        let ordered = Int((Double(whole) * accuracy).rounded())
+        return Int((Double(letters * ScoringEngine.letterValue) * accuracy).rounded())
+            + whole * ScoringEngine.wordBonus + ordered * ScoringEngine.orderBonus
+            + stars * ScoringEngine.starValue + ScoringEngine.streakCap * ScoringEngine.streakStep
+            + ScoringEngine.sessionBonus
     }
 
     // MARK: - Stroke dump for automation

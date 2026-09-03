@@ -1024,8 +1024,9 @@ that it never scrolls (a sheet in a scroll view would scroll under a finger, not
 | 51 | Photo framing — move and zoom | `AvatarCropView`: black ground, square framing window with the circular mask drawn over it, "Drag to move · pinch to zoom", Cancel + "✓ Use Photo". Reached from both photo buttons and from tapping the avatar |
 | 55 | Welcome — a grown-up agrees | v3.4, §13.7. Step dots, the `checkmark.seal` well, "A grown-up needs to agree", two `Row / Link` rows (Terms of use · Privacy policy), the sunk privacy note, `Button / Primary` "✓ I agree" and its caption. Shown once per iPad before frame 2; returns alone when the terms' date changes |
 | 56 | Welcome — voice feedback | The `speaker.wave.2.fill` well, "Should the iPad talk?", the one-paragraph explanation, `Button / Secondary` "Hear it", `Button / Primary` "Yes, talk to me", `Button / Text` "No thanks, stay quiet", the caption naming the per-profile switch |
-| 57 | Welcome — trace a letter | "Let's check your Apple Pencil": a 320 × 400 practice sheet with one big A (Jua at the sheet's 300 pt cap, the formation arrows, live ink), the status "That's an Apple Pencil — you're ready!" in `success`, `Button / Primary` "Let's write" enabled, `Button / Text` "I don't have an Apple Pencil" |
+| 57 | Welcome — trace a letter | "Let's check your Apple Pencil": a 320 × 400 practice sheet with one big A (Jua at the sheet's 300 pt cap, the formation arrows, live ink), the status "That's an Apple Pencil — you're ready!" in `success`, `Button / Primary` "Let's write" enabled, `Button / Text` "I don't have an Apple Pencil" (opens frame 59 since v3.6) |
 | 58 | Welcome — that was a finger | Frame 57 after a finger stroke: the status "That was a finger. Try the Apple Pencil." with `hand.thumbsup` in `star-on`, "Let's write" disabled. A pencil stroke turns it back into 57 |
+| 59 | Welcome — you'll need an Apple Pencil | v3.6, §13.7. What *I don't have an Apple Pencil* opens in place of the letter: the `applepencil.and.scribble` well, "You'll need an Apple Pencil", why (this is a handwriting app), three sunk notes, `Row / Link` to Apple's compatibility table, `Button / Primary` "Back to the letter", the caption. Records nothing; the welcome cannot be finished from it. Built, not yet drawn |
 
 ### `03 · Journal`
 
@@ -1126,7 +1127,7 @@ Built as the v3.1 alternate, adopted by the app and rebuilt onto `03 · Journal`
 | Streak, flame 20 pt + `body` in `streak-flame` | 96 | 90 | — |
 | Progress button, `Button / Toolbar` | 706 | 44 | 44 |
 | Settings button, `Button / Toolbar` | 766 | 44 | 44 |
-| `Button / Tile` "✎ New Entry" — primary, subtitle "Tell me about your day", chip "up to +230 points" top-trailing | 24 | 136 | 486 × 128 |
+| `Button / Tile` "✎ New Entry" — primary, subtitle "Tell me about your day", no chip since v3.5 — its points have no ceiling to promise | 24 | 136 | 486 × 128 |
 | `Button / Tile` "ABc Practice my letters" — outlined, chip "+2 points a letter" | 526 | 136 | 284 × 128 |
 | `Card / Points` — `sparkles` 32 pt in `star-on`, total `numeral-l` + "points" `body`, "+224 today" `body-em` in `success`, `Tracker / last 7 days` at x 416, `chevron.right` 20 pt trailing; the card opens Progress | 24 | 280 | 786 × 128 |
 | "Badges" `title-2` + rule, "3 of 8" `caption` in `text-secondary` trailing | 24 | 440 | — |
@@ -1243,10 +1244,10 @@ nothing else mirrors.
 
 ---
 
-### 13.7 The welcome (v3.4) — frames 55–58
+### 13.7 The welcome (v3.4, v3.6) — frames 55–59
 
 Once per iPad, before frame 2. The column is the page's width (786 content) centred in
-both orientations; in landscape frames 55 and 56 scroll, and 57/58 lay the words, the
+both orientations; in landscape frames 55, 56 and 59 scroll, and 57/58 lay the words, the
 status and the buttons in a 420 pt column beside the sheet instead. Step dots at y 39, centred: 10 pt capsules 6
 apart, the current one 28 wide, done and current in `action`, the rest `star-off`. *Back*
 (`Button / Text`) at x 24, y 32 on every step but the first.
@@ -1280,12 +1281,30 @@ apart, the current one 28 wide, done and current in `action`, the rest `star-off
 | — the formation: three `practice-path` 2 pt strokes with arrowheads; live ink 5 pt in `ink-inside` / `ink-outside` | | | |
 | Status line, `headline` — 57: `checkmark.circle.fill` + `success`; 58: `hand.thumbsup` `star-on` + `text-primary` | — | 665 | h 34 |
 | `Button / Primary` "Let's write" — enabled on 57, `action-disabled` on 58 | 277 | 721 | 280 × 64 |
-| `Button / Text` "I don't have an Apple Pencil" | — | 801 | h 44 |
+| `Button / Text` "I don't have an Apple Pencil" — opens frame 59 in place of the letter (v3.6); it no longer finishes the welcome | — | 801 | h 44 |
 
 The sheet is 320 wide on purpose: the practice sheet sizes its letter to its width
 (capped at 300 pt) and lays it out from the left inset, so a narrow sheet is what centres
 a single letter. A finger is allowed to draw on it so that it can be recognised as a
 finger.
+
+| Frame 59 — you'll need an Apple Pencil (v3.6; built, not drawn) | x | y | Size |
+|---|---|---|---|
+| Well, `applepencil.and.scribble` | 329 | 112 | 176 |
+| "You'll need an Apple Pencil", `title-1` | — | 320 | — |
+| Explanation, `body`, four lines — this is a handwriting app; the grip, the pressure, the resting hand, every letter stroke by stroke; what the app teaches and grades, so it doesn't start without one | 64 | 373 | 706 × 96 |
+| Note — sunk card, `hand.raised.slash` 26 pt: "A finger isn't handwriting…" | 24 | 501 | 786 × 120 |
+| Note — `pencil.tip.crop.circle`: "The page is graded stroke by stroke…" | 24 | 633 | 786 × 120 |
+| Note — `applepencil`: "Any Apple Pencil that pairs with this iPad will do." | 24 | 765 | 786 × 72 |
+| `Row / Link` "Which Apple Pencil fits this iPad?" — Apple's compatibility table, in Safari | 24 | 849 | 786 × 64 |
+| `Button / Primary` "✎ Back to the letter" | 252 | 953 | 330 × 64 |
+| Caption — the answers so far are saved; come back with a pencil and the letter will be waiting | 64 | 1029 | 706 |
+
+Frame 59 is what *I don't have an Apple Pencil* opens, in place of the letter, and the
+only place the tap leads (v3.6): it explains why the pencil is the point, links to Apple's
+table, and returns. *Back* in the header returns to the letter as well. It records nothing
+and the welcome cannot be finished from it — the pencil check is owed until an Apple
+Pencil traces the letter. Built in the app and specified here; not yet drawn in Penpot.
 
 ## 14. Sample Content
 
@@ -1346,7 +1365,12 @@ me a story", 22 words, 85%, Jua Extra Large.
 **Canonical Results numbers.** Frame 29 (finished): 48 of 48 words, accuracy 91, 3 stars,
 91 + 75 star bonus + 25 streak + 30 session = **224 points** (rounded to 224). Frame 30
 (stopped part way): 32 of 48 words, accuracy 78, 2 stars, 78 + 50 + 25 + 30 = **183
-points**.
+points**. *Those are the v3.4 formula's figures, and the frames still show them.* Since v3.5
+(`DESIGN_DOCUMENT.md` §8.3) points are per letter and per whole word — two a letter above
+90%, one from 50%, three a whole word and three more when it was written in the taught
+order, then stars × 10, the streak and the 30 for finishing — and Results carries a
+breakdown line under the points so the total is checkable. The canonical example is *"I saw
+a red bird"*, perfectly, on a five-day streak: 24 + 9 + 9 + 30 + 25 + 30 = **127**.
 
 ---
 

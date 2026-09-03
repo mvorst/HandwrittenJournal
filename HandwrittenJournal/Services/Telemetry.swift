@@ -64,6 +64,8 @@ enum Telemetry {
     /// SwiftUI it would only ever see `UIHostingController`.
     enum Screen: String {
         case welcome
+        /// Frame 59 — *You'll need an Apple Pencil* (v3.6): how often the door is met.
+        case welcomeNoPencil = "welcome_no_pencil"
         case profilePicker  = "profile_picker"
         case profileEditor  = "profile_editor"
         case journal
@@ -89,7 +91,7 @@ enum Telemetry {
     /// The event list from `Go_To_Market/GO_TO_MARKET_PLAN.md` §5.6. Faces and sizes are
     /// the setting IDs (`jua`, `l`), never a name; words are counts, never text.
     enum Event {
-        case welcomeFinished(pencil: Onboarding.PencilCheck, voice: Bool)
+        case welcomeFinished(voice: Bool)
         case profileCreated(setup: WritingSetup)
         case typefaceChanged(setup: WritingSetup)
         case dictationEnded(seconds: Int, words: Int, reachedCap: Bool)
@@ -117,8 +119,8 @@ enum Telemetry {
 
         var parameters: [String: Any] {
             switch self {
-            case .welcomeFinished(let pencil, let voice):
-                ["pencil": pencil.rawValue, "voice": voice ? 1 : 0]
+            case .welcomeFinished(let voice):
+                ["voice": voice ? 1 : 0]
             case .profileCreated(let setup), .typefaceChanged(let setup):
                 ["face": setup.face.id, "size": setup.size.id]
             case .dictationEnded(let seconds, let words, let reachedCap):
@@ -135,6 +137,8 @@ enum Telemetry {
                  "stars": result.stars,
                  "points": result.totalPoints,
                  "out_of_order": result.outOfOrderLetters,
+                 "whole_words": result.completedWords,
+                 "ordered_words": result.orderedWords,
                  "minutes": minutes,
                  "face": setup.face.id,
                  "size": setup.size.id]

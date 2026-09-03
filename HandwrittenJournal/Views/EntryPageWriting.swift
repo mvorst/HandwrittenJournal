@@ -596,6 +596,15 @@ extension EntryPageView {
                     AccuracyRing(accuracy: result.accuracy).padding(.top, Tokens.Space.s5)
                     Text("+ \(result.totalPoints) points").font(.hjNumeralL)
                         .foregroundStyle(Tokens.Colour.textPrimary).padding(.top, Tokens.Space.s4)
+                    // v3.5 — what the score is made of, so the total is checkable (§8.3).
+                    if let breakdown = ScoringEngine.breakdown(for: result) {
+                        Text(breakdown)
+                            .font(.hjCaption)
+                            .foregroundStyle(Tokens.Colour.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, Tokens.Space.s2)
+                            .padding(.horizontal, Tokens.Space.s5)
+                    }
                     Text(ScoringEngine.finishMessage(for: result))
                         .font(.hjCaption)
                         .foregroundStyle(result.everyLetterFinished ? Tokens.Colour.success : Tokens.Colour.textSecondary)

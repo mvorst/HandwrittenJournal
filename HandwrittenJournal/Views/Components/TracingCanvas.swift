@@ -925,6 +925,7 @@ final class TracingCanvasView: UIView {
         adoptPendingRemediations(boxes: boxes)
         var fresh = ScoringEngine.Tally(wordOfLetter: boxes.map(\.wordIndex),
                                         scorable: boxes.map(\.isScorable),
+                                        alphanumeric: boxes.map(\.isAlphanumeric),
                                         totalWords: maskRenderer.layout.wordCount)
         for stroke in strokes {
             for point in stroke.points where point.letterIndex >= 0 {

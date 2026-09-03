@@ -49,6 +49,15 @@ stroke-based icons scaled by 32), buttons as boards with an estimated label widt
 the letter sheet as a clipping board with Jua applied via `penpot.fonts.findByName`.
 Each frame was one `execute_code` call and was exported at 0.5× to check.
 
+**v3.6 (2026-09-02, built, not drawn) — frame 59, *You'll need an Apple Pencil*.** The
+app no longer lets *I don't have an Apple Pencil* through: the tap shows a page in place
+of the letter — the well (`applepencil.and.scribble`), why the pencil is the point, three
+sunk notes, a `Row / Link` to Apple's compatibility table, *Back to the letter* and a
+caption — and the pencil check stays owed until a pencil traces the letter.
+`WIREFRAME_SPEC.md` §13.7 has the layout in the app's numbers; the frame is owed on
+`02 · Profiles` after 58, built like 55 (well, title, body, sunk notes, link row,
+primary button, caption).
+
 ## 1.-2 Landscape — page `06 · Landscape` *(drawn and adopted 2026-09-02, v3.3)*
 
 A new page **`06 · Landscape`** holds landscape versions of one frame from each screen

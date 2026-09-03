@@ -169,8 +169,7 @@ struct JournalHomeView: View {
             ActionTile(style: .primary,
                        title: "New Entry",
                        subtitle: "Tell me about your day",
-                       systemImage: "pencil.line",
-                       chip: "up to +\(ScoringEngine.maxEntryPoints) points") { writing = true }
+                       systemImage: "pencil.line") { writing = true }
             ActionTile(style: .secondary,
                        title: "Practice my letters",
                        systemImage: "textformat.abc",

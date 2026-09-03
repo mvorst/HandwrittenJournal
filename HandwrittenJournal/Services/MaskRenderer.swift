@@ -21,6 +21,8 @@ final class MaskRenderer {
         let character: Character
         let rect: CGRect
         var isScorable: Bool { !character.isWhitespace }
+        /// A letter or a digit — what counts towards a whole word's three letters (§8.3).
+        var isAlphanumeric: Bool { character.isLetter || character.isNumber }
         var center: CGPoint { CGPoint(x: rect.midX, y: rect.midY) }
     }
 

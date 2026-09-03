@@ -112,6 +112,9 @@ final class WriteSessionViewModel {
     var appending: String?
     var editing: EditingWord?
     var lastResult: ScoreResult?
+    /// The entry's ink as it stood when its score was last recorded — the archive bytes —
+    /// so a page left again with nothing changed keeps the score it has (§8.3, v3.5).
+    private var scoredArchive: Data?
     var newBadges: [BadgeDefinition] = []
     /// The remediation modal on screen, if any. Set only from the canvas's help
     /// request; cleared only by `completeFormationHelp` — there is no other way out.
@@ -158,7 +161,12 @@ final class WriteSessionViewModel {
         self.context = context
         self.session = session
         if let session {
-            if startingOver { Self.clearTracing(of: session) }
+            if startingOver {
+                Self.clearTracing(of: session)
+            } else if session.tracedAt != nil {
+                // Reopened: the archive is what the entry's score was recorded against.
+                scoredArchive = session.strokeArchive
+            }
             adopt(session)
             // Reopened to write on: the first line still to write comes up as soon as
             // there is a surface, so the page says where to start (v3.2).
@@ -209,6 +217,7 @@ final class WriteSessionViewModel {
     func writeItAllAgain() {
         guard let session else { return }
         Self.clearTracing(of: session)
+        scoredArchive = nil
         editing = nil
         appending = nil
         replacing = nil
@@ -662,7 +671,8 @@ final class WriteSessionViewModel {
 
     /// Back (v3.2): the page is scored as it stands, so the journal is always current,
     /// and the child leaves without the results. Scoring again later replaces the
-    /// entry's score and moves the profile by the difference (§8.3).
+    /// entry's score and moves the profile by the difference (§8.3) — unless nothing on
+    /// the page changed, in which case the score it has stands (v3.5).
     func saveScore() {
         recordScore()
         stageSurface()
@@ -681,13 +691,21 @@ final class WriteSessionViewModel {
         tool = .pen
         showYourTurn = false
         guard controller.accountsForArchive,
-              let result = controller.finishEntry(streak: profile.currentStreak) else { return nil }
+              var result = controller.finishEntry(streak: profile.currentStreak) else { return nil }
         persist()
         guard let session else { return nil }
         let canvas = controller.canvasSize
         let earlier = (points: session.points, stars: session.stars)
+        let archive = controller.archive() ?? session.strokeArchive
+        // Nothing on the page changed since it was last scored: the score stands, whatever
+        // today's formula or streak would make of it (§8.3, v3.5). An entry scored by an
+        // earlier build is never re-scored by being opened — only by new ink.
+        if session.tracedAt != nil, let scored = scoredArchive, archive == scored {
+            result = result.keeping(points: earlier.points, stars: earlier.stars)
+        }
+        scoredArchive = archive
         session.record(result,
-                       strokes: controller.archive() ?? session.strokeArchive,
+                       strokes: archive,
                        thumbnail: controller.thumbnail() ?? session.thumbnailData,
                        canvas: canvas.width > 0 ? canvas
                                                 : CGSize(width: session.canvasWidth, height: session.canvasHeight))

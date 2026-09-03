@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.4
+## Design Document v3.6
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -13,6 +13,64 @@ Build notes: `PENPOT_HANDOFF.md`.
 
 ---
 
+## 0.15 What Changed in v3.6
+
+**The welcome does not open without an Apple Pencil** (§4.0, built 2026-09-02). v3.4's
+pencil check said the pencil was required and then let *I don't have an Apple Pencil*
+through anyway, recording `noPencil` and carrying on. This is a handwriting app, so it
+does not any more.
+
+1. ***I don't have an Apple Pencil* opens a page, not a door** — frame 59, *You'll need
+   an Apple Pencil*: why the pencil is the point (the child writes with a pencil in their
+   hand, just as on paper — the grip, the pressure, the resting palm, every letter stroke
+   by stroke — and that is what the app teaches and grades), why a finger will not do (it
+   is not handwriting, and it is wider than the strokes it would trace, so the scores
+   would mean nothing), that any Apple Pencil that pairs with the iPad will do, a link to
+   Apple's compatibility table, and *Back to the letter*. Nothing on it records or
+   finishes anything.
+2. **The pencil check is owed until an Apple Pencil traces the letter.** Each step of the
+   welcome now settles on its own (§5.1a): the agreement until the terms change, the
+   voice question once answered, the pencil check once a pencil has been seen. A
+   grown-up who puts the iPad down at the letter to find the pencil comes back to the
+   letter, not to the voice question; an iPad that v3.4 let through without a pencil
+   owes the check — alone — on its next launch.
+3. `noPencil` is gone from `Onboarding.PencilCheck` and the stored value reads as
+   unchecked. `welcome_finished` no longer carries a `pencil` parameter (it could only
+   ever say *pencil*); the page is the hand-named screen `welcome_no_pencil`, so the
+   analytics show how often the door is met (§10.5).
+4. Not changed: **Finger tracing allowed** is still a per-profile switch (§10.5's removal
+   is still owed), and the welcome's letter still accepts a finger so that it can say
+   *That was a finger*.
+
+## 0.14 What Changed in v3.5
+
+**Points that scale with the writing** (§8.3, built 2026-09-02). A journal entry of one
+letter used to earn as much as a page of them: the score was the accuracy plus three flat
+bonuses, and how much the child wrote never entered into it.
+
+1. **Every inked letter earns up to two points** by its accuracy — two above 90%, one
+   from 50%, nothing below — and the order discount (§8.1a) flows into that figure as it
+   flows into everything else, so a letter drawn the wrong way round earns one at most.
+2. **Every whole word earns three** — every letter inked, three letters or more (digits
+   count, punctuation does not) — **and three more when each of its letters followed its
+   formation.** The discount is the stick; this bonus is the carrot beside it. *I* and
+   *a* earn their letter's points and nothing more.
+3. **Stars pay ten each** (they paid twenty-five); the streak still pays five a day up to
+   twenty-five, and finishing still pays thirty. Worked example: *"I saw a red bird"*,
+   perfectly, on a five-day streak, is **127**; a typical 25-word entry lands near 400.
+   There is no ceiling, so the New Entry tile no longer promises one — its *up to +230*
+   chip is gone.
+4. **Results shows what the score is made of** (§4.8): one line under the points — *12
+   letters +24 · 3 whole words +9 · 3 in order +9 · ★★★ +30 · streak +25 · finished +30*
+   — so the total is checkable.
+5. **A page left again with nothing changed keeps its score.** Back and *I'm finished*
+   still score the page as it stands, but when the ink is byte for byte what was scored
+   last time the entry keeps the points and stars it has, whatever today's formula or
+   streak would make of it. Entries scored by earlier builds are never re-scored by
+   being opened; only new ink re-scores them.
+6. The practice sheet is unchanged: +2 a letter in the arrow order, +1 otherwise, once a
+   day (§4.11).
+
 ## 0.13 What Changed in v3.4
 
 **The welcome, and a voice.** Drawn as frames 55–58 on the Penpot page `02 · Profiles`
@@ -23,8 +81,9 @@ and built the same day (2026-09-02); `WIREFRAME_SPEC.md` §13.7 has the numbers.
    the screen — says whether the iPad should talk, then hands the iPad over for the
    child to trace a big A with the Apple Pencil. The letter is the practice sheet with
    one character on it, and the first stroke reports what made it: an Apple Pencil
-   enables *Let's write*; a finger is told so; *I don't have an Apple Pencil* carries on
-   regardless. The pencil is required (§10.5); the welcome is where the app says so.
+   enables *Let's write*; a finger is told so; *I don't have an Apple Pencil* carried on
+   regardless until v3.6 closed that door (§0.15). The pencil is required (§10.5); the
+   welcome is where the app says so.
 2. **Voice feedback** (§4.12). The iPad speaks, briefly, at the moments a grown-up
    sitting beside the child would: *Your turn — write it!* when a take ends, a short
    cheer when a line settles, the results headline, and on the practice sheet the letter
@@ -489,7 +548,7 @@ All screens are designed portrait, 834 × 1194 — see `WIREFRAME_SPEC.md` §13 
 coordinates — and since v3.3 each also lays out in landscape, 1194 × 834, by the rules in
 §0.12 and `WIREFRAME_SPEC.md` §13.6.
 
-### 4.0 Welcome — once per iPad *(v3.4)*
+### 4.0 Welcome — once per iPad *(v3.4 · v3.6)*
 
 ```
 ┌────────────────────────────┐ ┌────────────────────────────┐ ┌────────────────────────────┐
@@ -504,11 +563,26 @@ coordinates — and since v3.3 each also lays out in landscape, 1194 × 834, by 
 │                            │ │                            │ │ I don't have an Apple Pencil│
 └────────────────────────────┘ └────────────────────────────┘ └────────────────────────────┘
         frame 55                        frame 56                     frames 57 · 58
+
+┌────────────────────────────┐
+│ Back      ○○●              │
+│      (pencil + scribble)   │
+│ You'll need an Apple Pencil│
+│ This is a handwriting app… │
+│ ▒ a finger isn't writing ▒ │
+│ ▒ graded stroke by stroke ▒│
+│ ▒ any Apple Pencil will do▒│
+│  Which Pencil fits?    ↗   │
+│    [ Back to the letter ]  │
+└────────────────────────────┘
+        frame 59 (v3.6)
 ```
 
-Three screens before anyone has a profile, shown once and never again unless the terms
-change. A grown-up holds the iPad for the first two; the third is the child's, and it
-leads straight into *Add someone*. Every screen is the page's width, centred, in both
+Three steps before anyone has a profile, shown once and never again unless the terms
+change — and, since v3.6, not passed at all until an Apple Pencil has traced the letter;
+frame 59 is the page behind the third step for an iPad without one. A grown-up holds
+the iPad for the first two; the third is the child's, and it leads straight into *Add
+someone*. Every screen is the page's width, centred, in both
 orientations; the grown-up's two steps scroll when the window is short, and the letter
 step never does — in landscape the words and the buttons sit in a column beside the
 sheet, because a letter sheet inside a scroll view would scroll under a finger instead
@@ -535,21 +609,41 @@ draw here so that it can be recognised as a finger. The first stroke reports wha
 it: an **Apple Pencil** flips the status to *That's an Apple Pencil — you're ready!*
 with a success haptic and enables *Let's write*; a **finger** shows *That was a finger.
 Try the Apple Pencil* (frame 58) and leaves the button disabled, until a pencil stroke
-lands. *I don't have an Apple Pencil* records that and carries on. The pencil is
-required (§10.5) and the product page says so; the welcome is where the app itself says
-so, at the door, with the letter as proof. It informs rather than locks because a
-grown-up may be setting up before the pencil is out of its box, and because App Review
-may not have one to hand. **Finger tracing allowed** stays the per-profile setting it
-is until §10.5's removal lands. If voice feedback was chosen, both outcomes are said
-aloud too.
+lands. If voice feedback was chosen, both outcomes are said aloud too. **Finger tracing
+allowed** stays the per-profile setting it is until §10.5's removal lands.
+
+**3a. You'll need an Apple Pencil (frame 59, v3.6).** *I don't have an Apple Pencil*
+opens a page, not a door. This is a handwriting app: the pencil is required (§10.5), the
+product page says so, and since v3.6 the welcome does not open without one. v3.4 let the
+tap through, recording it, because a grown-up might be setting up before the pencil was
+out of its box and App Review might not have one to hand; both now get the page instead,
+and App Review is asked for a Pencil in the review notes. It is the grown-up's page again
+— the well with `applepencil.and.scribble`, scrolling like frames 55 and 56 — and it
+says, in this order: why the pencil is the point (*your child writes with a pencil in
+their hand, just as they do on paper — the grip, the pressure, the hand resting on the
+page, every letter formed stroke by stroke; that is what the app teaches and what it
+grades, so it doesn't start without one*); three sunk notes — **a finger isn't
+handwriting** (it builds none of the habits a pencil does, so the app would be
+practising the wrong thing), **the page is graded stroke by stroke** (a fingertip is
+wider than the strokes it would trace, so the scores would mean nothing), **any Apple
+Pencil that pairs with this iPad will do**; a `Row / Link` to Apple's compatibility
+table, *Which Apple Pencil fits this iPad?*; *Back to the letter*; and a caption —
+*everything you've answered is saved; come back with a pencil and the letter will be
+waiting*. *Back* in the header does the same as the button. Nothing on the page records
+or finishes anything, so the check stays owed (below). The page is a hand-named screen
+(`welcome_no_pencil`), so the analytics show how often the door is met.
 
 **Order.** The grown-up's steps come first — they are holding the iPad, and the
 agreement must precede use — and the child's step last, so the traced letter flows into
 making their profile. The steps are one array (`WelcomeStep`); reordering is one line.
 
-**What comes back.** `Onboarding` (§5.1a) records the agreement with the terms' date.
-When that date changes, the agreement step alone returns; the pencil and the voice were
-settled and stay settled. Nothing else in the app asks again.
+**What comes back.** Each step settles on its own (§5.1a, v3.6). `Onboarding` records
+the agreement with the terms' date, and when that date changes the agreement step alone
+returns. The voice question is settled by its answer and never asked again. The pencil
+check is settled only by an Apple Pencil tracing the letter: a grown-up who puts the
+iPad down at the letter to fetch the pencil comes back to the letter, not to the voice
+question, and an iPad that v3.4 let through without a pencil owes the check — alone —
+on its next launch. Nothing else in the app asks again.
 
 ### 4.1 Profile Picker (launch screen)
 
@@ -589,7 +683,7 @@ Delete Profile is destructive and marked "Grown-ups only". **It is not gated** �
 │  ╰──╯ 🔥 5-day streak              │
 │                                    │
 │  ┌────────────────────┐ ┌────────┐ │
-│  │ ✎ New Entry  +230▸ │ │ ABc    │ │
+│  │ ✎ New Entry      ▸ │ │ ABc    │ │
 │  │   Tell me about    │ │Practice│ │
 │  │   your day         │ │ +2/ltr │ │
 │  └────────────────────┘ └────────┘ │
@@ -613,7 +707,8 @@ Delete Profile is destructive and marked "Grown-ups only". **It is not gated** �
 
 **The action deck, then the points, then badges, then every entry, newest first (v3.1).**
 New Entry and *Practice my letters* are two tiles on the content grid — the primary and
-its outlined partner — each with a chip saying what it earns (§8.3). Beneath them the
+its outlined partner — the practice tile with a chip saying what a letter earns (§8.3;
+New Entry's *up to +230* chip went with the ceiling in v3.5). Beneath them the
 points card shows the running total, what today added, and a bar for each of the last
 seven days; tapping it opens Progress. There is **no navigation bar**: the export button is
 gone from this screen (an entry's ⋯ menu still reaches *Share as PDF*, including the whole
@@ -823,7 +918,9 @@ Summarises the entry — one entry, one result:
          │    91%    │
          │  Accuracy │
          ╰───────────╯
-          + 224 points
+          + 583 points
+     190 letters +300 · 36 whole words +108
+  30 in order +90 · ★★★ +30 · streak +25 · finished +30
    Best yet with Jua at Large ✨
 
   What you wrote ──────────────────
@@ -1148,10 +1245,14 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
 
 The welcome's answers belong to the iPad, not to a child, and must exist before the first
 profile does, so they live in `UserDefaults` (`Onboarding`): `termsAcceptedAt` and the
-`termsVersion` they were given under, `pencilCheck` (unchecked · pencil · noPencil),
-`voiceFeedbackDefault` and `completedAt`. `termsVersion` is the *Last updated* date at
-the top of the terms and the privacy policy; bumping the constant brings the agreement
-step back alone (§4.0). Nothing here syncs, and nothing here is personal.
+`termsVersion` they were given under, `pencilCheck` (unchecked · pencil — v3.4's
+`noPencil` is no longer a value and reads as unchecked), `voiceFeedbackDefault` with
+whether it has been chosen at all, and `completedAt`, a date for the record. What is
+owed is decided step by step (v3.6): the agreement while `termsVersion` differs from the
+constant — it is the *Last updated* date at the top of the terms and the privacy policy,
+so bumping it brings the agreement step back alone — the voice question until it has an
+answer, and the pencil check until `pencilCheck` is `pencil` (§4.0). Nothing here syncs,
+and nothing here is personal.
 
 ### 5.2 WritingSession
 
@@ -1480,7 +1581,9 @@ letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
 The discount is per letter, so one backwards *a* on a forty-letter page costs half a
 percent, and a page of backwards letters costs the full twenty. It flows through
 everything derived from letter accuracy — the live figure, the final figure, stars,
-points — and the finish message names it the way it names skipped letters.
+points — and the finish message names it the way it names skipped letters. Since v3.5
+the points are per letter (§8.3), so the discount is felt twice there: a letter drawn the
+wrong way round earns one point at most, and its word forgoes the order bonus.
 
 **What counts as wrong.** The letter's parts must be *first traced* in the taught
 sequence (circle before line for an *a*), each part in its taught direction (top-down;
@@ -1608,14 +1711,36 @@ longer anything to accumulate toward.
 
 ### 8.3 Points
 
+Points scale with the writing (v3.5). Every inked letter earns by its own accuracy, every
+whole word earns on top, and the stars, the streak and finishing pay a little more:
+
 ```
-points = round(accuracy)
-       + stars × 25
+letterPoints(i) = 2   if letterAccuracy(i) > 90%
+                  1   if letterAccuracy(i) ≥ 50%
+                  0   otherwise                      (the §8.1a discount is already in it)
+
+points = Σ letterPoints(i) over every inked letter in the record
+       + 3 × whole words          — every letter inked, three letters or more
+       + 3 × whole words whose every letter followed its formation (§8.1a)
+       + stars × 10
        + min(currentStreak, 5) × 5
-       + 30                        // session completion bonus
+       + 30                       // session completion bonus
 ```
 
-Worked from `WIREFRAME_SPEC.md` §14: 78 + 50 + 25 + 30 = **183**; 94 + 75 + 25 + 30 = **224**.
+Worked example: *"I saw a red bird"* traced perfectly, every letter the way it is taught,
+on a five-day streak — 12 letters × 2 + 3 whole words × 3 + 3 in order × 3 + 3 stars × 10
++ 25 + 30 = **127**. A typical 25-word entry lands near 400. There is no ceiling.
+
+**What makes a whole word.** Every scorable glyph of the word has ink, and at least three
+of them are letters or digits — punctuation is traced and scored like any glyph, but *an.*
+is not a three-letter word. *I* and *a* earn their letter's points and nothing more: the
+order bonus is only ever paid on top of the word bonus. A letter the child re-traced in the
+help modal (§8.1b) counts as in order, exactly as it is no longer docked.
+
+**Why per letter.** The v3.4 formula was the accuracy plus three flat bonuses, so a single
+perfect letter earned as much as a page of them. Now a page is worth a page. The discount for
+a letter drawn the wrong way round (§8.1a) still flows into everything, its points included —
+that is the stick — and the order bonus is the carrot beside it.
 
 Points are a running total with no ceiling and nothing to spend them on. They exist because
 a number that only goes up is quietly motivating, and because nothing is gated behind them.
@@ -1625,8 +1750,17 @@ Back both score the page as it stands, and a page can be reopened and left again
 entry's score is *replaced* each time and the profile moves by the difference — points and
 stars alike. Finishing the same page twice never awards it twice; erasing a row and
 leaving takes the difference back.
+
+**A page left with nothing changed keeps its score** (v3.5). When the ink is exactly what
+was scored last time — the archive bytes match — the entry keeps the points and stars it
+has, whatever today's formula or streak would make of it, and Results shows that score
+without a breakdown. Entries scored by earlier builds are never re-scored by being opened;
+only new ink re-scores them, under the current rules.
+
 Journal Home shows the total, what today added and a bar for each of the last seven days
-(§4.3); every entry in the list shows what it earned.
+(§4.3); every entry in the list shows what it earned. Results shows what the score is made
+of, on one line under the points (§4.8): *12 letters +24 · 3 whole words +9 · 3 in order
++9 · ★★★ +30 · streak +25 · finished +30*.
 
 **Practice letters earn points too (v3.1).** A letter that flips green on the practice
 sheet is worth **+2** when its strokes followed the arrows and **+1** when they did not
@@ -1740,7 +1874,10 @@ and the privacy policy already describe the app as if they were, so they are 1.0
    are **not** built yet — Crashlytics or Apple's crash logs, still to decide.
 2. **Apple Pencil is required.** The finger-tracing profile switch (§12) is to be removed
    or hidden; palm rejection (§4.4) stays. Every product-page and marketing surface says
-   "Requires Apple Pencil".
+   "Requires Apple Pencil". **The welcome enforces it (v3.6, built 2026-09-02):** the
+   app does not open until an Apple Pencil has traced the letter, and *I don't have an
+   Apple Pencil* explains why instead of letting the tap through (§4.0). The switch
+   itself is still in the build.
 3. **Pricing.** "The basic app is always free because we want our children to thrive. We
    may introduce additional features that will be paid because we will never sell your
    data." No in-app purchases in 1.0; any later purchase sits behind a grown-up gate and
@@ -1801,7 +1938,8 @@ Reduce Motion replaces the flip and the settle with cross-fades.
 - Colorblind ink scheme swaps green/red for blue/orange, per profile.
 - Finger tracing is a per-profile toggle for children without a stylus — **superseded by
   §10.5: Apple Pencil is required; the toggle is to be removed or hidden.** The welcome's
-  pencil check (§4.0, v3.4) is where the requirement is put to the grown-up.
+  pencil check (§4.0) is where the requirement is put to the grown-up, and since v3.6
+  the app does not open without one.
 - Voice feedback (§4.12) is a per-profile cue track for a child who cannot yet read the
   chrome — whose turn it is, which letter, that a line is done. It is not a screen
   reader; VoiceOver is separate and still owed by the accessibility pass.
