@@ -9,7 +9,7 @@ system voice: a cue with no clip is silent.
 This file is generated — edit `lines.py`, not this. Lower-case letters are spelled in
 capitals in the spoken text so the voice says the letter, not the article.
 
-## The moments (22 clips)
+## The moments (26 clips)
 
 | Clip | Where it plays | Transcript | Size |
 |---|---|---|---|
@@ -19,7 +19,7 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`finger.m4a`](../../HandwrittenJournal/Resources/Voice/finger.m4a) | Welcome, frame 58 — a finger inks | That was a finger. Try the Apple Pencil. | 32 KB |
 | [`your-turn.m4a`](../../HandwrittenJournal/Resources/Voice/your-turn.m4a) | Write — a take ends and the first line comes up | Your turn. Write it! | 19 KB |
 | [`line-done-0.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-0.m4a) | Write — a line settles (1st in rotation) | Nice line. | 16 KB |
-| [`line-done-1.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-1.m4a) | Write — a line settles (2nd) | Lovely writing. | 14 KB |
+| [`line-done-1.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-1.m4a) | Write — a line settles (2nd) | Lovely writing. | 13 KB |
 | [`line-done-2.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-2.m4a) | Write — a line settles (3rd) | That line looks great. | 17 KB |
 | [`line-done-3.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-3.m4a) | Write — a line settles (4th) | Keep going. | 11 KB |
 | [`finished-all.m4a`](../../HandwrittenJournal/Resources/Voice/finished-all.m4a) | Results — *I'm finished*, everything written | Outstanding work! You wrote everything you said. | 37 KB |
@@ -27,7 +27,7 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`help-next.m4a`](../../HandwrittenJournal/Resources/Voice/help-next.m4a) | Formation help — a letter traced, more to come | That's how it's done! Next letter. | 24 KB |
 | [`help-fixed.m4a`](../../HandwrittenJournal/Resources/Voice/help-fixed.m4a) | Formation help — the last letter traced | That's the way! You fixed it. | 22 KB |
 | [`help-again.m4a`](../../HandwrittenJournal/Resources/Voice/help-again.m4a) | Formation help — a wrong-order attempt is wiped | Almost! Watch the arrows again. Start where they start. | 47 KB |
-| [`voice-on.m4a`](../../HandwrittenJournal/Resources/Voice/voice-on.m4a) | Settings — *Voice feedback* switched on | Voice feedback is on. I'll tell you when it's your turn to write. | 25 KB |
+| [`voice-on.m4a`](../../HandwrittenJournal/Resources/Voice/voice-on.m4a) | Settings — *Voice feedback* switched on | Voice feedback is on. I'll tell you when it's your turn to write. (spoken as *Hi! Voice feedback is on. I'll tell you when it's your turn to write.*) | 52 KB |
 | [`why-pencil.m4a`](../../HandwrittenJournal/Resources/Voice/why-pencil.m4a) | Welcome, frame 59 — *You'll need an Apple Pencil* appears (if a voice was chosen) | This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one. | 152 KB |
 | [`nobody-here.m4a`](../../HandwrittenJournal/Resources/Voice/nobody-here.m4a) | Profile picker — empty, before the first profile (if a voice was chosen) | Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size. | 83 KB |
 | [`home.m4a`](../../HandwrittenJournal/Resources/Voice/home.m4a) | Journal Home — as it appears, once per visit from the picker | Add a journal entry, or practice writing your letters. | 32 KB |
@@ -35,6 +35,10 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`new-entry-1.m4a`](../../HandwrittenJournal/Resources/Voice/new-entry-1.m4a) | Write — a new entry opens on the empty page (alternates with the previous) | Tell me a story. | 16 KB |
 | [`start-talking.m4a`](../../HandwrittenJournal/Resources/Voice/start-talking.m4a) | Write — right after the invitation | Tap the microphone and start talking. | 30 KB |
 | [`mic-permission.m4a`](../../HandwrittenJournal/Resources/Voice/mic-permission.m4a) | Write — the microphone explainer, before iPadOS asks | Can we use the microphone? It allows us to write down what you tell us so you can trace the words. | 63 KB |
+| [`practice-how-watch.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-watch.m4a) | Practice, frame 60 — *How to trace a letter* appears | Here's how to practice a letter. Touch it, and watch how it's written. | 49 KB |
+| [`practice-how-start.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-start.m4a) | Practice, frame 60 — the tutorial's demo hands over | See the blue dot? That's where you start. Follow the arrows. | 47 KB |
+| [`practice-how-trace.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-trace.m4a) | Practice, frame 60 — right after the blue-dot line | Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it! | 65 KB |
+| [`practice-how-done.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-done.m4a) | Practice, frame 60 — the tutorial's letter is traced | That's it! Now pick any letter on the sheet and trace it. | 41 KB |
 
 ## The badges (8 badges × 2 = 16 clips)
 
@@ -43,7 +47,7 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`badge-first_entry-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-earned.m4a) | Results — *First Entry* just earned; the badge card when it is earned | You earned First Entry! You wrote your first entry. | 40 KB |
 | [`badge-first_entry-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-hint.m4a) | The badge card for *First Entry* while it is not earned yet | First Entry. Write your first entry. | 35 KB |
 | [`badge-sharp_shooter-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-earned.m4a) | Results — *Sharp Shooter* just earned; the badge card when it is earned | You earned Sharp Shooter! A tracing at 90% or better. | 41 KB |
-| [`badge-sharp_shooter-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-hint.m4a) | The badge card for *Sharp Shooter* while it is not earned yet | Sharp Shooter. Trace an entry at 90% or better. | 49 KB |
+| [`badge-sharp_shooter-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-hint.m4a) | The badge card for *Sharp Shooter* while it is not earned yet | Sharp Shooter. Trace an entry at 90% or better. | 45 KB |
 | [`badge-streak_5-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-streak_5-earned.m4a) | Results — *5-Day Streak* just earned; the badge card when it is earned | You earned 5-Day Streak! You wrote five days in a row. | 45 KB |
 | [`badge-streak_5-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-streak_5-hint.m4a) | The badge card for *5-Day Streak* while it is not earned yet | 5-Day Streak. Write five days in a row. | 36 KB |
 | [`badge-ten_entries-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-ten_entries-earned.m4a) | Results — *Ten Entries* just earned; the badge card when it is earned | You earned Ten Entries! Ten entries in the journal. | 43 KB |
@@ -209,7 +213,7 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`traced-good-lower-w.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-w.m4a) | Practice sheet — little w flips green, in the arrow order | Nice little w! Pick another letter. (spoken as *Nice little W! Pick another letter.*) | 30 KB |
 | [`traced-order-lower-w.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-w.m4a) | Practice sheet — little w flips green, out of order | Good little w. Try the strokes in the arrow order. (spoken as *Good little W. Try the strokes in the arrow order.*) | 37 KB |
 | [`trace-lower-x.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-x.m4a) | Practice sheet / formation help — the demo of little x hands over | Your turn. Trace a little x. (spoken as *Your turn. Trace a little X.*) | 34 KB |
-| [`traced-good-lower-x.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-x.m4a) | Practice sheet — little x flips green, in the arrow order | Nice little x! Pick another letter. (spoken as *Nice little X! Pick another letter.*) | 28 KB |
+| [`traced-good-lower-x.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-x.m4a) | Practice sheet — little x flips green, in the arrow order | Nice little x! Pick another letter. (spoken as *Nice little X! Pick another letter.*) | 25 KB |
 | [`traced-order-lower-x.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-x.m4a) | Practice sheet — little x flips green, out of order | Good little x. Try the strokes in the arrow order. (spoken as *Good little X. Try the strokes in the arrow order.*) | 42 KB |
 | [`trace-lower-y.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-y.m4a) | Practice sheet / formation help — the demo of little y hands over | Your turn. Trace a little y. (spoken as *Your turn. Trace a little Y.*) | 34 KB |
 | [`traced-good-lower-y.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-y.m4a) | Practice sheet — little y flips green, in the arrow order | Nice little y! Pick another letter. (spoken as *Nice little Y! Pick another letter.*) | 28 KB |
@@ -218,32 +222,32 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`traced-good-lower-z.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-z.m4a) | Practice sheet — little z flips green, in the arrow order | Nice little z! Pick another letter. (spoken as *Nice little Z! Pick another letter.*) | 28 KB |
 | [`traced-order-lower-z.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-z.m4a) | Practice sheet — little z flips green, out of order | Good little z. Try the strokes in the arrow order. (spoken as *Good little Z. Try the strokes in the arrow order.*) | 33 KB |
 | [`trace-digit-0.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-0.m4a) | Practice sheet / formation help — the demo of the 0 hands over | Your turn. Trace the 0. | 26 KB |
-| [`traced-good-digit-0.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-0.m4a) | Practice sheet — the 0 flips green, in the arrow order | Nice the 0! Pick another letter. | 25 KB |
+| [`traced-good-digit-0.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-0.m4a) | Practice sheet — the 0 flips green, in the arrow order | Nice 0. Try another one. (spoken as *Nice! Zero. Try another one.*) | 30 KB |
 | [`traced-order-digit-0.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-0.m4a) | Practice sheet — the 0 flips green, out of order | Good the 0. Try the strokes in the arrow order. | 42 KB |
 | [`trace-digit-1.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-1.m4a) | Practice sheet / formation help — the demo of the 1 hands over | Your turn. Trace the 1. | 24 KB |
-| [`traced-good-digit-1.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-1.m4a) | Practice sheet — the 1 flips green, in the arrow order | Nice the 1! Pick another letter. | 23 KB |
+| [`traced-good-digit-1.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-1.m4a) | Practice sheet — the 1 flips green, in the arrow order | Nice 1. Try another one. (spoken as *Nice! One. Try another one.*) | 29 KB |
 | [`traced-order-digit-1.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-1.m4a) | Practice sheet — the 1 flips green, out of order | Good the 1. Try the strokes in the arrow order. | 33 KB |
 | [`trace-digit-2.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-2.m4a) | Practice sheet / formation help — the demo of the 2 hands over | Your turn. Trace the 2. | 24 KB |
-| [`traced-good-digit-2.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-2.m4a) | Practice sheet — the 2 flips green, in the arrow order | Nice the 2! Pick another letter. | 23 KB |
+| [`traced-good-digit-2.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-2.m4a) | Practice sheet — the 2 flips green, in the arrow order | Nice 2. Try another one. (spoken as *Nice! Two. Try another one.*) | 25 KB |
 | [`traced-order-digit-2.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-2.m4a) | Practice sheet — the 2 flips green, out of order | Good the 2. Try the strokes in the arrow order. | 32 KB |
 | [`trace-digit-3.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-3.m4a) | Practice sheet / formation help — the demo of the 3 hands over | Your turn. Trace the 3. | 29 KB |
-| [`traced-good-digit-3.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-3.m4a) | Practice sheet — the 3 flips green, in the arrow order | Nice the 3! Pick another letter. | 22 KB |
+| [`traced-good-digit-3.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-3.m4a) | Practice sheet — the 3 flips green, in the arrow order | Nice 3. Try another one. (spoken as *Nice! Three. Try another one.*) | 34 KB |
 | [`traced-order-digit-3.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-3.m4a) | Practice sheet — the 3 flips green, out of order | Good the 3. Try the strokes in the arrow order. | 41 KB |
 | [`trace-digit-4.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-4.m4a) | Practice sheet / formation help — the demo of the 4 hands over | Your turn. Trace the 4. | 29 KB |
-| [`traced-good-digit-4.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-4.m4a) | Practice sheet — the 4 flips green, in the arrow order | Nice the 4! Pick another letter. | 25 KB |
+| [`traced-good-digit-4.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-4.m4a) | Practice sheet — the 4 flips green, in the arrow order | Nice 4. Try another one. (spoken as *Nice! Four. Try another one.*) | 28 KB |
 | [`traced-order-digit-4.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-4.m4a) | Practice sheet — the 4 flips green, out of order | Good the 4. Try the strokes in the arrow order. | 37 KB |
 | [`trace-digit-5.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-5.m4a) | Practice sheet / formation help — the demo of the 5 hands over | Your turn. Trace the 5. | 25 KB |
-| [`traced-good-digit-5.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-5.m4a) | Practice sheet — the 5 flips green, in the arrow order | Nice the 5! Pick another letter. | 24 KB |
+| [`traced-good-digit-5.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-5.m4a) | Practice sheet — the 5 flips green, in the arrow order | Nice 5. Try another one. (spoken as *Nice! Five. Try another one.*) | 31 KB |
 | [`traced-order-digit-5.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-5.m4a) | Practice sheet — the 5 flips green, out of order | Good the 5. Try the strokes in the arrow order. | 36 KB |
 | [`trace-digit-6.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-6.m4a) | Practice sheet / formation help — the demo of the 6 hands over | Your turn. Trace the 6. | 29 KB |
-| [`traced-good-digit-6.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-6.m4a) | Practice sheet — the 6 flips green, in the arrow order | Nice the 6! Pick another letter. | 28 KB |
+| [`traced-good-digit-6.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-6.m4a) | Practice sheet — the 6 flips green, in the arrow order | Nice 6. Try another one. (spoken as *Nice! Six. Try another one.*) | 28 KB |
 | [`traced-order-digit-6.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-6.m4a) | Practice sheet — the 6 flips green, out of order | Good the 6. Try the strokes in the arrow order. | 47 KB |
 | [`trace-digit-7.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-7.m4a) | Practice sheet / formation help — the demo of the 7 hands over | Your turn. Trace the 7. | 27 KB |
-| [`traced-good-digit-7.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-7.m4a) | Practice sheet — the 7 flips green, in the arrow order | Nice the 7! Pick another letter. | 23 KB |
+| [`traced-good-digit-7.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-7.m4a) | Practice sheet — the 7 flips green, in the arrow order | Nice 7. Try another one. (spoken as *Nice! Seven. Try another one.*) | 26 KB |
 | [`traced-order-digit-7.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-7.m4a) | Practice sheet — the 7 flips green, out of order | Good the 7. Try the strokes in the arrow order. | 44 KB |
 | [`trace-digit-8.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-8.m4a) | Practice sheet / formation help — the demo of the 8 hands over | Your turn. Trace the 8. | 28 KB |
-| [`traced-good-digit-8.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-8.m4a) | Practice sheet — the 8 flips green, in the arrow order | Nice the 8! Pick another letter. | 25 KB |
+| [`traced-good-digit-8.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-8.m4a) | Practice sheet — the 8 flips green, in the arrow order | Nice 8. Try another one. (spoken as *Nice! Eight. Try another one.*) | 25 KB |
 | [`traced-order-digit-8.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-8.m4a) | Practice sheet — the 8 flips green, out of order | Good the 8. Try the strokes in the arrow order. | 41 KB |
 | [`trace-digit-9.m4a`](../../HandwrittenJournal/Resources/Voice/trace-digit-9.m4a) | Practice sheet / formation help — the demo of the 9 hands over | Your turn. Trace the 9. | 29 KB |
-| [`traced-good-digit-9.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-9.m4a) | Practice sheet — the 9 flips green, in the arrow order | Nice the 9! Pick another letter. | 26 KB |
+| [`traced-good-digit-9.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-digit-9.m4a) | Practice sheet — the 9 flips green, in the arrow order | Nice 9. Try another one. (spoken as *Nice! Nine. Try another one.*) | 29 KB |
 | [`traced-order-digit-9.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-digit-9.m4a) | Practice sheet — the 9 flips green, out of order | Good the 9. Try the strokes in the arrow order. | 39 KB |

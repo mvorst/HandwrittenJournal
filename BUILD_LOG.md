@@ -70,6 +70,40 @@ spec first, then the code.
 
 ---
 
+## v3.8 — the practice sheet teaches itself (built)
+
+DESIGN_DOCUMENT §0.17, §4.11, §4.12. Built 2026-09-03.
+
+- **The blue dot.** `PracticeCanvasView.startPoint(forGlyph:)` is the first point of the
+  letter's first formation stroke, placed in the fitter's formation rect; `showStartDot`
+  installs a halo and a disc (`CAShapeLayer`s named `start`, framed on the point so a
+  scale animation swells them about their centre) below the ink overlay, `pulseStartDot`
+  adds the breathing once the demo hands over (or at once when a pen starts a letter
+  without the demo), and `hideStartDot` removes them when the letter flips to `.traced`
+  and with every `clearDemo`. `clearInk` after a traced letter brings the dot back. The
+  demo's first stroke waits 0.35 s for the dot to land.
+- **The tutorial.** `Views/PracticeTutorialView.swift`: `PracticeTutorialOverlay` (the
+  card — title, three step rows, a 320 × 400 `PracticeSurface` on `"a"` with
+  `autoSelectSoleGlyph` and `centred`, the buttons, the ✕; a landscape variant lays the
+  words beside the sheet) and `PracticeTutorialStep` (`watch` / `start` / `trace` / `done`,
+  a pure `current(phase:hasInk:)` so the steps can be tested without a card). Presented
+  from `PracticeView` as a `fullScreenCover` with a clear presentation background, like the
+  PIN pad, so it covers the navigation bar; the first visit opens it from `.task` after a
+  450 ms pause so the push has landed; the `?` (`questionmark.circle`, leading the trailing
+  toolbar group) reopens it. `UserProfile.practiceTutorialSeen` is set however the card
+  closes. Screen `practice_tutorial` in `Telemetry`.
+- **Voice.** Four cues — `practiceHowWatch` / `Start` / `Trace` / `Done`, clips
+  `practice-how-*` — said as the card appears, when its demo hands over (`Start`, with
+  `Trace` queued behind it via `Voice.sayNext`), and when the letter is traced. Cut with
+  `TTS=cloud Scripts/voice/build-clips.sh` (Leda, `gemini-2.5-flash-tts`); the manifest is
+  228 lines.
+- **Harness.** `-screen practice-tutorial` opens the sheet with the tutorial owed; the
+  seeded Milo has seen it, so `-screen practice` is the bare sheet as before.
+- **Tests.** `PracticeTutorialTests` (5): the flag defaults off; the steps follow the
+  sheet's loop; the four lines; the dot sits where the taught path starts, on the right
+  of the little a; the dot appears with the demo, leaves when the letter is traced and
+  returns when the ink is wiped. `VoiceClipTests` counts 26 fixed clips.
+
 ## v3.7 — one catalog of strings, a recorded voice (built)
 
 DESIGN_DOCUMENT §0.16, §4.12. Built 2026-09-02.
@@ -118,7 +152,16 @@ DESIGN_DOCUMENT §0.16, §4.12. Built 2026-09-02.
   bundle (7.9 MB), cut in one run from one source — `Leda` on Cloud Text-to-Speech's
   `gemini-2.5-flash-tts` with the style prompt in `input.prompt` — after the AI Studio
   key's three preview models (100, 100 and 50 requests a day) ran dry on partial sets.
-  Four random clips transcribed back word for word. The Cloud route is `TTS=cloud`, now
+  Every clip was transcribed back (`Scripts/voice/verify-clips.py`, gemini-3.6-flash,
+  a word-similarity ratio per clip; a low ratio means *listen*, the transcriber drops
+  and mishears words on two-second clips) and the doubtful ones re-cut. Two lines had
+  to change their *spoken* form (`say` in `lines.py`, the app text unchanged): *Voice
+  feedback is on.* is cut from *Hi! Voice feedback is on.…* because on its own the
+  sentence reads to the model like a notice and it dropped it or doubled the next one
+  (four cuts out of four), and the number lines are cut from *Nice! Four. Try another one.*
+  — a beat, then the digit as a word — because *Nice the 4!*, *Nice 4.* and *Nice four!*
+  all came out as *Nice try* more often than not. The number line's
+  wording itself changed to *Nice 4. Try another one.* at the user's request. The Cloud route is `TTS=cloud`, now
   the default in `build-clips.sh`: OAuth (`gcloud auth login`; it hung on this Mac until
   Wi-Fi IPv6 was set to link-local only, because IPv6 to Google times out), project
   `the-bridge-to-ai-services`, **both** `texttospeech.googleapis.com` and
@@ -569,6 +612,8 @@ silently fell back to the system face.
 ```bash
 xcrun simctl launch <device> com.mattvorst.education.handwrittenjournal \
   -seed YES -screen trace     # start | trace | journal | progress | settings | write | practice
+                              # | practice-tutorial — v3.8: the sheet with *How to trace a
+                              # letter* owed, as on a profile's first visit
                               # | welcome — v3.4: reset the welcome and open it on a fresh iPad;
                               # every other seeded or -screen launch settles it first
   -orientation landscape      # v3.3 — start in landscape (portrait is the default)

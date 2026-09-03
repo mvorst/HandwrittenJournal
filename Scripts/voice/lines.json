@@ -86,7 +86,7 @@
   {
     "id": "voice-on",
     "text": "Voice feedback is on. I'll tell you when it's your turn to write.",
-    "say": "Voice feedback is on. I'll tell you when it's your turn to write.",
+    "say": "Hi! Voice feedback is on. I'll tell you when it's your turn to write.",
     "where": "Settings — *Voice feedback* switched on"
   },
   {
@@ -130,6 +130,30 @@
     "text": "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.",
     "say": "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.",
     "where": "Write — the microphone explainer, before iPadOS asks"
+  },
+  {
+    "id": "practice-how-watch",
+    "text": "Here's how to practice a letter. Touch it, and watch how it's written.",
+    "say": "Here's how to practice a letter. Touch it, and watch how it's written.",
+    "where": "Practice, frame 60 — *How to trace a letter* appears"
+  },
+  {
+    "id": "practice-how-start",
+    "text": "See the blue dot? That's where you start. Follow the arrows.",
+    "say": "See the blue dot? That's where you start. Follow the arrows.",
+    "where": "Practice, frame 60 — the tutorial's demo hands over"
+  },
+  {
+    "id": "practice-how-trace",
+    "text": "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!",
+    "say": "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!",
+    "where": "Practice, frame 60 — right after the blue-dot line"
+  },
+  {
+    "id": "practice-how-done",
+    "text": "That's it! Now pick any letter on the sheet and trace it.",
+    "say": "That's it! Now pick any letter on the sheet and trace it.",
+    "where": "Practice, frame 60 — the tutorial's letter is traced"
   },
   {
     "id": "badge-first_entry-earned",
@@ -1171,8 +1195,8 @@
   },
   {
     "id": "traced-good-digit-0",
-    "text": "Nice the 0! Pick another letter.",
-    "say": "Nice the 0! Pick another letter.",
+    "text": "Nice 0. Try another one.",
+    "say": "Nice! Zero. Try another one.",
     "where": "Practice sheet — the 0 flips green, in the arrow order"
   },
   {
@@ -1189,8 +1213,8 @@
   },
   {
     "id": "traced-good-digit-1",
-    "text": "Nice the 1! Pick another letter.",
-    "say": "Nice the 1! Pick another letter.",
+    "text": "Nice 1. Try another one.",
+    "say": "Nice! One. Try another one.",
     "where": "Practice sheet — the 1 flips green, in the arrow order"
   },
   {
@@ -1207,8 +1231,8 @@
   },
   {
     "id": "traced-good-digit-2",
-    "text": "Nice the 2! Pick another letter.",
-    "say": "Nice the 2! Pick another letter.",
+    "text": "Nice 2. Try another one.",
+    "say": "Nice! Two. Try another one.",
     "where": "Practice sheet — the 2 flips green, in the arrow order"
   },
   {
@@ -1225,8 +1249,8 @@
   },
   {
     "id": "traced-good-digit-3",
-    "text": "Nice the 3! Pick another letter.",
-    "say": "Nice the 3! Pick another letter.",
+    "text": "Nice 3. Try another one.",
+    "say": "Nice! Three. Try another one.",
     "where": "Practice sheet — the 3 flips green, in the arrow order"
   },
   {
@@ -1243,8 +1267,8 @@
   },
   {
     "id": "traced-good-digit-4",
-    "text": "Nice the 4! Pick another letter.",
-    "say": "Nice the 4! Pick another letter.",
+    "text": "Nice 4. Try another one.",
+    "say": "Nice! Four. Try another one.",
     "where": "Practice sheet — the 4 flips green, in the arrow order"
   },
   {
@@ -1261,8 +1285,8 @@
   },
   {
     "id": "traced-good-digit-5",
-    "text": "Nice the 5! Pick another letter.",
-    "say": "Nice the 5! Pick another letter.",
+    "text": "Nice 5. Try another one.",
+    "say": "Nice! Five. Try another one.",
     "where": "Practice sheet — the 5 flips green, in the arrow order"
   },
   {
@@ -1279,8 +1303,8 @@
   },
   {
     "id": "traced-good-digit-6",
-    "text": "Nice the 6! Pick another letter.",
-    "say": "Nice the 6! Pick another letter.",
+    "text": "Nice 6. Try another one.",
+    "say": "Nice! Six. Try another one.",
     "where": "Practice sheet — the 6 flips green, in the arrow order"
   },
   {
@@ -1297,8 +1321,8 @@
   },
   {
     "id": "traced-good-digit-7",
-    "text": "Nice the 7! Pick another letter.",
-    "say": "Nice the 7! Pick another letter.",
+    "text": "Nice 7. Try another one.",
+    "say": "Nice! Seven. Try another one.",
     "where": "Practice sheet — the 7 flips green, in the arrow order"
   },
   {
@@ -1315,8 +1339,8 @@
   },
   {
     "id": "traced-good-digit-8",
-    "text": "Nice the 8! Pick another letter.",
-    "say": "Nice the 8! Pick another letter.",
+    "text": "Nice 8. Try another one.",
+    "say": "Nice! Eight. Try another one.",
     "where": "Practice sheet — the 8 flips green, in the arrow order"
   },
   {
@@ -1333,8 +1357,8 @@
   },
   {
     "id": "traced-good-digit-9",
-    "text": "Nice the 9! Pick another letter.",
-    "say": "Nice the 9! Pick another letter.",
+    "text": "Nice 9. Try another one.",
+    "say": "Nice! Nine. Try another one.",
     "where": "Practice sheet — the 9 flips green, in the arrow order"
   },
   {

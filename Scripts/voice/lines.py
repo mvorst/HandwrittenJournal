@@ -29,7 +29,9 @@ FIXED = [
     ("help-next",     "That's how it's done! Next letter.", "Formation help — a letter traced, more to come"),
     ("help-fixed",    "That's the way! You fixed it.", "Formation help — the last letter traced"),
     ("help-again",    "Almost! Watch the arrows again. Start where they start.", "Formation help — a wrong-order attempt is wiped"),
-    ("voice-on",      "Voice feedback is on. I'll tell you when it's your turn to write.", "Settings — *Voice feedback* switched on"),
+    # Spoken with a "Hi!" in front: on its own, "Voice feedback is on." reads to the model
+    # like a notice, and it drops the sentence or doubles the next one.
+    ("voice-on",      "Voice feedback is on. I'll tell you when it's your turn to write.", "Settings — *Voice feedback* switched on", "Hi! Voice feedback is on. I'll tell you when it's your turn to write."),
     ("why-pencil",    "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.", "Welcome, frame 59 — *You'll need an Apple Pencil* appears (if a voice was chosen)"),
     ("nobody-here",   "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.", "Profile picker — empty, before the first profile (if a voice was chosen)"),
     ("home",          "Add a journal entry, or practice writing your letters.", "Journal Home — as it appears, once per visit from the picker"),
@@ -37,6 +39,10 @@ FIXED = [
     ("new-entry-1",   "Tell me a story.", "Write — a new entry opens on the empty page (alternates with the previous)"),
     ("start-talking", "Tap the microphone and start talking.", "Write — right after the invitation"),
     ("mic-permission", "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.", "Write — the microphone explainer, before iPadOS asks"),
+    ("practice-how-watch", "Here's how to practice a letter. Touch it, and watch how it's written.", "Practice, frame 60 — *How to trace a letter* appears"),
+    ("practice-how-start", "See the blue dot? That's where you start. Follow the arrows.", "Practice, frame 60 — the tutorial's demo hands over"),
+    ("practice-how-trace", "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!", "Practice, frame 60 — right after the blue-dot line"),
+    ("practice-how-done", "That's it! Now pick any letter on the sheet and trace it.", "Practice, frame 60 — the tutorial's letter is traced"),
 ]
 
 # (badge id, name, what earned it, what will) — mirrors BadgeEngine.all
@@ -52,6 +58,7 @@ BADGES = [
 ]
 
 CHARACTERS = string.ascii_uppercase + string.ascii_lowercase + string.digits
+WORDS = "zero one two three four five six seven eight nine".split()
 
 
 def code(c):
@@ -76,7 +83,7 @@ def phrase(c, spoken):
 
 
 def lines():
-    out = [{"id": i, "text": t, "say": t, "where": w} for i, t, w in FIXED]
+    out = [{"id": f[0], "text": f[1], "say": f[3] if len(f) > 3 else f[1], "where": f[2]} for f in FIXED]
     for bid, bname, detail, hint in BADGES:
         out += [
             {"id": f"badge-{bid}-earned", "text": f"You earned {bname}! {detail}", "say": f"You earned {bname}! {detail}",
@@ -91,9 +98,12 @@ def lines():
              "text": f"Your turn. Trace {phrase(c, False)}.",
              "say": f"Your turn. Trace {phrase(c, True)}.",
              "where": f"Practice sheet / formation help — the demo of {shown} hands over"},
+            # Numbers: "Nice 3. Try another one." — spoken as "Nice! Three." (a beat, then the
+            # digit as a word): "Nice the 3!", "Nice 3." and "Nice three!" all came out of the
+            # voice as "Nice try" more often than not.
             {"id": f"traced-good-{code(c)}",
-             "text": f"Nice {shown}! Pick another letter.",
-             "say": f"Nice {said}! Pick another letter.",
+             "text": f"Nice {c}. Try another one." if c.isdigit() else f"Nice {shown}! Pick another letter.",
+             "say": f"Nice! {WORDS[int(c)].capitalize()}. Try another one." if c.isdigit() else f"Nice {said}! Pick another letter.",
              "where": f"Practice sheet — {shown} flips green, in the arrow order"},
             {"id": f"traced-order-{code(c)}",
              "text": f"Good {shown}. Try the strokes in the arrow order.",

@@ -85,6 +85,9 @@ enum DemoData {
         for letter in "de" {
             milo.practiceLedger[PracticePoints.ledgerKey(day: today, character: letter)] = PracticePoints.partial
         }
+        // A sheet that has been used has had its tutorial (v3.8); `-screen
+        // practice-tutorial` asks for it back.
+        milo.practiceTutorialSeen = true
         context.insert(milo)
 
         let ada = UserProfile(name: "Ada")

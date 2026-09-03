@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		007EE8BED1E481D3F484BC98 /* BadgeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4547D52B725113BA1F2962C1 /* BadgeEngine.swift */; };
 		0937D44ACD0FCF36CB18E25C /* PracticePointsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */; };
+		3CE3DC86A2AA7DF8C5CBF459 /* PracticeTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */; };
 		0ACA17A823A8EF43791462B4 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF127826379FD1FD630C287 /* Onboarding.swift */; };
 		0B65F03D41627E0CF16F6276 /* VarelaRound-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9996378CBCE5386BEFC9E0F4 /* VarelaRound-Regular.ttf */; };
 		A1B2C3D4E5F60718293A4B5C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* Localizable.xcstrings */; };
@@ -25,6 +26,7 @@
 		21EDD608FB571E4DF7D18B04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2EF918079981004D1B663AE /* Assets.xcassets */; };
 		227E5247202726BD7CDA4CB2 /* LineStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */; };
 		25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA678BED1B99E37DA5D78365 /* PracticeView.swift */; };
+		49167EEBF21BB3C961AF5D7B /* PracticeTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */; };
 		267ED700DE49042D33CFA9F6 /* Telemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADECE83415E372A6C08D44C7 /* Telemetry.swift */; };
 		26FF3C0405C2EF0E460EB6D8 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7FA548CC0E3A90B47968FC20 /* FirebaseAnalyticsCore */; };
 		392485F16B6177B12C3D33C1 /* FontSizePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */; };
@@ -153,6 +155,7 @@
 		98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskDiagnosticTests.swift; sourceTree = "<group>"; };
 		9996378CBCE5386BEFC9E0F4 /* VarelaRound-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "VarelaRound-Regular.ttf"; sourceTree = "<group>"; };
 		AA678BED1B99E37DA5D78365 /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
+		16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialView.swift; sourceTree = "<group>"; };
 		ACED7D009F8A919086DBC977 /* StrokeArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeArchive.swift; sourceTree = "<group>"; };
 		ADECE83415E372A6C08D44C7 /* Telemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Telemetry.swift; sourceTree = "<group>"; };
 		B12B4EEE9EEB2B824DCFA27C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -172,6 +175,7 @@
 		DBBA78F4AE0FC4A97AFC626A /* BadgeEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngineTests.swift; sourceTree = "<group>"; };
 		DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageRenderCheck.swift; sourceTree = "<group>"; };
 		E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePointsTests.swift; sourceTree = "<group>"; };
+		C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialTests.swift; sourceTree = "<group>"; };
 		E682A3018C64BAE977C5C193 /* VoiceFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFeedback.swift; sourceTree = "<group>"; };
 		EBB72F6CD8A76412888AF70A /* HandwrittenJournalTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HandwrittenJournalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0C2B2EC71FF3BF52EB64DB /* TracingStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingStroke.swift; sourceTree = "<group>"; };
@@ -253,6 +257,7 @@
 				5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */,
 				DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */,
 				E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */,
+				C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */,
 				78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */,
 				B2D4F6A8C1E3A5B7D9F1C3E5 /* PracticeSheetCentringTests.swift */,
 				6C7479E7EE0014A22E896B2E /* ScoringTests.swift */,
@@ -356,6 +361,7 @@
 				5A3C13764E7D543E7627762F /* FormationHelpView.swift */,
 				14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */,
 				AA678BED1B99E37DA5D78365 /* PracticeView.swift */,
+				16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */,
 				1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */,
 				49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */,
 				539559855DA545D4C9EF448B /* ProgressReportView.swift */,
@@ -490,6 +496,7 @@
 				CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */,
 				6EAF92610859F50F548C39C2 /* PracticePoints.swift in Sources */,
 				25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */,
+				49167EEBF21BB3C961AF5D7B /* PracticeTutorialView.swift in Sources */,
 				C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */,
 				B8567A1D230BCBA81A66954D /* ProfilePickerView.swift in Sources */,
 				BCF37E40D06CAE7AE9945527 /* ProgressReport.swift in Sources */,
@@ -531,6 +538,7 @@
 				4456A50056AC82A50B1A65B7 /* PageLayoutTests.swift in Sources */,
 				CC0392E6540B6B7A7A5348F1 /* PageRenderCheck.swift in Sources */,
 				0937D44ACD0FCF36CB18E25C /* PracticePointsTests.swift in Sources */,
+				3CE3DC86A2AA7DF8C5CBF459 /* PracticeTutorialTests.swift in Sources */,
 				F88CE53ABA735FE06824A737 /* PracticeSheetColourTests.swift in Sources */,
 				A1C3E5F7B9D1F3A5C7E9B1D3 /* PracticeSheetCentringTests.swift in Sources */,
 				BF494E92BF61DB8568FF2227 /* ScoringTests.swift in Sources */,

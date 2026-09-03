@@ -73,6 +73,7 @@ enum Telemetry {
         case read
         case results
         case practice
+        case practiceTutorial = "practice_tutorial"
         case progress
         case profileSettings = "profile_settings"
         case appSettings     = "app_settings"

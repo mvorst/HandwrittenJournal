@@ -70,6 +70,13 @@ enum Voice {
         case startTalking
         /// The microphone explainer (frame 40), before iPadOS asks (v3.7).
         case micPermission
+        /// *How to trace a letter* (frame 60, v3.8) — the practice sheet's tutorial, one
+        /// line a step: as it appears, when the demo hands over (the blue dot), then how
+        /// to trace, and when the letter is traced.
+        case practiceHowWatch
+        case practiceHowStart
+        case practiceHowTrace
+        case practiceHowDone
 
         var text: String {
             switch self {
@@ -85,6 +92,11 @@ enum Voice {
             case .practiceYourTurn(let char):
                 return String(localized: "Your turn. Trace \(Voice.letterPhrase(char)).")
             case .practiceTraced(let char, let followedOrder):
+                // A number is congratulated on its own — *Nice 3. Try another one.* — and
+                // never as *Nice the 3*, which a voice turns into *nice try*.
+                if followedOrder, char.isNumber {
+                    return String(localized: "Nice \(String(char)). Try another one.")
+                }
                 return followedOrder
                     ? String(localized: "Nice \(Voice.letterName(char))! Pick another letter.")
                     : String(localized: "Good \(Voice.letterName(char)). Try the strokes in the arrow order.")
@@ -123,6 +135,14 @@ enum Voice {
                 return String(localized: "Tap the microphone and start talking.")
             case .micPermission:
                 return String(localized: "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.")
+            case .practiceHowWatch:
+                return String(localized: "Here's how to practice a letter. Touch it, and watch how it's written.")
+            case .practiceHowStart:
+                return String(localized: "See the blue dot? That's where you start. Follow the arrows.")
+            case .practiceHowTrace:
+                return String(localized: "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!")
+            case .practiceHowDone:
+                return String(localized: "That's it! Now pick any letter on the sheet and trace it.")
             }
         }
 
@@ -152,6 +172,10 @@ enum Voice {
             case .newEntry(let n):                   return "new-entry-\(Voice.wrapped(n, Voice.newEntryLines.count))"
             case .startTalking:                      return "start-talking"
             case .micPermission:                     return "mic-permission"
+            case .practiceHowWatch:                  return "practice-how-watch"
+            case .practiceHowStart:                  return "practice-how-start"
+            case .practiceHowTrace:                  return "practice-how-trace"
+            case .practiceHowDone:                   return "practice-how-done"
             }
         }
 
@@ -162,6 +186,7 @@ enum Voice {
             cues += [.entryFinished(finishedEverything: true), .entryFinished(finishedEverything: false),
                      .helpNext, .helpFixed, .helpAgain, .voiceOn, .whyPencil, .nobodyHere, .home]
             cues += Voice.newEntryLines.indices.map(Cue.newEntry) + [.startTalking, .micPermission]
+            cues += [.practiceHowWatch, .practiceHowStart, .practiceHowTrace, .practiceHowDone]
             for badge in BadgeEngine.all { cues += [.badgeEarned(badge.id), .badgeHint(badge.id)] }
             for char in Voice.characters {
                 cues += [.practiceYourTurn(char),

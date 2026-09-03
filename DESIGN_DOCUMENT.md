@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.6
+## Design Document v3.8
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -12,6 +12,29 @@ Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
 
 ---
+
+## 0.17 What Changed in v3.8
+
+**The practice sheet teaches itself** (§4.11, §4.12, built 2026-09-03).
+
+1. **A blue dot says where to begin.** The moment a letter is chosen the sheet puts a
+   blue dot — `action`, with a paper-white halo — exactly where the letter's first stroke
+   starts, before the arrows draw out from it. When the demo hands over the dot breathes
+   (still under Reduce Motion) until the pen has traced the letter; a pen that starts on a
+   letter without the demo gets the dot too. It is the answer to the question every
+   child asks the sheet — *where do I start?* — and it appears wherever the sheet does:
+   the practice screen, the remediation modal (§8.1b) and the welcome's pencil check.
+2. ***How to trace a letter*** — frame 60. A first visit to the practice sheet opens a card
+   over it: three steps — *Touch a letter and watch how it's written* · *Start at the blue
+   dot and follow the arrows* · *Trace it with your Apple Pencil. Green ink is on the
+   letter, red is off* — and a live one-letter sheet (a little *a*, whose bowl begins on the
+   right) that runs the sheet's own demo → trace loop inside the card. The steps light up
+   as the letter goes through them and the card ends with *Let's practice*; *Watch again*,
+   *Skip* and the ✕ leave earlier. Owed once per profile (`UserProfile.practiceTutorialSeen`);
+   a **?** in the sheet's toolbar brings it back.
+3. **The tutorial speaks** (§4.12). One clip a step, in the recorded voice — *Here's how to
+   practice a letter…*, *See the blue dot? That's where you start…*, *Now trace the letter
+   with your pencil…*, *That's it! Now pick any letter…* — 228 clips.
 
 ## 0.16 What Changed in v3.7
 
@@ -1188,6 +1211,28 @@ success haptic: *"Nice G! Pick another letter."* Touching the next letter clears
 last one; touching the same letter replays its demo. A pen that simply starts writing on
 another letter switches to it without the demo — they are already tracing.
 
+**The blue dot** (v3.8). Choosing a letter puts a blue dot (`action`, with a paper-white
+halo, sized to the sheet's line width) exactly where its first stroke begins — the demo's
+arrows draw out from it — and once it is the child's turn the dot breathes until the
+letter is traced (a slow swell, still under Reduce Motion). A pen that starts on a letter
+without the demo gets the dot too, and a traced letter that is wiped gets it back. The
+dot is part of the sheet, so it appears wherever the sheet does: here, in the remediation
+modal (§8.1b) and on the welcome's pencil check (§4.0).
+
+**How to trace a letter** — frame 60 (v3.8). The sheet's tutorial, a card over the sheet
+in the family of the PIN pad: the title, three numbered steps and a 320 × 400 one-letter
+sheet running the sheet's own loop on a little *a* — chosen because its bowl begins on the
+right, where a child does not expect to start, so the dot has something to say. The steps
+light up as the letter goes through them — *Touch a letter and watch how it's written*
+while the demo plays, *Start at the blue dot and follow the arrows* when it hands over,
+*Trace it with your Apple Pencil. Green ink is on the letter, red is off* once ink is down
+— and each is said aloud as it comes (§4.12). Enough good ink flips the sheet green (the
+sheet's bar, not the modal's) and the card ends with *Let's practice*; until then *Watch
+again* replays the arrows and *Skip* or the ✕ leave. The scrim does not close it — a hand
+resting beside the card while the pencil traces must not end the lesson. Owed once per
+profile, on the first visit, after the push has landed; the **?** in the toolbar brings
+it back any time. Nothing traced in the card earns points.
+
 **Sandbox rules:** no ink is saved, nothing is graded, and nothing here touches the
 streak or the badges — but a letter that flips green **earns points** (§8.3, v3.1): two
 in the arrow order, one otherwise, each letter once a day. The award replaces the footer
@@ -1224,7 +1269,7 @@ would. Cues, not narration:
 | *I'm finished* | The results headline: *Outstanding work! You wrote everything you said.* or *Great writing!* — the child's name stays on the screen (v3.7) | `finished-all` · `finished-some` |
 | A badge just earned (§8.5, v3.7) | After the headline: *You earned 5-Day Streak! You wrote five days in a row.* — and the badge card reads the same line once it is earned, or *5-Day Streak. Write five days in a row.* while it is not | `badge-<id>-earned` · `badge-<id>-hint` |
 | The practice demo hands over (§4.11) — and the remediation modal's (§8.1b, v3.7) | *Your turn. Trace the big G.* · *Your turn. Trace a little g.* · *Your turn. Trace the 7.* — only when the arrows finish; a pen already writing is not told | `trace-upper-G` |
-| A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* | `traced-good-upper-G` · `traced-order-upper-G` |
+| A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* A number is congratulated on its own: *Nice 3. Try another one.* | `traced-good-upper-G` · `traced-order-upper-G` · `traced-good-digit-3` |
 | A remediation letter is traced (§8.1b, v3.7) | *That's how it's done! Next letter.* — or, for the last one, *That's the way! You fixed it.* | `help-next` · `help-fixed` |
 | A remediation attempt is wiped (§8.1b, v3.7) | *Almost! Watch the arrows again. Start where they start.* | `help-again` |
 | *You'll need an Apple Pencil* appears (§4.0 frame 59, v3.7) | The page's own paragraph — *This is a handwriting app. Your child writes with a pencil in their hand…* — if a voice was chosen | `why-pencil` |
@@ -1233,6 +1278,7 @@ would. Cues, not narration:
 | *Voice feedback* switched on in Settings (v3.7) | *Voice feedback is on. I'll tell you when it's your turn to write.* | `voice-on` |
 | A new entry opens on the empty page (v3.7) | *Tell me about your day.* or *Tell me a story.* — alternating — then *Tap the microphone and start talking.* Once per entry | `new-entry-0…1` · `start-talking` |
 | The microphone explainer (§4.2 frame 40, v3.7) | *Can we use the microphone? It allows us to write down what you tell us so you can trace the words.* | `mic-permission` |
+| *How to trace a letter* (§4.11 frame 60, v3.8) | As it appears: *Here's how to practice a letter. Touch it, and watch how it's written.* — when its demo hands over: *See the blue dot? That's where you start. Follow the arrows.* then, queued, *Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!* — when the letter is traced: *That's it! Now pick any letter on the sheet and trace it.* | `practice-how-watch` · `practice-how-start` · `practice-how-trace` · `practice-how-done` |
 
 Letters are named *big G*, *little g*, *the 7* — 62 characters, three clips each, so
 the practice sheet and the modal never stitch a sentence together from pieces. A cue

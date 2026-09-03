@@ -93,6 +93,10 @@ struct JournalHomeView: View {
             case "settings": showSettings = true
             case "write":    writing = true
             case "practice": practicing = true
+            // v3.8 — the sheet with *How to trace a letter* owed, as on a first visit.
+            case "practice-tutorial":
+                profile.practiceTutorialSeen = false
+                practicing = true
             default: break
             }
             #endif

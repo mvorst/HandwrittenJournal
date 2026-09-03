@@ -194,6 +194,7 @@ struct WelcomeFlowTests {
         #expect(Voice.Cue.practiceYourTurn("7").text == "Your turn. Trace the 7.")
         #expect(Voice.Cue.practiceTraced("g", followedOrder: true).text == "Nice little g! Pick another letter.")
         #expect(Voice.Cue.practiceTraced("7", followedOrder: false).text == "Good the 7. Try the strokes in the arrow order.")
+        #expect(Voice.Cue.practiceTraced("7", followedOrder: true).text == "Nice 7. Try another one.")
         #expect(Voice.Cue.entryFinished(finishedEverything: true).text == "Outstanding work! You wrote everything you said.")
         // v3.7 — recorded once for everyone: the name stays on the screen, off the clip.
         #expect(Voice.Cue.entryFinished(finishedEverything: false).text == "Great writing!")

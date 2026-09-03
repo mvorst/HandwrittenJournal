@@ -44,6 +44,9 @@ final class UserProfile {
     /// §13.6 (v3.3) — which side of the page the landscape rail sits on (`RailSide`);
     /// Auto keeps it away from the writing hand.
     var railSideRaw: Int = RailSide.auto.rawValue
+    /// §4.11 (v3.8) — *How to trace a letter* has been shown on this profile's first
+    /// visit to the practice sheet (frame 60). The ? in the sheet's toolbar shows it again.
+    var practiceTutorialSeen: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \WritingSession.author)
     var sessions: [WritingSession]?

@@ -1068,7 +1068,8 @@ finished* as the one finish control in the footer.
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
 | 48 | Write — left-handed layout | §16 variant, built in v3.2: `isLeftHanded` mirrors the handle gutter to the right so a resting left hand never covers it. Nothing else moves — the toolbar, the footer and the writing are frame 25's |
-| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
+| 60 | Practice — how to trace a letter | v3.8, §13.8. `Sheet`-family card over frame 49: "How to trace a letter", three numbered steps that light up in turn, a 320 × 400 one-letter sheet (little *a*, the blue dot at the start of its bowl, the arrows, live ink), `Button / Text` "↺ Watch again" · "Skip" — `Button / Primary` "✓ Let's practice" once the letter is traced — and the ✕. Opens on a profile's first visit and from the **?** in frame 49's toolbar. Not yet drawn in Penpot |
+| 49 | Practice Letters | The alphabet worksheet reached from Journal Home. A **?** leads the trailing toolbar group (v3.8) and the letter in hand carries a blue start dot where its first stroke begins. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
 | 52 | Write — doodling with the crayon | The crayon in hand: a sun, a heart and a flower in the three §5.6 accents, in their own layer under the handwriting at 85% multiply; the three swatches sit in the footer where the readout usually is, with "Doodles never count — tap the pencil to write again" |
 | 53 | Write — adding words with the keyboard | The **ABC** tool with nothing picked: the *Add words* field in the footer, keyboard up. Typed words join the spoken tier on their own paragraph |
 | 50 | Write — letter formation help | §8.1b: a word finished with letters in the wrong order. A modal over the whole screen, chrome included — the word with its wrong letters in `ink-outside`, then a carousel of up to three lesson tiles, the live one bordered in `action`. Only tracing every red letter correctly closes it |
@@ -1307,6 +1308,29 @@ explains why the pencil is the point, links to Apple's table, and offers two way
 welcome for this launch only — the pencil check is owed again at the next, until an Apple
 Pencil traces the letter. Drawn on `02 · Profiles` after 58 with the icon sheet's nearest
 icons (`PENPOT_HANDOFF.md` §1.-3).
+
+### 13.8 How to trace a letter (v3.8) — frame 60
+
+A card on the `overlay-scrim` over frame 49, chrome included, in the family of the PIN pad
+and `Sheet / Badge`: 640 wide in portrait, `radius-sheet`, `paper-raised`, `shadow-modal`,
+centred. In landscape the title, the steps and the buttons sit in a 400 pt column beside
+the sheet so the card fits 834 pt without the sheet shrinking. The ✕ (44 pt disc,
+`paper-sunk`) sits 16 pt inside the top-right corner. The scrim does not close it.
+
+| Frame 60 — how to trace a letter | x (in card) | y (in card) | Size |
+|---|---|---|---|
+| "How to trace a letter", `title-1`, centred | — | 32 | — |
+| Step rows — a 32 pt disc (`action` with the number in `text-on-action`; `paper-sunk` and `text-secondary` while waiting; `action` with a check once done) and the step in `headline` `text-primary` while current, `body` `text-secondary` otherwise, 12 apart | 32 | 97 | ≤ 560 |
+| — 1 "Touch a letter and watch how it's written." · 2 "Start at the blue dot and follow the arrows." · 3 "Trace it with your Apple Pencil. Green ink is on the letter, red is off." | | | |
+| Practice sheet — `paper`, `radius-card`, 1 pt `divider` (2 pt `success` once traced), `shadow-card` | 160 | 245 | 320 × 400 |
+| — the letter: Jua 300 pt little *a* centred, the highlight cell, the **blue start dot** (`action` disc with a `paper-raised` halo, ~17 pt across at this size) at the top right of the bowl, the `practice-path` arrows, live ink | | | |
+| `Button / Text` "↺ Watch again" · "Skip" (`text-secondary`), 32 apart, centred | — | 669 | h 44 |
+| `Button / Primary` "✓ Let's practice" — replaces both once the letter is traced | — | 669 | 280 × 64 |
+
+Frame 49 gains a **?** (`questionmark.circle`) leading its trailing toolbar group, and the
+letter in hand shows the blue dot from the moment it is chosen until it is traced — the
+demo's arrows draw out from it, and it breathes once the demo hands over. Not yet drawn in
+Penpot; built from this table.
 
 ## 14. Sample Content
 

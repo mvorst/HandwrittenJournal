@@ -2,12 +2,16 @@ import SwiftUI
 
 /// Frame 49 — letter practice. A worksheet, not a journal page: touch a letter to watch
 /// how it is written, trace it, move on. Nothing here is saved or graded — but a letter
-/// that flips green earns points (§8.3, v3.1), the one thing the sheet keeps.
+/// that flips green earns points (§8.3, v3.1), the one thing the sheet keeps. A first
+/// visit opens *How to trace a letter* over the sheet (frame 60, v3.8); the ? in the
+/// toolbar brings it back.
 struct PracticeView: View {
     let profile: UserProfile
     @State private var controller = PracticeController()
     /// What the letter in hand just earned — shown in the footer until the next letter.
     @State private var lastAward = 0
+    /// Frame 60 — the tutorial card is up.
+    @State private var showingTutorial = false
 
     /// Jua only — the stroke-order guides are hand-fitted to its letterforms (§4.11).
     /// Only the face matters here: the sheet computes its own size, filling the screen
@@ -44,11 +48,26 @@ struct PracticeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { todayPill }
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button { showTutorial() } label: { Image(systemName: "questionmark.circle") }
+                    .accessibilityLabel("How to trace a letter")
                 Button { controller.undo() } label: { Image(systemName: "arrow.uturn.backward") }
                     .disabled(!controller.hasInk)
                 Button { controller.clear() } label: { Image(systemName: "trash") }
                     .disabled(!controller.hasInk)
             }
+        }
+        // Frame 60 — over the sheet and its chrome, in the family of the PIN pad. Owed
+        // once per profile: the first visit opens it after the push has landed, so the
+        // sheet is there beneath the card.
+        .fullScreenCover(isPresented: $showingTutorial) {
+            PracticeTutorialOverlay(allowFinger: profile.allowFingerTracing,
+                                    colourBlind: profile.colorBlindMode) { finishTutorial() }
+                .presentationBackground(.clear)
+        }
+        .task {
+            guard !profile.practiceTutorialSeen else { return }
+            try? await Task.sleep(for: .milliseconds(450))
+            showTutorial()
         }
         // §8.3 — the moment a letter flips green is the moment it earns. The ledger says
         // no to a letter that has already earned as much today, so retracing is free.
@@ -67,6 +86,18 @@ struct PracticeView: View {
                 lastAward = 0
             }
         }
+    }
+
+    private func showTutorial() {
+        guard !showingTutorial else { return }
+        Voice.stop()
+        showingTutorial = true
+    }
+
+    /// Seen, however it closed — *Skip* included. The ? brings it back on request.
+    private func finishTutorial() {
+        profile.practiceTutorialSeen = true
+        showingTutorial = false
     }
 
     private var footer: some View {
@@ -176,6 +207,7 @@ struct PracticeView: View {
         case .yourTurn(let char):   return String(localized: "Your turn — trace \(Voice.letterName(char))!")
         case .traced(let char):
             // §8.1a — traced, but not the way the arrows showed: nudge, don't scold.
+            if controller.followedOrder, char.isNumber { return String(localized: "Nice \(String(char)). Try another one.") }
             return controller.followedOrder
                 ? String(localized: "Nice \(Voice.letterName(char))! Pick another letter.")
                 : String(localized: "Good \(Voice.letterName(char))! Try the strokes in the arrow order.")

@@ -207,6 +207,9 @@ final class PracticeCanvasView: UIView {
     // Demo overlay
     private var demoLayers: [CALayer] = []
     private var demoFinishWork: DispatchWorkItem?
+    /// v3.8 — the blue dot where the letter's first stroke begins: a halo and a disc,
+    /// shown from the moment a letter is chosen until it is traced.
+    private var startDotLayers: [CALayer] = []
 
     private struct PendingTap {
         let point: CGPoint
@@ -313,6 +316,20 @@ final class PracticeCanvasView: UIView {
         return FormationOrder.place(formation, in: rect).map(\.points)
     }
 
+    /// Where the letter's first stroke begins, in canvas space — the point the blue dot
+    /// marks (v3.8). Nil for a character with no formation.
+    func startPoint(forGlyph index: Int) -> CGPoint? {
+        guard maskRenderer.layout.glyphBoxes.indices.contains(index),
+              let formation = LetterFormations.formation(for: maskRenderer.layout.glyphBoxes[index].character),
+              let first = formation.strokes.first
+        else { return nil }
+        let rect = fitter.formationRect(for: maskRenderer.layout.glyphBoxes[index])
+        return FormationFitter.place(first, in: rect).first
+    }
+
+    /// Whether the blue dot is on the sheet — for the tests.
+    var isShowingStartDot: Bool { !startDotLayers.isEmpty }
+
     /// Appends ink as if drawn — attributed the way a touch would be, each stroke
     /// finishing with the same pen-up judgment. The programmatic path used by tests.
     func addInk(_ new: [TracingStroke]) {
@@ -405,6 +422,10 @@ final class PracticeCanvasView: UIView {
             buildDemo(formation, for: box, animated: !UIAccessibility.isReduceMotionEnabled)
             setPhase(.watching(box.character))
         } else {
+            // No demo — but the dot still says where the letter begins (v3.8).
+            showStartDot(for: index, appearAt: CACurrentMediaTime(),
+                         animated: !UIAccessibility.isReduceMotionEnabled)
+            pulseStartDot()
             setPhase(.yourTurn(box.character))
         }
         setNeedsDisplay()
@@ -421,7 +442,17 @@ final class PracticeCanvasView: UIView {
         strokes = []
         current = nil
         followedOrder = true
-        if let box = selectedBox { setPhase(.yourTurn(box.character)) } else { setPhase(.idle) }
+        if let box = selectedBox {
+            // A traced letter hid its dot; wiped, the letter is to be begun again.
+            if let index = selectedGlyph, startDotLayers.isEmpty {
+                showStartDot(for: index, appearAt: CACurrentMediaTime(),
+                             animated: !UIAccessibility.isReduceMotionEnabled)
+                pulseStartDot()
+            }
+            setPhase(.yourTurn(box.character))
+        } else {
+            setPhase(.idle)
+        }
         setNeedsDisplay()
     }
 
@@ -627,6 +658,7 @@ final class PracticeCanvasView: UIView {
            Double(inside) / Double(total) >= 0.5,
            !requireFullFormation || (followedOrder && formationComplete) {
             Haptics.success()
+            hideStartDot()
             setPhase(.traced(box.character))
         } else {
             onStateChange?()
@@ -763,12 +795,14 @@ final class PracticeCanvasView: UIView {
         demoFinishWork = nil
         demoLayers.forEach { $0.removeFromSuperlayer() }
         demoLayers = []
+        hideStartDot()
     }
 
     private func finishDemoEarly(_ char: Character) {
         demoFinishWork?.cancel()
         demoFinishWork = nil
         for layer in demoLayers { staticize(layer) }
+        pulseStartDot()
         setPhase(.yourTurn(char))
     }
 
@@ -786,6 +820,13 @@ final class PracticeCanvasView: UIView {
         let now = CACurrentMediaTime()
         var start = now + 0.15
         let drawRate: CGFloat = max(120, 170 * scale)   // points per second, child pace
+
+        // The blue dot lands first, where the first stroke will begin (v3.8), and the
+        // arrows draw out from it.
+        if let index = selectedGlyph {
+            showStartDot(for: index, appearAt: now, animated: animated)
+            start += animated ? 0.35 : 0
+        }
 
         for stroke in formation.strokes {
             let points = FormationFitter.place(stroke, in: inkRect)
@@ -847,6 +888,7 @@ final class PracticeCanvasView: UIView {
             let work = DispatchWorkItem { [weak self] in
                 guard let self, case .watching(let char) = self.phase else { return }
                 for layer in self.demoLayers { self.staticize(layer) }
+                self.pulseStartDot()
                 self.setPhase(.yourTurn(char))
             }
             demoFinishWork = work
@@ -856,6 +898,69 @@ final class PracticeCanvasView: UIView {
             setPhase(.yourTurn(box.character))
             // Phase is set again by the caller for the un-animated path; harmless.
         }
+    }
+
+    // MARK: - The start dot (v3.8)
+
+    /// A blue disc with a paper-white halo at the point the first stroke begins — *start
+    /// here*. Sized to the sheet's line width so it reads at 72 pt and at 300 pt, and
+    /// inserted below the ink like the rest of the guide, so the pen draws over it.
+    private func showStartDot(for index: Int, appearAt time: CFTimeInterval, animated: Bool) {
+        hideStartDot()
+        guard let point = startPoint(forGlyph: index) else { return }
+        let scale = sheetSetup.size.size / 72
+        let lineWidth = max(2.5, 3 * scale)
+        let radius = max(6, lineWidth * 1.4)
+        let halo = disc(at: point, radius: radius + max(2, lineWidth * 0.45),
+                        fill: UIColor(Tokens.Colour.paperRaised))
+        let dot = disc(at: point, radius: radius, fill: UIColor(Tokens.Colour.action))
+        for layer in [halo, dot] {
+            layer.name = "start"
+            self.layer.insertSublayer(layer, below: inkView.layer)
+            startDotLayers.append(layer)
+            guard animated else { continue }
+            layer.opacity = 0
+            let appear = CABasicAnimation(keyPath: "opacity")
+            appear.fromValue = 0
+            appear.toValue = 1
+            appear.beginTime = time
+            appear.duration = 0.2
+            appear.fillMode = .both
+            appear.isRemovedOnCompletion = false
+            layer.add(appear, forKey: "appear")
+            layer.opacity = 1
+        }
+    }
+
+    /// Once it is the child's turn the dot breathes — a slow swell that draws the eye to
+    /// where to begin. Still under Reduce Motion.
+    private func pulseStartDot() {
+        guard !UIAccessibility.isReduceMotionEnabled else { return }
+        for layer in startDotLayers where layer.animation(forKey: "pulse") == nil {
+            let pulse = CABasicAnimation(keyPath: "transform.scale")
+            pulse.fromValue = 1
+            pulse.toValue = 1.3
+            pulse.duration = 0.7
+            pulse.autoreverses = true
+            pulse.repeatCount = .infinity
+            pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            layer.add(pulse, forKey: "pulse")
+        }
+    }
+
+    private func hideStartDot() {
+        startDotLayers.forEach { $0.removeFromSuperlayer() }
+        startDotLayers = []
+    }
+
+    /// A filled circle whose layer is centred on the point, so a scale animation swells
+    /// it about its middle.
+    private func disc(at point: CGPoint, radius: CGFloat, fill: UIColor) -> CAShapeLayer {
+        let shape = CAShapeLayer()
+        shape.frame = CGRect(x: point.x - radius, y: point.y - radius, width: radius * 2, height: radius * 2)
+        shape.path = UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: radius * 2, height: radius * 2)).cgPath
+        shape.fillColor = fill.cgColor
+        return shape
     }
 
     /// The after-state: the thin inner lines stay exactly as drawn — solid, full
