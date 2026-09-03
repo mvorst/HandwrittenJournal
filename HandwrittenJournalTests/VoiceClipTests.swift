@@ -13,9 +13,10 @@ struct VoiceClipTests {
         let cues = Voice.Cue.all
         #expect(Voice.characters.count == 62)
         #expect(cues.count == 22 + BadgeEngine.all.count * 2 + 62 * 3)
-        for cue in cues {
-            #expect(ClipSpeaker.url(for: cue) != nil, "\(cue.clipID) is missing from Resources/Voice")
-        }
+        // One line naming every clip still owed, rather than one failure per clip: the
+        // set is cut in quota-sized runs, and this is the list a run has to finish.
+        let missing = cues.filter { ClipSpeaker.url(for: $0) == nil }.map(\.clipID)
+        #expect(missing.isEmpty, "\(missing.count) clips missing from Resources/Voice — run Scripts/voice/cut-batched.py: \(missing.joined(separator: " "))")
     }
 
     @Test("Clip ids are distinct, even on a disk that cannot tell A from a")

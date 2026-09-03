@@ -13,24 +13,24 @@ capitals in the spoken text so the voice says the letter, not the article.
 
 | Clip | Where it plays | Transcript | Size |
 |---|---|---|---|
-| [`preview.m4a`](../../HandwrittenJournal/Resources/Voice/preview.m4a) | Welcome, frame 56 — *Hear it* | Hi! I'm your journal. I'll tell you when it's your turn to write. | 40 KB |
-| [`pencil-intro.m4a`](../../HandwrittenJournal/Resources/Voice/pencil-intro.m4a) | Welcome, frame 57 — the pencil check appears (if a voice was chosen) | Watch the arrows, then trace the big A with the Apple Pencil. | 43 KB |
-| [`pencil-found.m4a`](../../HandwrittenJournal/Resources/Voice/pencil-found.m4a) | Welcome, frame 57 — an Apple Pencil inks | That's an Apple Pencil. You're ready to write! | 27 KB |
-| [`finger.m4a`](../../HandwrittenJournal/Resources/Voice/finger.m4a) | Welcome, frame 58 — a finger inks | That was a finger. Try the Apple Pencil. | 28 KB |
-| [`your-turn.m4a`](../../HandwrittenJournal/Resources/Voice/your-turn.m4a) | Write — a take ends and the first line comes up | Your turn. Write it! | 19 KB |
-| [`line-done-0.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-0.m4a) | Write — a line settles (1st in rotation) | Nice line. | 13 KB |
-| [`line-done-1.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-1.m4a) | Write — a line settles (2nd) | Lovely writing. | 18 KB |
-| [`line-done-2.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-2.m4a) | Write — a line settles (3rd) | That line looks great. | 15 KB |
-| [`line-done-3.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-3.m4a) | Write — a line settles (4th) | Keep going. | 12 KB |
-| [`finished-all.m4a`](../../HandwrittenJournal/Resources/Voice/finished-all.m4a) | Results — *I'm finished*, everything written | Outstanding work! You wrote everything you said. | 23 KB |
-| [`finished-some.m4a`](../../HandwrittenJournal/Resources/Voice/finished-some.m4a) | Results — *I'm finished*, words still waiting (the screen adds the name) | Great writing! | 14 KB |
-| [`help-next.m4a`](../../HandwrittenJournal/Resources/Voice/help-next.m4a) | Formation help — a letter traced, more to come | That's how it's done! Next letter. | 21 KB |
-| [`help-fixed.m4a`](../../HandwrittenJournal/Resources/Voice/help-fixed.m4a) | Formation help — the last letter traced | That's the way! You fixed it. | 31 KB |
-| [`help-again.m4a`](../../HandwrittenJournal/Resources/Voice/help-again.m4a) | Formation help — a wrong-order attempt is wiped | Almost! Watch the arrows again. Start where they start. | 33 KB |
+| [`preview.m4a`](../../HandwrittenJournal/Resources/Voice/preview.m4a) | Welcome, frame 56 — *Hear it* | Hi! I'm your journal. I'll tell you when it's your turn to write. | 37 KB |
+| [`pencil-intro.m4a`](../../HandwrittenJournal/Resources/Voice/pencil-intro.m4a) | Welcome, frame 57 — the pencil check appears (if a voice was chosen) | Watch the arrows, then trace the big A with the Apple Pencil. | 38 KB |
+| [`pencil-found.m4a`](../../HandwrittenJournal/Resources/Voice/pencil-found.m4a) | Welcome, frame 57 — an Apple Pencil inks | That's an Apple Pencil. You're ready to write! | 23 KB |
+| [`finger.m4a`](../../HandwrittenJournal/Resources/Voice/finger.m4a) | Welcome, frame 58 — a finger inks | That was a finger. Try the Apple Pencil. | 22 KB |
+| [`your-turn.m4a`](../../HandwrittenJournal/Resources/Voice/your-turn.m4a) | Write — a take ends and the first line comes up | Your turn. Write it! | 12 KB |
+| [`line-done-0.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-0.m4a) | Write — a line settles (1st in rotation) | Nice line. | 9 KB |
+| [`line-done-1.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-1.m4a) | Write — a line settles (2nd) | Lovely writing. | 13 KB |
+| [`line-done-2.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-2.m4a) | Write — a line settles (3rd) | That line looks great. | 16 KB |
+| [`line-done-3.m4a`](../../HandwrittenJournal/Resources/Voice/line-done-3.m4a) | Write — a line settles (4th) | Keep going. | 9 KB |
+| [`finished-all.m4a`](../../HandwrittenJournal/Resources/Voice/finished-all.m4a) | Results — *I'm finished*, everything written | Outstanding work! You wrote everything you said. | 28 KB |
+| [`finished-some.m4a`](../../HandwrittenJournal/Resources/Voice/finished-some.m4a) | Results — *I'm finished*, words still waiting (the screen adds the name) | Great writing! | 12 KB |
+| [`help-next.m4a`](../../HandwrittenJournal/Resources/Voice/help-next.m4a) | Formation help — a letter traced, more to come | That's how it's done! Next letter. | 19 KB |
+| [`help-fixed.m4a`](../../HandwrittenJournal/Resources/Voice/help-fixed.m4a) | Formation help — the last letter traced | That's the way! You fixed it. | 16 KB |
+| [`help-again.m4a`](../../HandwrittenJournal/Resources/Voice/help-again.m4a) | Formation help — a wrong-order attempt is wiped | Almost! Watch the arrows again. Start where they start. | 40 KB |
 | [`voice-on.m4a`](../../HandwrittenJournal/Resources/Voice/voice-on.m4a) | Settings — *Voice feedback* switched on | Voice feedback is on. I'll tell you when it's your turn to write. | not cut yet |
-| [`why-pencil.m4a`](../../HandwrittenJournal/Resources/Voice/why-pencil.m4a) | Welcome, frame 59 — *You'll need an Apple Pencil* appears (if a voice was chosen) | This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one. | not cut yet |
-| [`nobody-here.m4a`](../../HandwrittenJournal/Resources/Voice/nobody-here.m4a) | Profile picker — empty, before the first profile (if a voice was chosen) | Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size. | not cut yet |
-| [`home.m4a`](../../HandwrittenJournal/Resources/Voice/home.m4a) | Journal Home — as it appears, once per visit from the picker | Add a journal entry, or practice writing your letters. | not cut yet |
+| [`why-pencil.m4a`](../../HandwrittenJournal/Resources/Voice/why-pencil.m4a) | Welcome, frame 59 — *You'll need an Apple Pencil* appears (if a voice was chosen) | This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one. | 137 KB |
+| [`nobody-here.m4a`](../../HandwrittenJournal/Resources/Voice/nobody-here.m4a) | Profile picker — empty, before the first profile (if a voice was chosen) | Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size. | 61 KB |
+| [`home.m4a`](../../HandwrittenJournal/Resources/Voice/home.m4a) | Journal Home — as it appears, once per visit from the picker | Add a journal entry, or practice writing your letters. | 27 KB |
 | [`new-entry-0.m4a`](../../HandwrittenJournal/Resources/Voice/new-entry-0.m4a) | Write — a new entry opens on the empty page (alternates with the next) | Tell me about your day. | not cut yet |
 | [`new-entry-1.m4a`](../../HandwrittenJournal/Resources/Voice/new-entry-1.m4a) | Write — a new entry opens on the empty page (alternates with the previous) | Tell me a story. | not cut yet |
 | [`start-talking.m4a`](../../HandwrittenJournal/Resources/Voice/start-talking.m4a) | Write — right after the invitation | Tap the microphone and start talking. | not cut yet |
@@ -40,18 +40,18 @@ capitals in the spoken text so the voice says the letter, not the article.
 
 | Clip | Where it plays | Transcript | Size |
 |---|---|---|---|
-| [`badge-first_entry-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-earned.m4a) | Results — *First Entry* just earned; the badge card when it is earned | You earned First Entry! You wrote your first entry. | not cut yet |
-| [`badge-first_entry-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-hint.m4a) | The badge card for *First Entry* while it is not earned yet | First Entry. Write your first entry. | not cut yet |
-| [`badge-sharp_shooter-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-earned.m4a) | Results — *Sharp Shooter* just earned; the badge card when it is earned | You earned Sharp Shooter! A tracing at 90% or better. | not cut yet |
+| [`badge-first_entry-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-earned.m4a) | Results — *First Entry* just earned; the badge card when it is earned | You earned First Entry! You wrote your first entry. | 31 KB |
+| [`badge-first_entry-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-first_entry-hint.m4a) | The badge card for *First Entry* while it is not earned yet | First Entry. Write your first entry. | 21 KB |
+| [`badge-sharp_shooter-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-earned.m4a) | Results — *Sharp Shooter* just earned; the badge card when it is earned | You earned Sharp Shooter! A tracing at 90% or better. | 33 KB |
 | [`badge-sharp_shooter-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-sharp_shooter-hint.m4a) | The badge card for *Sharp Shooter* while it is not earned yet | Sharp Shooter. Trace an entry at 90% or better. | not cut yet |
-| [`badge-streak_5-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-streak_5-earned.m4a) | Results — *5-Day Streak* just earned; the badge card when it is earned | You earned 5-Day Streak! You wrote five days in a row. | not cut yet |
+| [`badge-streak_5-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-streak_5-earned.m4a) | Results — *5-Day Streak* just earned; the badge card when it is earned | You earned 5-Day Streak! You wrote five days in a row. | 39 KB |
 | [`badge-streak_5-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-streak_5-hint.m4a) | The badge card for *5-Day Streak* while it is not earned yet | 5-Day Streak. Write five days in a row. | not cut yet |
 | [`badge-ten_entries-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-ten_entries-earned.m4a) | Results — *Ten Entries* just earned; the badge card when it is earned | You earned Ten Entries! Ten entries in the journal. | not cut yet |
 | [`badge-ten_entries-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-ten_entries-hint.m4a) | The badge card for *Ten Entries* while it is not earned yet | Ten Entries. Write ten entries. | not cut yet |
-| [`badge-perfect_week-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-perfect_week-earned.m4a) | Results — *Perfect Week* just earned; the badge card when it is earned | You earned Perfect Week! Seven days in a row. | not cut yet |
-| [`badge-perfect_week-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-perfect_week-hint.m4a) | The badge card for *Perfect Week* while it is not earned yet | Perfect Week. Write seven days in a row. | not cut yet |
-| [`badge-thousand_words-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-thousand_words-earned.m4a) | Results — *1,000 Words* just earned; the badge card when it is earned | You earned 1,000 Words! A thousand words in your own hand. | not cut yet |
-| [`badge-thousand_words-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-thousand_words-hint.m4a) | The badge card for *1,000 Words* while it is not earned yet | 1,000 Words. Write a thousand words in your own hand. | not cut yet |
+| [`badge-perfect_week-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-perfect_week-earned.m4a) | Results — *Perfect Week* just earned; the badge card when it is earned | You earned Perfect Week! Seven days in a row. | 30 KB |
+| [`badge-perfect_week-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-perfect_week-hint.m4a) | The badge card for *Perfect Week* while it is not earned yet | Perfect Week. Write seven days in a row. | 32 KB |
+| [`badge-thousand_words-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-thousand_words-earned.m4a) | Results — *1,000 Words* just earned; the badge card when it is earned | You earned 1,000 Words! A thousand words in your own hand. | 40 KB |
+| [`badge-thousand_words-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-thousand_words-hint.m4a) | The badge card for *1,000 Words* while it is not earned yet | 1,000 Words. Write a thousand words in your own hand. | 41 KB |
 | [`badge-every_font-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-every_font-earned.m4a) | Results — *Every Font* just earned; the badge card when it is earned | You earned Every Font! You tried every handwriting style. | not cut yet |
 | [`badge-every_font-hint.m4a`](../../HandwrittenJournal/Resources/Voice/badge-every_font-hint.m4a) | The badge card for *Every Font* while it is not earned yet | Every Font. Try every handwriting style — pick a new one in Settings. | not cut yet |
 | [`badge-neat_writer-earned.m4a`](../../HandwrittenJournal/Resources/Voice/badge-neat_writer-earned.m4a) | Results — *Neat Writer* just earned; the badge card when it is earned | You earned Neat Writer! Five entries in a row at 85% or better. | not cut yet |
@@ -61,82 +61,82 @@ capitals in the spoken text so the voice says the letter, not the article.
 
 | Clip | Where it plays | Transcript | Size |
 |---|---|---|---|
-| [`trace-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-A.m4a) | Practice sheet / formation help — the demo of big A hands over | Your turn. Trace the big A. | 29 KB |
-| [`traced-good-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-A.m4a) | Practice sheet — big A flips green, in the arrow order | Nice big A! Pick another letter. | 27 KB |
-| [`traced-order-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-A.m4a) | Practice sheet — big A flips green, out of order | Good big A. Try the strokes in the arrow order. | 36 KB |
-| [`trace-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-B.m4a) | Practice sheet / formation help — the demo of big B hands over | Your turn. Trace the big B. | 27 KB |
-| [`traced-good-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-B.m4a) | Practice sheet — big B flips green, in the arrow order | Nice big B! Pick another letter. | 30 KB |
-| [`traced-order-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-B.m4a) | Practice sheet — big B flips green, out of order | Good big B. Try the strokes in the arrow order. | 36 KB |
-| [`trace-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-C.m4a) | Practice sheet / formation help — the demo of big C hands over | Your turn. Trace the big C. | 28 KB |
-| [`traced-good-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-C.m4a) | Practice sheet — big C flips green, in the arrow order | Nice big C! Pick another letter. | 28 KB |
-| [`traced-order-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-C.m4a) | Practice sheet — big C flips green, out of order | Good big C. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-D.m4a) | Practice sheet / formation help — the demo of big D hands over | Your turn. Trace the big D. | 27 KB |
-| [`traced-good-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-D.m4a) | Practice sheet — big D flips green, in the arrow order | Nice big D! Pick another letter. | 28 KB |
-| [`traced-order-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-D.m4a) | Practice sheet — big D flips green, out of order | Good big D. Try the strokes in the arrow order. | 39 KB |
-| [`trace-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-E.m4a) | Practice sheet / formation help — the demo of big E hands over | Your turn. Trace the big E. | 25 KB |
-| [`traced-good-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-E.m4a) | Practice sheet — big E flips green, in the arrow order | Nice big E! Pick another letter. | 25 KB |
-| [`traced-order-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-E.m4a) | Practice sheet — big E flips green, out of order | Good big E. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-F.m4a) | Practice sheet / formation help — the demo of big F hands over | Your turn. Trace the big F. | 26 KB |
-| [`traced-good-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-F.m4a) | Practice sheet — big F flips green, in the arrow order | Nice big F! Pick another letter. | 29 KB |
-| [`traced-order-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-F.m4a) | Practice sheet — big F flips green, out of order | Good big F. Try the strokes in the arrow order. | 41 KB |
-| [`trace-upper-G.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-G.m4a) | Practice sheet / formation help — the demo of big G hands over | Your turn. Trace the big G. | 26 KB |
+| [`trace-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-A.m4a) | Practice sheet / formation help — the demo of big A hands over | Your turn. Trace the big A. | not cut yet |
+| [`traced-good-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-A.m4a) | Practice sheet — big A flips green, in the arrow order | Nice big A! Pick another letter. | 25 KB |
+| [`traced-order-upper-A.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-A.m4a) | Practice sheet — big A flips green, out of order | Good big A. Try the strokes in the arrow order. | 30 KB |
+| [`trace-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-B.m4a) | Practice sheet / formation help — the demo of big B hands over | Your turn. Trace the big B. | not cut yet |
+| [`traced-good-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-B.m4a) | Practice sheet — big B flips green, in the arrow order | Nice big B! Pick another letter. | 25 KB |
+| [`traced-order-upper-B.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-B.m4a) | Practice sheet — big B flips green, out of order | Good big B. Try the strokes in the arrow order. | 31 KB |
+| [`trace-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-C.m4a) | Practice sheet / formation help — the demo of big C hands over | Your turn. Trace the big C. | not cut yet |
+| [`traced-good-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-C.m4a) | Practice sheet — big C flips green, in the arrow order | Nice big C! Pick another letter. | 24 KB |
+| [`traced-order-upper-C.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-C.m4a) | Practice sheet — big C flips green, out of order | Good big C. Try the strokes in the arrow order. | 42 KB |
+| [`trace-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-D.m4a) | Practice sheet / formation help — the demo of big D hands over | Your turn. Trace the big D. | not cut yet |
+| [`traced-good-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-D.m4a) | Practice sheet — big D flips green, in the arrow order | Nice big D! Pick another letter. | 23 KB |
+| [`traced-order-upper-D.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-D.m4a) | Practice sheet — big D flips green, out of order | Good big D. Try the strokes in the arrow order. | 33 KB |
+| [`trace-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-E.m4a) | Practice sheet / formation help — the demo of big E hands over | Your turn. Trace the big E. | not cut yet |
+| [`traced-good-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-E.m4a) | Practice sheet — big E flips green, in the arrow order | Nice big E! Pick another letter. | 24 KB |
+| [`traced-order-upper-E.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-E.m4a) | Practice sheet — big E flips green, out of order | Good big E. Try the strokes in the arrow order. | 32 KB |
+| [`trace-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-F.m4a) | Practice sheet / formation help — the demo of big F hands over | Your turn. Trace the big F. | not cut yet |
+| [`traced-good-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-F.m4a) | Practice sheet — big F flips green, in the arrow order | Nice big F! Pick another letter. | 24 KB |
+| [`traced-order-upper-F.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-F.m4a) | Practice sheet — big F flips green, out of order | Good big F. Try the strokes in the arrow order. | 34 KB |
+| [`trace-upper-G.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-G.m4a) | Practice sheet / formation help — the demo of big G hands over | Your turn. Trace the big G. | not cut yet |
 | [`traced-good-upper-G.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-G.m4a) | Practice sheet — big G flips green, in the arrow order | Nice big G! Pick another letter. | 28 KB |
 | [`traced-order-upper-G.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-G.m4a) | Practice sheet — big G flips green, out of order | Good big G. Try the strokes in the arrow order. | 33 KB |
-| [`trace-upper-H.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-H.m4a) | Practice sheet / formation help — the demo of big H hands over | Your turn. Trace the big H. | 25 KB |
+| [`trace-upper-H.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-H.m4a) | Practice sheet / formation help — the demo of big H hands over | Your turn. Trace the big H. | not cut yet |
 | [`traced-good-upper-H.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-H.m4a) | Practice sheet — big H flips green, in the arrow order | Nice big H! Pick another letter. | 28 KB |
 | [`traced-order-upper-H.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-H.m4a) | Practice sheet — big H flips green, out of order | Good big H. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-I.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-I.m4a) | Practice sheet / formation help — the demo of big I hands over | Your turn. Trace the big I. | 27 KB |
+| [`trace-upper-I.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-I.m4a) | Practice sheet / formation help — the demo of big I hands over | Your turn. Trace the big I. | not cut yet |
 | [`traced-good-upper-I.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-I.m4a) | Practice sheet — big I flips green, in the arrow order | Nice big I! Pick another letter. | 28 KB |
 | [`traced-order-upper-I.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-I.m4a) | Practice sheet — big I flips green, out of order | Good big I. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-J.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-J.m4a) | Practice sheet / formation help — the demo of big J hands over | Your turn. Trace the big J. | 29 KB |
+| [`trace-upper-J.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-J.m4a) | Practice sheet / formation help — the demo of big J hands over | Your turn. Trace the big J. | not cut yet |
 | [`traced-good-upper-J.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-J.m4a) | Practice sheet — big J flips green, in the arrow order | Nice big J! Pick another letter. | 28 KB |
 | [`traced-order-upper-J.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-J.m4a) | Practice sheet — big J flips green, out of order | Good big J. Try the strokes in the arrow order. | 34 KB |
-| [`trace-upper-K.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-K.m4a) | Practice sheet / formation help — the demo of big K hands over | Your turn. Trace the big K. | 28 KB |
+| [`trace-upper-K.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-K.m4a) | Practice sheet / formation help — the demo of big K hands over | Your turn. Trace the big K. | not cut yet |
 | [`traced-good-upper-K.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-K.m4a) | Practice sheet — big K flips green, in the arrow order | Nice big K! Pick another letter. | 30 KB |
 | [`traced-order-upper-K.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-K.m4a) | Practice sheet — big K flips green, out of order | Good big K. Try the strokes in the arrow order. | 42 KB |
-| [`trace-upper-L.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-L.m4a) | Practice sheet / formation help — the demo of big L hands over | Your turn. Trace the big L. | 29 KB |
+| [`trace-upper-L.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-L.m4a) | Practice sheet / formation help — the demo of big L hands over | Your turn. Trace the big L. | not cut yet |
 | [`traced-good-upper-L.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-L.m4a) | Practice sheet — big L flips green, in the arrow order | Nice big L! Pick another letter. | 28 KB |
 | [`traced-order-upper-L.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-L.m4a) | Practice sheet — big L flips green, out of order | Good big L. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-M.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-M.m4a) | Practice sheet / formation help — the demo of big M hands over | Your turn. Trace the big M. | 25 KB |
+| [`trace-upper-M.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-M.m4a) | Practice sheet / formation help — the demo of big M hands over | Your turn. Trace the big M. | not cut yet |
 | [`traced-good-upper-M.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-M.m4a) | Practice sheet — big M flips green, in the arrow order | Nice big M! Pick another letter. | 31 KB |
 | [`traced-order-upper-M.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-M.m4a) | Practice sheet — big M flips green, out of order | Good big M. Try the strokes in the arrow order. | 35 KB |
-| [`trace-upper-N.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-N.m4a) | Practice sheet / formation help — the demo of big N hands over | Your turn. Trace the big N. | 28 KB |
+| [`trace-upper-N.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-N.m4a) | Practice sheet / formation help — the demo of big N hands over | Your turn. Trace the big N. | not cut yet |
 | [`traced-good-upper-N.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-N.m4a) | Practice sheet — big N flips green, in the arrow order | Nice big N! Pick another letter. | 27 KB |
 | [`traced-order-upper-N.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-N.m4a) | Practice sheet — big N flips green, out of order | Good big N. Try the strokes in the arrow order. | 34 KB |
-| [`trace-upper-O.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-O.m4a) | Practice sheet / formation help — the demo of big O hands over | Your turn. Trace the big O. | 25 KB |
+| [`trace-upper-O.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-O.m4a) | Practice sheet / formation help — the demo of big O hands over | Your turn. Trace the big O. | not cut yet |
 | [`traced-good-upper-O.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-O.m4a) | Practice sheet — big O flips green, in the arrow order | Nice big O! Pick another letter. | 28 KB |
 | [`traced-order-upper-O.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-O.m4a) | Practice sheet — big O flips green, out of order | Good big O. Try the strokes in the arrow order. | 36 KB |
-| [`trace-upper-P.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-P.m4a) | Practice sheet / formation help — the demo of big P hands over | Your turn. Trace the big P. | 29 KB |
+| [`trace-upper-P.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-P.m4a) | Practice sheet / formation help — the demo of big P hands over | Your turn. Trace the big P. | not cut yet |
 | [`traced-good-upper-P.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-P.m4a) | Practice sheet — big P flips green, in the arrow order | Nice big P! Pick another letter. | 28 KB |
 | [`traced-order-upper-P.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-P.m4a) | Practice sheet — big P flips green, out of order | Good big P. Try the strokes in the arrow order. | 39 KB |
-| [`trace-upper-Q.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Q.m4a) | Practice sheet / formation help — the demo of big Q hands over | Your turn. Trace the big Q. | 26 KB |
+| [`trace-upper-Q.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Q.m4a) | Practice sheet / formation help — the demo of big Q hands over | Your turn. Trace the big Q. | not cut yet |
 | [`traced-good-upper-Q.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-Q.m4a) | Practice sheet — big Q flips green, in the arrow order | Nice big Q! Pick another letter. | 26 KB |
 | [`traced-order-upper-Q.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-Q.m4a) | Practice sheet — big Q flips green, out of order | Good big Q. Try the strokes in the arrow order. | 39 KB |
-| [`trace-upper-R.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-R.m4a) | Practice sheet / formation help — the demo of big R hands over | Your turn. Trace the big R. | 27 KB |
+| [`trace-upper-R.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-R.m4a) | Practice sheet / formation help — the demo of big R hands over | Your turn. Trace the big R. | not cut yet |
 | [`traced-good-upper-R.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-R.m4a) | Practice sheet — big R flips green, in the arrow order | Nice big R! Pick another letter. | 25 KB |
 | [`traced-order-upper-R.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-R.m4a) | Practice sheet — big R flips green, out of order | Good big R. Try the strokes in the arrow order. | 39 KB |
-| [`trace-upper-S.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-S.m4a) | Practice sheet / formation help — the demo of big S hands over | Your turn. Trace the big S. | 27 KB |
+| [`trace-upper-S.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-S.m4a) | Practice sheet / formation help — the demo of big S hands over | Your turn. Trace the big S. | not cut yet |
 | [`traced-good-upper-S.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-S.m4a) | Practice sheet — big S flips green, in the arrow order | Nice big S! Pick another letter. | 24 KB |
 | [`traced-order-upper-S.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-S.m4a) | Practice sheet — big S flips green, out of order | Good big S. Try the strokes in the arrow order. | 35 KB |
-| [`trace-upper-T.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-T.m4a) | Practice sheet / formation help — the demo of big T hands over | Your turn. Trace the big T. | 29 KB |
+| [`trace-upper-T.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-T.m4a) | Practice sheet / formation help — the demo of big T hands over | Your turn. Trace the big T. | not cut yet |
 | [`traced-good-upper-T.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-T.m4a) | Practice sheet — big T flips green, in the arrow order | Nice big T! Pick another letter. | 28 KB |
 | [`traced-order-upper-T.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-T.m4a) | Practice sheet — big T flips green, out of order | Good big T. Try the strokes in the arrow order. | 38 KB |
-| [`trace-upper-U.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-U.m4a) | Practice sheet / formation help — the demo of big U hands over | Your turn. Trace the big U. | 31 KB |
+| [`trace-upper-U.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-U.m4a) | Practice sheet / formation help — the demo of big U hands over | Your turn. Trace the big U. | not cut yet |
 | [`traced-good-upper-U.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-U.m4a) | Practice sheet — big U flips green, in the arrow order | Nice big U! Pick another letter. | 27 KB |
 | [`traced-order-upper-U.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-U.m4a) | Practice sheet — big U flips green, out of order | Good big U. Try the strokes in the arrow order. | 37 KB |
-| [`trace-upper-V.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-V.m4a) | Practice sheet / formation help — the demo of big V hands over | Your turn. Trace the big V. | 32 KB |
+| [`trace-upper-V.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-V.m4a) | Practice sheet / formation help — the demo of big V hands over | Your turn. Trace the big V. | not cut yet |
 | [`traced-good-upper-V.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-V.m4a) | Practice sheet — big V flips green, in the arrow order | Nice big V! Pick another letter. | 30 KB |
 | [`traced-order-upper-V.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-V.m4a) | Practice sheet — big V flips green, out of order | Good big V. Try the strokes in the arrow order. | 38 KB |
-| [`trace-upper-W.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-W.m4a) | Practice sheet / formation help — the demo of big W hands over | Your turn. Trace the big W. | 28 KB |
+| [`trace-upper-W.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-W.m4a) | Practice sheet / formation help — the demo of big W hands over | Your turn. Trace the big W. | not cut yet |
 | [`traced-good-upper-W.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-W.m4a) | Practice sheet — big W flips green, in the arrow order | Nice big W! Pick another letter. | 29 KB |
 | [`traced-order-upper-W.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-W.m4a) | Practice sheet — big W flips green, out of order | Good big W. Try the strokes in the arrow order. | 39 KB |
-| [`trace-upper-X.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-X.m4a) | Practice sheet / formation help — the demo of big X hands over | Your turn. Trace the big X. | 26 KB |
+| [`trace-upper-X.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-X.m4a) | Practice sheet / formation help — the demo of big X hands over | Your turn. Trace the big X. | not cut yet |
 | [`traced-good-upper-X.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-X.m4a) | Practice sheet — big X flips green, in the arrow order | Nice big X! Pick another letter. | 27 KB |
 | [`traced-order-upper-X.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-X.m4a) | Practice sheet — big X flips green, out of order | Good big X. Try the strokes in the arrow order. | 43 KB |
-| [`trace-upper-Y.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Y.m4a) | Practice sheet / formation help — the demo of big Y hands over | Your turn. Trace the big Y. | 27 KB |
+| [`trace-upper-Y.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Y.m4a) | Practice sheet / formation help — the demo of big Y hands over | Your turn. Trace the big Y. | not cut yet |
 | [`traced-good-upper-Y.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-Y.m4a) | Practice sheet — big Y flips green, in the arrow order | Nice big Y! Pick another letter. | 26 KB |
 | [`traced-order-upper-Y.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-Y.m4a) | Practice sheet — big Y flips green, out of order | Good big Y. Try the strokes in the arrow order. | 36 KB |
-| [`trace-upper-Z.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Z.m4a) | Practice sheet / formation help — the demo of big Z hands over | Your turn. Trace the big Z. | 30 KB |
+| [`trace-upper-Z.m4a`](../../HandwrittenJournal/Resources/Voice/trace-upper-Z.m4a) | Practice sheet / formation help — the demo of big Z hands over | Your turn. Trace the big Z. | not cut yet |
 | [`traced-good-upper-Z.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-upper-Z.m4a) | Practice sheet — big Z flips green, in the arrow order | Nice big Z! Pick another letter. | 24 KB |
 | [`traced-order-upper-Z.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-upper-Z.m4a) | Practice sheet — big Z flips green, out of order | Good big Z. Try the strokes in the arrow order. | 33 KB |
 | [`trace-lower-a.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-a.m4a) | Practice sheet / formation help — the demo of little a hands over | Your turn. Trace a little a. (spoken as *Your turn. Trace a little A.*) | not cut yet |
@@ -145,13 +145,13 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`trace-lower-b.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-b.m4a) | Practice sheet / formation help — the demo of little b hands over | Your turn. Trace a little b. (spoken as *Your turn. Trace a little B.*) | not cut yet |
 | [`traced-good-lower-b.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-b.m4a) | Practice sheet — little b flips green, in the arrow order | Nice little b! Pick another letter. (spoken as *Nice little B! Pick another letter.*) | 25 KB |
 | [`traced-order-lower-b.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-b.m4a) | Practice sheet — little b flips green, out of order | Good little b. Try the strokes in the arrow order. (spoken as *Good little B. Try the strokes in the arrow order.*) | not cut yet |
-| [`trace-lower-c.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-c.m4a) | Practice sheet / formation help — the demo of little c hands over | Your turn. Trace a little c. (spoken as *Your turn. Trace a little C.*) | 26 KB |
+| [`trace-lower-c.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-c.m4a) | Practice sheet / formation help — the demo of little c hands over | Your turn. Trace a little c. (spoken as *Your turn. Trace a little C.*) | not cut yet |
 | [`traced-good-lower-c.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-c.m4a) | Practice sheet — little c flips green, in the arrow order | Nice little c! Pick another letter. (spoken as *Nice little C! Pick another letter.*) | not cut yet |
 | [`traced-order-lower-c.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-c.m4a) | Practice sheet — little c flips green, out of order | Good little c. Try the strokes in the arrow order. (spoken as *Good little C. Try the strokes in the arrow order.*) | 31 KB |
 | [`trace-lower-d.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-d.m4a) | Practice sheet / formation help — the demo of little d hands over | Your turn. Trace a little d. (spoken as *Your turn. Trace a little D.*) | not cut yet |
 | [`traced-good-lower-d.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-d.m4a) | Practice sheet — little d flips green, in the arrow order | Nice little d! Pick another letter. (spoken as *Nice little D! Pick another letter.*) | not cut yet |
 | [`traced-order-lower-d.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-d.m4a) | Practice sheet — little d flips green, out of order | Good little d. Try the strokes in the arrow order. (spoken as *Good little D. Try the strokes in the arrow order.*) | not cut yet |
-| [`trace-lower-e.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-e.m4a) | Practice sheet / formation help — the demo of little e hands over | Your turn. Trace a little e. (spoken as *Your turn. Trace a little E.*) | 24 KB |
+| [`trace-lower-e.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-e.m4a) | Practice sheet / formation help — the demo of little e hands over | Your turn. Trace a little e. (spoken as *Your turn. Trace a little E.*) | not cut yet |
 | [`traced-good-lower-e.m4a`](../../HandwrittenJournal/Resources/Voice/traced-good-lower-e.m4a) | Practice sheet — little e flips green, in the arrow order | Nice little e! Pick another letter. (spoken as *Nice little E! Pick another letter.*) | not cut yet |
 | [`traced-order-lower-e.m4a`](../../HandwrittenJournal/Resources/Voice/traced-order-lower-e.m4a) | Practice sheet — little e flips green, out of order | Good little e. Try the strokes in the arrow order. (spoken as *Good little E. Try the strokes in the arrow order.*) | not cut yet |
 | [`trace-lower-f.m4a`](../../HandwrittenJournal/Resources/Voice/trace-lower-f.m4a) | Practice sheet / formation help — the demo of little f hands over | Your turn. Trace a little f. (spoken as *Your turn. Trace a little F.*) | not cut yet |

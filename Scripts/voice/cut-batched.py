@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Cut the voice clips three lines to a request — for a day when the TTS quota is short.
+"""Cut the voice clips several lines to a request — for a day when the TTS quota is short.
 
-Gemini's preview TTS models allow 100 requests a day each, and there are 200 lines. This
-asks for three lines per request with a pause between them, splits the audio on those
-pauses, checks the split by transcribing the request's audio back and finding every
-line in it, and writes the same trimmed mono AAC clips build-clips.sh does. A batch
-that does not split into exactly three, or whose transcript is missing a line, is
-retried line by line.
+Gemini's preview TTS models allow 100 requests a day each, and there are 224 lines. This
+asks for six lines per request with a pause between them, splits the audio on those
+pauses, checks that the split gave one clip per line and that each clip is about as
+long as its words should take, and writes the same trimmed mono AAC clips
+build-clips.sh does. A batch that does not split cleanly is retried line by line.
 
     Scripts/voice/cut-batched.py --model gemini-2.5-pro-preview-tts --voice Leda --out DIR
 
+`--verify` also transcribes each clip back (gemini-3.6-flash) and re-cuts any whose
+transcript does not match — a stricter gate, but the transcriber drops words on short
+clips and reads "90%" as "ninezero", so it rejects good clips too; off by default.
 Clips already in DIR are skipped, so a run can resume. Needs gcp-api.sh / gcp-tts.sh on
 PATH, jq and ffmpeg.
 """
@@ -17,7 +19,7 @@ import argparse, base64, json, os, re, subprocess, sys, tempfile, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from lines import lines as all_lines  # noqa: E402
+from lines import lines as all_lines, markdown  # noqa: E402
 
 STYLE = "Say this warmly and unhurried, like a kind teacher talking to a five-year-old. "
 BATCH_INSTRUCTION = "Read these lines one after another, leaving a silent pause of two full seconds between lines:\n\n"
@@ -39,7 +41,7 @@ def tts(text, wav, voice, model):
         print(f"    tts attempt {attempt}: {msg}", flush=True)
         if "per_day" in msg or "retry in" in msg and "h" in msg.split("retry in")[-1][:6]:
             raise SystemExit("daily quota spent — resume tomorrow")
-        time.sleep(20 * attempt)
+        time.sleep(10 * attempt)
     return False
 
 
@@ -70,6 +72,15 @@ def normal(text):
     return " ".join(re.sub(r"[^a-z0-9 ]+", " ", text).split())
 
 
+def expected_seconds(text):
+    """A kind teacher's pace, about 2.4 words a second, plus a breath."""
+    return 0.5 + 0.42 * len(text.split())
+
+
+def plausible(seconds, text):
+    return 0.5 * expected_seconds(text) <= seconds <= 1.8 * expected_seconds(text)
+
+
 def silences(wav, min_len):
     r = sh("ffmpeg", "-i", wav, "-af", f"silencedetect=noise=-40dB:d={min_len}", "-f", "null", "-", check=False)
     starts = [float(m) for m in re.findall(r"silence_start: ([\d.]+)", r.stderr)]
@@ -81,7 +92,7 @@ def silences(wav, min_len):
 
 def segments(wav, count):
     """Speech spans between the longest pauses — exactly `count` of them, or None."""
-    for min_len in (0.9, 0.7, 0.55, 1.2, 0.45):
+    for min_len in (1.2, 0.9, 0.7, 0.55, 0.45):
         sil, dur = silences(wav, min_len)
         spans, cursor = [], 0.0
         for s, e in sil:
@@ -109,12 +120,14 @@ def main():
     ap.add_argument("--model", default="gemini-2.5-pro-preview-tts")
     ap.add_argument("--voice", default="Leda")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--batch", type=int, default=4)
+    ap.add_argument("--batch", type=int, default=6)
+    ap.add_argument("--verify", action="store_true", help="also transcribe every clip back and re-cut mismatches")
     ap.add_argument("--pace", type=float, default=6.5, help="seconds between requests (10 a minute allowed)")
     ap.add_argument("--limit", type=int, default=0, help="cut only the first N missing clips (a trial run)")
+    ap.add_argument("--all", action="store_true", help="re-cut every clip, not only the missing ones (one voice, one model, one day)")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
-    todo = [l for l in all_lines() if not os.path.exists(os.path.join(args.out, f"{l['id']}.m4a"))]
+    todo = [l for l in all_lines() if args.all or not os.path.exists(os.path.join(args.out, f"{l['id']}.m4a"))]
     if args.limit: todo = todo[:args.limit]
     print(f"{len(todo)} clips to cut with {args.voice} on {args.model}, {args.batch} a request", flush=True)
     tmp = tempfile.mkdtemp()
@@ -126,11 +139,15 @@ def main():
         if not tts(STYLE + line["say"], wav, args.voice, args.model):
             return False
         requests += 1; time.sleep(args.pace)
-        text = normal(transcribe(wav))
-        if normal(line["say"]) not in text:
-            print(f"  ! {line['id']}: transcript was '{text}'", flush=True)
-            return False
         sil, dur = silences(wav, 0.3)
+        if not plausible(dur, line["say"]):
+            print(f"  ! {line['id']}: {dur:.1f}s for {len(line['say'].split())} words", flush=True)
+            return False
+        if args.verify:
+            text = normal(transcribe(wav))
+            if normal(line["say"]) not in text:
+                print(f"  ! {line['id']}: transcript was '{text}'", flush=True)
+                return False
         encode(wav, 0, dur, os.path.join(args.out, f"{line['id']}.m4a"))
         print(f"  {line['id']} (single)", flush=True)
         return True
@@ -152,14 +169,18 @@ def main():
             for l in batch:
                 if not cut_single(l): singles.append(l["id"])
             continue
-        # Each split clip is transcribed on its own: a clip that says its line, whole and
-        # nothing else, is kept; the others are cut again one at a time.
+        # Each split clip must be about as long as its words take — a merged pair is
+        # twice too long, a line cut in two half — and, with --verify, say its line.
         report = []
         for l, (s, e) in zip(batch, spans):
-            piece = os.path.join(tmp, f"{l['id']}.wav")
-            sh("ffmpeg", "-loglevel", "error", "-y", "-i", wav, "-ss", f"{max(0, s - 0.08):.3f}", "-to", f"{e + 0.08:.3f}", piece)
-            heard = normal(transcribe(piece))
-            if heard == normal(l["say"]):
+            ok = plausible(e - s, l["say"])
+            heard = f"{e - s:.1f}s for {len(l['say'].split())} words"
+            if ok and args.verify:
+                piece = os.path.join(tmp, f"{l['id']}.wav")
+                sh("ffmpeg", "-loglevel", "error", "-y", "-i", wav, "-ss", f"{max(0, s - 0.08):.3f}", "-to", f"{e + 0.08:.3f}", piece)
+                heard = normal(transcribe(piece))
+                ok = heard == normal(l["say"])
+            if ok:
                 encode(wav, s, e, os.path.join(args.out, f"{l['id']}.m4a"))
                 report.append(f"{e - s:.1f}s")
             else:
@@ -170,6 +191,10 @@ def main():
 
     have = len([f for f in os.listdir(args.out) if f.endswith(".m4a")])
     print(f"{requests} TTS requests; {have} of {len(all_lines())} clips in {args.out}")
+    if os.path.abspath(args.out) == os.path.abspath(os.path.join(HERE, "..", "..", "HandwrittenJournal", "Resources", "Voice")):
+        with open(os.path.join(HERE, "CLIPS.md"), "w") as f:
+            f.write(markdown(args.voice, args.model))
+        print("CLIPS.md updated")
     if singles:
         print("NOT CUT: " + " ".join(singles)); sys.exit(1)
 

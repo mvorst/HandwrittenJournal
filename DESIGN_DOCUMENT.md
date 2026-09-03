@@ -29,7 +29,8 @@ Build notes: `PENPOT_HANDOFF.md`.
 2. **The voice is a recording.** `AVSpeechSynthesizer` is gone. Every cue is a clip cut
    once with a Gemini voice (`Leda`, `gemini-2.5-pro-preview-tts`) by
    `Scripts/voice/build-clips.sh` from `Scripts/voice/lines.json`, bundled in
-   `Resources/Voice/` (224 clips, about 6 MB) and played with `AVAudioPlayer`. Nothing
+   `Resources/Voice/` (224 clips, about 6 MB — 81 cut as of 2026-09-03, the rest owed
+   to the TTS quota; BUILD_LOG.md says how) and played with `AVAudioPlayer`. Nothing
    is synthesised on the iPad, nothing is downloaded, nothing of the child's goes
    anywhere (§10.1). One voice for the whole app; changing it is one command and a
    release. A missing clip is silence, never a system voice.

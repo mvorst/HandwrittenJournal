@@ -111,12 +111,25 @@ DESIGN_DOCUMENT §0.16, §4.12. Built 2026-09-02.
   exist, so a cut can be finished the next day; `cut-batched.py` asks for three lines a
   request with a pause between them, splits the audio on the pauses, transcribes the
   request back (`gemini-3.6-flash`) to check every line is there and in order, and
-  falls back to one line a request when a batch does not split. The shipped set was cut
-  that way with `Leda` on `gemini-2.5-pro-preview-tts` after the flash models' quotas
-  were spent on partial sets.
-- **Tests.** `VoiceClipTests` (3): every cue has its clip in the bundle, ids are distinct
-  case-insensitively, the manifest matches the cues' text. `WelcomeFlowTests` follows the
-  new cue signatures.
+  falls back to one line a request when a batch does not split. (Its `--verify`
+  transcription gate is off by default: the transcriber drops words on short clips and
+  reads *90%* as *ninezero*, so it rejected good clips and burnt quota.)
+- **Where the set stands (2026-09-03, 00:20).** All three preview TTS models are out of
+  quota for the day — `2.5-flash` and `3.1-flash` at 100 requests, `2.5-pro` at **50** —
+  after a day of partial cuts and rewording. **81 of 224 clips are in the bundle**: 66
+  from the `3.1-flash` cut whose wording did not change (the *Nice big A* / *Good big A*
+  lines, the welcome, the write cues) and 15 from `2.5-pro` (the reworded lines, the
+  frame 59 paragraph, the first badges). The 143 owed are every *Your turn. Trace…*
+  line, most badge lines, and the four newest cues; `VoiceClipTests` names them and is
+  red until they land, and a missing clip is silent in the app. To finish, once the
+  quotas reset (about 20:00 EDT): `Scripts/voice/cut-batched.py --out
+  HandwrittenJournal/Resources/Voice` (24 requests, fits `2.5-pro`'s 50); for one voice
+  from one model, `… --all` re-cuts all 224 in 38 requests. Then `build-clips.sh` is the
+  one-line-a-request alternative over three days.
+- **Tests.** `VoiceClipTests` (3): every cue has its clip in the bundle (one expectation
+  that lists what is owed), ids are distinct case-insensitively, the manifest matches the
+  cues' text. `WelcomeFlowTests` follows the new cue signatures. 161 of 162 pass while
+  the set is incomplete.
 
 ## v3.6 — the pencil is explained before it can be skipped (built)
 
