@@ -90,7 +90,7 @@ p { margin: 0 0 1em; }
 .btn-dark { background: var(--ink); color: #fff; }
 .btn svg { width: 20px; height: 20px; }
 /* Apple's App Store badge, used as supplied: minimum 40px tall on screen, clear space of a
-   quarter of its height on every side, never recoloured or reshaped. */
+   quarter of its height on every side, never recolored or reshaped. */
 .badge-link { display: inline-block; line-height: 0; padding: 10px; margin: -10px; border-radius: 8px; }
 .badge-link img { height: 40px; width: auto; }
 .badge-link.badge-lg { padding: 14px; margin: -14px; }

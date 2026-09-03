@@ -11,12 +11,14 @@
             "id": "cd454f549b096bd0",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "Gemini_Generated_Image_4ysevp4ysevp4yse.jpeg"
+                "file": "Scripts/voice/CLIPS.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "Gemini_Generated_Image_4ysevp4ysevp4yse"
+              "icon": "lucide-file",
+              "title": "CLIPS"
             }
           }
         ]
@@ -97,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Gemini_Generated_Image_4ysevp4ysevp4yse.jpeg",
+                "file": "Scripts/voice/CLIPS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -116,7 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Gemini_Generated_Image_4ysevp4ysevp4yse.jpeg",
+                "file": "Scripts/voice/CLIPS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -159,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Gemini_Generated_Image_4ysevp4ysevp4yse.jpeg",
+                "file": "Scripts/voice/CLIPS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -188,11 +190,27 @@
   },
   "active": "cd454f549b096bd0",
   "lastOpenFiles": [
-    "HandwrittenJournal/Resources/Voice/trace-lower-e.m4a",
-    "Scripts/voice/CLIPS.md",
-    "HandwrittenJournal/Resources/Voice/traced-order-lower-c.m4a",
-    "Scripts/voice/__pycache__/lines.cpython-310.pyc",
-    "Scripts/voice/__pycache__",
-    "Scripts/voice/cut-batched.py"
+    "Go_To_Market/website/dist/robots.txt",
+    "Go_To_Market/website/dist/sitemap.xml",
+    "Go_To_Market/website/dist/terms/index.html",
+    "Go_To_Market/website/dist/terms",
+    "Go_To_Market/website/dist/support/index.html",
+    "Go_To_Market/website/dist/support",
+    "Go_To_Market/website/dist/specialists/index.html",
+    "Go_To_Market/website/dist/specialists",
+    "Go_To_Market/website/dist/schools/index.html",
+    "Go_To_Market/website/dist/schools",
+    "Go_To_Market/website/dist/privacy/index.html",
+    "Go_To_Market/website/dist/assets/app-store-badge-white.svg",
+    "Go_To_Market/website/dist/assets/app-store-badge-black.svg",
+    "Go_To_Market/website/dist/assets/img/og.png",
+    "Go_To_Market/website/dist/favicon.png",
+    "Go_To_Market/website/dist/apple-touch-icon.png",
+    "Go_To_Market/website/dist/assets/icon-96.png",
+    "Go_To_Market/website/dist/assets/icon-512.png",
+    "Go_To_Market/website/dist/assets/img/16-writing-green-red.webp",
+    "Go_To_Market/website/dist/assets/img/16-writing-green-red.png",
+    "Go_To_Market/website/dist/assets/img/15-landscape-practice.webp",
+    "Scripts/voice/CLIPS.md"
   ]
 }

@@ -54,7 +54,7 @@ expected for visitors in the EU/UK.
 
 `src/assets/app-store-badge-black.svg` and `-white.svg` are Apple's own artwork, fetched
 from Apple's badge service, and are used the way Apple's marketing guidelines ask: only as
-the link to the App Store page, never recoloured or reshaped, at least 40 px tall on
+the link to the App Store page, never recolored or reshaped, at least 40 px tall on
 screen (56 px in the hero), with clear space of a quarter of the badge height on every side
 (`.badge-link` in the stylesheet), and with the trademark line in the footer. Re-read the
 guidelines at developer.apple.com/app-store/marketing/guidelines/ before launch; the
@@ -81,7 +81,7 @@ badge may only be shown once the app is live, or with "Coming soon" wording Appl
 
 The page in the hero is the app's own: `src/hero/glyphs.json` holds Jua's letter outlines
 at 72 pt as SVG paths (extracted with CoreText by `tools/glyph_paths.swift`), and
-`src/hero/hero-data.json` holds the glyph positions and the synthesised child's strokes the
+`src/hero/hero-data.json` holds the glyph positions and the synthesized child's strokes the
 screenshots were made with. `build.py` turns them into one inline SVG; `site.js` runs the
 cycle — words land, ink draws in green, the line settles to graphite — and holds still when
 the visitor prefers reduced motion or the hero is off screen.

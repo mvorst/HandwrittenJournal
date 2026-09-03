@@ -13,7 +13,7 @@ What it does:
      own header block).
   2. Minifies src/css/site.css and src/js/site.js into content-hashed files.
   3. Generates the animated hero page (inline SVG) from src/hero/ — the app's real letter
-     outlines and the same synthesised strokes used for the screenshots.
+     outlines and the same synthesized strokes used for the screenshots.
   4. Resizes the screenshots in ../screenshots/raw/ for the web (PNG + WebP), exports the
      icon at the needed sizes, and copies the one-pager PDFs into dist/downloads/.
   5. Writes sitemap.xml, robots.txt and a 404 page.
