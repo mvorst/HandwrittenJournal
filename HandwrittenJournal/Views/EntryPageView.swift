@@ -396,6 +396,8 @@ struct EntryPageView: View {
                 Image(systemName: "mic.fill").font(.system(size: 84)).foregroundStyle(Tokens.Colour.action)
             }
             Text("Can we use the microphone?").font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
+                // Asked aloud as well, before iPadOS asks (§4.12, v3.7).
+                .onAppear { Voice.say(.micPermission) }
                 .padding(.top, Tokens.Space.s8)
             Text("You talk, and your words land on the page for you to write.\nThe iPad listens only while you are recording.")
                 .font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)

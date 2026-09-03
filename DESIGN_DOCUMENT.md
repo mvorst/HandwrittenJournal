@@ -29,16 +29,21 @@ Build notes: `PENPOT_HANDOFF.md`.
 2. **The voice is a recording.** `AVSpeechSynthesizer` is gone. Every cue is a clip cut
    once with a Gemini voice (`Leda`, `gemini-2.5-pro-preview-tts`) by
    `Scripts/voice/build-clips.sh` from `Scripts/voice/lines.json`, bundled in
-   `Resources/Voice/` (200 clips, about 5 MB) and played with `AVAudioPlayer`. Nothing
+   `Resources/Voice/` (224 clips, about 6 MB) and played with `AVAudioPlayer`. Nothing
    is synthesised on the iPad, nothing is downloaded, nothing of the child's goes
    anywhere (§10.1). One voice for the whole app; changing it is one command and a
    release. A missing clip is silence, never a system voice.
-3. **Three more moments speak.** The pencil check narrates itself as it appears — *Watch
-   the arrows, then trace the big A with the Apple Pencil* — if the grown-up chose a
-   voice. The remediation modal (§8.1b) says *Your turn. Trace big G* when its demo hands
-   over, *That's the way! Next letter* and *That's the way! Your word is fixed* as the
-   letters are traced, and *Almost! Watch the arrows again. Start where they start* when
-   an attempt is wiped.
+3. **More moments speak.** The pencil check narrates itself as it appears — *Watch the
+   arrows, then trace the big A with the Apple Pencil* — and so do frame 59's
+   explanation and the empty profile picker, if the grown-up chose a voice. Journal Home
+   says *Add a journal entry, or practice writing your letters* once per visit; a new
+   entry's empty page says *Tell me about your day* or *Tell me a story*, then *Tap the
+   microphone and start talking*; the microphone explainer asks aloud; the
+   *Voice feedback* switch introduces the voice when it is turned on; a badge is
+   announced after the results headline and read from its card. The remediation modal
+   (§8.1b) says *Your turn. Trace the big G* when its demo hands over, *That's how it's
+   done! Next letter* and *That's the way! You fixed it* as the letters are traced, and
+   *Almost! Watch the arrows again. Start where they start* when an attempt is wiped.
 4. **The results headline no longer says the name.** The clip says *Great writing!*;
    *Great writing, Milo!* stays on the screen. A name cannot be recorded in advance, and
    sending it to a voice service to be spoken would break §10.1.
@@ -1215,15 +1220,24 @@ would. Cues, not narration:
 | The welcome's pencil check appears (§4.0, v3.7) | *Watch the arrows, then trace the big A with the Apple Pencil.* — once, if the grown-up chose a voice | `pencil-intro` |
 | The pencil check's first stroke (§4.0) | *That's an Apple Pencil. You're ready to write!* · *That was a finger. Try the Apple Pencil.* | `pencil-found` · `finger` |
 | A take ends and the first line comes up on its own (§4.4) | *Your turn. Write it!* — the callout, said as well as shown | `your-turn` |
-| A line settles under the child's pen — its words join the record | *Nice line.* · *Lovely writing.* · *That line is yours now.* · *Keep going.* — in rotation, so it is never a metronome | `line-done-0…3` |
-| *I'm finished* | The results headline: *You wrote everything you said!* or *Great writing!* — the child's name stays on the screen (v3.7) | `finished-all` · `finished-some` |
-| The practice demo hands over (§4.11) — and the remediation modal's (§8.1b, v3.7) | *Your turn. Trace big G.* — only when the arrows finish; a pen already writing is not told | `trace-upper-G` |
+| A line settles under the child's pen — its words join the record | *Nice line.* · *Lovely writing.* · *That line looks great.* · *Keep going.* — in rotation, so it is never a metronome | `line-done-0…3` |
+| *I'm finished* | The results headline: *Outstanding work! You wrote everything you said.* or *Great writing!* — the child's name stays on the screen (v3.7) | `finished-all` · `finished-some` |
+| A badge just earned (§8.5, v3.7) | After the headline: *You earned 5-Day Streak! You wrote five days in a row.* — and the badge card reads the same line once it is earned, or *5-Day Streak. Write five days in a row.* while it is not | `badge-<id>-earned` · `badge-<id>-hint` |
+| The practice demo hands over (§4.11) — and the remediation modal's (§8.1b, v3.7) | *Your turn. Trace the big G.* · *Your turn. Trace a little g.* · *Your turn. Trace the 7.* — only when the arrows finish; a pen already writing is not told | `trace-upper-G` |
 | A practice letter flips green | *Nice big G! Pick another letter.* — or *Good big G. Try the strokes in the arrow order.* | `traced-good-upper-G` · `traced-order-upper-G` |
-| A remediation letter is traced (§8.1b, v3.7) | *That's the way! Next letter.* — or, for the last one, *That's the way! Your word is fixed.* | `help-next` · `help-fixed` |
+| A remediation letter is traced (§8.1b, v3.7) | *That's how it's done! Next letter.* — or, for the last one, *That's the way! You fixed it.* | `help-next` · `help-fixed` |
 | A remediation attempt is wiped (§8.1b, v3.7) | *Almost! Watch the arrows again. Start where they start.* | `help-again` |
+| *You'll need an Apple Pencil* appears (§4.0 frame 59, v3.7) | The page's own paragraph — *This is a handwriting app. Your child writes with a pencil in their hand…* — if a voice was chosen | `why-pencil` |
+| The profile picker is empty (v3.7) | *Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.* — if the welcome chose a voice; there is no profile switch yet | `nobody-here` |
+| Journal Home appears from the picker (v3.7) | *Add a journal entry, or practice writing your letters.* — once per visit, not on every return from a page | `home` |
+| *Voice feedback* switched on in Settings (v3.7) | *Voice feedback is on. I'll tell you when it's your turn to write.* | `voice-on` |
+| A new entry opens on the empty page (v3.7) | *Tell me about your day.* or *Tell me a story.* — alternating — then *Tap the microphone and start talking.* Once per entry | `new-entry-0…1` · `start-talking` |
+| The microphone explainer (§4.2 frame 40, v3.7) | *Can we use the microphone? It allows us to write down what you tell us so you can trace the words.* | `mic-permission` |
 
 Letters are named *big G*, *little g*, *the 7* — 62 characters, three clips each, so
-the practice sheet and the modal never stitch a sentence together from pieces.
+the practice sheet and the modal never stitch a sentence together from pieces. A cue
+that should follow another rather than cut it off — a badge after the headline — is
+queued (`Voice.sayNext`); everything else interrupts.
 
 Rules:
 

@@ -104,6 +104,7 @@ struct WelcomeView: View {
     }
 
     private func goBack() {
+        Voice.stop()
         if showingWhyPencil {
             showingWhyPencil = false
         } else {
@@ -372,6 +373,8 @@ struct WelcomeView: View {
             caption("Skipping lets you set up today. The letter will be back the next time the app opens, until it has seen an Apple Pencil.")
                 .padding(.top, Tokens.Space.s3)
         }
+        // The page reads its own explanation if a voice was chosen (§4.12, v3.7).
+        .onAppear { if onboarding.voiceFeedbackDefault { Voice.say(.whyPencil, always: true) } }
     }
 
     private func explainPencil() {

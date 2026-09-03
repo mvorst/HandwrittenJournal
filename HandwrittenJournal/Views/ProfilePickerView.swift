@@ -70,11 +70,14 @@ struct ProfilePickerView: View {
                 .multilineTextAlignment(.center)
                 .padding(.top, Tokens.Space.s3)
             PrimaryButton(title: "Add someone", systemImage: "person.crop.circle.badge.plus") {
+                Voice.stop()
                 creatingNew = true
             }
             .padding(.top, Tokens.Space.s7)
             Spacer()
         }
+        // No profile yet, so no switch yet: the welcome's answer decides (§4.12, v3.7).
+        .onAppear { if Onboarding.shared.voiceFeedbackDefault { Voice.say(.nobodyHere, always: true) } }
     }
 
     /// Two across in portrait; one row of four in landscape (v3.3), the same 96 pt apart.

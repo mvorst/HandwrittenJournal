@@ -21,6 +21,9 @@ struct BadgeDetailOverlay: View {
         }
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape, onClose)
+        // The card reads itself: what earned the badge, or what will (§4.12, v3.7).
+        .onAppear { Voice.say(earned ? .badgeEarned(badge.id) : .badgeHint(badge.id)) }
+        .onDisappear { Voice.stop() }
     }
 
     private var card: some View {

@@ -5,6 +5,8 @@ import AVFoundation
 @MainActor
 protocol VoiceSpeaker: AnyObject {
     func speak(_ cue: Voice.Cue)
+    /// Says the cue after whatever is playing, or now if nothing is.
+    func enqueue(_ cue: Voice.Cue)
     func stop()
 }
 
@@ -50,6 +52,24 @@ enum Voice {
         /// The pencil check's verdicts (frames 57 / 58).
         case pencilFound
         case thatWasAFinger
+        /// Frame 59, *You'll need an Apple Pencil*, as it appears (v3.7).
+        case whyPencil
+        /// The empty profile picker (v3.7).
+        case nobodyHere
+        /// Journal Home as it appears from the picker (v3.7).
+        case home
+        /// *Voice feedback* switched on in Settings (v3.7).
+        case voiceOn
+        /// A badge, by `BadgeDefinition.id`: just earned (Results, and the card once it is
+        /// earned), or what would earn it (the card while it is not) (v3.7).
+        case badgeEarned(String)
+        case badgeHint(String)
+        /// The empty page of a new entry (v3.7): an invitation, alternating between two,
+        /// then how to begin.
+        case newEntry(Int)
+        case startTalking
+        /// The microphone explainer (frame 40), before iPadOS asks (v3.7).
+        case micPermission
 
         var text: String {
             switch self {
@@ -60,18 +80,18 @@ enum Voice {
                 return lines[Voice.wrapped(n, lines.count)]
             case .entryFinished(let finishedEverything):
                 return finishedEverything
-                    ? String(localized: "You wrote everything you said!")
+                    ? String(localized: "Outstanding work! You wrote everything you said.")
                     : String(localized: "Great writing!")
             case .practiceYourTurn(let char):
-                return String(localized: "Your turn. Trace \(Voice.letterName(char)).")
+                return String(localized: "Your turn. Trace \(Voice.letterPhrase(char)).")
             case .practiceTraced(let char, let followedOrder):
                 return followedOrder
                     ? String(localized: "Nice \(Voice.letterName(char))! Pick another letter.")
                     : String(localized: "Good \(Voice.letterName(char)). Try the strokes in the arrow order.")
             case .helpNext:
-                return String(localized: "That's the way! Next letter.")
+                return String(localized: "That's how it's done! Next letter.")
             case .helpFixed:
-                return String(localized: "That's the way! Your word is fixed.")
+                return String(localized: "That's the way! You fixed it.")
             case .helpAgain:
                 return String(localized: "Almost! Watch the arrows again. Start where they start.")
             case .preview:
@@ -82,6 +102,27 @@ enum Voice {
                 return String(localized: "That's an Apple Pencil. You're ready to write!")
             case .thatWasAFinger:
                 return String(localized: "That was a finger. Try the Apple Pencil.")
+            case .whyPencil:
+                return String(localized: "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.")
+            case .nobodyHere:
+                return String(localized: "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.")
+            case .home:
+                return String(localized: "Add a journal entry, or practice writing your letters.")
+            case .voiceOn:
+                return String(localized: "Voice feedback is on. I'll tell you when it's your turn to write.")
+            case .badgeEarned(let id):
+                guard let badge = BadgeEngine.definition(id: id) else { return "" }
+                return String(localized: "You earned \(badge.name)! \(badge.detail)")
+            case .badgeHint(let id):
+                guard let badge = BadgeEngine.definition(id: id) else { return "" }
+                return String(localized: "\(badge.name). \(badge.hint)")
+            case .newEntry(let n):
+                let lines = Voice.newEntryLines
+                return lines[Voice.wrapped(n, lines.count)]
+            case .startTalking:
+                return String(localized: "Tap the microphone and start talking.")
+            case .micPermission:
+                return String(localized: "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.")
             }
         }
 
@@ -102,6 +143,15 @@ enum Voice {
             case .pencilIntro:                       return "pencil-intro"
             case .pencilFound:                       return "pencil-found"
             case .thatWasAFinger:                    return "finger"
+            case .whyPencil:                         return "why-pencil"
+            case .nobodyHere:                        return "nobody-here"
+            case .home:                              return "home"
+            case .voiceOn:                           return "voice-on"
+            case .badgeEarned(let id):               return "badge-\(id)-earned"
+            case .badgeHint(let id):                 return "badge-\(id)-hint"
+            case .newEntry(let n):                   return "new-entry-\(Voice.wrapped(n, Voice.newEntryLines.count))"
+            case .startTalking:                      return "start-talking"
+            case .micPermission:                     return "mic-permission"
             }
         }
 
@@ -110,7 +160,9 @@ enum Voice {
             var cues: [Cue] = [.preview, .pencilIntro, .pencilFound, .thatWasAFinger, .yourTurn]
             cues += Voice.lineDoneLines.indices.map(Cue.lineDone)
             cues += [.entryFinished(finishedEverything: true), .entryFinished(finishedEverything: false),
-                     .helpNext, .helpFixed, .helpAgain]
+                     .helpNext, .helpFixed, .helpAgain, .voiceOn, .whyPencil, .nobodyHere, .home]
+            cues += Voice.newEntryLines.indices.map(Cue.newEntry) + [.startTalking, .micPermission]
+            for badge in BadgeEngine.all { cues += [.badgeEarned(badge.id), .badgeHint(badge.id)] }
             for char in Voice.characters {
                 cues += [.practiceYourTurn(char),
                          .practiceTraced(char, followedOrder: true),
@@ -124,8 +176,14 @@ enum Voice {
     nonisolated static let lineDoneLines: [String] = [
         String(localized: "Nice line."),
         String(localized: "Lovely writing."),
-        String(localized: "That line is yours now."),
+        String(localized: "That line looks great."),
         String(localized: "Keep going."),
+    ]
+
+    /// The empty page's invitations, in the order they alternate.
+    nonisolated static let newEntryLines: [String] = [
+        String(localized: "Tell me about your day."),
+        String(localized: "Tell me a story."),
     ]
 
     /// The practice sheet's characters (§4.11) — each has its three letter clips.
@@ -139,6 +197,13 @@ enum Voice {
         return char.isUppercase ? String(localized: "big \(c)") : String(localized: "little \(c)")
     }
 
+    /// The trace line names the letter with an article: *the big A*, *a little a*, *the 7*.
+    nonisolated static func letterPhrase(_ char: Character) -> String {
+        let c = String(char)
+        if char.isNumber { return String(localized: "the \(c)") }
+        return char.isUppercase ? String(localized: "the big \(c)") : String(localized: "a little \(c)")
+    }
+
     /// The character's part of a clip's file name.
     nonisolated static func clipCode(_ char: Character) -> String {
         if char.isNumber { return "digit-\(char)" }
@@ -150,6 +215,7 @@ enum Voice {
     private(set) static var enabled = false
     private(set) static var isListening = false
     private static var lineDoneIndex = 0
+    private static var newEntryIndex = 0
     static var speaker: VoiceSpeaker = ClipSpeaker()
 
     /// Once per profile change and whenever the profile's switch moves (§4.10).
@@ -173,10 +239,24 @@ enum Voice {
         speaker.speak(cue)
     }
 
+    /// Says the cue once whatever is playing has finished — a badge after the results
+    /// headline. The same guards as `say`.
+    static func sayNext(_ cue: Cue, always: Bool = false) {
+        guard always || enabled, !isListening else { return }
+        speaker.enqueue(cue)
+    }
+
     /// The next finished-line cue in rotation.
     static func sayLineDone() {
         defer { lineDoneIndex += 1 }
         say(.lineDone(lineDoneIndex))
+    }
+
+    /// A new entry's empty page: the next invitation in turn, then how to begin.
+    static func sayNewEntry() {
+        defer { newEntryIndex += 1 }
+        say(.newEntry(newEntryIndex))
+        sayNext(.startTalking)
     }
 
     static func stop() { speaker.stop() }
@@ -190,6 +270,8 @@ enum Voice {
 @MainActor
 final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     private var player: AVAudioPlayer?
+    /// Cues waiting for the current clip to end (`enqueue`).
+    private var queue: [Voice.Cue] = []
 
     /// Where a cue's recording lives in the bundle.
     nonisolated static func url(for cue: Voice.Cue, in bundle: Bundle = .main) -> URL? {
@@ -198,7 +280,15 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
 
     func speak(_ cue: Voice.Cue) {
         stop()
-        guard let url = Self.url(for: cue) else { return }
+        play(cue)
+    }
+
+    func enqueue(_ cue: Voice.Cue) {
+        if player == nil { play(cue) } else { queue.append(cue) }
+    }
+
+    private func play(_ cue: Voice.Cue) {
+        guard let url = Self.url(for: cue) else { playNext(); return }
         let session = AVAudioSession.sharedInstance()
         do {
             try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
@@ -214,10 +304,15 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     }
 
     func stop() {
+        queue.removeAll()
         guard let player else { return }
         player.stop()
         self.player = nil
         release()
+    }
+
+    private func playNext() {
+        if queue.isEmpty { release() } else { play(queue.removeFirst()) }
     }
 
     private func release() {
@@ -228,7 +323,7 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
         Task { @MainActor in
             guard self.player === player else { return }
             self.player = nil
-            self.release()
+            self.playNext()
         }
     }
 }

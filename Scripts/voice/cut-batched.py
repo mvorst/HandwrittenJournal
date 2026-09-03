@@ -109,7 +109,7 @@ def main():
     ap.add_argument("--model", default="gemini-2.5-pro-preview-tts")
     ap.add_argument("--voice", default="Leda")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--batch", type=int, default=3)
+    ap.add_argument("--batch", type=int, default=4)
     ap.add_argument("--pace", type=float, default=6.5, help="seconds between requests (10 a minute allowed)")
     ap.add_argument("--limit", type=int, default=0, help="cut only the first N missing clips (a trial run)")
     args = ap.parse_args()
@@ -147,20 +147,26 @@ def main():
             singles += [l["id"] for l in batch]; continue
         requests += 1; time.sleep(args.pace)
         spans = segments(wav, len(batch))
-        transcript = normal(transcribe(wav))
-        ok = spans is not None and all(normal(l["say"]) in transcript for l in batch)
-        # The lines must also come out in order, or the split would label them wrong.
-        if ok:
-            positions = [transcript.find(normal(l["say"])) for l in batch]
-            ok = positions == sorted(positions)
-        if not ok:
-            print(f"  ! split={None if spans is None else len(spans)} transcript='{transcript}' — retrying line by line", flush=True)
+        if spans is None:
+            print("  ! did not split into \(len(batch)) — retrying line by line".replace("\\(len(batch))", str(len(batch))), flush=True)
             for l in batch:
                 if not cut_single(l): singles.append(l["id"])
             continue
+        # Each split clip is transcribed on its own: a clip that says its line, whole and
+        # nothing else, is kept; the others are cut again one at a time.
+        report = []
         for l, (s, e) in zip(batch, spans):
-            encode(wav, s, e, os.path.join(args.out, f"{l['id']}.m4a"))
-        print(f"  ok — {', '.join(f'{e - s:.1f}s' for s, e in spans)}", flush=True)
+            piece = os.path.join(tmp, f"{l['id']}.wav")
+            sh("ffmpeg", "-loglevel", "error", "-y", "-i", wav, "-ss", f"{max(0, s - 0.08):.3f}", "-to", f"{e + 0.08:.3f}", piece)
+            heard = normal(transcribe(piece))
+            if heard == normal(l["say"]):
+                encode(wav, s, e, os.path.join(args.out, f"{l['id']}.m4a"))
+                report.append(f"{e - s:.1f}s")
+            else:
+                print(f"  ! {l['id']}: heard '{heard}'", flush=True)
+                if not cut_single(l): singles.append(l["id"])
+                report.append("redone")
+        print(f"  {', '.join(report)}", flush=True)
 
     have = len([f for f in os.listdir(args.out) if f.endswith(".m4a")])
     print(f"{requests} TTS requests; {have} of {len(all_lines())} clips in {args.out}")

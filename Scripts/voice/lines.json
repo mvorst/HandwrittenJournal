@@ -43,8 +43,8 @@
   },
   {
     "id": "line-done-2",
-    "text": "That line is yours now.",
-    "say": "That line is yours now.",
+    "text": "That line looks great.",
+    "say": "That line looks great.",
     "where": "Write — a line settles (3rd)"
   },
   {
@@ -55,8 +55,8 @@
   },
   {
     "id": "finished-all",
-    "text": "You wrote everything you said!",
-    "say": "You wrote everything you said!",
+    "text": "Outstanding work! You wrote everything you said.",
+    "say": "Outstanding work! You wrote everything you said.",
     "where": "Results — *I'm finished*, everything written"
   },
   {
@@ -67,14 +67,14 @@
   },
   {
     "id": "help-next",
-    "text": "That's the way! Next letter.",
-    "say": "That's the way! Next letter.",
+    "text": "That's how it's done! Next letter.",
+    "say": "That's how it's done! Next letter.",
     "where": "Formation help — a letter traced, more to come"
   },
   {
     "id": "help-fixed",
-    "text": "That's the way! Your word is fixed.",
-    "say": "That's the way! Your word is fixed.",
+    "text": "That's the way! You fixed it.",
+    "say": "That's the way! You fixed it.",
     "where": "Formation help — the last letter traced"
   },
   {
@@ -84,9 +84,153 @@
     "where": "Formation help — a wrong-order attempt is wiped"
   },
   {
+    "id": "voice-on",
+    "text": "Voice feedback is on. I'll tell you when it's your turn to write.",
+    "say": "Voice feedback is on. I'll tell you when it's your turn to write.",
+    "where": "Settings — *Voice feedback* switched on"
+  },
+  {
+    "id": "why-pencil",
+    "text": "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.",
+    "say": "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.",
+    "where": "Welcome, frame 59 — *You'll need an Apple Pencil* appears (if a voice was chosen)"
+  },
+  {
+    "id": "nobody-here",
+    "text": "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.",
+    "say": "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.",
+    "where": "Profile picker — empty, before the first profile (if a voice was chosen)"
+  },
+  {
+    "id": "home",
+    "text": "Add a journal entry, or practice writing your letters.",
+    "say": "Add a journal entry, or practice writing your letters.",
+    "where": "Journal Home — as it appears, once per visit from the picker"
+  },
+  {
+    "id": "new-entry-0",
+    "text": "Tell me about your day.",
+    "say": "Tell me about your day.",
+    "where": "Write — a new entry opens on the empty page (alternates with the next)"
+  },
+  {
+    "id": "new-entry-1",
+    "text": "Tell me a story.",
+    "say": "Tell me a story.",
+    "where": "Write — a new entry opens on the empty page (alternates with the previous)"
+  },
+  {
+    "id": "start-talking",
+    "text": "Tap the microphone and start talking.",
+    "say": "Tap the microphone and start talking.",
+    "where": "Write — right after the invitation"
+  },
+  {
+    "id": "mic-permission",
+    "text": "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.",
+    "say": "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.",
+    "where": "Write — the microphone explainer, before iPadOS asks"
+  },
+  {
+    "id": "badge-first_entry-earned",
+    "text": "You earned First Entry! You wrote your first entry.",
+    "say": "You earned First Entry! You wrote your first entry.",
+    "where": "Results — *First Entry* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-first_entry-hint",
+    "text": "First Entry. Write your first entry.",
+    "say": "First Entry. Write your first entry.",
+    "where": "The badge card for *First Entry* while it is not earned yet"
+  },
+  {
+    "id": "badge-sharp_shooter-earned",
+    "text": "You earned Sharp Shooter! A tracing at 90% or better.",
+    "say": "You earned Sharp Shooter! A tracing at 90% or better.",
+    "where": "Results — *Sharp Shooter* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-sharp_shooter-hint",
+    "text": "Sharp Shooter. Trace an entry at 90% or better.",
+    "say": "Sharp Shooter. Trace an entry at 90% or better.",
+    "where": "The badge card for *Sharp Shooter* while it is not earned yet"
+  },
+  {
+    "id": "badge-streak_5-earned",
+    "text": "You earned 5-Day Streak! You wrote five days in a row.",
+    "say": "You earned 5-Day Streak! You wrote five days in a row.",
+    "where": "Results — *5-Day Streak* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-streak_5-hint",
+    "text": "5-Day Streak. Write five days in a row.",
+    "say": "5-Day Streak. Write five days in a row.",
+    "where": "The badge card for *5-Day Streak* while it is not earned yet"
+  },
+  {
+    "id": "badge-ten_entries-earned",
+    "text": "You earned Ten Entries! Ten entries in the journal.",
+    "say": "You earned Ten Entries! Ten entries in the journal.",
+    "where": "Results — *Ten Entries* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-ten_entries-hint",
+    "text": "Ten Entries. Write ten entries.",
+    "say": "Ten Entries. Write ten entries.",
+    "where": "The badge card for *Ten Entries* while it is not earned yet"
+  },
+  {
+    "id": "badge-perfect_week-earned",
+    "text": "You earned Perfect Week! Seven days in a row.",
+    "say": "You earned Perfect Week! Seven days in a row.",
+    "where": "Results — *Perfect Week* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-perfect_week-hint",
+    "text": "Perfect Week. Write seven days in a row.",
+    "say": "Perfect Week. Write seven days in a row.",
+    "where": "The badge card for *Perfect Week* while it is not earned yet"
+  },
+  {
+    "id": "badge-thousand_words-earned",
+    "text": "You earned 1,000 Words! A thousand words in your own hand.",
+    "say": "You earned 1,000 Words! A thousand words in your own hand.",
+    "where": "Results — *1,000 Words* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-thousand_words-hint",
+    "text": "1,000 Words. Write a thousand words in your own hand.",
+    "say": "1,000 Words. Write a thousand words in your own hand.",
+    "where": "The badge card for *1,000 Words* while it is not earned yet"
+  },
+  {
+    "id": "badge-every_font-earned",
+    "text": "You earned Every Font! You tried every handwriting style.",
+    "say": "You earned Every Font! You tried every handwriting style.",
+    "where": "Results — *Every Font* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-every_font-hint",
+    "text": "Every Font. Try every handwriting style — pick a new one in Settings.",
+    "say": "Every Font. Try every handwriting style — pick a new one in Settings.",
+    "where": "The badge card for *Every Font* while it is not earned yet"
+  },
+  {
+    "id": "badge-neat_writer-earned",
+    "text": "You earned Neat Writer! Five entries in a row at 85% or better.",
+    "say": "You earned Neat Writer! Five entries in a row at 85% or better.",
+    "where": "Results — *Neat Writer* just earned; the badge card when it is earned"
+  },
+  {
+    "id": "badge-neat_writer-hint",
+    "text": "Neat Writer. Write five entries in a row at 85% or better.",
+    "say": "Neat Writer. Write five entries in a row at 85% or better.",
+    "where": "The badge card for *Neat Writer* while it is not earned yet"
+  },
+  {
     "id": "trace-upper-A",
-    "text": "Your turn. Trace big A.",
-    "say": "Your turn. Trace big A.",
+    "text": "Your turn. Trace the big A.",
+    "say": "Your turn. Trace the big A.",
     "where": "Practice sheet / formation help — the demo of big A hands over"
   },
   {
@@ -103,8 +247,8 @@
   },
   {
     "id": "trace-upper-B",
-    "text": "Your turn. Trace big B.",
-    "say": "Your turn. Trace big B.",
+    "text": "Your turn. Trace the big B.",
+    "say": "Your turn. Trace the big B.",
     "where": "Practice sheet / formation help — the demo of big B hands over"
   },
   {
@@ -121,8 +265,8 @@
   },
   {
     "id": "trace-upper-C",
-    "text": "Your turn. Trace big C.",
-    "say": "Your turn. Trace big C.",
+    "text": "Your turn. Trace the big C.",
+    "say": "Your turn. Trace the big C.",
     "where": "Practice sheet / formation help — the demo of big C hands over"
   },
   {
@@ -139,8 +283,8 @@
   },
   {
     "id": "trace-upper-D",
-    "text": "Your turn. Trace big D.",
-    "say": "Your turn. Trace big D.",
+    "text": "Your turn. Trace the big D.",
+    "say": "Your turn. Trace the big D.",
     "where": "Practice sheet / formation help — the demo of big D hands over"
   },
   {
@@ -157,8 +301,8 @@
   },
   {
     "id": "trace-upper-E",
-    "text": "Your turn. Trace big E.",
-    "say": "Your turn. Trace big E.",
+    "text": "Your turn. Trace the big E.",
+    "say": "Your turn. Trace the big E.",
     "where": "Practice sheet / formation help — the demo of big E hands over"
   },
   {
@@ -175,8 +319,8 @@
   },
   {
     "id": "trace-upper-F",
-    "text": "Your turn. Trace big F.",
-    "say": "Your turn. Trace big F.",
+    "text": "Your turn. Trace the big F.",
+    "say": "Your turn. Trace the big F.",
     "where": "Practice sheet / formation help — the demo of big F hands over"
   },
   {
@@ -193,8 +337,8 @@
   },
   {
     "id": "trace-upper-G",
-    "text": "Your turn. Trace big G.",
-    "say": "Your turn. Trace big G.",
+    "text": "Your turn. Trace the big G.",
+    "say": "Your turn. Trace the big G.",
     "where": "Practice sheet / formation help — the demo of big G hands over"
   },
   {
@@ -211,8 +355,8 @@
   },
   {
     "id": "trace-upper-H",
-    "text": "Your turn. Trace big H.",
-    "say": "Your turn. Trace big H.",
+    "text": "Your turn. Trace the big H.",
+    "say": "Your turn. Trace the big H.",
     "where": "Practice sheet / formation help — the demo of big H hands over"
   },
   {
@@ -229,8 +373,8 @@
   },
   {
     "id": "trace-upper-I",
-    "text": "Your turn. Trace big I.",
-    "say": "Your turn. Trace big I.",
+    "text": "Your turn. Trace the big I.",
+    "say": "Your turn. Trace the big I.",
     "where": "Practice sheet / formation help — the demo of big I hands over"
   },
   {
@@ -247,8 +391,8 @@
   },
   {
     "id": "trace-upper-J",
-    "text": "Your turn. Trace big J.",
-    "say": "Your turn. Trace big J.",
+    "text": "Your turn. Trace the big J.",
+    "say": "Your turn. Trace the big J.",
     "where": "Practice sheet / formation help — the demo of big J hands over"
   },
   {
@@ -265,8 +409,8 @@
   },
   {
     "id": "trace-upper-K",
-    "text": "Your turn. Trace big K.",
-    "say": "Your turn. Trace big K.",
+    "text": "Your turn. Trace the big K.",
+    "say": "Your turn. Trace the big K.",
     "where": "Practice sheet / formation help — the demo of big K hands over"
   },
   {
@@ -283,8 +427,8 @@
   },
   {
     "id": "trace-upper-L",
-    "text": "Your turn. Trace big L.",
-    "say": "Your turn. Trace big L.",
+    "text": "Your turn. Trace the big L.",
+    "say": "Your turn. Trace the big L.",
     "where": "Practice sheet / formation help — the demo of big L hands over"
   },
   {
@@ -301,8 +445,8 @@
   },
   {
     "id": "trace-upper-M",
-    "text": "Your turn. Trace big M.",
-    "say": "Your turn. Trace big M.",
+    "text": "Your turn. Trace the big M.",
+    "say": "Your turn. Trace the big M.",
     "where": "Practice sheet / formation help — the demo of big M hands over"
   },
   {
@@ -319,8 +463,8 @@
   },
   {
     "id": "trace-upper-N",
-    "text": "Your turn. Trace big N.",
-    "say": "Your turn. Trace big N.",
+    "text": "Your turn. Trace the big N.",
+    "say": "Your turn. Trace the big N.",
     "where": "Practice sheet / formation help — the demo of big N hands over"
   },
   {
@@ -337,8 +481,8 @@
   },
   {
     "id": "trace-upper-O",
-    "text": "Your turn. Trace big O.",
-    "say": "Your turn. Trace big O.",
+    "text": "Your turn. Trace the big O.",
+    "say": "Your turn. Trace the big O.",
     "where": "Practice sheet / formation help — the demo of big O hands over"
   },
   {
@@ -355,8 +499,8 @@
   },
   {
     "id": "trace-upper-P",
-    "text": "Your turn. Trace big P.",
-    "say": "Your turn. Trace big P.",
+    "text": "Your turn. Trace the big P.",
+    "say": "Your turn. Trace the big P.",
     "where": "Practice sheet / formation help — the demo of big P hands over"
   },
   {
@@ -373,8 +517,8 @@
   },
   {
     "id": "trace-upper-Q",
-    "text": "Your turn. Trace big Q.",
-    "say": "Your turn. Trace big Q.",
+    "text": "Your turn. Trace the big Q.",
+    "say": "Your turn. Trace the big Q.",
     "where": "Practice sheet / formation help — the demo of big Q hands over"
   },
   {
@@ -391,8 +535,8 @@
   },
   {
     "id": "trace-upper-R",
-    "text": "Your turn. Trace big R.",
-    "say": "Your turn. Trace big R.",
+    "text": "Your turn. Trace the big R.",
+    "say": "Your turn. Trace the big R.",
     "where": "Practice sheet / formation help — the demo of big R hands over"
   },
   {
@@ -409,8 +553,8 @@
   },
   {
     "id": "trace-upper-S",
-    "text": "Your turn. Trace big S.",
-    "say": "Your turn. Trace big S.",
+    "text": "Your turn. Trace the big S.",
+    "say": "Your turn. Trace the big S.",
     "where": "Practice sheet / formation help — the demo of big S hands over"
   },
   {
@@ -427,8 +571,8 @@
   },
   {
     "id": "trace-upper-T",
-    "text": "Your turn. Trace big T.",
-    "say": "Your turn. Trace big T.",
+    "text": "Your turn. Trace the big T.",
+    "say": "Your turn. Trace the big T.",
     "where": "Practice sheet / formation help — the demo of big T hands over"
   },
   {
@@ -445,8 +589,8 @@
   },
   {
     "id": "trace-upper-U",
-    "text": "Your turn. Trace big U.",
-    "say": "Your turn. Trace big U.",
+    "text": "Your turn. Trace the big U.",
+    "say": "Your turn. Trace the big U.",
     "where": "Practice sheet / formation help — the demo of big U hands over"
   },
   {
@@ -463,8 +607,8 @@
   },
   {
     "id": "trace-upper-V",
-    "text": "Your turn. Trace big V.",
-    "say": "Your turn. Trace big V.",
+    "text": "Your turn. Trace the big V.",
+    "say": "Your turn. Trace the big V.",
     "where": "Practice sheet / formation help — the demo of big V hands over"
   },
   {
@@ -481,8 +625,8 @@
   },
   {
     "id": "trace-upper-W",
-    "text": "Your turn. Trace big W.",
-    "say": "Your turn. Trace big W.",
+    "text": "Your turn. Trace the big W.",
+    "say": "Your turn. Trace the big W.",
     "where": "Practice sheet / formation help — the demo of big W hands over"
   },
   {
@@ -499,8 +643,8 @@
   },
   {
     "id": "trace-upper-X",
-    "text": "Your turn. Trace big X.",
-    "say": "Your turn. Trace big X.",
+    "text": "Your turn. Trace the big X.",
+    "say": "Your turn. Trace the big X.",
     "where": "Practice sheet / formation help — the demo of big X hands over"
   },
   {
@@ -517,8 +661,8 @@
   },
   {
     "id": "trace-upper-Y",
-    "text": "Your turn. Trace big Y.",
-    "say": "Your turn. Trace big Y.",
+    "text": "Your turn. Trace the big Y.",
+    "say": "Your turn. Trace the big Y.",
     "where": "Practice sheet / formation help — the demo of big Y hands over"
   },
   {
@@ -535,8 +679,8 @@
   },
   {
     "id": "trace-upper-Z",
-    "text": "Your turn. Trace big Z.",
-    "say": "Your turn. Trace big Z.",
+    "text": "Your turn. Trace the big Z.",
+    "say": "Your turn. Trace the big Z.",
     "where": "Practice sheet / formation help — the demo of big Z hands over"
   },
   {
@@ -553,8 +697,8 @@
   },
   {
     "id": "trace-lower-a",
-    "text": "Your turn. Trace little a.",
-    "say": "Your turn. Trace little A.",
+    "text": "Your turn. Trace a little a.",
+    "say": "Your turn. Trace a little A.",
     "where": "Practice sheet / formation help — the demo of little a hands over"
   },
   {
@@ -571,8 +715,8 @@
   },
   {
     "id": "trace-lower-b",
-    "text": "Your turn. Trace little b.",
-    "say": "Your turn. Trace little B.",
+    "text": "Your turn. Trace a little b.",
+    "say": "Your turn. Trace a little B.",
     "where": "Practice sheet / formation help — the demo of little b hands over"
   },
   {
@@ -589,8 +733,8 @@
   },
   {
     "id": "trace-lower-c",
-    "text": "Your turn. Trace little c.",
-    "say": "Your turn. Trace little C.",
+    "text": "Your turn. Trace a little c.",
+    "say": "Your turn. Trace a little C.",
     "where": "Practice sheet / formation help — the demo of little c hands over"
   },
   {
@@ -607,8 +751,8 @@
   },
   {
     "id": "trace-lower-d",
-    "text": "Your turn. Trace little d.",
-    "say": "Your turn. Trace little D.",
+    "text": "Your turn. Trace a little d.",
+    "say": "Your turn. Trace a little D.",
     "where": "Practice sheet / formation help — the demo of little d hands over"
   },
   {
@@ -625,8 +769,8 @@
   },
   {
     "id": "trace-lower-e",
-    "text": "Your turn. Trace little e.",
-    "say": "Your turn. Trace little E.",
+    "text": "Your turn. Trace a little e.",
+    "say": "Your turn. Trace a little E.",
     "where": "Practice sheet / formation help — the demo of little e hands over"
   },
   {
@@ -643,8 +787,8 @@
   },
   {
     "id": "trace-lower-f",
-    "text": "Your turn. Trace little f.",
-    "say": "Your turn. Trace little F.",
+    "text": "Your turn. Trace a little f.",
+    "say": "Your turn. Trace a little F.",
     "where": "Practice sheet / formation help — the demo of little f hands over"
   },
   {
@@ -661,8 +805,8 @@
   },
   {
     "id": "trace-lower-g",
-    "text": "Your turn. Trace little g.",
-    "say": "Your turn. Trace little G.",
+    "text": "Your turn. Trace a little g.",
+    "say": "Your turn. Trace a little G.",
     "where": "Practice sheet / formation help — the demo of little g hands over"
   },
   {
@@ -679,8 +823,8 @@
   },
   {
     "id": "trace-lower-h",
-    "text": "Your turn. Trace little h.",
-    "say": "Your turn. Trace little H.",
+    "text": "Your turn. Trace a little h.",
+    "say": "Your turn. Trace a little H.",
     "where": "Practice sheet / formation help — the demo of little h hands over"
   },
   {
@@ -697,8 +841,8 @@
   },
   {
     "id": "trace-lower-i",
-    "text": "Your turn. Trace little i.",
-    "say": "Your turn. Trace little I.",
+    "text": "Your turn. Trace a little i.",
+    "say": "Your turn. Trace a little I.",
     "where": "Practice sheet / formation help — the demo of little i hands over"
   },
   {
@@ -715,8 +859,8 @@
   },
   {
     "id": "trace-lower-j",
-    "text": "Your turn. Trace little j.",
-    "say": "Your turn. Trace little J.",
+    "text": "Your turn. Trace a little j.",
+    "say": "Your turn. Trace a little J.",
     "where": "Practice sheet / formation help — the demo of little j hands over"
   },
   {
@@ -733,8 +877,8 @@
   },
   {
     "id": "trace-lower-k",
-    "text": "Your turn. Trace little k.",
-    "say": "Your turn. Trace little K.",
+    "text": "Your turn. Trace a little k.",
+    "say": "Your turn. Trace a little K.",
     "where": "Practice sheet / formation help — the demo of little k hands over"
   },
   {
@@ -751,8 +895,8 @@
   },
   {
     "id": "trace-lower-l",
-    "text": "Your turn. Trace little l.",
-    "say": "Your turn. Trace little L.",
+    "text": "Your turn. Trace a little l.",
+    "say": "Your turn. Trace a little L.",
     "where": "Practice sheet / formation help — the demo of little l hands over"
   },
   {
@@ -769,8 +913,8 @@
   },
   {
     "id": "trace-lower-m",
-    "text": "Your turn. Trace little m.",
-    "say": "Your turn. Trace little M.",
+    "text": "Your turn. Trace a little m.",
+    "say": "Your turn. Trace a little M.",
     "where": "Practice sheet / formation help — the demo of little m hands over"
   },
   {
@@ -787,8 +931,8 @@
   },
   {
     "id": "trace-lower-n",
-    "text": "Your turn. Trace little n.",
-    "say": "Your turn. Trace little N.",
+    "text": "Your turn. Trace a little n.",
+    "say": "Your turn. Trace a little N.",
     "where": "Practice sheet / formation help — the demo of little n hands over"
   },
   {
@@ -805,8 +949,8 @@
   },
   {
     "id": "trace-lower-o",
-    "text": "Your turn. Trace little o.",
-    "say": "Your turn. Trace little O.",
+    "text": "Your turn. Trace a little o.",
+    "say": "Your turn. Trace a little O.",
     "where": "Practice sheet / formation help — the demo of little o hands over"
   },
   {
@@ -823,8 +967,8 @@
   },
   {
     "id": "trace-lower-p",
-    "text": "Your turn. Trace little p.",
-    "say": "Your turn. Trace little P.",
+    "text": "Your turn. Trace a little p.",
+    "say": "Your turn. Trace a little P.",
     "where": "Practice sheet / formation help — the demo of little p hands over"
   },
   {
@@ -841,8 +985,8 @@
   },
   {
     "id": "trace-lower-q",
-    "text": "Your turn. Trace little q.",
-    "say": "Your turn. Trace little Q.",
+    "text": "Your turn. Trace a little q.",
+    "say": "Your turn. Trace a little Q.",
     "where": "Practice sheet / formation help — the demo of little q hands over"
   },
   {
@@ -859,8 +1003,8 @@
   },
   {
     "id": "trace-lower-r",
-    "text": "Your turn. Trace little r.",
-    "say": "Your turn. Trace little R.",
+    "text": "Your turn. Trace a little r.",
+    "say": "Your turn. Trace a little R.",
     "where": "Practice sheet / formation help — the demo of little r hands over"
   },
   {
@@ -877,8 +1021,8 @@
   },
   {
     "id": "trace-lower-s",
-    "text": "Your turn. Trace little s.",
-    "say": "Your turn. Trace little S.",
+    "text": "Your turn. Trace a little s.",
+    "say": "Your turn. Trace a little S.",
     "where": "Practice sheet / formation help — the demo of little s hands over"
   },
   {
@@ -895,8 +1039,8 @@
   },
   {
     "id": "trace-lower-t",
-    "text": "Your turn. Trace little t.",
-    "say": "Your turn. Trace little T.",
+    "text": "Your turn. Trace a little t.",
+    "say": "Your turn. Trace a little T.",
     "where": "Practice sheet / formation help — the demo of little t hands over"
   },
   {
@@ -913,8 +1057,8 @@
   },
   {
     "id": "trace-lower-u",
-    "text": "Your turn. Trace little u.",
-    "say": "Your turn. Trace little U.",
+    "text": "Your turn. Trace a little u.",
+    "say": "Your turn. Trace a little U.",
     "where": "Practice sheet / formation help — the demo of little u hands over"
   },
   {
@@ -931,8 +1075,8 @@
   },
   {
     "id": "trace-lower-v",
-    "text": "Your turn. Trace little v.",
-    "say": "Your turn. Trace little V.",
+    "text": "Your turn. Trace a little v.",
+    "say": "Your turn. Trace a little V.",
     "where": "Practice sheet / formation help — the demo of little v hands over"
   },
   {
@@ -949,8 +1093,8 @@
   },
   {
     "id": "trace-lower-w",
-    "text": "Your turn. Trace little w.",
-    "say": "Your turn. Trace little W.",
+    "text": "Your turn. Trace a little w.",
+    "say": "Your turn. Trace a little W.",
     "where": "Practice sheet / formation help — the demo of little w hands over"
   },
   {
@@ -967,8 +1111,8 @@
   },
   {
     "id": "trace-lower-x",
-    "text": "Your turn. Trace little x.",
-    "say": "Your turn. Trace little X.",
+    "text": "Your turn. Trace a little x.",
+    "say": "Your turn. Trace a little X.",
     "where": "Practice sheet / formation help — the demo of little x hands over"
   },
   {
@@ -985,8 +1129,8 @@
   },
   {
     "id": "trace-lower-y",
-    "text": "Your turn. Trace little y.",
-    "say": "Your turn. Trace little Y.",
+    "text": "Your turn. Trace a little y.",
+    "say": "Your turn. Trace a little Y.",
     "where": "Practice sheet / formation help — the demo of little y hands over"
   },
   {
@@ -1003,8 +1147,8 @@
   },
   {
     "id": "trace-lower-z",
-    "text": "Your turn. Trace little z.",
-    "say": "Your turn. Trace little Z.",
+    "text": "Your turn. Trace a little z.",
+    "say": "Your turn. Trace a little Z.",
     "where": "Practice sheet / formation help — the demo of little z hands over"
   },
   {

@@ -12,7 +12,7 @@ struct VoiceClipTests {
     func clipsAreBundled() {
         let cues = Voice.Cue.all
         #expect(Voice.characters.count == 62)
-        #expect(cues.count == 14 + 62 * 3)
+        #expect(cues.count == 22 + BadgeEngine.all.count * 2 + 62 * 3)
         for cue in cues {
             #expect(ClipSpeaker.url(for: cue) != nil, "\(cue.clipID) is missing from Resources/Voice")
         }
@@ -27,6 +27,7 @@ struct VoiceClipTests {
         #expect(Voice.Cue.practiceTraced("7", followedOrder: false).clipID == "traced-order-digit-7")
         #expect(Voice.Cue.lineDone(-1).clipID == "line-done-\(Voice.lineDoneLines.count - 1)")
         #expect(Voice.Cue.lineDone(Voice.lineDoneLines.count).clipID == "line-done-0")
+        #expect(Voice.Cue.badgeHint("thousand_words").clipID == "badge-thousand_words-hint")
     }
 
     @Test("The manifest the clips were cut from says what the cues say")

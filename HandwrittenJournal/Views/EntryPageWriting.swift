@@ -166,6 +166,7 @@ extension EntryPageView {
                 Text("Tell me about your day, \(profile.name)")
                     .font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
                     .multilineTextAlignment(.center)
+                    .onAppear { model.inviteToTalk() }
                 Text("Say as much as you like — up to five minutes.\nYour words land right here for you to write.")
                     .font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     .multilineTextAlignment(.center)

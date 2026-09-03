@@ -170,6 +170,7 @@ struct WelcomeFlowTests {
         var spoken: [String] = []
         var stops = 0
         func speak(_ cue: Voice.Cue) { spoken.append(cue.text) }
+        func enqueue(_ cue: Voice.Cue) { spoken.append(cue.text) }
         func stop() { stops += 1 }
     }
 
@@ -188,14 +189,21 @@ struct WelcomeFlowTests {
     @Test("Cues say whose turn it is and name the letter, and never read the page")
     func cueCopy() {
         #expect(Voice.Cue.yourTurn.text == "Your turn. Write it!")
-        #expect(Voice.Cue.practiceYourTurn("G").text == "Your turn. Trace big G.")
+        #expect(Voice.Cue.practiceYourTurn("G").text == "Your turn. Trace the big G.")
+        #expect(Voice.Cue.practiceYourTurn("g").text == "Your turn. Trace a little g.")
+        #expect(Voice.Cue.practiceYourTurn("7").text == "Your turn. Trace the 7.")
         #expect(Voice.Cue.practiceTraced("g", followedOrder: true).text == "Nice little g! Pick another letter.")
         #expect(Voice.Cue.practiceTraced("7", followedOrder: false).text == "Good the 7. Try the strokes in the arrow order.")
-        #expect(Voice.Cue.entryFinished(finishedEverything: true).text == "You wrote everything you said!")
+        #expect(Voice.Cue.entryFinished(finishedEverything: true).text == "Outstanding work! You wrote everything you said.")
         // v3.7 — recorded once for everyone: the name stays on the screen, off the clip.
         #expect(Voice.Cue.entryFinished(finishedEverything: false).text == "Great writing!")
         #expect(Voice.Cue.pencilIntro.text == "Watch the arrows, then trace the big A with the Apple Pencil.")
-        #expect(Voice.Cue.helpFixed.text == "That's the way! Your word is fixed.")
+        #expect(Voice.Cue.helpFixed.text == "That's the way! You fixed it.")
+        #expect(Voice.Cue.badgeEarned("streak_5").text == "You earned 5-Day Streak! You wrote five days in a row.")
+        #expect(Voice.Cue.badgeHint("first_entry").text == "First Entry. Write your first entry.")
+        #expect(Voice.Cue.badgeEarned("no_such_badge").text.isEmpty)
+        #expect(Voice.Cue.newEntry(1).text == "Tell me a story.")
+        #expect(Voice.Cue.newEntry(2).clipID == "new-entry-0")
         // §17 — the journal is never read aloud: no cue takes the page's words.
         for cue in [Voice.Cue.yourTurn, .lineDone(0), .lineDone(1), .preview, .pencilFound, .thatWasAFinger] {
             #expect(!cue.text.isEmpty && cue.text.count < 80, "\(cue) is a cue, not a reading")

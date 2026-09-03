@@ -17,6 +17,8 @@ struct JournalHomeView: View {
     @Bindable var profile: UserProfile
     @Binding var selected: UserProfile?
 
+    /// The home greeting has been said for this visit (v3.7).
+    @State private var greeted = false
     @State private var writing = false
     @State private var practicing = false
     @State private var opened: WritingSession?
@@ -78,7 +80,11 @@ struct JournalHomeView: View {
             }
         }
         .animation(Tokens.Motion.spring, value: shownBadge)
-        .onAppear { Telemetry.screen(.journal) }
+        .onAppear {
+            Telemetry.screen(.journal)
+            // Once per visit from the picker, not on every return from a page (§4.12, v3.7).
+            if !greeted { greeted = true; Voice.say(.home) }
+        }
         .task {
             #if DEBUG
             switch DemoData.screen {

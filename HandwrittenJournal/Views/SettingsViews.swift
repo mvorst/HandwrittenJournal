@@ -110,7 +110,11 @@ struct ProfileSettingsView: View {
             }
         }
         .onChange(of: profile.hapticsEnabled) { Haptics.configure(enabled: profile.hapticsEnabled) }
-        .onChange(of: profile.soundEnabled) { Voice.configure(enabled: profile.soundEnabled) }
+        .onChange(of: profile.soundEnabled) {
+            Voice.configure(enabled: profile.soundEnabled)
+            // Switched on, the voice introduces itself (§4.12, v3.7).
+            if profile.soundEnabled { Voice.say(.voiceOn) }
+        }
         .sheet(isPresented: $showFontPicker) { FontPickerView(setup: $setup).presentationDetents([.large]) }
         .sheet(isPresented: $showSizePicker) { SizePickerView(setup: $setup).presentationDetents([.large]) }
         .sheet(isPresented: $showEditor) {

@@ -116,6 +116,8 @@ final class WriteSessionViewModel {
     /// so a page left again with nothing changed keeps the score it has (§8.3, v3.5).
     private var scoredArchive: Data?
     var newBadges: [BadgeDefinition] = []
+    /// The empty page has been invited to talk (§4.12, v3.7) — once per entry.
+    private var invited = false
     /// The remediation modal on screen, if any. Set only from the canvas's help
     /// request; cleared only by `completeFormationHelp` — there is no other way out.
     private(set) var formationHelp: FormationHelp?
@@ -657,6 +659,14 @@ final class WriteSessionViewModel {
     /// "I'm finished": the page is scored as it stands and the results come up. Stopping
     /// part-way is ordinary, so this is the same action whether the child wrote three
     /// words or all of them.
+    /// The empty page of a new entry, as its stage appears: *Tell me about your day* (or
+    /// *Tell me a story*), then *Tap the microphone and start talking* (§4.12, v3.7).
+    func inviteToTalk() {
+        guard !invited, pageText.isEmpty else { return }
+        invited = true
+        Voice.sayNewEntry()
+    }
+
     func finishWriting() {
         recordScore()
         // The surface is torn down for the results; whatever is built next starts
@@ -665,6 +675,8 @@ final class WriteSessionViewModel {
         Haptics.success()
         if let result = lastResult {
             Voice.say(.entryFinished(finishedEverything: result.finishedEverything))
+            // A badge just earned is said after the headline (§4.12, v3.7).
+            for badge in newBadges { Voice.sayNext(.badgeEarned(badge.id)) }
         }
         stage = .results
     }

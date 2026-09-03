@@ -33,7 +33,7 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · The welcome — a grown-up agrees to the terms and privacy policy, chooses voice feedback, the child traces a letter with the Apple Pencil — and voice feedback itself (v3.4, from Penpot frames 55–58) | ✅ |
 | — · Points per letter and per whole word; an unchanged page keeps its score (v3.5) | ✅ |
 | — · *I don't have an Apple Pencil* explains why the pencil is required before it lets anyone skip, a skip lasts one launch, and each step of the welcome settles on its own (v3.6, frame 59 drawn) | ✅ |
-| — · Every string in `Localizable.xcstrings`; the voice is 200 recorded clips bundled with the app, no system synthesiser (v3.7) | ✅ |
+| — · Every string in `Localizable.xcstrings`; the voice is 224 recorded clips bundled with the app, no system synthesiser (v3.7) | ✅ |
 
 **162 tests across 24 suites** (the run that skips `PageRenderCheck`), all passing once the
 v3.7 voice clips are in the bundle.
@@ -89,10 +89,14 @@ DESIGN_DOCUMENT §0.16, §4.12. Built 2026-09-02.
   `Scripts/l10n/sync-catalog.py`: it merges the compiler's `.stringsdata` into the
   catalog, keeps the plural variations, and marks dropped keys stale.
 - **Voice.** `Services/VoiceFeedback.swift`: `Voice.Cue` gained `clipID`, `pencilIntro`,
-  `helpNext` / `helpFixed` / `helpAgain`, and `entryFinished` lost its `name:`.
+  `helpNext` / `helpFixed` / `helpAgain`, `whyPencil`, `nobodyHere`, `home`, `voiceOn`,
+  `badgeEarned(id)` / `badgeHint(id)`, `newEntry(n)` / `startTalking`, `micPermission`, and `entryFinished`
+  lost its `name:`.
   `ClipSpeaker` (`AVAudioPlayer`) replaces `SynthesizerSpeaker`; `VoiceSpeaker.speak`
-  takes the cue. `Scripts/voice/lines.py` is the manifest of the 200 lines (14 fixed +
-  62 characters × 3), `build-clips.sh` cuts them with `gcp-tts.sh` and ffmpeg (silence
+  takes the cue and `enqueue` (`Voice.sayNext`) plays one after the current clip — the
+  badges after the headline. `Scripts/voice/lines.py` is the manifest of the 224 lines
+  (22 fixed + 8 badges × 2 + 62 characters × 3; `BADGES` mirrors `BadgeEngine.all`),
+  `build-clips.sh` cuts them with `gcp-tts.sh` and ffmpeg (silence
   trimmed, mono AAC 48 kb/s, ~25 KB a clip) into `Resources/Voice/`. Lower-case letters
   are spelled in capitals in the spoken text so the voice says *little A*, not *little
   uh*; file names carry the case (`upper-A`, `lower-a`, `digit-7`) because the Mac's disk
