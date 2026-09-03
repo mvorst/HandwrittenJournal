@@ -150,7 +150,7 @@ def markdown(voice, model):
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--markdown":
         voice = sys.argv[2] if len(sys.argv) > 2 else "Leda"
-        model = sys.argv[3] if len(sys.argv) > 3 else "gemini-2.5-pro-preview-tts"
+        model = sys.argv[3] if len(sys.argv) > 3 else "gemini-2.5-flash-tts"
         sys.stdout.write(markdown(voice, model))
     else:
         json.dump(lines(), sys.stdout, indent=2, ensure_ascii=False)

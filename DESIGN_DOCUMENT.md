@@ -27,10 +27,9 @@ Build notes: `PENPOT_HANDOFF.md`.
    not sync the catalog the way Xcode does; `Scripts/l10n/sync-catalog.py` does, after
    a build.
 2. **The voice is a recording.** `AVSpeechSynthesizer` is gone. Every cue is a clip cut
-   once with a Gemini voice (`Leda`, `gemini-2.5-pro-preview-tts`) by
+   once with a Gemini voice (`Leda` on Cloud Text-to-Speech's `gemini-2.5-flash-tts`) by
    `Scripts/voice/build-clips.sh` from `Scripts/voice/lines.json`, bundled in
-   `Resources/Voice/` (224 clips, about 6 MB — 81 cut as of 2026-09-03, the rest owed
-   to the TTS quota; BUILD_LOG.md says how) and played with `AVAudioPlayer`. Nothing
+   `Resources/Voice/` (224 clips, 7.9 MB) and played with `AVAudioPlayer`. Nothing
    is synthesised on the iPad, nothing is downloaded, nothing of the child's goes
    anywhere (§10.1). One voice for the whole app; changing it is one command and a
    release. A missing clip is silence, never a system voice.
@@ -1252,7 +1251,7 @@ Rules:
   answer when the profile is made, and a sibling can have it the other way.
 - **Recorded, bundled, one voice** (v3.7). Every cue is an AAC clip in `Resources/Voice/`,
   cut once from `Scripts/voice/lines.json` by `Scripts/voice/build-clips.sh` with a
-  Gemini voice — `Leda` on `gemini-2.5-pro-preview-tts`, asked to speak *warmly and
+  Gemini voice — `Leda` on Cloud Text-to-Speech's `gemini-2.5-flash-tts`, asked to speak *warmly and
   unhurried, like a kind teacher talking to a five-year-old* — and played with
   `AVAudioPlayer` on a `.playback` session that ducks whatever else is on and hands it
   back when the clip ends. The microphone sets its own `.record` session each time a

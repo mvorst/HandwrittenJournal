@@ -114,22 +114,20 @@ DESIGN_DOCUMENT §0.16, §4.12. Built 2026-09-02.
   falls back to one line a request when a batch does not split. (Its `--verify`
   transcription gate is off by default: the transcriber drops words on short clips and
   reads *90%* as *ninezero*, so it rejected good clips and burnt quota.)
-- **Where the set stands (2026-09-03, 00:20).** All three preview TTS models are out of
-  quota for the day — `2.5-flash` and `3.1-flash` at 100 requests, `2.5-pro` at **50** —
-  after a day of partial cuts and rewording. **81 of 224 clips are in the bundle**: 66
-  from the `3.1-flash` cut whose wording did not change (the *Nice big A* / *Good big A*
-  lines, the welcome, the write cues) and 15 from `2.5-pro` (the reworded lines, the
-  frame 59 paragraph, the first badges). The 143 owed are every *Your turn. Trace…*
-  line, most badge lines, and the four newest cues; `VoiceClipTests` names them and is
-  red until they land, and a missing clip is silent in the app. To finish, once the
-  quotas reset (about 20:00 EDT): `Scripts/voice/cut-batched.py --out
-  HandwrittenJournal/Resources/Voice` (24 requests, fits `2.5-pro`'s 50); for one voice
-  from one model, `… --all` re-cuts all 224 in 38 requests. Then `build-clips.sh` is the
-  one-line-a-request alternative over three days.
+- **Where the set stands (2026-09-03, 01:35): complete.** All 224 clips are in the
+  bundle (7.9 MB), cut in one run from one source — `Leda` on Cloud Text-to-Speech's
+  `gemini-2.5-flash-tts` with the style prompt in `input.prompt` — after the AI Studio
+  key's three preview models (100, 100 and 50 requests a day) ran dry on partial sets.
+  Four random clips transcribed back word for word. The Cloud route is `TTS=cloud`, now
+  the default in `build-clips.sh`: OAuth (`gcloud auth login`; it hung on this Mac until
+  Wi-Fi IPv6 was set to link-local only, because IPv6 to Google times out), project
+  `the-bridge-to-ai-services`, **both** `texttospeech.googleapis.com` and
+  `aiplatform.googleapis.com` enabled (the Gemini-TTS voices are served through Vertex;
+  Chirp 3 HD voices such as `en-US-Chirp3-HD-Leda` need only the first), and a Vertex
+  per-minute quota on the model that the script now waits out rather than skips.
 - **Tests.** `VoiceClipTests` (3): every cue has its clip in the bundle (one expectation
   that lists what is owed), ids are distinct case-insensitively, the manifest matches the
-  cues' text. `WelcomeFlowTests` follows the new cue signatures. 161 of 162 pass while
-  the set is incomplete.
+  cues' text. `WelcomeFlowTests` follows the new cue signatures. 162 tests, all passing.
 
 ## v3.6 — the pencil is explained before it can be skipped (built)
 
