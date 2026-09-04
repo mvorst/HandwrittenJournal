@@ -29,7 +29,24 @@ final class PracticeController {
     private(set) var inkBegins = 0
     private(set) var lastInkTouch: UITouch.TouchType?
 
-    fileprivate weak var canvas: PracticeCanvasView?
+    /// The sheets showing this controller's letter, oldest first. SwiftUI can make a
+    /// surface it never shows — a layout branch it tries and discards while a card is
+    /// being presented in landscape (v3.8) — so the sheet to drive is the newest one still
+    /// alive, never simply the last one made: that one left the controller pointing at a
+    /// dead view, with *Watch again* and the tutorial's demo going nowhere.
+    @ObservationIgnored private var surfaces: [WeakCanvas] = []
+    fileprivate var canvas: PracticeCanvasView? { surfaces.last { $0.view != nil }?.view }
+
+    /// A surface came on: it is the one to drive until a newer one does.
+    func attach(_ canvas: PracticeCanvasView) {
+        surfaces.removeAll { $0.view == nil || $0.view === canvas }
+        surfaces.append(WeakCanvas(view: canvas))
+    }
+
+    /// A surface went away: whatever is still showing takes over.
+    func detach(_ canvas: PracticeCanvasView) {
+        surfaces.removeAll { $0.view == nil || $0.view === canvas }
+    }
 
     fileprivate func inkBegan(_ type: UITouch.TouchType) {
         lastInkTouch = type
@@ -50,6 +67,10 @@ final class PracticeController {
     func clear() { canvas?.clearInk() }
     /// §8.1b — wipe the ink and play the arrows again after a wrong-order attempt.
     func startOverWithDemo() { canvas?.startOverWithDemo() }
+}
+
+private struct WeakCanvas {
+    weak var view: PracticeCanvasView?
 }
 
 /// Frame 44 — the alphabet sheet. One letter is practiced at a time: touching a letter
@@ -83,7 +104,7 @@ struct PracticeSurface: UIViewRepresentable {
         view.canvas.centred = centred
         view.canvas.completed = completed
         view.canvas.text = sheetText
-        controller.canvas = view.canvas
+        controller.attach(view.canvas)
         view.canvas.onStateChange = { [weak controller] in controller?.sync() }
         view.canvas.onInkBegan = { [weak controller] in controller?.inkBegan($0) }
         view.setFingerDraws(allowFinger)
@@ -95,6 +116,17 @@ struct PracticeSurface: UIViewRepresentable {
         view.canvas.colourBlind = colourBlind
         view.canvas.completed = completed
         view.setFingerDraws(allowFinger)
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(controller: controller) }
+
+    static func dismantleUIView(_ view: PracticeScrollView, coordinator: Coordinator) {
+        coordinator.controller.detach(view.canvas)
+    }
+
+    final class Coordinator {
+        let controller: PracticeController
+        init(controller: PracticeController) { self.controller = controller }
     }
 }
 
@@ -222,9 +254,14 @@ final class PracticeCanvasView: UIView {
     /// The one touch this view listens to. Multi-touch stays enabled so that a pencil
     /// arriving after a resting palm can still be seen — and adopted over it.
     private var activeTouch: UITouch?
-    /// Set when a pencil-down switched letters; a lift with no movement then means
-    /// "show me this letter", not a dot of ink.
-    private var pencilSwitchedSelection = false
+    /// v3.8 — whether the sheet takes ink right now: only once a letter is chosen and
+    /// its arrows have finished. While the demo plays the pen is a spectator.
+    var acceptsInk: Bool {
+        switch phase {
+        case .idle, .watching:   return false
+        case .yourTurn, .traced: return true
+        }
+    }
     private static let tapSlop: CGFloat = 12
 
     /// The child's ink lives on its own transparent view **above** the canvas — demo
@@ -298,8 +335,11 @@ final class PracticeCanvasView: UIView {
     }
 
     /// §8.1b — a failed attempt starts over: the ink clears and the arrows play again.
+    /// With nothing chosen yet it chooses the sheet's first letter — how the tutorial
+    /// starts its demo on cue (frame 60, v3.8).
     func startOverWithDemo() {
-        guard let index = selectedGlyph else { return }
+        guard let index = selectedGlyph ?? maskRenderer.layout.glyphBoxes.firstIndex(where: \.isScorable)
+        else { return }
         clearInk()
         select(glyph: index, playDemo: true)
     }
@@ -425,7 +465,6 @@ final class PracticeCanvasView: UIView {
             // No demo — but the dot still says where the letter begins (v3.8).
             showStartDot(for: index, appearAt: CACurrentMediaTime(),
                          animated: !UIAccessibility.isReduceMotionEnabled)
-            pulseStartDot()
             setPhase(.yourTurn(box.character))
         }
         setNeedsDisplay()
@@ -447,7 +486,6 @@ final class PracticeCanvasView: UIView {
             if let index = selectedGlyph, startDotLayers.isEmpty {
                 showStartDot(for: index, appearAt: CACurrentMediaTime(),
                              animated: !UIAccessibility.isReduceMotionEnabled)
-                pulseStartDot()
             }
             setPhase(.yourTurn(box.character))
         } else {
@@ -463,6 +501,11 @@ final class PracticeCanvasView: UIView {
     // (tap = play the demo), so a finger stroke passes through a short deciding phase;
     // every sample seen during it is buffered and replayed into the stroke, so finger
     // ink also begins at first contact.
+    //
+    // v3.8 — the arrows come first. Any touch on a letter that is not the one in hand
+    // chooses it and plays its demo, pencil or finger, and nothing inks until the demo
+    // is over: a pen that lands while the arrows are drawing is watched, not written
+    // with. Once it is the child's turn the pen writes as before.
 
     private func drawingTouch(_ touch: UITouch) -> Bool {
         allowFinger || touch.type == .pencil
@@ -488,18 +531,17 @@ final class PracticeCanvasView: UIView {
                                 head: [(touch.location(in: self), forceOf(touch))])
     }
 
-    /// Pencil-down: resolve the letter, then start inking at the touch point itself.
+    /// Pencil-down: a new letter is chosen and shown — no ink until its arrows are
+    /// done; the letter in hand, once it is the child's turn, inks from the touch
+    /// point itself.
     private func beginPencilStroke(with touch: UITouch) {
         let point = touch.location(in: self)
-        pencilSwitchedSelection = false
         if let hit = maskRenderer.glyphIndex(at: point, slack: 10), hit != selectedGlyph {
-            select(glyph: hit, playDemo: false)
-            pencilSwitchedSelection = true
-        } else if case .watching(let char) = phase {
-            // Writing over the demo ends the show — it is their turn now.
-            finishDemoEarly(char)
+            Haptics.tap()
+            select(glyph: hit, playDemo: true)
+            return
         }
-        guard selectedGlyph != nil else { return }
+        guard acceptsInk else { return }
         current = TracingStroke()
         onInkBegan?(.pencil)
         add(touch)
@@ -520,14 +562,14 @@ final class PracticeCanvasView: UIView {
             }
             pendingTap = nil
             guard pending.canDraw else { return }
-            // A moving finger is writing. If it started on a different letter, the
-            // sheet moves on to that letter — demo skipped, they are already tracing.
+            // A moving finger is writing — but a finger that started on a different
+            // letter chooses it and watches its arrows first, like a tap would.
             if let hit = maskRenderer.glyphIndex(at: pending.point, slack: 10), hit != selectedGlyph {
-                select(glyph: hit, playDemo: false)
-            } else if case .watching(let char) = phase {
-                finishDemoEarly(char)
+                Haptics.tap()
+                select(glyph: hit, playDemo: true)
+                return
             }
-            guard selectedGlyph != nil else { return }
+            guard acceptsInk else { return }
             current = TracingStroke()
             onInkBegan?(active.type)
             // The whole buffered head, so the stroke begins where the touch did.
@@ -550,7 +592,7 @@ final class PracticeCanvasView: UIView {
             // full formation is required there, so a tap that only ever replayed the
             // demo would lock a finger tracer out of every dotted letter for good;
             // replays live on the modal's own button instead.
-            if autoSelectSoleGlyph, hasInk, pending.canDraw,
+            if autoSelectSoleGlyph, hasInk, pending.canDraw, acceptsInk,
                maskRenderer.glyphIndex(at: pending.point, slack: 10) == selectedGlyph {
                 current = TracingStroke()
                 onInkBegan?(active.type)
@@ -594,21 +636,9 @@ final class PracticeCanvasView: UIView {
     }
 
     private func endStroke() {
-        let switched = pencilSwitchedSelection
-        pencilSwitchedSelection = false
         if var finished = current {
             current = nil
             if finished.points.count == 1 {
-                if switched {
-                    // The pencil landed on a fresh letter and lifted without writing —
-                    // that is a tap, and a tap asks to see the letter.
-                    if let index = selectedGlyph {
-                        Haptics.tap()
-                        select(glyph: index, playDemo: true)
-                    }
-                    setNeedsDisplay()
-                    return
-                }
                 // A deliberate pencil dot (the dot of an i) — give it body to render.
                 var copy = finished.points[0]
                 copy.location.x += 0.5
@@ -798,14 +828,6 @@ final class PracticeCanvasView: UIView {
         hideStartDot()
     }
 
-    private func finishDemoEarly(_ char: Character) {
-        demoFinishWork?.cancel()
-        demoFinishWork = nil
-        for layer in demoLayers { staticize(layer) }
-        pulseStartDot()
-        setPhase(.yourTurn(char))
-    }
-
     /// The formation drawn stroke by stroke: each path draws itself at a followable
     /// pace with an arrowhead at its end. When the show is over the arrowheads leave
     /// and the thin lines stay — order is carried by the animation alone.
@@ -888,7 +910,6 @@ final class PracticeCanvasView: UIView {
             let work = DispatchWorkItem { [weak self] in
                 guard let self, case .watching(let char) = self.phase else { return }
                 for layer in self.demoLayers { self.staticize(layer) }
-                self.pulseStartDot()
                 self.setPhase(.yourTurn(char))
             }
             demoFinishWork = work
@@ -903,15 +924,18 @@ final class PracticeCanvasView: UIView {
     // MARK: - The start dot (v3.8)
 
     /// A blue disc with a paper-white halo at the point the first stroke begins — *start
-    /// here*. Sized to the sheet's line width so it reads at 72 pt and at 300 pt, and
-    /// inserted below the ink like the rest of the guide, so the pen draws over it.
+    /// here*. Small — a little wider than the guide line, so it marks the spot without
+    /// hiding the letter — sized to the sheet's line width so it reads at 72 pt and at
+    /// 300 pt, and inserted below the ink like the rest of the guide, so the pen draws
+    /// over it. It breathes from the moment it lands.
     private func showStartDot(for index: Int, appearAt time: CFTimeInterval, animated: Bool) {
         hideStartDot()
         guard let point = startPoint(forGlyph: index) else { return }
         let scale = sheetSetup.size.size / 72
         let lineWidth = max(2.5, 3 * scale)
-        let radius = max(6, lineWidth * 1.4)
-        let halo = disc(at: point, radius: radius + max(2, lineWidth * 0.45),
+        let radius = max(4, lineWidth * 0.9)
+        // The halo is a hairline — just enough to lift the dot off the guide line.
+        let halo = disc(at: point, radius: radius + max(1, lineWidth * 0.12),
                         fill: UIColor(Tokens.Colour.paperRaised))
         let dot = disc(at: point, radius: radius, fill: UIColor(Tokens.Colour.action))
         for layer in [halo, dot] {
@@ -930,17 +954,19 @@ final class PracticeCanvasView: UIView {
             layer.add(appear, forKey: "appear")
             layer.opacity = 1
         }
+        if animated { pulseStartDot(from: time) }
     }
 
-    /// Once it is the child's turn the dot breathes — a slow swell that draws the eye to
-    /// where to begin. Still under Reduce Motion.
-    private func pulseStartDot() {
+    /// The dot breathes — a slow swell, a second out and a second back — to draw the
+    /// eye to where to begin. Still under Reduce Motion.
+    private func pulseStartDot(from time: CFTimeInterval = CACurrentMediaTime()) {
         guard !UIAccessibility.isReduceMotionEnabled else { return }
         for layer in startDotLayers where layer.animation(forKey: "pulse") == nil {
             let pulse = CABasicAnimation(keyPath: "transform.scale")
             pulse.fromValue = 1
-            pulse.toValue = 1.3
-            pulse.duration = 0.7
+            pulse.toValue = 1.5
+            pulse.duration = 1.0
+            pulse.beginTime = time
             pulse.autoreverses = true
             pulse.repeatCount = .infinity
             pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)

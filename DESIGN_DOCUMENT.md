@@ -18,8 +18,8 @@ Build notes: `PENPOT_HANDOFF.md`.
 **The practice sheet teaches itself** (§4.11, §4.12, built 2026-09-03).
 
 1. **A blue dot says where to begin.** The moment a letter is chosen the sheet puts a
-   blue dot — `action`, with a paper-white halo — exactly where the letter's first stroke
-   starts, before the arrows draw out from it. When the demo hands over the dot breathes
+   blue dot — `action`, with a paper-white halo, a little wider than the guide line — exactly where the letter's first stroke
+   starts, before the arrows draw out from it. It breathes slowly from the moment it lands
    (still under Reduce Motion) until the pen has traced the letter; a pen that starts on a
    letter without the demo gets the dot too. It is the answer to the question every
    child asks the sheet — *where do I start?* — and it appears wherever the sheet does:
@@ -32,7 +32,21 @@ Build notes: `PENPOT_HANDOFF.md`.
    as the letter goes through them and the card ends with *Let's practice*; *Watch again*,
    *Skip* and the ✕ leave earlier. Owed once per profile (`UserProfile.practiceTutorialSeen`);
    a **?** in the sheet's toolbar brings it back.
-3. **The tutorial speaks** (§4.12). One clip a step, in the recorded voice — *Here's how to
+3. **The arrows come first.** Touching a letter — with a finger *or* the pencil — chooses
+   it and plays its demo, and nothing inks until the arrows have finished: a pen that
+   lands while they are drawing is watched, not written with. A pencil that starts on a
+   new letter used to skip the demo and switch straight to tracing; now every letter is
+   shown before it is traced, on the sheet, in the remediation modal and on the welcome's
+   pencil check. Once it is the child's turn the pen writes exactly as before.
+4. **A wrong-order trace is shown again.** When a letter flips green out of the arrow
+   order the sheet keeps the one point and says the nudge, then after a beat wipes the
+   ink and replays the arrows for that letter — the remediation modal's move (§8.1b),
+   without its lock: the child can still pick any other letter.
+5. **Nothing talks over a clip** (§4.12). A cue used to cut off whatever was playing —
+   the wrong-order nudge lost its second sentence to the replay's *Your turn*. Now a cue
+   waits for the clip to end and supersedes any other cue still waiting; only leaving a
+   screen or the microphone stops a clip short.
+6. **The tutorial speaks** (§4.12). One clip a step, in the recorded voice — *Here's how to
    practice a letter…*, *See the blue dot? That's where you start…*, *Now trace the letter
    with your pencil…*, *That's it! Now pick any letter…* — 228 clips.
 
@@ -1197,24 +1211,28 @@ stay, solid**, an inner guide running down the middle of each stroke, and the fo
 *"Your turn."* The child's ink always renders **above** the guide — the guide is part of
 the paper, the ink is the pen.
 
-**The pencil is a pen, the finger is a pointer.** A pencil touch inks immediately, from
-the exact point it lands — no tap-slop dead zone, no scroll-view touch delay, and a
-pencil arriving after a resting palm takes the stroke over from it. A pencil tap on a
-*new* letter still plays the demo (landed, lifted, wrote nothing = a tap); on the
-already-selected letter it leaves a dot, which is how the dot of an i gets traced.
-Finger taps always play the demo; finger strokes buffer their first samples through the
-tap-detection phase so their ink also begins at first contact. The
+**The arrows come first** (v3.8). Any touch on a letter that is not the one in hand —
+pencil or finger, tap or stroke — chooses it and plays its demo, and the sheet takes no
+ink until the arrows have finished: a pen that lands while they are drawing is a
+spectator. The footer says *Watch how you write big G…* until the demo hands over.
+
+**The pencil is a pen, the finger is a pointer.** Once it is the child's turn, a pencil
+touch inks immediately, from the exact point it lands — no tap-slop dead zone, no
+scroll-view touch delay, and a pencil arriving after a resting palm takes the stroke
+over from it. A pencil tap on the letter in hand leaves a dot, which is how the dot of
+an i gets traced. Finger taps replay the demo; finger strokes buffer their first samples
+through the tap-detection phase so their ink also begins at first contact. The
 child traces with the live green/red ink of the writing page. Enough good ink — measured
 as **pen-travel inside the letter against the formation's own length**, so a fast
 confident trace earns the same credit as a slow careful one — flips the cell green with a
 success haptic: *"Nice G! Pick another letter."* Touching the next letter clears the
-last one; touching the same letter replays its demo. A pen that simply starts writing on
-another letter switches to it without the demo — they are already tracing.
+last one and shows it; touching the same letter replays its demo.
 
 **The blue dot** (v3.8). Choosing a letter puts a blue dot (`action`, with a paper-white
-halo, sized to the sheet's line width) exactly where its first stroke begins — the demo's
-arrows draw out from it — and once it is the child's turn the dot breathes until the
-letter is traced (a slow swell, still under Reduce Motion). A pen that starts on a letter
+halo, a little wider than the sheet's guide line) exactly where its first stroke begins —
+the demo's arrows draw out from it — and the dot breathes slowly, a second out and a
+second back, from the moment it lands until the letter is traced (still under Reduce
+Motion). A pen that starts on a letter
 without the demo gets the dot too, and a traced letter that is wiped gets it back. The
 dot is part of the sheet, so it appears wherever the sheet does: here, in the remediation
 modal (§8.1b) and on the welcome's pencil check (§4.0).
@@ -1223,10 +1241,12 @@ modal (§8.1b) and on the welcome's pencil check (§4.0).
 in the family of the PIN pad: the title, three numbered steps and a 320 × 400 one-letter
 sheet running the sheet's own loop on a little *a* — chosen because its bowl begins on the
 right, where a child does not expect to start, so the dot has something to say. The steps
-light up as the letter goes through them — *Touch a letter and watch how it's written*
-while the demo plays, *Start at the blue dot and follow the arrows* when it hands over,
-*Trace it with your Apple Pencil. Green ink is on the letter, red is off* once ink is down
-— and each is said aloud as it comes (§4.12). Enough good ink flips the sheet green (the
+light up as the letter goes through them, and each is said aloud **in step with the
+sheet** (§4.12): the letter sits bare while *Touch a letter and watch how it's written* is
+said, and the demo starts only as that line ends; *Start at the blue dot and follow the
+arrows* is said as the dot lands and the arrows draw; *Trace it with your Apple Pencil.
+Green ink is on the letter, red is off* when the demo hands over. *Watch again* stops
+whatever is being said and starts the arrows and the narration over together. Enough good ink flips the sheet green (the
 sheet's bar, not the modal's) and the card ends with *Let's practice*; until then *Watch
 again* replays the arrows and *Skip* or the ✕ leave. The scrim does not close it — a hand
 resting beside the card while the pencil traces must not end the lesson. Owed once per
@@ -1244,6 +1264,10 @@ visible, and the idle footer carries a one-line legend. Undo and clear live in t
 live accuracy shows in the footer while ink is down. The footer % takes the order discount (§8.1a) exactly as the journal does —
 the sheet teaches the rule the journal grades — and when a traced letter ignored the
 arrows the "Nice G!" line becomes a nudge: *"Good G! Try the strokes in the arrow order."*
+— and, after a beat long enough to see the green (v3.8), the ink is wiped and the arrows
+play again for that letter, so it is shown the right way before it is tried again. The
+single point stands and stays in the footer through the replay; the sheet is not a
+dead-end — any other letter can be chosen instead.
 
 **Why Jua only:** the stroke-order guides are hand-authored per letterform
 (`LetterFormations.swift`, 62 characters × 1–4 strokes, in glyph-ink-box coordinates,
@@ -1278,12 +1302,16 @@ would. Cues, not narration:
 | *Voice feedback* switched on in Settings (v3.7) | *Voice feedback is on. I'll tell you when it's your turn to write.* | `voice-on` |
 | A new entry opens on the empty page (v3.7) | *Tell me about your day.* or *Tell me a story.* — alternating — then *Tap the microphone and start talking.* Once per entry | `new-entry-0…1` · `start-talking` |
 | The microphone explainer (§4.2 frame 40, v3.7) | *Can we use the microphone? It allows us to write down what you tell us so you can trace the words.* | `mic-permission` |
-| *How to trace a letter* (§4.11 frame 60, v3.8) | As it appears: *Here's how to practice a letter. Touch it, and watch how it's written.* — when its demo hands over: *See the blue dot? That's where you start. Follow the arrows.* then, queued, *Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!* — when the letter is traced: *That's it! Now pick any letter on the sheet and trace it.* | `practice-how-watch` · `practice-how-start` · `practice-how-trace` · `practice-how-done` |
+| *How to trace a letter* (§4.11 frame 60, v3.8) | As it appears, over the bare letter: *Here's how to practice a letter. Touch it, and watch how it's written.* — as the dot lands and the arrows draw (the demo waits for the first line): *See the blue dot? That's where you start. Follow the arrows.* — when the demo hands over: *Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!* — when the letter is traced: *That's it! Now pick any letter on the sheet and trace it.* | `practice-how-watch` · `practice-how-start` · `practice-how-trace` · `practice-how-done` |
 
 Letters are named *big G*, *little g*, *the 7* — 62 characters, three clips each, so
 the practice sheet and the modal never stitch a sentence together from pieces. A cue
 that should follow another rather than cut it off — a badge after the headline — is
-queued (`Voice.sayNext`); everything else interrupts.
+queued behind everything (`Voice.sayNext`). **Nothing talks over a clip** (v3.8): a cue
+that arrives while one is playing waits for it to end, and takes the place of any other
+cue that was waiting, so the newest is what is said next — *Good big G. Try the strokes
+in the arrow order* finishes before the replay's *Your turn. Trace the big G*. Only
+`Voice.stop` cuts a clip short: leaving a screen, closing a card, or the microphone.
 
 Rules:
 
@@ -1297,8 +1325,10 @@ Rules:
   answer when the profile is made, and a sibling can have it the other way.
 - **Recorded, bundled, one voice** (v3.7). Every cue is an AAC clip in `Resources/Voice/`,
   cut once from `Scripts/voice/lines.json` by `Scripts/voice/build-clips.sh` with a
-  Gemini voice — `Leda` on Cloud Text-to-Speech's `gemini-2.5-flash-tts`, asked to speak *warmly and
-  unhurried, like a kind teacher talking to a five-year-old* — and played with
+  Gemini voice — `Leda` on Cloud Text-to-Speech's `gemini-2.5-flash-tts`, asked to speak *warmly,
+  like a kind teacher talking to an eight-year-old* (the prompt is `STYLE` in `lines.py`; the
+  first cut asked for *unhurried … a five-year-old* and came out at 85 words a minute, half
+  a natural reading pace, so v3.9 re-cut every clip at about 115) — and played with
   `AVAudioPlayer` on a `.playback` session that ducks whatever else is on and hands it
   back when the clip ends. The microphone sets its own `.record` session each time a
   take starts, so the two never fight. Nothing is synthesised on the iPad — a missing

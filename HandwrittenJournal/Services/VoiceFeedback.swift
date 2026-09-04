@@ -4,8 +4,12 @@ import AVFoundation
 /// record what would have been said.
 @MainActor
 protocol VoiceSpeaker: AnyObject {
+    /// Says the cue — now if nothing is playing, otherwise once the current clip ends,
+    /// in place of anything else that was waiting (v3.8). Never over the top of, and
+    /// never cutting off, a clip: only `stop` does that.
     func speak(_ cue: Voice.Cue)
-    /// Says the cue after whatever is playing, or now if nothing is.
+    /// Says the cue after whatever is playing *and* whatever is waiting, or now if
+    /// nothing is.
     func enqueue(_ cue: Voice.Cue)
     func stop()
 }
@@ -258,14 +262,17 @@ enum Voice {
 
     /// Says the cue if the profile allows it and the mic is not listening. `always`
     /// is for the welcome, where there is no profile yet and the grown-up asked to
-    /// hear it.
+    /// hear it. A cue never talks over or cuts off the one playing (v3.8): it waits for
+    /// the clip to end, and it takes the place of any other cue that was waiting — the
+    /// newest is the one that matters. `stop` is the only thing that cuts a clip short.
     static func say(_ cue: Cue, always: Bool = false) {
         guard always || enabled, !isListening else { return }
         speaker.speak(cue)
     }
 
-    /// Says the cue once whatever is playing has finished — a badge after the results
-    /// headline. The same guards as `say`.
+    /// Says the cue once whatever is playing *and* waiting has finished — a badge after
+    /// the results headline, *Tap the microphone* after the invitation. The same guards
+    /// as `say`.
     static func sayNext(_ cue: Cue, always: Bool = false) {
         guard always || enabled, !isListening else { return }
         speaker.enqueue(cue)
@@ -285,6 +292,13 @@ enum Voice {
     }
 
     static func stop() { speaker.stop() }
+
+    /// How long a cue's clip runs — for a screen that times something to a line, as the
+    /// tutorial times its demo to follow its first (frame 60, v3.8). Zero without a clip.
+    static func duration(of cue: Cue) -> TimeInterval {
+        guard let url = ClipSpeaker.url(for: cue), let player = try? AVAudioPlayer(contentsOf: url) else { return 0 }
+        return player.duration
+    }
 }
 
 /// Plays a cue's bundled clip with `AVAudioPlayer`. The shared audio session becomes a
@@ -295,8 +309,11 @@ enum Voice {
 @MainActor
 final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     private var player: AVAudioPlayer?
-    /// Cues waiting for the current clip to end (`enqueue`).
+    /// Cues waiting for the current clip to end: `speak` replaces them, `enqueue` adds.
     private var queue: [Voice.Cue] = []
+    /// For the tests: what is waiting, and whether a clip is playing.
+    var pending: [Voice.Cue] { queue }
+    var isPlaying: Bool { player != nil }
 
     /// Where a cue's recording lives in the bundle.
     nonisolated static func url(for cue: Voice.Cue, in bundle: Bundle = .main) -> URL? {
@@ -304,8 +321,8 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     }
 
     func speak(_ cue: Voice.Cue) {
-        stop()
-        play(cue)
+        // Whatever is playing finishes; whatever was waiting is superseded (v3.8).
+        if player == nil { play(cue) } else { queue = [cue] }
     }
 
     func enqueue(_ cue: Voice.Cue) {

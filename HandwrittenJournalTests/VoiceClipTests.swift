@@ -31,6 +31,23 @@ struct VoiceClipTests {
         #expect(Voice.Cue.badgeHint("thousand_words").clipID == "badge-thousand_words-hint")
     }
 
+    @Test("A cue waits for the clip that is playing, and the newest waiting cue wins")
+    func cuesNeverTalkOverEachOther() {
+        let speaker = ClipSpeaker()
+        speaker.speak(.lineDone(0))
+        // The test host may have no audio route; then there is nothing to wait for.
+        guard speaker.isPlaying else { return }
+        speaker.speak(.lineDone(1))
+        #expect(speaker.isPlaying, "the first clip was not cut off")
+        #expect(speaker.pending == [.lineDone(1)])
+        speaker.speak(.lineDone(2))
+        #expect(speaker.pending == [.lineDone(2)], "the newer cue supersedes the waiting one")
+        speaker.enqueue(.startTalking)
+        #expect(speaker.pending == [.lineDone(2), .startTalking], "enqueue adds behind")
+        speaker.stop()
+        #expect(!speaker.isPlaying && speaker.pending.isEmpty, "stop is the one interruption")
+    }
+
     @Test("The manifest the clips were cut from says what the cues say")
     func manifestMatchesCues() throws {
         let url = URL(fileURLWithPath: #filePath)

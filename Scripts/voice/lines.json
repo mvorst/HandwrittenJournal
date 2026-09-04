@@ -141,13 +141,13 @@
     "id": "practice-how-start",
     "text": "See the blue dot? That's where you start. Follow the arrows.",
     "say": "See the blue dot? That's where you start. Follow the arrows.",
-    "where": "Practice, frame 60 — the tutorial's demo hands over"
+    "where": "Practice, frame 60 — the dot lands and the arrows draw (the demo waits for the first line)"
   },
   {
     "id": "practice-how-trace",
     "text": "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!",
     "say": "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!",
-    "where": "Practice, frame 60 — right after the blue-dot line"
+    "where": "Practice, frame 60 — the tutorial's demo hands over"
   },
   {
     "id": "practice-how-done",

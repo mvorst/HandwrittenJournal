@@ -19,9 +19,9 @@ import argparse, base64, json, os, re, subprocess, sys, tempfile, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from lines import lines as all_lines, markdown  # noqa: E402
+from lines import STYLE as STYLE_PROMPT, lines as all_lines, markdown  # noqa: E402
 
-STYLE = "Say this warmly and unhurried, like a kind teacher talking to a five-year-old. "
+STYLE = STYLE_PROMPT + ". "
 BATCH_INSTRUCTION = "Read these lines one after another, leaving a silent pause of two full seconds between lines:\n\n"
 TRANSCRIBE_MODEL = "gemini-3.6-flash"
 API = "https://generativelanguage.googleapis.com/v1beta"

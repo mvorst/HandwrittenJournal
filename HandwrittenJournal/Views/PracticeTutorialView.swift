@@ -3,8 +3,10 @@ import SwiftUI
 /// Frame 60 — *How to trace a letter* (§4.11, v3.8). The practice sheet's tutorial: a
 /// card over the sheet on a first visit, and behind the ? in the toolbar after that. It
 /// teaches by doing — the practice sheet's own one-letter loop runs inside the card, and
-/// the three steps light up as the letter goes through them: the demo plays, the blue dot
-/// says where to begin, the pen traces. Each step is said aloud as it comes (§4.12).
+/// the three steps light up as the letter goes through them, each said aloud in step with
+/// what the sheet is doing (§4.12): the first line over the bare letter, the demo starting
+/// only when it ends; the second as the blue dot lands and the arrows draw; the third when
+/// the demo hands over. *Watch again* starts the arrows and the narration over together.
 ///
 /// Closable three ways — *Skip*, the ✕, and *Let's practice* once the letter is traced —
 /// but never by the scrim: a hand resting beside the card while the pencil traces must
@@ -15,8 +17,6 @@ struct PracticeTutorialOverlay: View {
     let onClose: () -> Void
 
     @State private var controller = PracticeController()
-    /// A finger or pencil has begun on the letter — step three is under way.
-    @State private var inkSeen = false
 
     /// The tutorial's letter: a little *a*, whose bowl begins on the right — the one
     /// place a child does not expect to start — so the blue dot has something to say.
@@ -26,8 +26,12 @@ struct PracticeTutorialOverlay: View {
     private static let sheetWidth: CGFloat = 320
     private static let sheetHeight: CGFloat = 400
 
-    private var step: PracticeTutorialStep {
-        PracticeTutorialStep.current(phase: controller.phase, hasInk: controller.hasInk || inkSeen)
+    private var step: PracticeTutorialStep { PracticeTutorialStep.current(phase: controller.phase) }
+
+    /// How long the sheet shows the bare letter before its arrows start: the first line,
+    /// plus a breath — or a short beat when the voice is off.
+    static func introDelay(voiceOn: Bool, line: TimeInterval) -> TimeInterval {
+        voiceOn && line > 0 ? line + 0.4 : 0.9
     }
 
     var body: some View {
@@ -45,24 +49,29 @@ struct PracticeTutorialOverlay: View {
             Telemetry.screen(.practiceTutorial)
             Voice.say(.practiceHowWatch)
         }
+        // The arrows wait for the first line: the letter sits bare while it is said, and
+        // the demo starts as it ends.
+        .task {
+            let delay = Self.introDelay(voiceOn: Voice.enabled, line: Voice.duration(of: .practiceHowWatch))
+            try? await Task.sleep(for: .seconds(delay))
+            guard case .idle = controller.phase else { return }
+            controller.startOverWithDemo()
+        }
         .onDisappear { Voice.stop() }
         .onChange(of: controller.phase) { before, phase in
             switch phase {
-            case .yourTurn:
-                // The demo handed over: the dot, then how to trace, in one breath.
-                guard case .watching = before else { return }
-                inkSeen = false
+            case .watching:
+                // The dot has landed and the arrows are drawing — step two, as it happens.
                 Voice.say(.practiceHowStart)
-                Voice.sayNext(.practiceHowTrace)
+            case .yourTurn:
+                // The demo handed over — step three.
+                if case .watching = before { Voice.say(.practiceHowTrace) }
             case .traced:
                 Voice.say(.practiceHowDone)
-            case .watching:
-                inkSeen = false
             case .idle:
                 break
             }
         }
-        .onChange(of: controller.inkBegins) { inkSeen = true }
         .animation(Tokens.Motion.spring, value: step)
     }
 
@@ -168,7 +177,6 @@ struct PracticeTutorialOverlay: View {
                         allowFinger: allowFinger,
                         colourBlind: colourBlind,
                         sheetText: Self.letter,
-                        autoSelectSoleGlyph: true,
                         centred: true,
                         controller: controller)
             .frame(width: Self.sheetWidth, height: Self.sheetHeight)
@@ -189,6 +197,9 @@ struct PracticeTutorialOverlay: View {
             HStack(spacing: Tokens.Space.s6) {
                 TextButton(title: "Watch again", systemImage: "arrow.counterclockwise") {
                     Haptics.tap()
+                    // The narration starts over with the arrows: whatever was being said
+                    // stops, and step two is said again as the dot lands.
+                    Voice.stop()
                     controller.startOverWithDemo()
                 }
                 TextButton(title: "Skip", tint: Tokens.Colour.textSecondary) { close() }
@@ -220,14 +231,14 @@ enum PracticeTutorialStep: Int, CaseIterable, Hashable {
 
     enum State { case done, current, waiting }
 
-    /// Where a letter is in the loop: watching is step one, its turn with no ink yet is
-    /// step two, ink on the letter is step three, and traced is done. Nothing chosen
-    /// yet (the sheet before it selects its letter) reads as step one.
-    static func current(phase: PracticePhase, hasInk: Bool) -> PracticeTutorialStep {
+    /// Where a letter is in the loop: the bare letter before its demo is step one, the
+    /// arrows drawing from the dot is step two, its turn is step three, and traced is done.
+    static func current(phase: PracticePhase) -> PracticeTutorialStep {
         switch phase {
-        case .idle, .watching: return .watch
-        case .yourTurn:        return hasInk ? .trace : .start
-        case .traced:          return .done
+        case .idle:     return .watch
+        case .watching: return .start
+        case .yourTurn: return .trace
+        case .traced:   return .done
         }
     }
 

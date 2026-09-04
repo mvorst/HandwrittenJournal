@@ -34,6 +34,7 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · Points per letter and per whole word; an unchanged page keeps its score (v3.5) | ✅ |
 | — · *I don't have an Apple Pencil* explains why the pencil is required before it lets anyone skip, a skip lasts one launch, and each step of the welcome settles on its own (v3.6, frame 59 drawn) | ✅ |
 | — · Every string in `Localizable.xcstrings`; the voice is 224 recorded clips bundled with the app, no system synthesiser (v3.7) | ✅ |
+| — · The voice picks up its pace: the style prompt is one constant in `lines.py`, every clip re-cut at 111 words a minute (v3.9) | ✅ |
 
 **162 tests across 24 suites** (the run that skips `PageRenderCheck`), all passing once the
 v3.7 voice clips are in the bundle.
@@ -70,6 +71,38 @@ spec first, then the code.
 
 ---
 
+## v3.9 — the voice picks up its pace (built)
+
+DESIGN_DOCUMENT §4.12. Built 2026-09-03.
+
+- **Why.** The v3.7 clips were cut with the style prompt *warmly and unhurried, like a
+  kind teacher talking to a five-year-old*, and the model took *unhurried* literally:
+  228 clips, 1,768 words, twenty minutes of audio — 87 words a minute overall, a median
+  of 83, the trace prompts at 60. Reading aloud to a child runs at 110–130.
+- **What changed.** Only the prompt. `STYLE` in `Scripts/voice/lines.py` is now *Say this
+  warmly, like a kind teacher talking to an eight-year-old*, and it is the one source:
+  `build-clips.sh` reads it (`lines.py --style`; the `STYLE=` environment override stays
+  for trials), `cut-batched.py` imports it, and the generated `CLIPS.md` quotes it. A
+  five-line trial found that adding *at a natural, lively pace* changed nothing (115
+  against 119 words a minute), so the prompt stays plain. Google documents no
+  speaking-rate parameter for Gemini-TTS — pace is prompt-driven — and the app plays the
+  clips at their recorded speed (no `AVAudioPlayer` rate).
+- **The re-cut.** `Scripts/voice/build-clips.sh --all` (Leda, `gemini-2.5-flash-tts`,
+  Cloud Text-to-Speech): 228 of 228 in one run, no retries, about twenty minutes. Now
+  111 words a minute overall (median 104), sixteen minutes of audio, 6.3 MB (was 7.9).
+  Two-word lines still measure slow because the 120 ms of air either side is a third of
+  the clip. No line changed, so `lines.json` and the cues are untouched.
+- **Gotchas.** A Cloud TTS run needs a live `gcloud auth login`; the session had lapsed
+  (*Reauthentication failed. cannot prompt during non-interactive execution*) and only a
+  browser sign-in brings it back. The IPv6 stall from v3.7 is gone (IPv6 now fails fast
+  and curl falls back to IPv4).
+- **Checks.** `Scripts/voice/verify-clips.py`: 218 of 228 transcribe back at ≥ 0.90; nine
+  of the ten below were the transcriber's usual slips (*axe* for X, *owl* for l, *Right*
+  for *Write*, *Bigby* for *big B*), and the one real doubt — the 5-Day Streak hint heard
+  as *That's five days in a row* — was re-cut alone (`build-clips.sh` without `--all` cuts
+  only what is missing) and came back word for word. `VoiceClipTests` (3) pass on the
+  iPad Air 13-inch simulator.
+
 ## v3.8 — the practice sheet teaches itself (built)
 
 DESIGN_DOCUMENT §0.17, §4.11, §4.12. Built 2026-09-03.
@@ -77,11 +110,36 @@ DESIGN_DOCUMENT §0.17, §4.11, §4.12. Built 2026-09-03.
 - **The blue dot.** `PracticeCanvasView.startPoint(forGlyph:)` is the first point of the
   letter's first formation stroke, placed in the fitter's formation rect; `showStartDot`
   installs a halo and a disc (`CAShapeLayer`s named `start`, framed on the point so a
-  scale animation swells them about their centre) below the ink overlay, `pulseStartDot`
-  adds the breathing once the demo hands over (or at once when a pen starts a letter
-  without the demo), and `hideStartDot` removes them when the letter flips to `.traced`
+  scale animation swells them about their centre) below the ink overlay — radius
+  0.9 × the guide line width, at least 4 pt, with a hairline halo of 0.12 × — `pulseStartDot` adds the breathing (1 → 1.5,
+  a second each way, from the moment the dot lands), and `hideStartDot` removes them when the letter flips to `.traced`
   and with every `clearDemo`. `clearInk` after a traced letter brings the dot back. The
   demo's first stroke waits 0.35 s for the dot to land.
+- **The arrows first.** `PracticeCanvasView.acceptsInk` is true only in `.yourTurn` and
+  `.traced`. `beginPencilStroke` and the finger's tap-to-stroke graduation both treat a
+  touch on a letter that is not selected as *choose it and play its demo* (`select(glyph:
+  playDemo: true)`, with a tap haptic) and return without ink; on the letter in hand they
+  ink only when `acceptsInk`. `finishDemoEarly` and `pencilSwitchedSelection` are gone —
+  there is no writing over the demo, and a pencil tap on a new letter is simply the
+  selection. `addInk` (the tests' path) is not gated.
+- **Wrong order replays.** `PracticeView.replayAfterWrongOrder`: on `.traced` with
+  `followedOrder == false`, after 1.4 s and only if the sheet is still on that traced
+  letter, `controller.startOverWithDemo()` wipes the ink and plays the arrows again. The
+  award stays in the footer through the replay (`awardedChar`) and yields to the live %
+  when the next stroke begins (`inkBegins`, reported at pen-down — `hasInk` reaches the
+  controller only at pen-up, in the same update as the award).
+- **No clip talks over another.** `ClipSpeaker.speak` no longer stops the player: if a
+  clip is playing the cue becomes the *only* waiting cue (`queue = [cue]`) and plays
+  when the clip ends; `enqueue` still appends. `stop` (screen changes, the mic) is the
+  one interruption. `VoiceSpeaker`'s doc says so; the tests' `RecordingSpeaker` is
+  unaffected.
+- **The controller follows the live sheet.** `PracticeController` no longer holds one
+  weak `canvas`: `PracticeSurface.makeUIView` calls `attach`, `dismantleUIView` (via a
+  small coordinator) calls `detach`, and `canvas` is the newest surface still alive. In
+  landscape SwiftUI built the card's portrait branch, then the landscape one, and
+  discarded one of them after the other had been bound, leaving the controller on a dead
+  view — the tutorial's demo never started and *Watch again* did nothing. Found with a
+  console print, fixed for the welcome and the remediation modal as well.
 - **The tutorial.** `Views/PracticeTutorialView.swift`: `PracticeTutorialOverlay` (the
   card — title, three step rows, a 320 × 400 `PracticeSurface` on `"a"` with
   `autoSelectSoleGlyph` and `centred`, the buttons, the ✕; a landscape variant lays the
@@ -92,17 +150,23 @@ DESIGN_DOCUMENT §0.17, §4.11, §4.12. Built 2026-09-03.
   450 ms pause so the push has landed; the `?` (`questionmark.circle`, leading the trailing
   toolbar group) reopens it. `UserProfile.practiceTutorialSeen` is set however the card
   closes. Screen `practice_tutorial` in `Telemetry`.
-- **Voice.** Four cues — `practiceHowWatch` / `Start` / `Trace` / `Done`, clips
-  `practice-how-*` — said as the card appears, when its demo hands over (`Start`, with
-  `Trace` queued behind it via `Voice.sayNext`), and when the letter is traced. Cut with
+- **Voice, in step with the sheet.** Four cues — `practiceHowWatch` / `Start` / `Trace` /
+  `Done`, clips `practice-how-*`. The card's sheet does *not* auto-select: `Watch` is said
+  over the bare letter and a `.task` starts the demo (`controller.startOverWithDemo()`,
+  which now picks the first letter when none is chosen) after `Voice.duration(of:)` of
+  that clip plus 0.4 s (`PracticeTutorialOverlay.introDelay`; 0.9 s with the voice off).
+  `Start` is said on `.watching` — as the dot lands — `Trace` on the hand-over to
+  `.yourTurn`, `Done` on `.traced`. `PracticeTutorialStep.current(phase:)` maps idle →
+  watch, watching → start, yourTurn → trace. *Watch again* calls `Voice.stop()` before
+  `startOverWithDemo()`, so the arrows and the narration restart together. Cut with
   `TTS=cloud Scripts/voice/build-clips.sh` (Leda, `gemini-2.5-flash-tts`); the manifest is
   228 lines.
 - **Harness.** `-screen practice-tutorial` opens the sheet with the tutorial owed; the
   seeded Milo has seen it, so `-screen practice` is the bare sheet as before.
-- **Tests.** `PracticeTutorialTests` (5): the flag defaults off; the steps follow the
+- **Tests.** `PracticeTutorialTests` (7, with the replay test): the flag defaults off; the steps follow the
   sheet's loop; the four lines; the dot sits where the taught path starts, on the right
-  of the little a; the dot appears with the demo, leaves when the letter is traced and
-  returns when the ink is wiped. `VoiceClipTests` counts 26 fixed clips.
+  of the little a; no ink is accepted until the demo hands over; the dot appears with
+  the demo, leaves when the letter is traced and returns when the ink is wiped. `VoiceClipTests` counts 26 fixed clips.
 
 ## v3.7 — one catalog of strings, a recorded voice (built)
 

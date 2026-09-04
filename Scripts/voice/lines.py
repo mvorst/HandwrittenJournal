@@ -13,6 +13,13 @@ import os
 import string
 import sys
 
+# How the voice is asked to read every line — the style prompt sent with each request
+# (build-clips.sh and cut-batched.py read it from here; CLIPS.md quotes it). It is an
+# instruction to the model and is not spoken. Pace lives here: "unhurried … five-year-old"
+# came out at about 85 words a minute, half a natural reading pace, so it is now an
+# eight-year-old (v3.9).
+STYLE = "Say this warmly, like a kind teacher talking to an eight-year-old"
+
 # (clip id, what it says, where it plays — DESIGN_DOCUMENT.md §4.12)
 FIXED = [
     ("preview",       "Hi! I'm your journal. I'll tell you when it's your turn to write.", "Welcome, frame 56 — *Hear it*"),
@@ -40,8 +47,8 @@ FIXED = [
     ("start-talking", "Tap the microphone and start talking.", "Write — right after the invitation"),
     ("mic-permission", "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.", "Write — the microphone explainer, before iPadOS asks"),
     ("practice-how-watch", "Here's how to practice a letter. Touch it, and watch how it's written.", "Practice, frame 60 — *How to trace a letter* appears"),
-    ("practice-how-start", "See the blue dot? That's where you start. Follow the arrows.", "Practice, frame 60 — the tutorial's demo hands over"),
-    ("practice-how-trace", "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!", "Practice, frame 60 — right after the blue-dot line"),
+    ("practice-how-start", "See the blue dot? That's where you start. Follow the arrows.", "Practice, frame 60 — the dot lands and the arrows draw (the demo waits for the first line)"),
+    ("practice-how-trace", "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!", "Practice, frame 60 — the tutorial's demo hands over"),
     ("practice-how-done", "That's it! Now pick any letter on the sheet and trace it.", "Practice, frame 60 — the tutorial's letter is traced"),
 ]
 
@@ -129,9 +136,9 @@ def markdown(voice, model):
         "",
         f"Every line the app says (DESIGN_DOCUMENT.md §4.12), as recorded: one clip each in",
         f"`HandwrittenJournal/Resources/Voice/`, cut from `lines.json` by `build-clips.sh` with the",
-        f"Gemini voice **{voice}** on `{model}`, spoken *warmly and unhurried, like a kind teacher",
-        "talking to a five-year-old*. Mono AAC, 48 kb/s, silence trimmed. The app never uses a",
-        "system voice: a cue with no clip is silent.",
+        f"Gemini voice **{voice}** on `{model}` and the style prompt *{STYLE}*. Mono AAC,",
+        "48 kb/s, silence trimmed. The app never uses a system voice: a cue with no clip is",
+        "silent.",
         "",
         "This file is generated — edit `lines.py`, not this. Lower-case letters are spelled in",
         "capitals in the spoken text so the voice says the letter, not the article.",
@@ -158,7 +165,9 @@ def markdown(voice, model):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--markdown":
+    if len(sys.argv) > 1 and sys.argv[1] == "--style":
+        print(STYLE)
+    elif len(sys.argv) > 1 and sys.argv[1] == "--markdown":
         voice = sys.argv[2] if len(sys.argv) > 2 else "Leda"
         model = sys.argv[3] if len(sys.argv) > 3 else "gemini-2.5-flash-tts"
         sys.stdout.write(markdown(voice, model))

@@ -10,8 +10,8 @@
 # Needs gcp-tts.sh on PATH (Gemini API key), jq and ffmpeg — or, with TTS=cloud,
 # gcp-cloud-tts.sh (a signed-in gcloud account and a project with billing; the AI
 # Studio key's models allow only 50–100 requests a day each). One voice for the whole
-# app; the style prefix is an instruction to the model and is not spoken (checked by
-# transcribing a clip back). Gemini returns 24 kHz PCM; the clip is trimmed of the
+# app; the style prompt (lines.py STYLE) is an instruction to the model and is not spoken
+# (checked by transcribing a clip back). Gemini returns 24 kHz PCM; the clip is trimmed of the
 # silence the model pads it with and encoded mono AAC at 48 kb/s — about 15 KB a line.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -23,7 +23,9 @@ LINES="$HERE/lines.json"
 TTS="${TTS:-cloud}"
 VOICE="${VOICE:-Leda}"
 if [[ "$TTS" == "cloud" ]]; then MODEL="${MODEL:-gemini-2.5-flash-tts}"; else MODEL="${MODEL:-gemini-2.5-pro-preview-tts}"; fi
-STYLE="${STYLE:-Say this warmly and unhurried, like a kind teacher talking to a five-year-old: }"
+# The style prompt lives in lines.py (STYLE) so the clips, CLIPS.md and the docs agree;
+# override it for a trial only. The Gemini-API path prefixes it to the text, hence ": ".
+STYLE="${STYLE:-$(python3 "$HERE/lines.py" --style): }"
 # The preview TTS models allow 10 requests a minute (and 2.5-flash 100 a day); a pause
 # after each request keeps under the minute limit, and a failed request backs off.
 PACE="${PACE:-4}"; [[ "$TTS" == "cloud" ]] && PACE="${PACE_CLOUD:-2}"

@@ -12,6 +12,9 @@ struct PracticeView: View {
     @State private var lastAward = 0
     /// Frame 60 — the tutorial card is up.
     @State private var showingTutorial = false
+    /// The letter the award in the footer belongs to — it stays up through that
+    /// letter's replay and goes when another letter is chosen or the pen is back down.
+    @State private var awardedChar: Character?
 
     /// Jua only — the stroke-order guides are hand-fitted to its letterforms (§4.11).
     /// Only the face matters here: the sheet computes its own size, filling the screen
@@ -74,17 +77,38 @@ struct PracticeView: View {
         .onChange(of: controller.phase) { before, phase in
             switch phase {
             case .traced(let char):
-                lastAward = profile.awardPractice(character: char, followedOrder: controller.followedOrder)
-                Telemetry.log(.practiceTraced(followedOrder: controller.followedOrder))
-                Voice.say(.practiceTraced(char, followedOrder: controller.followedOrder))
+                let followed = controller.followedOrder
+                lastAward = profile.awardPractice(character: char, followedOrder: followed)
+                awardedChar = char
+                Telemetry.log(.practiceTraced(followedOrder: followed))
+                Voice.say(.practiceTraced(char, followedOrder: followed))
+                if !followed { replayAfterWrongOrder(char) }
             case .yourTurn(let char):
-                lastAward = 0
+                if char != awardedChar { lastAward = 0 }
                 // Said only when the demo hands over — a pen that is already writing
                 // does not need telling (§4.12).
                 if case .watching = before { Voice.say(.practiceYourTurn(char)) }
-            default:
+            case .watching(let char):
+                if char != awardedChar { lastAward = 0 }
+            case .idle:
                 lastAward = 0
             }
+        }
+        // The pen is back down: the live % takes the footer over from the award. Keyed
+        // on strokes begun, which the canvas reports at pen-down — `hasInk` only reaches
+        // the controller at pen-up, in the same update as the award it would wipe.
+        .onChange(of: controller.inkBegins) { lastAward = 0 }
+    }
+
+    /// A letter traced out of the arrow order (v3.8): the point is kept, the nudge is
+    /// said, and after a beat — long enough to see the green — the ink is wiped and the
+    /// arrows play again, so the letter is shown the right way before it is tried again.
+    /// Nothing happens if the child has already moved on to another letter.
+    private func replayAfterWrongOrder(_ char: Character) {
+        Task {
+            try? await Task.sleep(for: .seconds(1.4))
+            guard controller.phase == .traced(char), !controller.followedOrder else { return }
+            controller.startOverWithDemo()
         }
     }
 
