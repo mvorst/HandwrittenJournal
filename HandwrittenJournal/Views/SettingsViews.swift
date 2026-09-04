@@ -19,14 +19,7 @@ struct ProfileSettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     section("PROFILE") {
-                        Button { showEditor = true } label: {
-                            SettingRow(title: "Name, photo and PIN") {
-                                HStack(spacing: Tokens.Space.s2) {
-                                    Text(profile.name).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
-                                    Image(systemName: "chevron.right").foregroundStyle(Tokens.Colour.textSecondary)
-                                }
-                            }
-                        }
+                        ProfileEditRow(profile: profile) { showEditor = true }
                     }
 
                     section("WRITING") {
@@ -169,14 +162,30 @@ struct ProfileSettingsView: View {
 struct AppSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
     let onboarding: Onboarding = .shared
+
+    /// Reached from the picker, where no one is chosen yet, so this gear has to offer
+    /// every profile rather than the one in use — the same editor the long press opens.
+    @State private var editing: UserProfile?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    if !profiles.isEmpty {
+                        Text("PROFILES").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                            .padding(.top, Tokens.Space.s6)
+                        ForEach(profiles) { profile in
+                            ProfileEditRow(profile: profile) { editing = profile }
+                        }
+                        Text("Touch and hold a profile on the chooser to reach the same editor.")
+                            .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
+                            .padding(.top, Tokens.Space.s3)
+                    }
+
                     Text("SYNC").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.top, Tokens.Space.s6)
+                        .padding(.top, profiles.isEmpty ? Tokens.Space.s6 : Tokens.Space.s7)
                     SettingRow(title: "iCloud Sync", disabled: true) {
                         Text("Coming soon").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     }
@@ -215,6 +224,9 @@ struct AppSettingsView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
         .onAppear { Telemetry.screen(.appSettings) }
+        .sheet(item: $editing) { profile in
+            ProfileEditorView(profile: profile, isNew: false).presentationDetents([.large])
+        }
     }
 
     private func note(_ text: LocalizedStringKey) -> some View {
@@ -236,5 +248,35 @@ struct AppSettingsView: View {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(v) (\(b))"
+    }
+}
+
+/// The way into name, photo and PIN. Both gears carry one — the picker's for every
+/// profile, the journal's for the one in use — so editing is never only a long press.
+struct ProfileEditRow: View {
+    let profile: UserProfile
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Tokens.Space.s4) {
+                AvatarView(image: profile.avatarImageData, initial: profile.initial, diameter: 48)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(profile.name).font(.hjBody).foregroundStyle(Tokens.Colour.textPrimary)
+                    Text("Name, photo and PIN").font(.hjCaptionSm).foregroundStyle(Tokens.Colour.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(Tokens.Colour.textSecondary)
+            }
+            .frame(minHeight: 80)
+            .padding(.horizontal, Tokens.Space.s4)
+            // Without a shape the Spacer is dead space and only the words take the tap.
+            .contentShape(Rectangle())
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(Tokens.Colour.divider).frame(height: 1).padding(.leading, Tokens.Space.s4)
+            }
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel(Text("Edit \(profile.name): name, photo and PIN"))
     }
 }

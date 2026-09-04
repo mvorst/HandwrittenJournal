@@ -1099,8 +1099,8 @@ screens** — they are states of the page (v2.5).
 |---|---|---|
 | 31 | Progress — by mode and font | Chart with two setting-change markers (**no date-range switch and no x-axis labels** — the app hides that axis), per-setting table, the size nudge, then the stats card (Sessions written / Words written / Days journaled / Longest streak) |
 | 32 | Progress — insufficient data | Fewer than 5 **entries** at one setting; empty state, plus the same copy-mode note under the table |
-| 33 | Settings — profile | A single **"Name, photo and PIN"** row that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback — **Voice feedback** (v3.4, with its one-line subtitle), Haptics, the colourblind scheme; Danger zone with its caption; then *Switch to someone else* |
-| 34 | Settings — app | iCloud row disabled, Version, **LEGAL** (v3.4): *Terms of use* and *Privacy policy* as `Row / Link` with "A grown-up agreed on 2 September 2026." beneath, then **three** plain-language notes — PIN, destructive actions, and the microphone feeding recognition and nothing else. No "What's new" row |
+| 33 | Settings — profile | A single **"Name, photo and PIN"** row — photo, name and chevron, the whole row a target — that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback — **Voice feedback** (v3.4, with its one-line subtitle), Haptics, the colourblind scheme; Danger zone with its caption; then *Switch to someone else* |
+| 34 | Settings — app | **PROFILES** (v3.10) first: one "Name, photo and PIN" row per profile, each opening the Profile Editor, with "Touch and hold a profile on the chooser to reach the same editor." beneath — the picker's gear is reached before anyone is chosen, so editing must not be a long press only; then iCloud row disabled, Version, **LEGAL** (v3.4): *Terms of use* and *Privacy policy* as `Row / Link` with "A grown-up agreed on 2 September 2026." beneath, then **three** plain-language notes — PIN, destructive actions, and the microphone feeding recognition and nothing else. No "What's new" row |
 | 38 | Settings — font picker | Five curated faces (Jua, Andika, Varela Round, Sniglet, Comic Neue), live previews, selected state |
 | 39 | Settings — font size picker | Five sizes, live previews. **The nudge is not here** — it belongs to Settings and Progress (§13.5) |
 
@@ -1138,7 +1138,6 @@ Built as the v3.1 alternate, adopted by the app and rebuilt onto `03 · Journal`
 | Switch-user badge, `arrow.triangle.2.circlepath` 14 pt | 64 | 80 | 22 |
 | Name, `display` | 96 | 38 | — |
 | Streak, flame 20 pt + `body` in `streak-flame` | 96 | 90 | — |
-| Progress button, `Button / Toolbar` | 706 | 44 | 44 |
 | Settings button, `Button / Toolbar` | 766 | 44 | 44 |
 | `Button / Tile` "✎ New Entry" — primary, subtitle "Tell me about your day", no chip since v3.5 — its points have no ceiling to promise | 24 | 136 | 486 × 128 |
 | `Button / Tile` "ABc Practice my letters" — outlined, chip "+2 points a letter" | 526 | 136 | 284 × 128 |
@@ -1149,8 +1148,10 @@ Built as the v3.1 alternate, adopted by the app and rebuilt onto `03 · Journal`
 | Search field — `paper-sunk` pill, `magnifyingglass` 20 pt + "Search what you said" | 24 | 648 | 786 × 44 |
 | `Row / Session`, 16 pt gaps, newest first, "+N points" under the stars | 24 | 708, 856, 1004, 1152 | 786 × 132 |
 
-There is **no navigation bar** (v3.1): the export button is gone from this screen — the
-whole journal is exported from an entry's ⋯ → *Share as PDF* → *Everything* — and search
+There is **no navigation bar** (v3.1), and since v3.10 **no Progress icon** either — the
+points card is the single way in to Progress, so the header carries Settings alone. The
+export button is gone from this screen too — the whole journal is exported from an
+entry's ⋯ → *Share as PDF* → *Everything* — and search
 is a plain field above the list, not `.searchable`. There is **no** "Your writing" card
 and **no** card grid. Badges come **before** the journal. When a search is active the
 section header reads "N results" and the rows are the matches; when nothing matches, an
@@ -1244,7 +1245,7 @@ rest of the screen is laid out around it.
 |---|---|
 | Write (20, 24, 25, 48) | The page column, 834 wide, beside a 360 rail on the free-hand side (§11.1). The toolbar stretches: Back leading, the date centred, the tools trailing at 52 pt. |
 | Practice (49) | The sheet keeps its portrait width so the letters keep their size; the prompt, the legend and the award stack in the rail. |
-| Journal Home (09) | The dashboard column — header, the deck stacked, points, badges — at 560 on the left; the journal — its header with Progress and Settings trailing, the search field, the rows — on the right. The rows scroll in both orientations; the badges wrap into rows and scroll vertically in landscape only. |
+| Journal Home (09) | The dashboard column — header, the deck stacked, points, badges — at 560 on the left; the journal — its header with Settings trailing, the search field, the rows — on the right. The rows scroll in both orientations; the badges wrap into rows and scroll vertically in landscape only. |
 | Entry Detail (15) | The reading page at its width; the stats card and the two actions in the column beside it — on the rail's side, so the page stays put when the pencil lands and Edit takes over. |
 | Results (29) | The score on the left, the page preview and its setup on the right, *Back to my journal* under both. |
 | Profile Picker (01) | One row of four at the same 96 pt gaps. |

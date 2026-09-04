@@ -147,13 +147,11 @@ struct JournalHomeView: View {
         .padding(.top, Tokens.Space.s5)
     }
 
-    /// Progress and Settings. In the header in portrait; in landscape they move to the
-    /// journal column's header, so they keep the top-right corner either way (v3.3).
+    /// Settings. In the header in portrait; in landscape it moves to the journal
+    /// column's header, so it keeps the top-right corner either way (v3.3).
+    /// Progress has no icon of its own: the points card below opens it.
     private var screenButtons: some View {
-        HStack(spacing: Tokens.Space.s4) {
-            ToolbarIconButton(systemImage: "chart.line.uptrend.xyaxis") { showProgress = true }
-            ToolbarIconButton(systemImage: "gearshape.fill") { showSettings = true }
-        }
+        ToolbarIconButton(systemImage: "gearshape.fill") { showSettings = true }
     }
 
     /// Streak language is only ever positive: when it lapses, say nothing about losing it.
@@ -192,7 +190,7 @@ struct JournalHomeView: View {
     // MARK: - Points (§4.3, §8.3)
 
     /// The running total, what today added, and a bar for each of the last seven days.
-    /// The card is a button: it opens Progress, like the chart icon above it.
+    /// The card is a button, and the only way in to Progress from this screen.
     private func pointsCard(_ layout: ScreenLayout) -> some View {
         let summary = profile.pointsSummary()
         return Button { showProgress = true } label: {
