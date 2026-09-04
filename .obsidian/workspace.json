@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "9287dada68ed0f86",
+        "id": "a1f0dc7c7bfa9db2",
         "type": "tabs",
         "children": [
           {
-            "id": "cd454f549b096bd0",
+            "id": "1bc9180e3260c85e",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Scripts/voice/CLIPS.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "CLIPS"
+              "title": "New tab"
             }
           }
         ]
@@ -99,7 +95,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Scripts/voice/CLIPS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +113,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Scripts/voice/CLIPS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -161,7 +155,6 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Scripts/voice/CLIPS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -188,8 +181,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "cd454f549b096bd0",
+  "active": "1bc9180e3260c85e",
   "lastOpenFiles": [
+    "APP_STORE_LISTING.md",
+    "Scripts/voice/CLIPS.md",
     "HandwrittenJournal/Resources/Voice/badge-streak_5-hint.m4a",
     "Scripts/voice/__pycache__/cut-batched.cpython-310.pyc",
     "HandwrittenJournal/Resources/Voice/voice-on.m4a",
@@ -200,7 +195,6 @@
     "HandwrittenJournal/Resources/Voice/traced-good-digit-7.m4a",
     "HandwrittenJournal/Resources/Voice/traced-good-digit-5.m4a",
     "HandwrittenJournal/Resources/Voice/traced-good-digit-4.m4a",
-    "HandwrittenJournal/Resources/Voice/traced-good-digit-3.m4a",
     "Go_To_Market/website/dist/assets/app-store-badge-white.svg",
     "Go_To_Market/website/dist/assets/app-store-badge-black.svg",
     "Go_To_Market/website/dist/assets/img/og.png",
@@ -210,7 +204,6 @@
     "Go_To_Market/website/dist/assets/icon-512.png",
     "Go_To_Market/website/dist/assets/img/16-writing-green-red.webp",
     "Go_To_Market/website/dist/assets/img/16-writing-green-red.png",
-    "Go_To_Market/website/dist/assets/img/15-landscape-practice.webp",
-    "Scripts/voice/CLIPS.md"
+    "Go_To_Market/website/dist/assets/img/15-landscape-practice.webp"
   ]
 }

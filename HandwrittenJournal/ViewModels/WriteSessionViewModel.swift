@@ -358,16 +358,19 @@ final class WriteSessionViewModel {
     // MARK: - Speaking
 
     private func startListening() {
+        // Wherever the child tapped to start is where they will tap to stop (v3.2):
+        // the stage when the page was empty, the footer otherwise.
+        listeningFromStage = basePageText.isEmpty
+        tool = .pen
+        // The voice goes quiet *before* the microphone opens: a clip cut off after the
+        // engine had started handed the shared audio session back from under it.
+        Voice.setListening(true)
         do {
-            // Wherever the child tapped to start is where they will tap to stop (v3.2):
-            // the stage when the page was empty, the footer otherwise.
-            listeningFromStage = basePageText.isEmpty
-            tool = .pen
             try speech.start()
             mic = .listening
-            Voice.setListening(true)
             Haptics.tap()
         } catch {
+            Voice.setListening(false)
             leaveSurface(for: .unavailable(String(localized: "The microphone could not start")))
         }
     }

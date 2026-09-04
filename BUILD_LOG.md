@@ -71,6 +71,43 @@ spec first, then the code.
 
 ---
 
+## Dictation on a real iPad — a dead take, a crash, and a clipped cue (fixed)
+
+DESIGN_DOCUMENT §4.4, §4.12. Fixed 2026-09-03, from three symptoms reported on an iPad:
+a take that sometimes heard nothing, a crash on the tap that followed it, and *Your
+turn. Write it!* coming out short.
+
+- **The crash.** `SpeechRecognitionService` kept one `AVAudioEngine` for the life of
+  the app and took the microphone tap off only `if engine.isRunning`. Whenever the engine
+  had stopped on its own — an interruption, a route change, the shared audio session
+  pulled from under it — the tap stayed, and the next `installTap` over it raised
+  AVFAudio's *nullptr == Tap()* exception, which Swift cannot catch. Now each take builds
+  its own engine, `finishEngine` removes the tap unconditionally, and the input format is
+  checked before a tap goes on (a 0 Hz format — the mic muted from Control Center — is
+  the other uncatchable exception; `start` throws `StartError.noAudioInput` instead and
+  the page shows *The microphone could not start*).
+- **The dead take.** Nothing watched the audio session, so an engine that the system
+  had stopped left the page listening to nothing. The service now observes
+  `AVAudioSession.interruptionNotification` (and `mediaServicesWereReset`) — the take ends
+  as a tap on stop would, and the words heard so far land — and
+  `AVAudioEngineConfigurationChange`, on which it commits the live utterance, re-taps the
+  input on the new format and starts a fresh recognition task. One cause was the app's
+  own: `startListening` opened the microphone *and then* cut the voice off, and
+  `ClipSpeaker.stop → release` handed the shared session back — from under the engine
+  that had just claimed it. The order is reversed, and the player never releases the
+  session while `Voice.isListening` (nor plays a queued cue into the microphone).
+- **The clipped cue.** `heard` answered a callback that arrived after `stop` with a
+  second `finishEngine`, and its `setActive(false)` landed a few hundred milliseconds
+  into whatever clip had started since — *Your turn* is the one cue that always follows
+  a take. The clip file itself is fine (120 ms of air either side, checked with
+  `silencedetect`). A callback after stop now returns without touching the engine.
+- **Verified** only as far as the simulator allows — the simulator has no microphone and
+  `-fakeDictation` skips the engine entirely — so the crash and the dead take need a
+  device: tap the mic while *Tap the microphone and start talking* is still playing, and
+  again straight after *Your turn*, then Siri or Control Center's mic mute mid-take.
+  `SpokenTakeTests` and `VoiceClipTests` cover the format check and the player's silence
+  while listening.
+
 ## v3.9 — the voice picks up its pace (built)
 
 DESIGN_DOCUMENT §4.12. Built 2026-09-03.

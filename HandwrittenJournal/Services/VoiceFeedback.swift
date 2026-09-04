@@ -304,8 +304,9 @@ enum Voice {
 /// Plays a cue's bundled clip with `AVAudioPlayer`. The shared audio session becomes a
 /// `.playback` one for as long as the clip lasts — ducking whatever else is on, handing
 /// it back when the clip ends — and the microphone sets its own `.record` session each
-/// time a take starts, so the two never fight (§4.12). A missing clip is silence: there
-/// is no synthesiser to fall back on, by design.
+/// time a take starts, so the two never fight (§4.12): a take cuts the clip off first,
+/// and while it listens the player leaves the session alone. A missing clip is silence:
+/// there is no synthesiser to fall back on, by design.
 @MainActor
 final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     private var player: AVAudioPlayer?
@@ -330,6 +331,8 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     }
 
     private func play(_ cue: Voice.Cue) {
+        // A cue still waiting when the microphone starts is dropped, not said into it.
+        guard !Voice.isListening else { queue.removeAll(); return }
         guard let url = Self.url(for: cue) else { playNext(); return }
         let session = AVAudioSession.sharedInstance()
         do {
@@ -358,6 +361,11 @@ final class ClipSpeaker: NSObject, VoiceSpeaker, AVAudioPlayerDelegate {
     }
 
     private func release() {
+        // The session is shared with the microphone, and it is the microphone that stops
+        // a clip most often — through `Voice.setListening`. Giving the session back at
+        // that moment took it from the engine that had just claimed it: the take
+        // listened to nothing, and the next start crashed on the tap it left behind.
+        guard !Voice.isListening else { return }
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 

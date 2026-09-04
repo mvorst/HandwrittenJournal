@@ -2,18 +2,25 @@
 
 Everything App Store Connect will ask for, written and ready to paste. Character limits
 are noted against each field and every string below has been counted (§10 shows the
-counts). Drafted 2026-09-01 against `DESIGN_DOCUMENT.md` v2.9 — if a feature changes,
-change the copy here first.
+counts). Drafted 2026-09-01 against `DESIGN_DOCUMENT.md` v2.9 and brought up to v3.8 on
+2026-09-03 — if a feature changes, change the copy here first.
 
 Facts this copy is built on: iPad only (`TARGETED_DEVICE_FAMILY: 2`), portrait and
 landscape, iOS 18.0 minimum, bundle `com.mattvorst.education.handwrittenjournal`,
-home-screen name **Handwritten Journal**, on-device speech (`requiresOnDeviceRecognition = true`).
-**Decided 2026-09-02, not yet in the build:** Apple Pencil is required; the app will send
-anonymous crash reports and usage statistics; the basic app is always free and paid
-features may come later (`DESIGN_DOCUMENT.md` §10.5). The copy below already says so.
-Since v3.6 the welcome explains why an Apple Pencil is required before it lets anyone
-skip — *I don't have an Apple Pencil* opens the explanation, and a skip lasts one launch;
-only the finger-tracing switch remains to be removed.
+home-screen name **Handwritten Journal**, on-device speech (`requiresOnDeviceRecognition = true`),
+English only, no audio recorded or kept (v3.0), five faces — Jua, Andika, Varela Round,
+Sniglet, Comic Neue — and five sizes, points per letter and per word (v3.5), crayons and
+the ABC word-fix tool (v3.2), an optional recorded voice (v3.4, clips since v3.7), a
+practice sheet with a blue start dot and a how-to card (v3.8). The website is live at
+`https://handwrittenjournal.app` with the privacy policy, support page and terms
+(2026-09-02).
+**Decided 2026-09-02** (`DESIGN_DOCUMENT.md` §10.5): Apple Pencil is required; the app
+sends anonymous usage statistics — **built**, Google Analytics for Firebase — and crash
+reports — **provider still undecided**, nothing sent yet; the basic app is always free and
+paid features may come later. The copy below says all of it. Since v3.6 the welcome
+explains why an Apple Pencil is required before it lets anyone skip — *I don't have an
+Apple Pencil* opens the explanation, and a skip lasts one launch; only the finger-tracing
+switch (*Finger tracing allowed*, `SettingsViews.swift`) remains to be removed.
 
 ---
 
@@ -77,7 +84,7 @@ HOW IT WORKS
 1. Talk. Tap the microphone and say what happened. Up to five minutes at a time, and stopping part-way is completely fine.
 2. Write. The whole thing is laid out as one long page, and they work down it at their own pace.
 3. Watch it mark itself. Ink inside the letter turns green, ink outside turns red — while they write, never afterwards.
-4. Keep it. The finished page joins the journal, newest first, with the date and their voice attached.
+4. Keep it. The finished page joins the journal, newest first, with its date and the points it earned.
 
 WHY IT WORKS
 
@@ -85,19 +92,21 @@ Handwriting practice is dull. Journalling is not. Most tracing apps hand a child
 
 WHAT'S INSIDE
 
-• Say it out loud — speech becomes words to trace, all on this iPad
+• Say it out loud — speech becomes words to trace, all on this iPad, and a misheard word is fixed with a tap before it is written
 • Marked letter by letter, so tracing half a letter scores like half a letter
 • Stroke order taught, not just shape — a letter drawn backwards stops the page and teaches that one letter properly, then lets them carry on
-• A practice sheet: every letter Aa to Zz and 0 to 9, each one drawing itself stroke by stroke with arrows to follow
+• A practice sheet: every letter Aa to Zz and 0 to 9, each one drawing itself stroke by stroke, with a blue dot where to start and arrows to follow
 • An eraser, an undo, and a scroll button, so the pencil never has to fight the page
-• Badges, stars and a writing streak
-• Read any entry as their handwriting or as typed words, one tap apart
+• Crayons for doodling anywhere on the page — never marked, always kept
+• A voice, if you want one, that says when it is their turn, names the letter to trace and cheers a finished line — it never reads the journal aloud
+• Points for every letter and every whole word, stars, badges and a writing streak
+• Every page kept exactly as they wrote it, and shown in their own hand in the journal
 • Export a single page, or the whole book, as a PDF for a grandparent
 • Several children, one iPad — a profile each, with an optional PIN
 
 FOR GROWN-UPS
 
-You choose the letterform and the size, and they are settings, not rewards. Nothing has to be earned to make the letters bigger. Five typefaces — Jua, Andika, Baloo 2, Sniglet and Comic Neue — and five sizes, each previewed at its real size in its real face before you pick it. Andika is in the list because some children read it far more easily than anything else.
+You choose the letterform and the size, and they are settings, not rewards. Nothing has to be earned to make the letters bigger. Five typefaces — Jua, Andika, Varela Round, Sniglet and Comic Neue — and five sizes, each previewed at its real size in its real face before you pick it. Andika is in the list because some children read it far more easily than anything else.
 
 Progress is kept per setting, so if the score dips after you move to a smaller size, the chart shows you why instead of worrying you.
 
@@ -128,7 +137,8 @@ Say what happened today, write it on the page in your own hand, and keep it.
 • Finish a line and the guide underneath disappears — the page is your handwriting now
 • A letter drawn out of order gets taught on the spot, then you carry on
 • A practice sheet for every letter and number, each one showing how it is written
-• Badges, stars, streaks, and a journal that grows
+• Crayons for doodling, and a voice that cheers a finished line if you want one
+• Points, stars, badges, streaks, and a journal that grows
 • Export a page or the whole book as a PDF
 • Your child's writing stays on this iPad
 • Requires Apple Pencil
@@ -156,11 +166,14 @@ that takes a child out of the app — including the share sheet — plus no thir
 analytics or advertising of any kind.
 
 The advertising half is clear by construction. **Analytics is not, any more:** the app
-will send anonymous crash reports and usage statistics (`DESIGN_DOCUMENT.md` §10.5), and
-Guideline 1.3 allows that in the Kids Category only if no personally identifiable
-information or device information reaches a third party — so the analytics provider has
-to be chosen with the Kids shelf in mind, or the Kids shelf given up. The other half is
-unchanged: **the parent gate was deliberately removed in v2.0** (`DESIGN_DOCUMENT.md`
+sends anonymous usage statistics through Google Analytics for Firebase (built 2026-09-02,
+`Services/Telemetry.swift`, `DESIGN_DOCUMENT.md` §10.5) — no advertising identifier, no
+IDFV, a random per-install ID and nothing else — and Guideline 1.3 allows analytics in
+the Kids Category only if no personally identifiable information *or device information*
+reaches a third party. Firebase still reports the iPad model and iOS version to Google,
+so the narrow question to settle before listing in Kids is whether Apple reads that as
+device information; if it does, the Kids shelf means dropping the SDK for Apple's own App
+Analytics and crash logs. The other half is unchanged: **the parent gate was deliberately removed in v2.0** (`DESIGN_DOCUMENT.md`
 §10.3), and Export/Share is one tap from a child's thumb, as are Delete Profile and Reset
 Progress.
 
@@ -201,19 +214,24 @@ Justification to have ready: speech recognition runs with `requiresOnDeviceRecog
 user content is a PDF a grown-up creates through the system share sheet; crash and usage
 data goes to Google (Google Analytics for Firebase, configured with no advertising
 identifier, no IDFV and all advertising consent denied) under Google's data processing
-terms and contains no content or identity. If only Apple's own App Store Connect crash logs and App Analytics are used
-(no SDK), the label goes back to *Data Not Collected* — verify the current Apple guidance
-before choosing that answer.
+terms and contains no content or identity. Crash reporting is still undecided (§9): with
+Crashlytics the two Diagnostics rows stand as written; with Apple's own crash logs alone
+they come out — data Apple collects through its opt-in Analytics & Improvements setting is
+not the developer's to declare — and the Usage Data and Identifiers rows stay either way,
+because the Firebase SDK ships regardless. Verify the current Apple guidance before
+choosing that answer.
 
-The **Privacy Policy URL** is `https://<domain>/privacy/` — the maintained policy lives
-in `Go_To_Market/website/src/pages/privacy.html`; §8 below points there.
+The **Privacy Policy URL** is `https://handwrittenjournal.app/privacy/` — live since
+2026-09-02; the maintained policy lives in `Go_To_Market/website/src/pages/privacy.html`;
+§8 below points there.
 
 ---
 
 ## 4. Permission strings (already shipping — reproduced for review)
 
-These are set in `project.yml` and are already written for a child rather than an adult.
-Do not let them drift out of sync with §1.5's privacy paragraph.
+These are set in `project.yml` and localised in `Resources/InfoPlist.xcstrings` (v3.7),
+and are already written for a child rather than an adult. Do not let them drift out of
+sync with §1.5's privacy paragraph.
 
 | Key | String |
 |---|---|
@@ -237,14 +255,19 @@ image, not in a field.
 | 2 | The same page a few lines later, top lines graded and guide-free | Finish a line and the guide disappears |
 | 3 | Close crop of a letter with green and red ink | Marked letter by letter, as they write |
 | 4 | The remediation modal, one letter with its arrows | A letter drawn backwards gets taught on the spot |
-| 5 | Journal home — badges, then entries newest first | A page a day becomes a book |
+| 5 | Journal home — the action deck and points card, badges, then entries newest first with their handwriting thumbnails | A page a day becomes a book |
 | 6 | Entry detail, Handwritten side of the toggle | Their handwriting, kept exactly as they wrote it |
-| 7 | Practice sheet mid-demo, arrows on a letter | Every letter shows you how it is written |
+| 7 | Practice sheet mid-demo, blue start dot and arrows on a letter | Every letter shows you how it is written |
 | 8 | Settings — font picker with live previews | Five faces, five sizes. You choose, not a level. |
 
 Caption voice: sentence case, no full stop unless there are two sentences, never
 exclamation marks. First screenshot carries the whole idea on its own — most people never
 swipe.
+
+A draft set of all eight exists in `Go_To_Market/screenshots/app-store/` (2026-09-02,
+simulator captures with synthesised handwriting; `SCREENSHOTS.md` there says how each was
+made). Frames 1–3 are to be reshot on a physical iPad with a real child's hand; the other
+five can ship as they are if the screens have not changed.
 
 ### 5.1 App Preview video (optional, 15–30s, portrait)
 
@@ -264,10 +287,10 @@ No voice-over, no music bed with lyrics, captions only:
 Handwritten Journal is an offline iPad app for children aged roughly 5–8 who are learning to write. There is no account, no sign-in and no server, so no demo credentials are needed — launch it and create a profile.
 
 HOW TO SEE THE MAIN FEATURE IN 60 SECONDS
-1. On first launch a short welcome appears once: tap "I agree" to the terms and privacy policy, choose whether the iPad talks ("Yes, talk to me" or "No thanks"), then trace the big A with an Apple Pencil and tap "Let's write". Without a Pencil, tap "I don't have an Apple Pencil": it explains why the app needs one (this is a handwriting app), and "Skip for now" carries on; the pencil check returns at the next launch until a Pencil has traced the letter.
+1. On first launch a short welcome appears once: tap "I agree" to the terms and privacy policy, choose whether the iPad talks ("Yes, talk to me" or "No thanks, stay quiet"), then trace the big A with an Apple Pencil and tap "Let's write". Without a Pencil, tap "I don't have an Apple Pencil": it explains why the app needs one (this is a handwriting app), and "Skip for now" carries on; the pencil check returns at the next launch until a Pencil has traced the letter.
 2. Create a profile (a name is enough; the PIN and photo are optional).
-3. Tap New Entry, then the microphone, and say a sentence out loud.
-4. Tap stop. The sentence appears on a ruled page in large letters.
+3. Tap New Entry, then the big microphone on the page, and say a sentence out loud.
+4. Tap the same microphone again to stop. The sentence appears on a ruled page in large letters. If you chose "Yes, talk to me", a short recorded voice says it is your turn — every voice line is a bundled audio clip; nothing is synthesised or downloaded.
 5. Trace over the letters with an Apple Pencil. Ink inside the letter is green, ink outside is red.
 6. Finish a line and the guide text under it is removed, leaving only the tracing.
 
@@ -301,7 +324,10 @@ Handwritten Journal is an iPad app for children who are learning to write. Your 
 COMMON QUESTIONS
 
 The microphone isn't working.
-Open Settings › Privacy & Security › Microphone and check Journal is switched on. The same goes for Speech Recognition. Without the microphone your child can still type their sentence and write it exactly the same way.
+Open the iPad's Settings › Privacy & Security › Microphone and check that Handwritten Journal is switched on. The same goes for Speech Recognition, just below it. Without the microphone your child can still type their sentence with Type it instead and write it exactly the same way.
+
+The words came out wrong.
+Speech recognition on young voices is imperfect. The spoken words stay editable until they are written: tap the Abc tool on the writing page, then the word, and fix it. A misheard word never has to enter the journal.
 
 Can more than one child use it?
 Yes. Each child gets a profile with their own journal, font and size, and an optional four-digit PIN. A PIN keeps a sibling out; it is not encryption, and the app says so in Settings.
@@ -313,16 +339,19 @@ Do I need an Apple Pencil?
 Yes — any model your iPad supports. Handwritten Journal is a handwriting app: the first time it runs it asks your child to trace a letter with the pencil, and if there isn't one to hand it explains why it matters and which pencils fit your iPad. You can skip that for now and set up; it asks again the next time the app opens.
 
 How do I print a page?
-Open an entry, tap the ⋯ menu and choose Share as PDF. To export the whole book, use Export from the journal toolbar.
+Open the entry, tap Share (or the ⋯ menu, then Share as PDF), choose This entry and print from the share sheet. The same sheet exports This month or Everything — the whole book as one PDF, which is also the backup: there is no cloud sync in this version.
 
 My child's score dropped.
 Check whether the font size changed. Progress is tracked per setting for exactly this reason — a smaller letter is harder, and the chart shows each setting separately.
 
-Contact: <your support email>
+Contact: hello@handwrittenjournal.app
 ```
 
-Marketing URL is optional in practice; if you have nothing to point at, leave it blank
-rather than pointing it at a placeholder page, which reviewers do click.
+The live page is `https://handwrittenjournal.app/support/` (source
+`Go_To_Market/website/src/pages/support.html`), and that is the **Support URL**. The
+**Marketing URL** is `https://handwrittenjournal.app/`. Keep the text above and the page
+in step; the live page still says *Journal* rather than *Handwritten Journal* in the
+microphone answer (§9).
 
 ---
 
@@ -334,27 +363,35 @@ order: what stays on the iPad (the journal), what the app collects (anonymous cr
 reports and usage statistics, with the exact fields), who processes it, the children's
 paragraph (internal operations only, never advertising or profiling), speech,
 permissions and sharing, deletion, "we will never sell your data", purchases, the
-website's Google Analytics, changes, contact. Two placeholders in
-`website/site.config.json` must be filled before it is published: the analytics
-provider and the retention period.
+website's Google Analytics, changes, contact. Published at
+`https://handwrittenjournal.app/privacy/` on 2026-09-02, with the two placeholders in
+`website/site.config.json` filled: the provider (Google Analytics for Firebase, no
+advertising identifier and no advertising features) and the retention period (14 months).
+The terms of use sit beside it at `/terms/`; the app opens both from the welcome and from
+Settings › Legal (`Onboarding.termsURL`, `Onboarding.privacyURL`), so the two URLs must
+not move.
 
-Legal review is still your call. The claims are written to match how the app will work
-once §10.5 of the design document is built — if the analytics design changes, this policy
-changes in the same commit.
+Legal review is still your call. The claims match the v3.8 build with one exception: the
+policy already describes crash reports, and the app sends none until a provider is chosen
+(§9) — if the crash reporting or analytics design changes, this policy changes in the same
+commit.
 
 ---
 
 ## 9. Pre-submission checklist
 
-- [ ] **Decide the Kids category question** (§2.1) — and if yes, build the gate in front of Share/Export
+- [ ] **Decide the Kids category question** (§2.1) — the gate in front of Share/Export, and whether Firebase's iPad model and iOS version count as device information under Guideline 1.3
 - [ ] Hold-to-confirm on Delete Profile and Reset Progress (`DESIGN_DOCUMENT.md` §10.3)
 - [ ] Set the price to Free in App Store Connect; no in-app purchases configured for 1.0
 - [x] Build the usage analytics (`DESIGN_DOCUMENT.md` §10.5) — Google Analytics for Firebase, 2026-09-02; the provider is named here, in the review notes and in the policy
-- [ ] Decide crash reporting (Crashlytics or Apple's crash logs) and, if Crashlytics, add it to the review notes and the policy
-- [ ] Remove or hide the finger-tracing switch; confirm "Requires Apple Pencil" is in the description
-- [ ] Verify the five bundled typefaces are licensed for app embedding and redistribution, and add any attribution their licences require to Settings › About
-- [ ] Publish the website (`Go_To_Market/website/`) with the privacy policy and support page; paste `/privacy/` and `/support/`
-- [ ] Shoot 8 iPad 13" portrait screenshots per §5 with a profile whose handwriting looks like a real child's, not test ink
+- [ ] Decide crash reporting (Crashlytics or Apple's crash logs) and, if Crashlytics, add it to the review notes and the policy; if Apple only, take the Diagnostics rows out of §3
+- [ ] Remove or hide the finger-tracing switch (*Finger tracing allowed*, `SettingsViews.swift`)
+- [x] "Requires Apple Pencil" is in the description, What's New, the review notes and the support text (2026-09-03)
+- [x] Typeface licences verified — all five faces are SIL Open Font License 1.1 (`Resources/Fonts/LICENSES.md`, which ships in the bundle, so the notice travels with the fonts); a line in Settings › Legal is optional
+- [ ] Decide the Handwritten/Typed reading toggle (`DESIGN_DOCUMENT.md` §4.7): the build has none — Entry Detail replays the handwriting and shows text only for an entry with no ink — so the bullet came out of §1.5 on 2026-09-03; build it or drop it from the design document
+- [x] Website published 2026-09-02 (`Go_To_Market/website/`, deployed with `Website/deploy.sh --build`) — paste `https://handwrittenjournal.app/privacy/` and `https://handwrittenjournal.app/support/`, Marketing URL `https://handwrittenjournal.app/`
+- [ ] Fix the live support page's microphone answer — it says *Journal*, the app is *Handwritten Journal* — then redeploy
+- [ ] Reshoot §5 frames 1–3 (and the App Preview) on a physical iPad with a real child's hand; the draft set in `Go_To_Market/screenshots/app-store/` covers the rest
 - [ ] Fill the App Privacy questionnaire per §3 — Diagnostics and Usage Data, not linked, no tracking
 - [ ] Paste the review notes (§6) and confirm the build was tested on physical hardware
 - [ ] Re-count §1.1–§1.4 after any edit — the subtitle is at exactly 30 characters
@@ -369,8 +406,8 @@ changes in the same commit.
 | Subtitle | 30 | **30** |
 | Keywords | 100 | 97 |
 | Promotional Text | 170 | 147 |
-| Description | 4000 | 3229 |
-| What's New (1.0) | 4000 | 660 |
+| Description | 4000 | 3610 |
+| What's New (1.0) | 4000 | 748 |
 
 Recount with:
 

@@ -48,6 +48,20 @@ struct VoiceClipTests {
         #expect(!speaker.isPlaying && speaker.pending.isEmpty, "stop is the one interruption")
     }
 
+    @Test("While the microphone listens the player says nothing, waiting or not")
+    func nothingPlaysIntoTheMicrophone() {
+        // `Voice.say` already refuses a cue while listening; this is the player itself,
+        // which is what a cue *queued* before the take started reaches. Said into the
+        // recogniser it would land on the page as the child's words.
+        let speaker = ClipSpeaker()
+        Voice.setListening(true)
+        defer { Voice.setListening(false) }
+        speaker.speak(.lineDone(0))
+        #expect(!speaker.isPlaying)
+        speaker.enqueue(.startTalking)
+        #expect(!speaker.isPlaying && speaker.pending.isEmpty)
+    }
+
     @Test("The manifest the clips were cut from says what the cues say")
     func manifestMatchesCues() throws {
         let url = URL(fileURLWithPath: #filePath)

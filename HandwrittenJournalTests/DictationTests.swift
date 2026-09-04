@@ -110,4 +110,16 @@ struct SpokenTakeTests {
                 == "Today we went to the park. i saw a big dog.")
         #expect(WritingSession.wordCount(take.text) == 11)
     }
+
+    @Test("A microphone with no input cannot take a tap — the start fails instead of the app")
+    func noInputIsRefused() {
+        // What the input node reports when the microphone is muted from Control Center or
+        // the session could not become a recording one. Installing a tap with it raises an
+        // exception Swift cannot catch, so the service checks first.
+        #expect(!SpeechRecognitionService.isUsable(sampleRate: 0, channels: 0))
+        #expect(!SpeechRecognitionService.isUsable(sampleRate: 0, channels: 1))
+        #expect(!SpeechRecognitionService.isUsable(sampleRate: 48_000, channels: 0))
+        #expect(SpeechRecognitionService.isUsable(sampleRate: 48_000, channels: 1))
+        #expect(SpeechRecognitionService.isUsable(sampleRate: 44_100, channels: 2))
+    }
 }

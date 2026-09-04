@@ -871,6 +871,17 @@ At the five-minute cap recording stops itself and a warm banner slides over the 
 *"That's a whole lot of story! I stopped listening so we can start writing."* The cap
 exists because the recogniser drifts on long takes, not to hurry the child.
 
+**The system can take the microphone away** — a call, Siri, another app, the microphone
+muted from Control Center — and can reconfigure it under a take, as AirPods connecting
+do. When it takes the microphone the take ends exactly as if the child had tapped stop:
+the words heard so far land on the page and the mic returns to idle, because a page that
+goes on showing *listening* over a microphone that has stopped is the worst of both.
+When it only reconfigures the audio, what was heard is kept and the microphone goes
+again on the new hardware. Each take builds its own audio engine and takes its tap off
+again whether or not the engine is still running, so nothing a dead take leaves behind
+can trip the next one — the audio frameworks answer a tap installed over a leftover
+one, or with no input to be had, with an exception the app cannot catch.
+
 Microphone permission is preceded by a **child-legible explainer** (frame 40) so the first
 thing a five-year-old sees is not an adult system dialog. If permission is refused or
 recognition is unavailable (frame 41), *Type it instead* puts the keyboard straight onto
@@ -1331,7 +1342,11 @@ Rules:
   a natural reading pace, so v3.9 re-cut every clip at about 115) — and played with
   `AVAudioPlayer` on a `.playback` session that ducks whatever else is on and hands it
   back when the clip ends. The microphone sets its own `.record` session each time a
-  take starts, so the two never fight. Nothing is synthesised on the iPad — a missing
+  take starts, so the two never fight: a take goes quiet *before* it opens the
+  microphone, the player leaves the shared session alone for as long as the take listens,
+  and a take that has ended does not touch the session again — the recogniser's last
+  callback used to deactivate it a second time, under *Your turn. Write it!*, and cut the
+  clip's first words. Nothing is synthesised on the iPad — a missing
   clip is silence, never a system voice — nothing is downloaded, and nothing of the
   child's leaves the iPad (§10.1 stands): the one line that would have needed the
   child's name lost it. `VoiceClipTests` checks that every cue has its clip and that the

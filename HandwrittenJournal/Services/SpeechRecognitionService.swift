@@ -25,6 +25,13 @@ final class SpeechRecognitionService {
     /// the child.
     static let maximumDuration: TimeInterval = 300
 
+    /// Why a take could not start. `start` throws these instead of letting AVFAudio raise:
+    /// a tap installed over a leftover one, or with a format the hardware cannot supply,
+    /// is an exception Swift cannot catch — and that was the crash on the second tap.
+    enum StartError: Error {
+        case noAudioInput
+    }
+
     private(set) var availability: Availability = .unknown
     private(set) var isRecording = false
     private(set) var elapsed: TimeInterval = 0
@@ -38,7 +45,14 @@ final class SpeechRecognitionService {
 
     private var take = SpokenTake()
     private let recogniser = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-    private let engine = AVAudioEngine()
+    /// One engine per take, built in `start` and dropped in `finishEngine`. An engine
+    /// reused across takes carried its tap with it: whenever it had stopped on its own —
+    /// an interruption, a route change, the session pulled from under it — the tap was
+    /// left in place, and the next `installTap` over it took the app down.
+    private var engine: AVAudioEngine?
+    private var tapInstalled = false
+    /// The session and engine notifications watched while a take runs.
+    private var observers: [NSObjectProtocol] = []
     private let sink = AudioSink()
     private var task: SFSpeechRecognitionTask?
     private var timer: Timer?
@@ -102,26 +116,24 @@ final class SpeechRecognitionService {
         try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
-        let input = engine.inputNode
-        let format = input.outputFormat(forBus: 0)
-
-        // The tap outlives any one recognition task: the microphone runs for the whole
-        // take while the task underneath it is replaced at every pause.
-        let sink = self.sink
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
-            sink.append(buffer)
-            let rms = Self.rms(buffer)
-            Task { @MainActor in self?.level = rms }
+        let engine = AVAudioEngine()
+        self.engine = engine
+        do {
+            try installTap(on: engine)
+            engine.prepare()
+            try engine.start()
+        } catch {
+            // Nothing of a take that never began may survive into the next one.
+            finishEngine()
+            throw error
         }
-
-        engine.prepare()
-        try engine.start()
         startedAt = .now
         isRecording = true
+        observeAudioSession(for: engine)
         listen()
 
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self, let started = self.startedAt else { return }
                 self.elapsed = Date.now.timeIntervalSince(started)
                 if self.elapsed >= Self.maximumDuration {
@@ -129,6 +141,82 @@ final class SpeechRecognitionService {
                     self.stop()
                 }
             }
+        }
+    }
+
+    /// The tap outlives any one recognition task: the microphone runs for the whole
+    /// take while the task underneath it is replaced at every pause.
+    private func installTap(on engine: AVAudioEngine) throws {
+        let input = engine.inputNode
+        let format = input.outputFormat(forBus: 0)
+        // With no input to be had — the microphone muted from Control Center, a session
+        // that could not become a recording one — the node reports a 0 Hz format, and a
+        // tap installed with it is another exception AVFAudio raises past Swift.
+        guard Self.isUsable(sampleRate: format.sampleRate, channels: format.channelCount) else {
+            throw StartError.noAudioInput
+        }
+        let sink = self.sink
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+            sink.append(buffer)
+            let rms = Self.rms(buffer)
+            Task { @MainActor in self?.level = rms }
+        }
+        tapInstalled = true
+    }
+
+    private func removeTap() {
+        if tapInstalled { engine?.inputNode.removeTap(onBus: 0) }
+        tapInstalled = false
+    }
+
+    /// Whether the input node's format can carry a tap.
+    nonisolated static func isUsable(sampleRate: Double, channels: AVAudioChannelCount) -> Bool {
+        sampleRate > 0 && channels > 0
+    }
+
+    /// The engine stops on its own when the system takes the audio away — a call, Siri,
+    /// another app, the microphone muted from Control Center — or reconfigures it under
+    /// the engine, as AirPods connecting mid-take do. Nothing used to tell the service:
+    /// the page sat listening to nothing, and the stop that followed left the tap in
+    /// place for the next start to trip over.
+    private func observeAudioSession(for engine: AVAudioEngine) {
+        let centre = NotificationCenter.default
+        let session = AVAudioSession.sharedInstance()
+        observers = [
+            centre.addObserver(forName: AVAudioSession.interruptionNotification, object: session, queue: .main) { [weak self] note in
+                let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+                guard raw == AVAudioSession.InterruptionType.began.rawValue else { return }
+                Task { @MainActor [weak self] in self?.interrupted() }
+            },
+            centre.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: session, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.interrupted() }
+            },
+            centre.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.engineReconfigured() }
+            },
+        ]
+    }
+
+    /// The system took the microphone. The take ends as if the child had tapped stop —
+    /// the page watches `isRecording` — and whatever was heard lands on the page.
+    private func interrupted() {
+        guard isRecording else { return }
+        stop()
+    }
+
+    /// The hardware changed under the engine, which has stopped itself. What was heard
+    /// so far is kept, and the engine goes again on the new format with a fresh
+    /// recognition task; if it cannot, the take ends the same way an interruption does.
+    private func engineReconfigured() {
+        guard isRecording, let engine else { return }
+        take.endUtterance()
+        removeTap()
+        do {
+            try installTap(on: engine)
+            try engine.start()
+            listen()
+        } catch {
+            stop()
         }
     }
 
@@ -171,8 +259,11 @@ final class SpeechRecognitionService {
         let heardSomething = !take.live.isEmpty
         take.endUtterance()
 
-        // The child tapped stop, or the cap fired: the take really is over.
-        guard isRecording else { finishEngine(); return }
+        // The child tapped stop, or the cap fired: the take really is over, and `stop`
+        // has already torn the engine down. Tearing it down again from here gave the
+        // shared session back a second time — under whichever clip had started in the
+        // meantime, which is how *Your turn. Write it!* kept losing its first words.
+        guard isRecording else { return }
 
         failures = (error != nil && !heardSomething) ? failures + 1 : 0
         guard failures < 3 else { stop(); return }
@@ -198,14 +289,19 @@ final class SpeechRecognitionService {
 
     private func finishEngine() {
         timer?.invalidate(); timer = nil
-        if engine.isRunning {
-            engine.inputNode.removeTap(onBus: 0)
-            engine.stop()
-        }
+        for observer in observers { NotificationCenter.default.removeObserver(observer) }
+        observers.removeAll()
+        // The tap comes off whether or not the engine is still running — an engine that
+        // stopped on its own still has it, and it was only ever removed from a running
+        // one, which is what the next start crashed on.
+        removeTap()
+        engine?.stop()
+        engine = nil
         task?.finish()
         task = nil
         sink.use(nil)
         level = 0
+        startedAt = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
@@ -253,7 +349,7 @@ final class SpeechRecognitionService {
         startedAt = .now
         isRecording = true
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self, let started = self.startedAt else { return }
                 self.elapsed = Date.now.timeIntervalSince(started)
                 self.level = Double.random(in: 0.2...0.8)
