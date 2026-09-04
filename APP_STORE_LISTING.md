@@ -329,7 +329,7 @@ how it handles data, update this policy and the App Privacy answers in the same 
 - [x] Select **Made for Kids → Ages 6–8** in App Store Connect
 - [ ] Add a parental gate before Share/Export, external links, and permission requests (§2.1)
 - [ ] Hold-to-confirm on Delete Profile and Reset Progress (`DESIGN_DOCUMENT.md` §10.3)
-- [ ] Set the price to Free in App Store Connect; no in-app purchases configured for 1.0
+- [x] Set the price to Free in App Store Connect; no in-app purchases configured for 1.0
 - [x] Remove third-party analytics and crash-reporting SDKs, and select Data Not Collected
 - [x] Update the description, review notes, support page, and website to say **Designed for Apple Pencil**
 - [x] Typeface licences verified — all five faces are SIL Open Font License 1.1 (`Resources/Fonts/LICENSES.md`, which ships in the bundle, so the notice travels with the fonts); a line in Settings › Legal is optional

@@ -8,7 +8,62 @@ revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code),
 for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below), swept against the
 app for v3.1/v3.2 on 2026-09-02 (§1.-1 — the exploration pages promoted and deleted), and
 given a landscape page the same day (§1.-2), and the welcome frames the same day
-again (§1.-3).
+again (§1.-3), and swept against the app for v3.5–v3.10 on 2026-09-04 (§1.-4).
+
+## 1.-4 The v3.5 – v3.10 sweep *(2026-09-04)*
+
+The file had not been touched since v3.6. This pass brought it up to the app as it stands
+today — v3.7 (the string catalog and the recorded voice) changed nothing visible, so the
+work is v3.5's leftover, v3.8, v3.10 and the analytics removal that is still in the
+working tree.
+
+**One new frame. `60 — Practice — how to trace a letter`** on `04 · Write`, beside frame
+50 (x 934, y 6470). It is frame 49 cloned, dimmed under a 35% scrim, with the card over
+it: the title, the ✕ in its `paper-sunk` disc, three step rows (1 and 2 done, 3 current,
+so the disc treatments and both text weights are all visible at once), the 320 × 400
+one-letter sheet, and the two text buttons. `WIREFRAME_SPEC.md` §13.8 has the numbers.
+
+**What the frame settles, and where it left the spec.** Step 3 wraps to two lines at 640
+wide, so the sheet cannot start at the spec's y 245: the card is **640 × 765**, the sheet
+starts at **265** and the buttons at **689**. §13.8 now says so. The sheet beneath is
+drawn in its idle state — the *G* back to `guide-text`, no award chip, "Touch a letter to
+start." — because the tutorial is what a first visit opens.
+
+**The letter.** The sheet is frame 57's construction (rules at the 40 pt insets, ascender
+at 80, baseline at 296, descender at 359; Jua at 300 pt) with a little *a* centred instead
+of a big *A*. Its formation is new: two `practice-path` strokes — the bowl anticlockwise
+from the top right, then the stem — with a filled arrowhead at each end, the blue start
+dot (12 pt `action` disc on a 16 pt `paper-raised` halo) where the bowl begins, green ink
+over the traced part and a short red stray where it left the letter, so step 3's sentence
+has something to point at. The **highlight cell** is `action` at 10% behind a 2 pt
+`action` hairline at 38% — that is the app's `drawHighlight`, and it had never been drawn
+in the file before.
+
+**Frames edited in place:**
+
+| Frame | Change |
+|---|---|
+| 49, 49 landscape | The **?** leads the trailing toolbar group; the annotation records the start dot and that no ink lands until the arrows have finished |
+| 09, 10, 12, 54, 09 landscape | The Progress toolbar button is gone (v3.10 — the points card is the one way in) and so is the New Entry tile's "up to +230 points" chip (v3.5 — the points have no ceiling to promise). The landscape annotation and `Notes — 06 · Landscape` note 5 were rewritten to match |
+| 25 | The annotation carries the v3.10 advance pause: a full row stays in hand until the pen has rested for a second |
+| 33, 33 landscape | The PROFILE row is now a 48 pt avatar, the name in `body`, "Name, photo and PIN" in `caption-sm` and the chevron, 80 tall — the whole row a target. The Mode subtitle reads *Trace writing*. The landscape copy had also never caught v3.4's *Sound* → *Voice feedback* rename; it has now |
+| 34 | **PROFILES** at the top: one row per profile (Milo with the photo stand-in, Ada with her initial, as frame 1 draws them) and the long-press note beneath. The **SYNC** section and its disabled iCloud row are gone |
+
+**New in the library.** `questionmark.circle` joins the Foundations icon sheet at
+(249, 818) — 26 icons now. It is the one icon drawn as a ring plus a Nunito glyph rather
+than as paths, because §9's set had no question mark to trace.
+
+**Working tree, not committed.** Frame 34's missing SYNC section and frame 33's *Trace
+writing* subtitle follow the uncommitted Firebase/Telemetry removal (`Telemetry.swift`,
+`GoogleService-Info.plist` and the Firebase package deleted, `PrivacyInfo.xcprivacy`
+added). `DESIGN_DOCUMENT.md` §9 and its "not built" list still describe the disabled
+iCloud row — worth a pass when that work is committed.
+
+**Still open — frames 29 and 30.** Results still shows the **v3.4** point figures (224 and
+183). v3.5 made points per letter and per whole word, and §14 now names a different
+canonical example — *"I saw a red bird"*, perfectly, on a five-day streak, 24 + 9 + 9 + 30
++ 25 + 30 = 127. Redrawing those two frames means a new sample entry, not a new number, so
+it was left for a decision rather than guessed at.
 
 ## 1.-3 The welcome and a voice *(drawn and built 2026-09-02, v3.4)*
 
@@ -207,18 +262,18 @@ Every page was swept for the v2.8 token values (`WIREFRAME_SPEC.md` §5/§8,
 
 | Page | Contents | Boards |
 |---|---|---|
-| `00 · Foundations` | 26 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, icon sheet | 5 |
+| `00 · Foundations` | 26 color tokens, 17 type specimens, spacing/radii/stroke rulers, elevation samples, icon sheet (26 icons) | 5 |
 | `01 · Components` | §10.1–§10.8, including both states of `Sheet / Badge` | 7 |
-| `02 · Profiles` | Frames 1–6, 51, and the welcome 55–58 (§1.-3) | 11 |
+| `02 · Profiles` | Frames 1–6, 51, and the welcome 55–59 (§1.-3) | 12 |
 | `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 | 8 |
-| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 — every one a state of the single v3.2 screen | 21 |
+| `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53, 60 — every one a state of the single v3.2 screen | 22 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 | 6 |
 | `06 · Landscape` | Landscape versions of frames 01, 09, 15, 20, 24, 25, 29, 31, 33, 48, 49 and a notes board (§1.-2) | 12 |
 | `99 · Scratch` | Font calibration check; never referenced by development | 1 |
 
-**46 portrait artboards at 834 × 1194** — every one verified for overflow — plus **11 landscape artboards at 1194 × 834** on `06 · Landscape` (§1.-2).
+**48 portrait artboards at 834 × 1194** — every one verified for overflow — plus **11 landscape artboards at 1194 × 834** on `06 · Landscape` (§1.-2).
 
-**Library:** 23 colors, 20 typographies, 31 components.
+**Library:** 26 colors, 20 typographies, 19 components (recounted 2026-09-04).
 
 ### Retired frames — do not reuse the numbers
 
@@ -269,7 +324,7 @@ The five **journal faces are all real** and all render correctly (§7.2).
 
 ### 2.2 Iconography — SF Symbols → drawn vectors *(§9)*
 
-Penpot has no SF Symbols support. All 25 symbols are drawn as 24 × 24 vector paths on the
+Penpot has no SF Symbols support. All 26 symbols are drawn as 24 × 24 vector paths on the
 Foundations icon sheet, named after their SF Symbol counterparts. Geometric equivalents,
 not tracings. Replace with real SF Symbol SVG exports before sign-off; every call site
 references them by symbol name.

@@ -1080,7 +1080,7 @@ finished* as the one finish control in the footer.
 | 46 | Write — no guide lines | §16 variant: ruled lines off |
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
 | 48 | Write — left-handed layout | §16 variant, built in v3.2: `isLeftHanded` mirrors the handle gutter to the right so a resting left hand never covers it. Nothing else moves — the toolbar, the footer and the writing are frame 25's |
-| 60 | Practice — how to trace a letter | v3.8, §13.8. `Sheet`-family card over frame 49: "How to trace a letter", three numbered steps that light up in turn, a 320 × 400 one-letter sheet (little *a*, the blue dot at the start of its bowl, the arrows, live ink), `Button / Text` "↺ Watch again" · "Skip" — `Button / Primary` "✓ Let's practice" once the letter is traced — and the ✕. Opens on a profile's first visit and from the **?** in frame 49's toolbar. Not yet drawn in Penpot |
+| 60 | Practice — how to trace a letter | v3.8, §13.8. `Sheet`-family card over frame 49: "How to trace a letter", three numbered steps that light up in turn, a 320 × 400 one-letter sheet (little *a*, the blue dot at the start of its bowl, the arrows, live ink), `Button / Text` "↺ Watch again" · "Skip" — `Button / Primary` "✓ Let's practice" once the letter is traced — and the ✕. Opens on a profile's first visit and from the **?** in frame 49's toolbar. Drawn on `04 · Write` beside frame 50 |
 | 49 | Practice Letters | The alphabet worksheet reached from Journal Home. A **?** leads the trailing toolbar group (v3.8), the letter in hand carries a blue start dot where its first stroke begins, and no ink lands until its arrows have finished — a pencil on a new letter plays the demo, it does not skip it. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
 | 52 | Write — doodling with the crayon | The crayon in hand: a sun, a heart and a flower in the three §5.6 accents, in their own layer under the handwriting at 85% multiply; the three swatches sit in the footer where the readout usually is, with "Doodles never count — tap the pencil to write again" |
 | 53 | Write — adding words with the keyboard | The **ABC** tool with nothing picked: the *Add words* field in the footer, keyboard up. Typed words join the spoken tier on their own paragraph |
@@ -1099,8 +1099,8 @@ screens** — they are states of the page (v2.5).
 |---|---|---|
 | 31 | Progress — by mode and font | Chart with two setting-change markers (**no date-range switch and no x-axis labels** — the app hides that axis), per-setting table, the size nudge, then the stats card (Sessions written / Words written / Days journaled / Longest streak) |
 | 32 | Progress — insufficient data | Fewer than 5 **entries** at one setting; empty state, plus the same copy-mode note under the table |
-| 33 | Settings — profile | A single **"Name, photo and PIN"** row — photo, name and chevron, the whole row a target — that opens the Profile Editor; Writing (font/size/mode + three toggles); the size nudge; Feedback — **Voice feedback** (v3.4, with its one-line subtitle), Haptics, the colourblind scheme; Danger zone with its caption; then *Switch to someone else* |
-| 34 | Settings — app | **PROFILES** (v3.10) first: one "Name, photo and PIN" row per profile, each opening the Profile Editor, with "Touch and hold a profile on the chooser to reach the same editor." beneath — the picker's gear is reached before anyone is chosen, so editing must not be a long press only; then iCloud row disabled, Version, **LEGAL** (v3.4): *Terms of use* and *Privacy policy* as `Row / Link` with "A grown-up agreed on 2 September 2026." beneath, then **three** plain-language notes — PIN, destructive actions, and the microphone feeding recognition and nothing else. No "What's new" row |
+| 33 | Settings — profile | A single **"Name, photo and PIN"** row — photo, name and chevron, the whole row a target — that opens the Profile Editor; Writing (font/size/mode — the Mode row's subtitle reads *Trace writing* — plus three toggles); the size nudge; Feedback — **Voice feedback** (v3.4, with its one-line subtitle), Haptics, the colourblind scheme; Danger zone with its caption; then *Switch to someone else* |
+| 34 | Settings — app | **PROFILES** (v3.10) first: one "Name, photo and PIN" row per profile, each opening the Profile Editor, with "Touch and hold a profile on the chooser to reach the same editor." beneath — the picker's gear is reached before anyone is chosen, so editing must not be a long press only; then Version (the **SYNC** section and its disabled iCloud row are gone — they left with the analytics removal),  **LEGAL** (v3.4): *Terms of use* and *Privacy policy* as `Row / Link` with "A grown-up agreed on 2 September 2026." beneath, then **three** plain-language notes — PIN, destructive actions, and the microphone feeding recognition and nothing else. No "What's new" row |
 | 38 | Settings — font picker | Five curated faces (Jua, Andika, Varela Round, Sniglet, Comic Neue), live previews, selected state |
 | 39 | Settings — font size picker | Five sizes, live previews. **The nudge is not here** — it belongs to Settings and Progress (§13.5) |
 
@@ -1325,8 +1325,8 @@ icons (`PENPOT_HANDOFF.md` §1.-3).
 ### 13.8 How to trace a letter (v3.8) — frame 60
 
 A card on the `overlay-scrim` over frame 49, chrome included, in the family of the PIN pad
-and `Sheet / Badge`: 640 wide in portrait, `radius-sheet`, `paper-raised`, `shadow-modal`,
-centred. In landscape the title, the steps and the buttons sit in a 400 pt column beside
+and `Sheet / Badge`: 640 × 765 in portrait, `radius-sheet`, `paper-raised`, `shadow-modal`,
+centred (step 3 wraps to two lines, so the sheet starts at 265 rather than 245). In landscape the title, the steps and the buttons sit in a 400 pt column beside
 the sheet so the card fits 834 pt without the sheet shrinking. The ✕ (44 pt disc,
 `paper-sunk`) sits 16 pt inside the top-right corner. The scrim does not close it.
 
@@ -1335,15 +1335,15 @@ the sheet so the card fits 834 pt without the sheet shrinking. The ✕ (44 pt di
 | "How to trace a letter", `title-1`, centred | — | 32 | — |
 | Step rows — a 32 pt disc (`action` with the number in `text-on-action`; `paper-sunk` and `text-secondary` while waiting; `action` with a check once done) and the step in `headline` `text-primary` while current, `body` `text-secondary` otherwise, 12 apart | 32 | 97 | ≤ 560 |
 | — 1 "Touch a letter and watch how it's written." · 2 "Start at the blue dot and follow the arrows." · 3 "Trace it with your Apple Pencil. Green ink is on the letter, red is off." | | | |
-| Practice sheet — `paper`, `radius-card`, 1 pt `divider` (2 pt `success` once traced), `shadow-card` | 160 | 245 | 320 × 400 |
+| Practice sheet — `paper`, `radius-card`, 1 pt `divider` (2 pt `success` once traced), `shadow-card` | 160 | 265 | 320 × 400 |
 | — the letter: Jua 300 pt little *a* centred, the highlight cell, the **blue start dot** (`action` disc with a `paper-raised` halo, ~11 pt across at this size, breathing slowly) at the top right of the bowl, the `practice-path` arrows, live ink | | | |
-| `Button / Text` "↺ Watch again" · "Skip" (`text-secondary`), 32 apart, centred | — | 669 | h 44 |
-| `Button / Primary` "✓ Let's practice" — replaces both once the letter is traced | — | 669 | 280 × 64 |
+| `Button / Text` "↺ Watch again" · "Skip" (`text-secondary`), 32 apart, centred | — | 689 | h 44 |
+| `Button / Primary` "✓ Let's practice" — replaces both once the letter is traced | — | 689 | 280 × 64 |
 
 Frame 49 gains a **?** (`questionmark.circle`) leading its trailing toolbar group, and the
 letter in hand shows the blue dot from the moment it is chosen until it is traced — the
-demo's arrows draw out from it, and it breathes slowly the whole time. Not yet drawn in
-Penpot; built from this table.
+demo's arrows draw out from it, and it breathes slowly the whole time. Both are drawn
+(`PENPOT_HANDOFF.md` §1.-4).
 
 ## 14. Sample Content
 
@@ -1482,7 +1482,7 @@ guide layer (writing frames keep it; journal frames do not).
 - [ ] Extra Large and Extra Small size extremes (frames 26, 27)
 
 Not required for v1 wireframes: dark mode, iPhone, landscape, offline or error states, Copy
-mode, and any iCloud sync UI beyond the disabled row in frame 34.
+mode, and any iCloud sync UI — the disabled row is gone from frame 34.
 
 ---
 
