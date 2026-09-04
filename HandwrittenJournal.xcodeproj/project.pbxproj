@@ -128,7 +128,7 @@
 		5909697354F2BA075B6E4371 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		5A3C13764E7D543E7627762F /* FormationHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationHelpView.swift; sourceTree = "<group>"; };
 		5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageLayoutTests.swift; sourceTree = "<group>"; };
-		65F40DC177FF32F9A7070F59 /* HandwrittenJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HandwrittenJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F40DC177FF32F9A7070F59 /* HandwrittenJournal.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HandwrittenJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66E40118E8CBE3D6A801D7C6 /* WritingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSettings.swift; sourceTree = "<group>"; };
 		6C7479E7EE0014A22E896B2E /* ScoringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringTests.swift; sourceTree = "<group>"; };
 		6FD596BF6CEDD9D5110B21FA /* FormationOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationOrder.swift; sourceTree = "<group>"; };
@@ -158,7 +158,7 @@
 		B351E65A19C5162446F1A9A2 /* WelcomeFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeFlowTests.swift; sourceTree = "<group>"; };
 		B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ComicNeue-Bold.ttf"; sourceTree = "<group>"; };
 		BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayoutTests.swift; sourceTree = "<group>"; };
-		C05E7E4312E224D33ACF0E62 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C05E7E4312E224D33ACF0E62 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingCanvas.swift; sourceTree = "<group>"; };
 		C6511FA804CE4B985F4F5567 /* WritingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSession.swift; sourceTree = "<group>"; };
 		CA34850BB29742A4A5C0721F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -404,6 +404,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 7A6D54D66103A7DBE1ACEAC7 /* Build configuration list for PBXProject "HandwrittenJournal" */;
 			developmentRegion = en;
@@ -544,7 +546,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = NBEPYFWX3J;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandwrittenJournal/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Handwritten Journal";
@@ -596,7 +597,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -661,7 +662,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -721,7 +722,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = NBEPYFWX3J;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandwrittenJournal/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Handwritten Journal";
