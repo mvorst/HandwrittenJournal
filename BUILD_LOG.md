@@ -217,7 +217,7 @@ DESIGN_DOCUMENT §0.17, §4.11, §4.12. Built 2026-09-03.
   PIN pad, so it covers the navigation bar; the first visit opens it from `.task` after a
   450 ms pause so the push has landed; the `?` (`questionmark.circle`, leading the trailing
   toolbar group) reopens it. `UserProfile.practiceTutorialSeen` is set however the card
-  closes. Screen `practice_tutorial` in `Telemetry`.
+  closes.
 - **Voice, in step with the sheet.** Four cues — `practiceHowWatch` / `Start` / `Trace` /
   `Done`, clips `practice-how-*`. The card's sheet does *not* auto-select: `Watch` is said
   over the bare letter and a `.task` starts the demo (`controller.startOverWithDemo()`,
@@ -328,8 +328,6 @@ Apple Pencil* straight through. This is a handwriting app, so the tap now opens 
   a skip comes back as the letter alone at the next launch, and an iPad v3.4 let through
   owes the check the same way: `PencilCheck.noPencil` is gone and the stored string reads
   as `unchecked`.
-- **`Telemetry`** — `welcome_finished` carries `pencil` = *pencil* or *skipped*; the page
-  is the hand-named screen `welcome_no_pencil`.
 - **Harness** — `DemoData.settleWelcome` answers the voice question and the pencil check
   explicitly, so a seeded or `-screen` launch still lands where it asked.
 - Tests: `WelcomeFlowTests` gained four — a skip lets this launch through and owes the
@@ -717,20 +715,10 @@ silently fell back to the system face.
 8. **Destructive actions are ungated.** Delete Profile and Reset Progress use a plain
    confirmation. A press-and-hold would stop a six-year-old; recorded as an accepted risk
    in §10.3.
-9. **Usage analytics are built; crash reporting is not** (`DESIGN_DOCUMENT.md` §10.5,
-   2026-09-02). Google Analytics for Firebase through `Services/Telemetry.swift` — off
-   until the welcome's *I agree*, no advertising identifier, no IDFV, hand-named screens
-   and a fixed event list that carries counts and setting IDs only. The Firebase project
-   is `handwritten-journal`; `Resources/GoogleService-Info.plist` came from its console
-   with `IS_ANALYTICS_ENABLED` false, so Google Analytics must be enabled on the project
-   (Project settings › Integrations) and the plist re-downloaded before events show up.
-   Crash reports still need a provider (Crashlytics, or Apple's crash logs alone); the
-   App Privacy label must ship with this build (`APP_STORE_LISTING.md` §3).
-10. **Apple Pencil is now required** (§10.5), but the build still offers the finger-tracing
-   switch per profile. Remove or hide it, and keep palm rejection. The welcome's pencil
-   check explains the requirement since v3.6 — *I don't have an Apple Pencil* opens
-   frame 59, and a skip from it lasts one launch — so the switch is the last place a
-   finger is offered without a word.
+9. **Third-party telemetry was removed.** The release has no analytics or crash-reporting
+   SDK and the App Privacy label is Data Not Collected (`DESIGN_DOCUMENT.md` §10.5).
+10. **The app is designed for Apple Pencil** (§10.5), while the per-profile finger-tracing
+   switch remains available. Store and product copy use that accurate wording.
 11. **The simulator cannot make a pencil touch**, so the welcome's letter step can only be
    smoke-tested down the finger path (*That was a finger* → *I don't have an Apple
    Pencil* → frame 59 → *Back to the letter* or *Skip for now*). The pencil path needs
@@ -756,7 +744,4 @@ xcrun simctl launch <device> com.mattvorst.education.handwrittenjournal \
   -fakeDictation "words…"     # the simulator has no microphone: the mic runs a scripted
                               # take instead, one word per half-second arriving as a
                               # cumulative partial result through the real path, until stop
-  -FIRDebugEnabled            # Firebase's own flag: a DEBUG build sends analytics only with
-                              # it (and only after the terms are agreed), to DebugView in the
-                              # Firebase console; without it the harness sends nothing
 ```

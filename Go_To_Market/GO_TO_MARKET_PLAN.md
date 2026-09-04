@@ -18,9 +18,8 @@ discarded as a score. Launch it **free, in the Education category** — the basi
 free, no ads, no account, paid features possible later and a promise never to sell data
 (§4) — aimed first at **parents of 5–8-year-olds** with an iPad and Apple Pencil, and
 reached through the two groups who recommend apps to those parents: **occupational
-therapists and K–2 teachers**. The app will send anonymous crash reports and usage
-statistics (§5.6), so the privacy story is *your child's journal never leaves the iPad*,
-not *no data*. Soft-launch in October 2026 to
+therapists and K–2 teachers**. The journal stays on the device and the app does not collect
+or transmit personal, device, analytics, or crash-reporting data. Soft-launch in October 2026 to
 find the rough edges on real children's voices and hands, push publicly in November for the
 gift season, own **National Handwriting Day (23 January 2027)**, and use classroom pilots
 run over the winter to open school purchasing in spring 2027. Total cash budget under
@@ -34,10 +33,10 @@ message, the differentiator and the thing no competitor can bolt on.
 | Fact | Value | Why it matters to marketing |
 |---|---|---|
 | Platform | iPad only, iOS 18.0+, portrait and landscape, full screen | No iPhone, no Android, no Chromebook. Say so early; it saves refunds. |
-| Input | **Apple Pencil required** (decided 2026-09-02) | Say it everywhere, first; the finger-tracing switch in the build is to be removed or hidden |
+| Input | **Designed for Apple Pencil** | Use this wording everywhere; finger tracing remains available in profile settings |
 | Core loop | Speak → words land on a ruled page → write over them → the guide disappears → the page joins the journal | The whole pitch in one sentence |
 | Speech | Apple on-device recognition; **no audio is recorded or kept** (v3.0) | The strongest privacy line in the category |
-| Network | **Anonymous crash reports and usage statistics** (decided 2026-09-02, to be built — §5.6). No account, no ads; the journal never leaves the iPad | App Privacy label declares Diagnostics and Usage Data, not linked to identity |
+| Network | **No data collection or third-party telemetry.** No account, no ads; the journal never leaves the iPad | App Privacy label is Data Not Collected |
 | Grading | Per-letter accuracy, live green/red ink; stroke order judged (80% discount); a letter drawn wrong is taught on the spot | The only tracing app that teaches *during* real writing |
 | Practice sheet | Aa–Zz and 0–9, each letter draws itself stroke by stroke; +2 points a letter | The "worksheet" schools recognise |
 | Typefaces / sizes | Five faces, five sizes, chosen by a grown-up, never earned | Andika for children who read it more easily |
@@ -45,7 +44,7 @@ message, the differentiator and the thing no competitor can bolt on.
 | Output | Any page or the whole journal as a PDF | The grandparent gift |
 | Households | Several profiles per iPad, optional 4-digit PIN | Siblings; classroom carts |
 | Accessibility | Left-handed layout, colour-blind ink pair, haptics toggle, Dynamic Type on chrome | OT audience cares |
-| Website | Static site with Google Analytics; Apple's official App Store badge | `website/` |
+| Website | Static site with no analytics or third-party scripts; Apple's official App Store badge | `website/` |
 | Ages | Roughly 5–8; can speak in sentences, learning to form letters | K–2 in US terms |
 
 **Two copy facts to fix before anything ships:** the App Store description names *Baloo 2*
@@ -122,8 +121,8 @@ Two different people:
   works on a shared cart, and produces something for the portfolio and the parent
   conference. Several profiles per iPad and the PDF export are the features.
 - **The administrator / technology coordinator** wants to know how it is bought (Apps and
-  Books in Apple School Manager), what data it collects (anonymous crash and usage data;
-  never the journal), what agreements it needs (a one-page data statement, because most
+  Books in Apple School Manager), that it collects no data, what agreements it needs (a
+  one-page data statement, because most
   districts ask for one), and what it costs per seat (nothing).
 
 What 1.0 lacks for schools, said up front: no teacher dashboard, no class roster, no cloud
@@ -165,9 +164,8 @@ Every sentence written now has to survive a later upgrade without becoming a lie
   your data.* And, where a reader will wonder: *Some additional features may be paid.*
 - **Do not say:** *the app is free forever*, *no in-app purchases ever*, *nothing to buy*.
   Say *nothing to unlock* (about levels) rather than *nothing to buy* (about money).
-- **Do not say** *no analytics*, *collects nothing* or *Data Not Collected* — the app
-  sends anonymous crash reports and usage statistics (§5.6). Say *the journal never leaves
-  the iPad* and *anonymous crash and usage data only, never sold*.
+- **Say:** *Data Not Collected.* The current app has no advertising, analytics, crash
+  reporting, or third-party data sharing.
 - The App Store listing carries no "In-App Purchases" line until there are some, so the
   listing needs no wording about them at all.
 
@@ -282,8 +280,8 @@ Most downloads will come from search and browse, so the product page is the camp
   (profiles on a shared iPad, PIN or no PIN, the Pencil question), and the printable
   practice-sheet expectations.
 - **What we hand the office:** the privacy policy (`website/privacy/`), the App Privacy
-  label, a one-page data statement listing exactly what the anonymous crash and usage data
-  contains and that no student work or identity is ever sent, how to distribute through
+  label, a one-page data statement confirming no student work, identity, device,
+  analytics, or crash-reporting data is sent, how to distribute through
   Apps and Books (free, nothing to license), and the district's student-data-privacy form
   answered honestly — expect to sign it.
 - **Conferences:** none in 2026. In 2027, consider one regional edtech show or the Apple
@@ -295,8 +293,7 @@ Most downloads will come from search and browse, so the product page is the camp
 ### 5.5 The website (built — `website/`)
 
 Support and privacy URLs are mandatory App Store fields. The site in `website/` is fully
-static, uses Google Analytics for page-level tracking (the privacy policy says so, and the
-site honours the Global Privacy Control signal), links to the App Store with Apple's
+static, has no analytics or third-party tracking scripts, links to the App Store with Apple's
 official badge, and already does everything below except host the video:
 
 - Hero: the 30-second preview, autoplay muted, captions.
@@ -310,45 +307,14 @@ official badge, and already does everything below except host the video:
 Domain — *decision*. Check `handwrittenjournal.app` and `.com`; the App Store name must
 match whatever the site says.
 
-### 5.6 Crash reports and usage data (decided 2026-09-02 — to be built)
+### 5.6 Data practices
 
-The app will send anonymous crash reports and usage statistics so problems get fixed and
-features get judged on use. The build today has no networking code, so this is a 1.0
-engineering item with three documents attached to it: the App Privacy label, the listing
-copy and the privacy policy change in the same release.
+The release has no analytics, crash-reporting SDK, advertising SDK, or other third-party
+telemetry. It does not collect or transmit personal, device, analytics, or crash-reporting
+data. The App Privacy label, listing, and policy all state **Data Not Collected**.
 
-**What it may contain:** crash stack traces with app version, iPad model, iOS version and
-the screen at the time; usage events (entry dictated or typed, practice sheet opened,
-typeface changed, session length, export used) with the same device facts; a random
-per-install identifier. **What it may never contain:** the words on the page, ink, names,
-photos, voice, precise location, or anything that identifies a child.
-
-**Why that line matters:** the internal-operations exception in COPPA allows persistent
-identifiers for exactly this — analytics, crash reporting — with no parental consent, as
-long as the data is never used for behavioural advertising or profiling. App Review
-Guideline 1.3 (Kids Category) forbids sending PII or device information to third parties.
-So: anonymous, internal-operations only, and a provider that qualifies.
-
-| Option | Fit | Note |
-|---|---|---|
-| **Apple only** — App Store Connect crash logs and App Analytics | Zero code, zero label change; only users who opted in to share with developers; aggregated | The floor; not enough on its own for usage questions |
-| **Privacy-first SDK** (TelemetryDeck, or MetricKit with our own endpoint) | Anonymous by design, no PII, small, Kids-friendly | **Recommended.** Declare Diagnostics and Usage Data, not linked to identity |
-| **Firebase Crashlytics + Analytics** | Richest, heaviest; Kids-Category and COPPA friction | **Chosen for usage data (Analytics), 2026-09-02** — with the child-directed configuration below; Crashlytics still to decide |
-
-**Decided 2026-09-02 — usage data: Google Analytics for Firebase**, built in
-`HandwrittenJournal/Services/Telemetry.swift` (`DESIGN_DOCUMENT.md` §10.5). The
-child-directed configuration: the `FirebaseAnalyticsCore` package (the
-advertising identifier is never linked, so the ATT prompt stays unnecessary); IDFV
-collection off; ad storage, ad user data and ad personalisation denied by default;
-automatic screen reporting off; collection off until a grown-up agrees to the terms on
-the welcome. The identifier is Firebase's random app-instance ID, reset when the app is
-deleted. The event list is the one above — welcome finished, profile created, typeface
-changed, dictation ended (seconds and word count), words typed (count), formation help
-shown, entry finished (counts, stars, accuracy, minutes, face and size IDs), badge
-earned, practice letter traced, export shared — plus hand-named screen views. **Still
-open:** crash reports (Crashlytics, or Apple's crash logs alone) and the Kids Category
-question in §5.1: Firebase Analytics so configured sends no PII, but it is a third-party
-SDK, so expect App Review to ask.
+Do not add a measurement or crash-reporting service to a Kids Category release without a
+fresh privacy and App Review Guideline 1.3 assessment.
 
 ---
 
@@ -363,7 +329,7 @@ short form. Specifically test what the simulator cannot:
 3. How often the remediation modal appears and whether a child finds it fair.
 4. Left-handed children.
 5. Whether a grown-up can find the font and size settings without being told.
-6. That the crash and usage events fire as designed and contain nothing they should not.
+6. That no unexpected network traffic occurs during ordinary app use.
 
 Collect three to five quotable parent sentences (no children's names, written permission
 kept) for the website and the press pitch.
@@ -376,14 +342,12 @@ kept) for the website and the press pitch.
 
 - [ ] Decisions: category, name, domain (§12) — the price is decided: free
 - [ ] Build the grown-up gate in front of Share/Export and the destructive Settings rows; hold-to-confirm on Delete Profile and Reset Progress
-- [x] Build usage analytics (§5.6) — Google Analytics for Firebase, 2026-09-02
-- [ ] Enable Google Analytics on the `handwritten-journal` Firebase project and re-download `GoogleService-Info.plist`; decide crash reporting (§5.6); ship the App Privacy label, the listing's privacy paragraph and the policy in the same build
-- [ ] Remove or hide the finger-tracing switch; "Requires Apple Pencil" on the product page, the website and every one-pager
-- [ ] Set the Google Analytics measurement ID in `website/site.config.json` and rebuild
+- [x] Remove third-party telemetry and align the manifest, listing, policy, and website with Data Not Collected
+- [x] Use "Designed for Apple Pencil" on the product page, website, and one-pagers
 - [ ] Fix the Baloo 2 line in the description; verify font licences and add attribution to Settings › About
 - [ ] Host the privacy policy and support page; register the domain
 - [ ] TestFlight beta (§6); reshoot the writing screenshots and the preview video on a real iPad
-- [ ] Submit App Privacy per `APP_STORE_LISTING.md` §3 (Diagnostics and Usage Data, not linked to identity); paste the review notes
+- [ ] Submit App Privacy per `APP_STORE_LISTING.md` §3 (Data Not Collected); paste the review notes
 
 ### Phase 1 — Soft launch (5–30 October 2026)
 
@@ -420,8 +384,7 @@ kept) for the website and the press pitch.
 
 ## 8. Measurement
 
-Until the usage analytics ship (§5.6), every number comes from **App Store Connect** and
-from people; after that, the last three rows open up. Google Analytics covers the website.
+Every release measure comes from **App Store Connect** and direct feedback from people.
 
 | Measure | Source | 90-day target (proposal) |
 |---|---|---|
@@ -433,10 +396,7 @@ from people; after that, the last three rows open up. Google Analytics covers th
 | OT recommenders active | Outreach log (`outreach/OUTREACH_LOG.md` — create it) | 5 who have recommended it in public |
 | Classroom pilots completed | Pilot log | 5 classrooms, 2 written stories |
 | Search Ads cost per install | Apple Ads | Below the §5.1 ceiling; stop if not |
-| Website visits → App Store clicks | Google Analytics (badge click event) | Baseline in the first month; watch the schools and specialists pages |
-| Children who write again in the same week | Usage analytics | ≥ 40% of installs with a first entry |
-| Entries per active child per week | Usage analytics | ≥ 2 |
-| Dictated vs typed entries | Usage analytics | Watch: a high typed share means speech is failing on young voices |
+| Website visits → App Store clicks | App Store Connect campaign links | Baseline in the first month; watch the schools and specialists pages |
 
 Review every two weeks in phases 1–2, monthly after.
 
@@ -485,11 +445,11 @@ Time is the real budget: reckon on two to three hours a week of outreach during 
 | Risk | Mitigation in this plan |
 |---|---|
 | Speech recognition struggles with young voices | Beta on real voices first; "Type it instead" is in every screenshot caption where relevant; the listing says it plainly |
-| A free children's app reads as ad-funded or data-funded | Put *no ads* and *we will never sell your data* next to the word *free* everywhere, and say plainly what is collected (anonymous crash and usage data) and what never is (the journal) |
-| Analytics in a children's app | Anonymous, no PII, internal-operations purpose only (COPPA); a provider that clears Kids Category Guideline 1.3; label, listing and policy change in the same release (§5.6) |
-| "Requires Apple Pencil" shrinks the audience to Pencil owners | Say it first and everywhere; hiding it costs one-star reviews, not sales |
-| No revenue in 1.0, and no usage data until §5.6 ships | App Store Connect numbers plus the beta and pilot conversations are the data; choose the first upgrade by §4.2's principles, never by a paywall experiment on children |
-| Kids category review (Guideline 1.3) | Build the grown-up gate before listing in Kids; the app has no ads, and the analytics provider must clear 1.3 (§5.6) |
+| A free children's app reads as ad-funded or data-funded | Put *no ads* and *Data Not Collected* next to the word *free* everywhere, and say plainly that the journal stays on the device |
+| Privacy in a children's app | Keep the release free of third-party analytics and crash-reporting SDKs; re-review Guideline 1.3 before any data practice changes (§5.6) |
+| Apple Pencil wording confuses families | Say *Designed for Apple Pencil*; finger tracing remains available |
+| No revenue in 1.0 and no usage data | App Store Connect numbers plus beta and pilot conversations are the data; choose the first upgrade by §4.2's principles, never by a paywall experiment on children |
+| Kids category review (Guideline 1.3) | Build the grown-up gate before listing in Kids; the app has no ads, analytics, or crash-reporting SDKs |
 | No cloud backup — a lost iPad is a lost journal | Tell grown-ups to export the book to Files or iCloud Drive monthly; put it in the support page and the Results screen copy for 1.1; iCloud sync is a roadmap item, not a promise |
 | Competitors add dictation (Writing Wizard) or scoring (Handwriting Tracing Practice) | The journal framing and the settle moment are the moat; ship the keepsake story before they ship the feature |
 | School procurement stalls on paperwork | Privacy statement and Apps and Books notes ready before the first office conversation; pilots before purchase |
@@ -500,8 +460,7 @@ Time is the real budget: reckon on two to three hours a week of outreach during 
 ## 12. Decisions needed from Matt
 
 1. **Price and model** — decided 2026-09-02: the basic app is always free; paid features possible; never sell data. Still open: which paid feature first, and when (§4.2).
-1a. **Analytics provider and event list** (§5.6) — decided 2026-09-02: Google Analytics for Firebase, built. Still open: crash reports (Crashlytics or Apple only).
-1b. **Kids Category given analytics** (§5.1) — decide with the provider.
+1a. **Data practices** (§5.6) — decided: no analytics, crash reporting, or other third-party telemetry in this Kids Category release.
 2. **Category** — recommendation: Education primary now; Kids secondary once the gate is built (§5.1).
 3. **App Store name** — *Handwritten Journal*, fallback *Handwritten Journal: Kids* (`APP_STORE_LISTING.md` §1.1). Home-screen name is also *Handwritten Journal* (*Journal* alone is rejected at upload, ITMS-90129).
 4. **Domain and support email** — needed for submission.

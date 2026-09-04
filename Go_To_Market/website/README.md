@@ -2,8 +2,8 @@
 
 The marketing site for Handwritten Journal: a home page, pages for schools, specialists and
 press, a support page, a privacy policy and terms of use. **Entirely static** — HTML, one
-minified stylesheet, one minified script, images and PDFs. No server-side code and no
-forms. The only third-party request is Google Analytics (below).
+minified stylesheet, one minified script, images and PDFs. No server-side code, forms,
+analytics, or third-party tracking scripts.
 
 ```
 website/
@@ -38,18 +38,6 @@ This site is deployed to the S3 + CloudFront stack in this account with `Website
 (`--build` rebuilds first); the hosting details, URL rules and the domain steps are in
 [`../../Website/README.md`](../../Website/README.md).
 
-## Google Analytics
-
-`site.config.json` › `ga_measurement_id` holds the GA4 **measurement ID**; the build
-injects Google's gtag snippet into every page, with `anonymize_ip` and **without** loading
-at all when the browser sends the Global Privacy Control signal. The GA4 property is
-*Handwritten Journal* (property 552627864, account 406804850), and the web stream's
-measurement ID `G-GM5KY417PW` is set and live in `dist/`. If the stream is ever
-recreated, the new ID is under Admin › Data streams in Google Analytics. The privacy
-policy's section 10 describes the analytics and links Google's opt-out. **Decide
-separately** whether the site needs a cookie-consent banner: it is not built, and one is
-expected for visitors in the EU/UK.
-
 ## The App Store badge
 
 `src/assets/app-store-badge-black.svg` and `-white.svg` are Apple's own artwork, fetched
@@ -63,15 +51,11 @@ badge may only be shown once the app is live, or with "Coming soon" wording Appl
 ## Before it goes live
 
 - `site.config.json`: the **domain** and **support email** if they change (the App Store
-  URL is the real one, id 6807460004), and the two privacy-policy placeholders — the
-  **analytics provider** that receives the app's crash and usage data, and the
-  **retention period**. Rebuild.
+  URL is the real one, id 6807460004). Rebuild.
 - `src/pages/terms.html` §13 names Ohio as the governing law. §5 commits that written
   pages will never sit behind a future purchase — keep it or remove it, but decide.
-- Have a lawyer read the privacy policy and the terms. They are plain-language drafts
-  written to match how the app will work once the crash reporting and usage analytics
-  are built (`DESIGN_DOCUMENT.md` §10.5); the children's paragraph relies on COPPA's
-  internal-operations exception, which is exactly the kind of thing to confirm.
+- Have a lawyer read the privacy policy and the terms, particularly the children's
+  privacy obligations in the markets where the app is available.
 - The App Store listing needs the privacy URL (`/privacy/`) and the support URL
   (`/support/`); the marketing URL is the home page.
 - Replace the simulator screenshots in `../screenshots/raw/` with device captures and

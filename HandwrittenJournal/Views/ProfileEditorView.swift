@@ -146,7 +146,7 @@ struct ProfileEditorView: View {
                         SettingRow(title: "Mode") {
                             Text("Trace").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                         }
-                        Text("Copy mode — writing on a line under the words — is coming later.")
+                        Text("Trace writing keeps the guide beneath each stroke.")
                             .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.top, Tokens.Space.s2)
@@ -176,7 +176,6 @@ struct ProfileEditorView: View {
             }
         }
         .task { load() }
-        .onAppear { Telemetry.screen(.profileEditor) }
         .onChange(of: photoItem) { Task { await loadPhoto() } }
         .fullScreenCover(item: $photoStage) { stage in
             switch stage {
@@ -276,11 +275,7 @@ struct ProfileEditorView: View {
         let target: UserProfile
         if let profile {
             target = profile
-            if profile.setup.face != setup.face || profile.setup.size != setup.size {
-                Telemetry.log(.typefaceChanged(setup: setup))
-            }
         } else {
-            Telemetry.log(.profileCreated(setup: setup))
             target = UserProfile()
             // v3.4 — the welcome's answer to "Should the iPad talk?" (§4.10).
             target.soundEnabled = Onboarding.shared.voiceFeedbackDefault

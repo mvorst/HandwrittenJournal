@@ -54,7 +54,6 @@ struct ProgressReportView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
-        .onAppear { Telemetry.screen(.progress) }
     }
 
     private var chart: some View {
@@ -97,7 +96,7 @@ struct ProgressReportView: View {
                 Text("Nothing written yet.").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     .padding(.vertical, Tokens.Space.s5)
             }
-            Text("Copy mode has no entries yet — it is coming later.")
+            Text("No entries yet.")
                 .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, Tokens.Space.s4)

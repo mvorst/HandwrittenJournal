@@ -62,15 +62,6 @@ struct EntryPageView: View {
         _mode = State(initialValue: session == nil ? .edit : mode)
     }
 
-    /// Which of the page's faces is up: writing, reading what was written, or the results.
-    private func logScreen() {
-        switch model.stage {
-        case .writing: Telemetry.screen(mode == .edit ? .write : .read)
-        case .results: Telemetry.screen(.results)
-        case .explainPermission, .unavailable: break
-        }
-    }
-
     var body: some View {
         // v3.3 — one screen, two layouts: the window's shape decides, and the page keeps
         // its portrait width either way (`ScreenLayout`).
@@ -88,8 +79,6 @@ struct EntryPageView: View {
         }
         .task { await model.prepare() }
         .task(id: mode) { if mode == .view { await loadStrokes() } }
-        .onChange(of: model.stage, initial: true) { logScreen() }
-        .onChange(of: mode) { logScreen() }
         // The service stops itself at the five-minute cap; the page needs to notice.
         .onChange(of: model.speech.isRecording) { _, recording in
             if !recording { model.dictationEnded() }

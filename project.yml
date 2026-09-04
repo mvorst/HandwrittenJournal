@@ -4,13 +4,6 @@ options:
   deploymentTarget:
     iOS: "18.0"
   createIntermediateGroups: true
-# Google Analytics for Firebase — usage statistics only (DESIGN_DOCUMENT.md §10.5).
-# `FirebaseAnalyticsCore` (Firebase 12's name for AnalyticsWithoutAdIdSupport) never links AdSupport, so no
-# advertising identifier can be collected; the Info.plist keys below turn off the rest.
-packages:
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    from: "12.18.0"
 settings:
   base:
     TARGETED_DEVICE_FAMILY: "2"
@@ -19,7 +12,7 @@ settings:
     # and CFBundleVersion. Leave either unset and App Store Connect rejects the upload
     # with "is empty but must be composed of one to three period-separated integers".
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "3"
+        CURRENT_PROJECT_VERSION: "7"
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     # v3.7: every user-facing string lives in Resources/Localizable.xcstrings; the compiler
     # extracts Text/LocalizedStringKey/String(localized:) literals into it on each build.
@@ -42,37 +35,16 @@ targets:
       # land flat in the bundle and nothing would be found.
       - path: HandwrittenJournal/Resources/Voice
         type: folder
-    dependencies:
-      - package: Firebase
-        product: FirebaseAnalyticsCore
-    # Keys Xcode's generated Info.plist has no INFOPLIST_KEY_ for. Xcode merges this file
-    # with the generated one (GENERATE_INFOPLIST_FILE stays YES), so the usage strings and
-    # orientations above still apply. XcodeGen rewrites the file from `properties` on every
-    # `xcodegen generate` — edit here, not there.
+    # XcodeGen writes this file from `properties` on every `xcodegen generate`.
     info:
       path: HandwrittenJournal/Info.plist
       properties:
-        # Off until a grown-up agrees to the terms; Telemetry.swift turns it on after.
-        FIREBASE_ANALYTICS_COLLECTION_ENABLED: false
-        # No advertising storage, ad user data or personalisation, ever (COPPA / Kids 1.3).
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: false
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: false
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: false
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: true
-        # No identifierForVendor — the random per-install app-instance ID is the only identifier.
-        GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED: false
-        # Screens are named by hand in Telemetry.swift; automatic reporting only sees UIHostingController.
-        FirebaseAutomaticScreenReportingEnabled: false
-        FirebaseAppDelegateProxyEnabled: false
-        # Only standard HTTPS (Firebase/GA transport). Answers the export-compliance question so
-        # every build is submittable without the "Missing Compliance" prompt in App Store Connect.
+        # The app uses no non-exempt encryption.
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mattvorst.education.handwrittenjournal
         GENERATE_INFOPLIST_FILE: YES
-        # Firebase Analytics' categories on Objective-C classes need this or they are stripped.
-        OTHER_LDFLAGS: "$(inherited) -ObjC"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_CFBundleDisplayName: "Handwritten Journal"
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad."

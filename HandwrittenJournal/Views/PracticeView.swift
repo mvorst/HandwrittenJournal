@@ -46,7 +46,6 @@ struct PracticeView: View {
         }
         .background(Tokens.Colour.paper)
         .navigationTitle("Practice Letters")
-        .onAppear { Telemetry.screen(.practice) }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { todayPill }
@@ -80,7 +79,6 @@ struct PracticeView: View {
                 let followed = controller.followedOrder
                 lastAward = profile.awardPractice(character: char, followedOrder: followed)
                 awardedChar = char
-                Telemetry.log(.practiceTraced(followedOrder: followed))
                 Voice.say(.practiceTraced(char, followedOrder: followed))
                 if !followed { replayAfterWrongOrder(char) }
             case .yourTurn(let char):

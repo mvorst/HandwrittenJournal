@@ -57,7 +57,6 @@ struct WelcomeView: View {
         }
         .onAppear {
             if steps.isEmpty { steps = onboarding.stepsDue }
-            Telemetry.screen(.welcome)
         }
         .animation(.easeInOut(duration: Tokens.Motion.standard), value: index)
         .animation(.easeInOut(duration: Tokens.Motion.standard), value: showingWhyPencil)
@@ -167,12 +166,11 @@ struct WelcomeView: View {
                 LinkRow(title: "Privacy policy") { openURL(Onboarding.privacyURL) }
             }
             .padding(.top, Tokens.Space.s6)
-            note("lock.fill", "There is no account, and what your child says and writes never leaves this iPad unless a grown-up shares a PDF. The privacy policy explains the anonymous crash reports and usage statistics.")
+            note("lock.fill", "There is no account, and what your child says and writes never leaves this iPad unless a grown-up shares a PDF. The app has no advertising, analytics, or crash reporting.")
                 .padding(.top, Tokens.Space.s5)
             PrimaryButton(title: "I agree", systemImage: "checkmark") {
                 Haptics.tap()
                 onboarding.acceptTerms()
-                Telemetry.termsAccepted(onboarding)
                 advance()
             }
             .padding(.top, Tokens.Space.s7)
@@ -336,7 +334,6 @@ struct WelcomeView: View {
         Voice.stop()
         onboarding.recordPencilCheck(.pencil)
         onboarding.finish()
-        Telemetry.log(.welcomeFinished(pencil: .pencil, voice: onboarding.voiceFeedbackDefault))
         reloadIfStillOwed()
     }
 
@@ -381,7 +378,6 @@ struct WelcomeView: View {
         Haptics.tap()
         Voice.stop()
         showingWhyPencil = true
-        Telemetry.screen(.welcomeNoPencil)
     }
 
     /// *Skip for now* — through for this launch only (§4.0, v3.6).
@@ -390,7 +386,6 @@ struct WelcomeView: View {
         Voice.stop()
         onboarding.skipPencilCheck()
         onboarding.finish()
-        Telemetry.log(.welcomeFinished(pencil: .skipped, voice: onboarding.voiceFeedbackDefault))
         reloadIfStillOwed()
     }
 

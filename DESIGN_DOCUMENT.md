@@ -685,8 +685,8 @@ of inking, and the sheet keeps its size.
 why (the app is made for children; a parent, guardian or teacher agrees on their behalf),
 two rows that open `handwrittenjournal.app/terms/` and `/privacy/` in Safari, a sunk note
 that mirrors the policy's summary — *no account; what your child says and writes never
-leaves this iPad unless a grown-up shares a PDF; the privacy policy explains the
-anonymous crash reports and usage statistics* (§10.5) — and *I agree*, with a caption
+leaves this iPad unless a grown-up shares a PDF; no advertising, analytics, or crash
+reporting* (§10.5) — and *I agree*, with a caption
 saying what the tap accepts. No scroll-to-the-bottom, no checkbox: the documents are a
 tap away and the button says what it does.
 
@@ -1209,7 +1209,7 @@ Per profile: name, photo, PIN, **font, font size, mode**, guide lines, finger tr
 left-handed layout, controls in landscape, **voice feedback** (v3.4 — §4.12), haptics,
 colorblind ink scheme, reset progress.
 
-App-wide: iCloud sync (disabled, "Coming soon"), about, **legal** (v3.4) — the terms of
+App-wide: about, **legal** (v3.4) — the terms of
 use and the privacy policy, opened in Safari, and the date a grown-up agreed to them on
 the welcome — and three plain-language notes: PINs are a courtesy lock, destructive
 actions are not gated, and the microphone feeds speech recognition and nothing else.
@@ -1993,8 +1993,7 @@ then (§4.3, v3.2).
 Not built in v1, but the model is authored so it can be switched on without a migration:
 every property has a default, every relationship is optional, and every large blob is
 `.externalStorage` so it maps to a `CKAsset`. `NSPersistentCloudKitContainer` semantics are
-assumed throughout. Settings carries a disabled "iCloud Sync — Coming soon" row so the
-intent is visible.
+assumed throughout. iCloud sync is not presented until it is available.
 
 ---
 
@@ -2003,9 +2002,8 @@ intent is visible.
 ### 10.1 What leaves the device
 
 Nothing of the child's, unless a grown-up taps Share. Speech recognition is on-device
-(`requiresOnDeviceRecognition = true`). The build today has no analytics SDK, no crash
-reporter and no network code; **§10.5 (2026-09-02) adds anonymous crash reports and usage
-statistics for 1.0** — the journal itself still never leaves the device.
+(`requiresOnDeviceRecognition = true`). The build has no advertising, analytics SDK,
+crash reporter, or networking code; the journal never leaves the device.
 
 ### 10.2 Permissions
 
@@ -2031,42 +2029,15 @@ is now literally true of the sound as well as the words: it never exists as a fi
 stores need no migration; deleting an entry still deletes whatever an older build stored
 there.
 
-### 10.5 Decisions of 2026-09-02 — not yet built
+### 10.5 Release privacy and input decisions
 
-Three product decisions taken while preparing the go-to-market material
-(`Go_To_Market/`). None is in the build yet; the marketing copy, the App Store listing
-and the privacy policy already describe the app as if they were, so they are 1.0 work.
-
-1. **Crash reports and usage statistics will be collected.** Anonymous: crash traces with
-   app version, iPad model, iOS version and the screen at the time; usage events (entry
-   dictated or typed, practice sheet opened, typeface changed, session length, export
-   used); a random per-install identifier. Never the words on the page, ink, names,
-   photos, voice or precise location. Internal operations only — never advertising or
-   profiling (COPPA's internal-operations exception) — and a provider that keeps the Kids
-   Category open (App Review Guideline 1.3: no PII or device information to third parties).
-   This supersedes §10.1's "no network code": the *journal* never leaves the device; the
-   diagnostics do. Provider and event list: `Go_To_Market/GO_TO_MARKET_PLAN.md` §5.6.
-   The App Privacy label, the listing's privacy paragraph and the policy change in the
-   same release (`APP_STORE_LISTING.md` §3).
-
-   **Usage statistics are built (2026-09-02): Google Analytics for Firebase**, via
-   `Services/Telemetry.swift`. The package is `FirebaseAnalyticsCore`, so
-   the advertising identifier can never be read; `Info.plist` (from `project.yml`) turns
-   off IDFV collection, every advertising consent and automatic screen reporting, and
-   starts collection *off* — nothing is sent until a grown-up taps *I agree* on the
-   welcome (§4.0), after which `Telemetry` turns it on. The only identifier is Firebase's
-   random per-install app-instance ID. Screens are named by hand; the events are the
-   §5.6 list — welcome finished, profile created, typeface changed, dictation ended
-   (seconds, word *count*), words typed (count), formation help shown, entry finished
-   (counts, stars, accuracy, minutes, face and size IDs), badge earned, practice letter
-   traced, export shared. No parameter can carry text, a name or a photo. Crash reports
-   are **not** built yet — Crashlytics or Apple's crash logs, still to decide.
-2. **Apple Pencil is required.** The finger-tracing profile switch (§12) is to be removed
-   or hidden; palm rejection (§4.4) stays. Every product-page and marketing surface says
-   "Requires Apple Pencil". **The welcome puts it to the grown-up (v3.6, built
-   2026-09-02):** *I don't have an Apple Pencil* explains why before anything else, and a
-   skip from that page lasts one launch — the check returns until an Apple Pencil has
-   traced the letter (§4.0). The switch itself is still in the build.
+1. **No analytics or crash reporting.** The app does not collect or transmit personal,
+   device, analytics, or crash-reporting data. The App Privacy label is **Data Not
+   Collected**. Any future data-collection change requires a fresh privacy review before
+   it is added to a release.
+2. **Designed for Apple Pencil.** Finger tracing remains available in profile settings,
+   so product and App Store copy must say “Designed for Apple Pencil,” not “Requires Apple
+   Pencil.”
 3. **Pricing.** "The basic app is always free because we want our children to thrive. We
    may introduce additional features that will be paid because we will never sell your
    data." No in-app purchases in 1.0; any later purchase sits behind a grown-up gate and

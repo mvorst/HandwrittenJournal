@@ -180,23 +180,6 @@ def build_og(dist_assets, css_name):
     os.unlink(tmp)
 
 
-# ----------------------------------------------------------------------------- analytics
-def ga_snippet(measurement_id):
-    """Google Analytics 4 (gtag.js). Loaded from Google's servers as Google's snippet does,
-    except that it is skipped entirely when the browser sends the Global Privacy Control
-    signal. Set ga_measurement_id in site.config.json; the placeholder still builds."""
-    if not measurement_id:
-        return ""
-    if measurement_id.startswith("G-X"):
-        print("  (ga_measurement_id is still the placeholder — set it in site.config.json)")
-    return ("<script>(function(){if(navigator.globalPrivacyControl){return;}"
-            "var s=document.createElement('script');s.async=true;"
-            "s.src='https://www.googletagmanager.com/gtag/js?id=%s';document.head.appendChild(s);"
-            "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;"
-            "gtag('js',new Date());gtag('config','%s',{anonymize_ip:true});})();</script>\n"
-            % (measurement_id, measurement_id))
-
-
 # ----------------------------------------------------------------------------- pages
 def parse_page(text):
     """A page starts with a header block:  ---\\ntitle: …\\ndescription: …\\npath: /x/\\n---"""
@@ -259,9 +242,6 @@ def main():
         "CSS": css_name,
         "JS": js_name,
         "HERO_SVG": hero_svg(),
-        "GA": ga_snippet(CONFIG.get("ga_measurement_id", "")),
-        "ANALYTICS_PROVIDER": CONFIG.get("analytics_provider", "[analytics provider]"),
-        "ANALYTICS_RETENTION": CONFIG.get("analytics_retention", "[retention period]"),
     }
     for badge in ("app-store-badge-black.svg", "app-store-badge-white.svg"):
         shutil.copy(os.path.join(SRC, "assets", badge), os.path.join(assets, badge))

@@ -14,13 +14,11 @@ the ABC word-fix tool (v3.2), an optional recorded voice (v3.4, clips since v3.7
 practice sheet with a blue start dot and a how-to card (v3.8). The website is live at
 `https://handwrittenjournal.app` with the privacy policy, support page and terms
 (2026-09-02).
-**Decided 2026-09-02** (`DESIGN_DOCUMENT.md` §10.5): Apple Pencil is required; the app
-sends anonymous usage statistics — **built**, Google Analytics for Firebase — and crash
-reports — **provider still undecided**, nothing sent yet; the basic app is always free and
-paid features may come later. The copy below says all of it. Since v3.6 the welcome
-explains why an Apple Pencil is required before it lets anyone skip — *I don't have an
-Apple Pencil* opens the explanation, and a skip lasts one launch; only the finger-tracing
-switch (*Finger tracing allowed*, `SettingsViews.swift`) remains to be removed.
+**Decided 2026-09-04:** the app is designed for Apple Pencil, keeps all app data on the
+iPad, and uses no analytics or crash-reporting SDK. The basic app is always free and paid
+features may come later. Since v3.6 the welcome explains why Apple Pencil matters before
+it lets anyone skip — *I don't have an Apple Pencil* opens the explanation, and a skip
+lasts one launch.
 
 ---
 
@@ -112,7 +110,7 @@ Progress is kept per setting, so if the score dips after you move to a smaller s
 
 PRIVACY
 
-Your child's journal stays on this iPad. Speech is recognised on the device and no audio is recorded or kept, and there is no account, no sign-in and no advertising. Nothing your child writes leaves unless a grown-up taps Share. The app sends anonymous crash reports and usage statistics so we can fix problems and improve it; they contain no journal content and no names, and we will never sell them.
+Your child's journal stays on this iPad. Speech is recognised on the device and no audio is recorded or kept, and there is no account, no sign-in, no advertising, no analytics and no crash reporting. Nothing your child writes leaves unless a grown-up taps Share. We will never sell their data.
 
 FREE
 
@@ -122,7 +120,7 @@ WHAT IT IS NOT
 
 Not a curriculum. Not a reading app. Not a game with levels to unlock. Not online.
 
-Made for children roughly five to eight who can speak in sentences and are learning to form their letters. iPad with Apple Pencil, held like a notebook. Requires Apple Pencil.
+Made for children roughly five to eight who can speak in sentences and are learning to form their letters. iPad with iOS 18 or later, held like a notebook. Designed for Apple Pencil.
 ```
 
 ### 1.6 What's New — 4000 char limit (version 1.0)
@@ -141,7 +139,7 @@ Say what happened today, write it on the page in your own hand, and keep it.
 • Points, stars, badges, streaks, and a journal that grows
 • Export a page or the whole book as a PDF
 • Your child's writing stays on this iPad
-• Requires Apple Pencil
+• Designed for Apple Pencil
 ```
 
 For 1.x releases, keep the same shape: one plain sentence, then bullets. Do not write
@@ -154,72 +152,31 @@ For 1.x releases, keep the same shape: one plain sentence, then bullets. Do not 
 | Field | Value | Note |
 |---|---|---|
 | Primary category | **Education** | Where the whole competitive set lives (see `COMPETITION.md`). |
-| Secondary category | **Kids → Ages 6–8** *(decision required — read §2.1)* | Or leave secondary empty and stay out of the Kids category entirely. |
+| Secondary category | **Kids → Ages 6–8** | The app is designed specifically for this audience. |
 | Age rating | **4+** — every questionnaire answer is "None"/"No" | No violence, no ads, no user-generated content shared anywhere, no web views, no gambling, no unrestricted web access. |
 | Price | **Free** *(decided 2026-09-02)* — "the basic app is always free"; no in-app purchases in 1.0; paid features may come later | §1.5 says so in those words and claims no advertising; keep both. If purchases arrive while the app is listed in Kids, they must sit behind a parental gate (Guideline 1.3). |
 
 ### 2.1 The Kids Category decision — flag this before you submit
 
-Listing in the **Kids** category buys you the best shelf for this app and triggers
-App Store Review Guideline 1.3, which requires a **parental gate** in front of anything
-that takes a child out of the app — including the share sheet — plus no third-party
-analytics or advertising of any kind.
+Listing in the **Kids** category triggers App Store Review Guideline 1.3, which requires
+a **parental gate** in front of anything that takes a child out of the app — including the
+share sheet — and prohibits third-party advertising and device-data analytics.
 
-The advertising half is clear by construction. **Analytics is not, any more:** the app
-sends anonymous usage statistics through Google Analytics for Firebase (built 2026-09-02,
-`Services/Telemetry.swift`, `DESIGN_DOCUMENT.md` §10.5) — no advertising identifier, no
-IDFV, a random per-install ID and nothing else — and Guideline 1.3 allows analytics in
-the Kids Category only if no personally identifiable information *or device information*
-reaches a third party. Firebase still reports the iPad model and iOS version to Google,
-so the narrow question to settle before listing in Kids is whether Apple reads that as
-device information; if it does, the Kids shelf means dropping the SDK for Apple's own App
-Analytics and crash logs. The other half is unchanged: **the parent gate was deliberately removed in v2.0** (`DESIGN_DOCUMENT.md`
-§10.3), and Export/Share is one tap from a child's thumb, as are Delete Profile and Reset
-Progress.
-
-Two honest options:
-
-1. **List in Kids.** Put a gate back in front of Share/Export and the destructive Settings
-   rows only — not in front of the app. This is the v1.0 blocker, and it is small.
-2. **List in Education only.** No gate required, no guideline 1.3 exposure, and you lose
-   the Kids shelf. §10.3 already records the ungated destructive actions as an accepted
-   risk, so this ships today.
-
-Either way, the recommendation in §10.3 stands independently: put a hold-to-confirm in
-front of Delete Profile before this reaches a real child.
+This build contains no advertising, analytics, or crash-reporting SDK and sends no app
+data to third parties. It still needs a parental gate before sharing a PDF, opening an
+external website, or requesting a permission. The currently ungated Share/Export and
+Settings actions remain the v1.0 blocker.
 
 ---
 
 ## 3. App Privacy ("nutrition label")
 
-*(Revised 2026-09-02 for the decision to collect crash reports and usage data.)*
-
-Declare, under **Data Not Linked to You**, used for **Analytics** and **App Functionality**:
-
-| Category | Data type | Note |
-|---|---|---|
-| Diagnostics | Crash Data | Stack traces, app version, device model, OS version |
-| Diagnostics | Performance Data | Launch time, hangs, memory, if the provider reports them |
-| Usage Data | Product Interaction | Screens and features used, session length |
-| Identifiers | Device ID | Firebase's app-instance ID: random, per install, reset when the app is deleted. IDFV and the advertising identifier are not collected (`project.yml` Info.plist keys; `FirebaseAnalyticsCore`) |
-
-Everything else stays **not collected**: no contact info, no user content (the journal
-never leaves the device), no photos, no audio, no location, no financial info, no
-browsing history. Tracking (as Apple defines it — linking to third-party data for
-advertising, or sharing with data brokers): **No**, and the ATT prompt is therefore not
-needed.
-
-Justification to have ready: speech recognition runs with `requiresOnDeviceRecognition
-= true`; ink, photos and entries are written to local storage only; the only egress of
-user content is a PDF a grown-up creates through the system share sheet; crash and usage
-data goes to Google (Google Analytics for Firebase, configured with no advertising
-identifier, no IDFV and all advertising consent denied) under Google's data processing
-terms and contains no content or identity. Crash reporting is still undecided (§9): with
-Crashlytics the two Diagnostics rows stand as written; with Apple's own crash logs alone
-they come out — data Apple collects through its opt-in Analytics & Improvements setting is
-not the developer's to declare — and the Usage Data and Identifiers rows stay either way,
-because the Firebase SDK ships regardless. Verify the current Apple guidance before
-choosing that answer.
+Declare **Data Not Collected** and **Tracking: No**. The app stores profiles, journal
+entries, photos, and speech transcripts only on the iPad; it uses no third-party analytics
+or crash reporting. On-device speech recognition uses
+`requiresOnDeviceRecognition = true`; the only user-controlled egress is a PDF shared
+through the system share sheet. Apple's optional Analytics & Improvements data is not
+developer-collected data for this questionnaire.
 
 The **Privacy Policy URL** is `https://handwrittenjournal.app/privacy/` — live since
 2026-09-02; the maintained policy lives in `Go_To_Market/website/src/pages/privacy.html`;
@@ -294,7 +251,7 @@ HOW TO SEE THE MAIN FEATURE IN 60 SECONDS
 5. Trace over the letters with an Apple Pencil. Ink inside the letter is green, ink outside is red.
 6. Finish a line and the guide text under it is removed, leaving only the tracing.
 
-PLEASE TEST ON A PHYSICAL iPad WITH AN APPLE PENCIL. The app requires Apple Pencil for writing. Dictation depends on the microphone and on on-device speech recognition, neither of which behaves normally in the Simulator. If the microphone is unavailable, the app falls back to a keyboard so the rest of the flow can still be reviewed.
+PLEASE TEST ON A PHYSICAL iPad WITH AN APPLE PENCIL. The app is designed for Apple Pencil. Dictation depends on the microphone and on on-device speech recognition, neither of which behaves normally in the Simulator. If the microphone is unavailable, the app falls back to a keyboard so the rest of the flow can still be reviewed.
 
 PERMISSIONS
 - Microphone and Speech Recognition: to turn what the child says into words to trace. A plain-language explainer screen is shown before the system prompt. Speech recognition runs on device (requiresOnDeviceRecognition = true).
@@ -302,10 +259,10 @@ PERMISSIONS
 Refusing any permission leaves a working path: no microphone means the keyboard, no camera means the photo library or an initial-letter avatar.
 
 PRIVACY
-The child's journal — words, ink, photos, scores — is stored locally and never uploaded; the only way it leaves the device is a PDF a grown-up exports through the system share sheet. There is no account and no advertising. The app sends anonymous usage statistics to Google Analytics for Firebase, configured without any advertising identifier; they contain no user content and no identity, are used only to fix and improve the app, and are declared in the App Privacy section.
+The child's journal — words, ink, photos, scores — is stored locally and never uploaded; the only way it leaves the device is a PDF a grown-up exports through the system share sheet. There is no account, advertising, analytics, or crash reporting.
 
 ORIENTATION AND DEVICE
-iPad only, portrait and landscape, Apple Pencil required, by design: a child holds an iPad like a notebook and writes with a pencil.
+iPad only, portrait and landscape, designed for Apple Pencil: a child holds an iPad like a notebook and writes with a pencil.
 ```
 
 If you list in the Kids category (§2.1), add one line naming where the parental gate sits.
@@ -333,10 +290,10 @@ Can more than one child use it?
 Yes. Each child gets a profile with their own journal, font and size, and an optional four-digit PIN. A PIN keeps a sibling out; it is not encryption, and the app says so in Settings.
 
 Where is our data?
-Your child's journal is on your iPad and nowhere else. There is no account and no server holding a child's writing; pages are deleted with the entry or the profile that holds them. The app sends anonymous crash reports and usage statistics so we can improve it; they identify no one and are never sold.
+Your child's journal is on your iPad and nowhere else. There is no account, advertising, analytics, or server holding a child's writing; pages are deleted with the entry or the profile that holds them.
 
 Do I need an Apple Pencil?
-Yes — any model your iPad supports. Handwritten Journal is a handwriting app: the first time it runs it asks your child to trace a letter with the pencil, and if there isn't one to hand it explains why it matters and which pencils fit your iPad. You can skip that for now and set up; it asks again the next time the app opens.
+Handwritten Journal is designed for Apple Pencil — any model your iPad supports. The first time it runs it asks your child to trace a letter with a pencil, and if there isn't one to hand it explains why it matters and which pencils fit your iPad. You can skip that for now and set up; it asks again the next time the app opens.
 
 How do I print a page?
 Open the entry, tap Share (or the ⋯ menu, then Share as PDF), choose This entry and print from the share sheet. The same sheet exports This month or Everything — the whole book as one PDF, which is also the backup: there is no cloud sync in this version.
@@ -350,49 +307,36 @@ Contact: hello@handwrittenjournal.app
 The live page is `https://handwrittenjournal.app/support/` (source
 `Go_To_Market/website/src/pages/support.html`), and that is the **Support URL**. The
 **Marketing URL** is `https://handwrittenjournal.app/`. Keep the text above and the page
-in step; the live page still says *Journal* rather than *Handwritten Journal* in the
-microphone answer (§9).
+in step.
 
 ---
 
 ## 8. Privacy policy — maintained on the website
 
 The policy is `Go_To_Market/website/src/pages/privacy.html`, published at `/privacy/`
-by the site build. It was rewritten on 2026-09-02 for the decisions above and says, in
-order: what stays on the iPad (the journal), what the app collects (anonymous crash
-reports and usage statistics, with the exact fields), who processes it, the children's
-paragraph (internal operations only, never advertising or profiling), speech,
-permissions and sharing, deletion, "we will never sell your data", purchases, the
-website's Google Analytics, changes, contact. Published at
-`https://handwrittenjournal.app/privacy/` on 2026-09-02, with the two placeholders in
-`website/site.config.json` filled: the provider (Google Analytics for Firebase, no
-advertising identifier and no advertising features) and the retention period (14 months).
-The terms of use sit beside it at `/terms/`; the app opens both from the welcome and from
-Settings › Legal (`Onboarding.termsURL`, `Onboarding.privacyURL`), so the two URLs must
-not move.
+by the site build. It describes local-only app storage, on-device speech, permissions and
+sharing, deletion, purchases, and the static website's no-analytics policy. The terms of
+use sit beside it at `/terms/`; the app opens both from the welcome and from Settings ›
+Legal (`Onboarding.termsURL`, `Onboarding.privacyURL`), so the two URLs must not move.
 
-Legal review is still your call. The claims match the v3.8 build with one exception: the
-policy already describes crash reports, and the app sends none until a provider is chosen
-(§9) — if the crash reporting or analytics design changes, this policy changes in the same
-commit.
+Legal review is still your call. If the app later adds any third-party service or changes
+how it handles data, update this policy and the App Privacy answers in the same change.
 
 ---
 
 ## 9. Pre-submission checklist
 
-- [ ] **Decide the Kids category question** (§2.1) — the gate in front of Share/Export, and whether Firebase's iPad model and iOS version count as device information under Guideline 1.3
+- [x] Select **Made for Kids → Ages 6–8** in App Store Connect
+- [ ] Add a parental gate before Share/Export, external links, and permission requests (§2.1)
 - [ ] Hold-to-confirm on Delete Profile and Reset Progress (`DESIGN_DOCUMENT.md` §10.3)
 - [ ] Set the price to Free in App Store Connect; no in-app purchases configured for 1.0
-- [x] Build the usage analytics (`DESIGN_DOCUMENT.md` §10.5) — Google Analytics for Firebase, 2026-09-02; the provider is named here, in the review notes and in the policy
-- [ ] Decide crash reporting (Crashlytics or Apple's crash logs) and, if Crashlytics, add it to the review notes and the policy; if Apple only, take the Diagnostics rows out of §3
-- [ ] Remove or hide the finger-tracing switch (*Finger tracing allowed*, `SettingsViews.swift`)
-- [x] "Requires Apple Pencil" is in the description, What's New, the review notes and the support text (2026-09-03)
+- [x] Remove third-party analytics and crash-reporting SDKs, and select Data Not Collected
+- [x] Update the description, review notes, support page, and website to say **Designed for Apple Pencil**
 - [x] Typeface licences verified — all five faces are SIL Open Font License 1.1 (`Resources/Fonts/LICENSES.md`, which ships in the bundle, so the notice travels with the fonts); a line in Settings › Legal is optional
 - [ ] Decide the Handwritten/Typed reading toggle (`DESIGN_DOCUMENT.md` §4.7): the build has none — Entry Detail replays the handwriting and shows text only for an entry with no ink — so the bullet came out of §1.5 on 2026-09-03; build it or drop it from the design document
 - [x] Website published 2026-09-02 (`Go_To_Market/website/`, deployed with `Website/deploy.sh --build`) — paste `https://handwrittenjournal.app/privacy/` and `https://handwrittenjournal.app/support/`, Marketing URL `https://handwrittenjournal.app/`
-- [ ] Fix the live support page's microphone answer — it says *Journal*, the app is *Handwritten Journal* — then redeploy
 - [ ] Reshoot §5 frames 1–3 (and the App Preview) on a physical iPad with a real child's hand; the draft set in `Go_To_Market/screenshots/app-store/` covers the rest
-- [ ] Fill the App Privacy questionnaire per §3 — Diagnostics and Usage Data, not linked, no tracking
+- [ ] Fill the App Privacy questionnaire per §3 — Data Not Collected, no tracking
 - [ ] Paste the review notes (§6) and confirm the build was tested on physical hardware
 - [ ] Re-count §1.1–§1.4 after any edit — the subtitle is at exactly 30 characters
 

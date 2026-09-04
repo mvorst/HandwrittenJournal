@@ -11,11 +11,6 @@ struct HandwrittenJournalApp: App {
         // harness reset that landed later would leave it showing the wrong ones.
         DemoData.settleWelcome(Onboarding.shared)
         #endif
-        // Google Analytics (§10.5) — configured here because there is no AppDelegate;
-        // this runs at the same point in launch. After the harness has settled the
-        // welcome, so that whether the terms stand is what decides collection.
-        // Sends nothing until a grown-up has agreed.
-        Telemetry.start(onboarding: Onboarding.shared)
     }
 
     var body: some Scene {

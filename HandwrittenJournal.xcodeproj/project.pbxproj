@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		007666FB689AA855E4EE78F4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E29FE743F144991D8772CB4A /* Localizable.xcstrings */; };
 		007EE8BED1E481D3F484BC98 /* BadgeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4547D52B725113BA1F2962C1 /* BadgeEngine.swift */; };
 		0937D44ACD0FCF36CB18E25C /* PracticePointsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */; };
 		0ACA17A823A8EF43791462B4 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF127826379FD1FD630C287 /* Onboarding.swift */; };
@@ -21,16 +22,16 @@
 		21EDD608FB571E4DF7D18B04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2EF918079981004D1B663AE /* Assets.xcassets */; };
 		227E5247202726BD7CDA4CB2 /* LineStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */; };
 		25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA678BED1B99E37DA5D78365 /* PracticeView.swift */; };
-		267ED700DE49042D33CFA9F6 /* Telemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADECE83415E372A6C08D44C7 /* Telemetry.swift */; };
-		26FF3C0405C2EF0E460EB6D8 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7FA548CC0E3A90B47968FC20 /* FirebaseAnalyticsCore */; };
+		2AD0825DD8C52CADF5D9C6C9 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FD731AF279949EE933379318 /* InfoPlist.xcstrings */; };
 		392485F16B6177B12C3D33C1 /* FontSizePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */; };
 		3CADFE0FDF4D0D5D3BE657EC /* WritingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E40118E8CBE3D6A801D7C6 /* WritingSettings.swift */; };
-		3CE3DC86A2AA7DF8C5CBF459 /* PracticeTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */; };
 		3F75CA4CA2CC6541C38DC011 /* MaskRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */; };
+		4139B073D29629B851DF5716 /* VoiceClipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C392A3F3DC322F0E0031EB7 /* VoiceClipTests.swift */; };
 		4456A50056AC82A50B1A65B7 /* PageLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */; };
 		44CCE18F8EF830451A8C58C7 /* LetterFormations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FC8914863613ACF75C8F46 /* LetterFormations.swift */; };
+		45D77A1EA677721D4FBA2BD1 /* PracticeTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */; };
 		45EA6883E082A63E5234D6C3 /* Sniglet-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */; };
-		49167EEBF21BB3C961AF5D7B /* PracticeTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */; };
+		48D4B1C2BF85402F9D2465DE /* PracticeTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */; };
 		5B8BF4C662D2BCB01B404035 /* StrokeEraser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */; };
 		606BE3939F3E4BAD2F9298F2 /* PDFBookBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932FCC7677040CEB62719752 /* PDFBookBuilder.swift */; };
 		6733985692851D6A2FB30EA4 /* LICENSES.md in Resources */ = {isa = PBXBuildFile; fileRef = 376D4EEB2D8D809E08A27F93 /* LICENSES.md */; };
@@ -48,16 +49,11 @@
 		854F03C3488ED18FC75794DA /* InkPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */; };
 		884A75A67585757E9D4AFE3E /* LevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49ECE760F6E4F5BC682DF32 /* LevelMeter.swift */; };
 		8DE8F9234DC0953EC86E8539 /* FormationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEA62A4FC0D722C71522254 /* FormationTests.swift */; };
+		9900F5B88AFF010ADE9DC273 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C05E7E4312E224D33ACF0E62 /* PrivacyInfo.xcprivacy */; };
 		9CBD2324A4BD06D2B252F431 /* FormationJudgeRealismTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A4C07214BAE9886F424A4A /* FormationJudgeRealismTests.swift */; };
 		9F59E692FD3E5649E9301E81 /* EntryPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B904A0AA8DDA8DE52E76FD /* EntryPageView.swift */; };
-		A1B2C3D4E5F60718293A4B5C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* Localizable.xcstrings */; };
-		A1B2C3D4E5F60718293A4B5E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5F /* InfoPlist.xcstrings */; };
-		A1B2C3D4E5F60718293A4B60 /* Voice in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B61 /* Voice */; };
-		A1B2C3D4E5F60718293A4B62 /* VoiceClipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B63 /* VoiceClipTests.swift */; };
-		A1C3E5F7B9D1F3A5C7E9B1D3 /* PracticeSheetCentringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D4F6A8C1E3A5B7D9F1C3E5 /* PracticeSheetCentringTests.swift */; };
 		A7DFD42C044E86217A7C9501 /* TracingCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */; };
 		AC82591A30AB1A1A61476F03 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556A107FFF646240E5A9E99 /* ExportView.swift */; };
-		B51FBF335F1374246645672A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B12B4EEE9EEB2B824DCFA27C /* GoogleService-Info.plist */; };
 		B559FA1425DAEE503E2DF976 /* ArchiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83203735DA55F589A277AF90 /* ArchiveTests.swift */; };
 		B7988DB6D05CB7264CB6370D /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5909697354F2BA075B6E4371 /* HapticsService.swift */; };
 		B8567A1D230BCBA81A66954D /* ProfilePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */; };
@@ -72,6 +68,7 @@
 		CC0392E6540B6B7A7A5348F1 /* PageRenderCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */; };
 		CCC557FF30FC7B4A9A912634 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD28F6BA541DAD897935A6B5 /* SpeechRecognitionService.swift */; };
 		D4AFB7C6D77C5CD4D931596B /* FontRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95491F9A2EF3940543FC21A8 /* FontRegistry.swift */; };
+		D52558A232EA90CFD4EF21DC /* Voice in Resources */ = {isa = PBXBuildFile; fileRef = 714D94368CEF15867AA28649 /* Voice */; };
 		D87E5020369D6A0A6D4B3CC4 /* JournalHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */; };
 		DA0986ABFF229BC72BF59E92 /* VoiceFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = E682A3018C64BAE977C5C193 /* VoiceFeedback.swift */; };
 		DB1569B957F884E0BF608945 /* Andika-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 15F239F77FF2512FC3A68268 /* Andika-Bold.ttf */; };
@@ -87,6 +84,7 @@
 		F57DA1C7FCCC18B5F58C68F5 /* EntryPageWriting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05797F0E3D344A4C06BBE476 /* EntryPageWriting.swift */; };
 		F88CE53ABA735FE06824A737 /* PracticeSheetColourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */; };
 		FBF4A7C3AEAD6A436EEC318A /* WriteSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD94206AE769E5F55B9D982 /* WriteSessionViewModel.swift */; };
+		FDB4D95E63863421014980A2 /* PracticeSheetCentringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E9325F88BEB376D743E2BF /* PracticeSheetCentringTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,7 +104,7 @@
 		13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontSizePickers.swift; sourceTree = "<group>"; };
 		14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalHomeView.swift; sourceTree = "<group>"; };
 		15F239F77FF2512FC3A68268 /* Andika-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Andika-Bold.ttf"; sourceTree = "<group>"; };
-		16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialView.swift; sourceTree = "<group>"; };
+		17E9325F88BEB376D743E2BF /* PracticeSheetCentringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSheetCentringTests.swift; sourceTree = "<group>"; };
 		1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
 		27B904A0AA8DDA8DE52E76FD /* EntryPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryPageView.swift; sourceTree = "<group>"; };
 		2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sniglet-ExtraBold.ttf"; sourceTree = "<group>"; };
@@ -116,6 +114,7 @@
 		36FC8914863613ACF75C8F46 /* LetterFormations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterFormations.swift; sourceTree = "<group>"; };
 		376D4EEB2D8D809E08A27F93 /* LICENSES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSES.md; sourceTree = "<group>"; };
 		386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkPersistenceTests.swift; sourceTree = "<group>"; };
+		3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialView.swift; sourceTree = "<group>"; };
 		39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingSurface.swift; sourceTree = "<group>"; };
 		4547D52B725113BA1F2962C1 /* BadgeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngine.swift; sourceTree = "<group>"; };
 		47228A13921D57051339E56C /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
@@ -133,17 +132,20 @@
 		66E40118E8CBE3D6A801D7C6 /* WritingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSettings.swift; sourceTree = "<group>"; };
 		6C7479E7EE0014A22E896B2E /* ScoringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringTests.swift; sourceTree = "<group>"; };
 		6FD596BF6CEDD9D5110B21FA /* FormationOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationOrder.swift; sourceTree = "<group>"; };
+		714D94368CEF15867AA28649 /* Voice */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Voice; path = HandwrittenJournal/Resources/Voice; sourceTree = SOURCE_ROOT; };
 		7257F46895D95B8ED53E4523 /* WriteFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteFlowTests.swift; sourceTree = "<group>"; };
 		73C71DE065B9447280E118B3 /* HandwrittenJournalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwrittenJournalApp.swift; sourceTree = "<group>"; };
 		73C88AFDA0126B8062E8265A /* SettingsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViews.swift; sourceTree = "<group>"; };
 		750C9E16A516838BFA7898E6 /* ScoringEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringEngine.swift; sourceTree = "<group>"; };
 		78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSheetColourTests.swift; sourceTree = "<group>"; };
 		7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskRendererTests.swift; sourceTree = "<group>"; };
+		7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialTests.swift; sourceTree = "<group>"; };
 		7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineStateTests.swift; sourceTree = "<group>"; };
 		7E2DC18A0F1D004D4E2AEFD7 /* FormationOrderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationOrderTests.swift; sourceTree = "<group>"; };
 		83203735DA55F589A277AF90 /* ArchiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveTests.swift; sourceTree = "<group>"; };
 		841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeEraser.swift; sourceTree = "<group>"; };
 		8AC3DC1E3E58E0F1F4EB8077 /* Jua-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Jua-Regular.ttf"; sourceTree = "<group>"; };
+		8C392A3F3DC322F0E0031EB7 /* VoiceClipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceClipTests.swift; sourceTree = "<group>"; };
 		8CF65435FDC814C776ACC456 /* PracticeCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeCanvas.swift; sourceTree = "<group>"; };
 		8FDEC48C96B648AECEE701DE /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		932FCC7677040CEB62719752 /* PDFBookBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFBookBuilder.swift; sourceTree = "<group>"; };
@@ -151,19 +153,12 @@
 		95491F9A2EF3940543FC21A8 /* FontRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontRegistry.swift; sourceTree = "<group>"; };
 		98D259F5330ED8D8FB1740F3 /* MaskDiagnosticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskDiagnosticTests.swift; sourceTree = "<group>"; };
 		9996378CBCE5386BEFC9E0F4 /* VarelaRound-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "VarelaRound-Regular.ttf"; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B5D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B5F /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B61 /* Voice */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Voice; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B63 /* VoiceClipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceClipTests.swift; sourceTree = "<group>"; };
 		AA678BED1B99E37DA5D78365 /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		ACED7D009F8A919086DBC977 /* StrokeArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeArchive.swift; sourceTree = "<group>"; };
-		ADECE83415E372A6C08D44C7 /* Telemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Telemetry.swift; sourceTree = "<group>"; };
-		B12B4EEE9EEB2B824DCFA27C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		B2D4F6A8C1E3A5B7D9F1C3E5 /* PracticeSheetCentringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSheetCentringTests.swift; sourceTree = "<group>"; };
 		B351E65A19C5162446F1A9A2 /* WelcomeFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeFlowTests.swift; sourceTree = "<group>"; };
 		B3FD7F0D399CFDB18259DEAB /* ComicNeue-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ComicNeue-Bold.ttf"; sourceTree = "<group>"; };
 		BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayoutTests.swift; sourceTree = "<group>"; };
-		C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialTests.swift; sourceTree = "<group>"; };
+		C05E7E4312E224D33ACF0E62 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C1A303930DDDEC72E5D9D1BF /* TracingCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingCanvas.swift; sourceTree = "<group>"; };
 		C6511FA804CE4B985F4F5567 /* WritingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingSession.swift; sourceTree = "<group>"; };
 		CA34850BB29742A4A5C0721F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -175,25 +170,16 @@
 		D556A107FFF646240E5A9E99 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		DBBA78F4AE0FC4A97AFC626A /* BadgeEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngineTests.swift; sourceTree = "<group>"; };
 		DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageRenderCheck.swift; sourceTree = "<group>"; };
+		E29FE743F144991D8772CB4A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePointsTests.swift; sourceTree = "<group>"; };
 		E682A3018C64BAE977C5C193 /* VoiceFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceFeedback.swift; sourceTree = "<group>"; };
 		EBB72F6CD8A76412888AF70A /* HandwrittenJournalTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HandwrittenJournalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0C2B2EC71FF3BF52EB64DB /* TracingStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingStroke.swift; sourceTree = "<group>"; };
 		F2EF918079981004D1B663AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6B04CD10837B6CE33A720BD /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
+		FD731AF279949EE933379318 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		FF6C6FCE576DEC35804A62B2 /* AvatarCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCropView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		7993E03DD4027D570290E56E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				26FF3C0405C2EF0E460EB6D8 /* FirebaseAnalyticsCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0210CAB5BD3A64D4C0283AC9 /* Products */ = {
@@ -231,11 +217,10 @@
 			isa = PBXGroup;
 			children = (
 				F2EF918079981004D1B663AE /* Assets.xcassets */,
-				B12B4EEE9EEB2B824DCFA27C /* GoogleService-Info.plist */,
+				FD731AF279949EE933379318 /* InfoPlist.xcstrings */,
+				E29FE743F144991D8772CB4A /* Localizable.xcstrings */,
+				714D94368CEF15867AA28649 /* Voice */,
 				1A1017EC9C57B1D047E53BF2 /* Fonts */,
-				A1B2C3D4E5F60718293A4B5F /* InfoPlist.xcstrings */,
-				A1B2C3D4E5F60718293A4B5D /* Localizable.xcstrings */,
-				A1B2C3D4E5F60718293A4B61 /* Voice */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -257,13 +242,13 @@
 				5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */,
 				DF3698E63C24CFEC35A1BB87 /* PageRenderCheck.swift */,
 				E2B510AED2060C78A2821AC4 /* PracticePointsTests.swift */,
-				C0BAF5FE9DE0A5AEE995D4F4 /* PracticeTutorialTests.swift */,
+				17E9325F88BEB376D743E2BF /* PracticeSheetCentringTests.swift */,
 				78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */,
-				B2D4F6A8C1E3A5B7D9F1C3E5 /* PracticeSheetCentringTests.swift */,
+				7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */,
 				6C7479E7EE0014A22E896B2E /* ScoringTests.swift */,
 				BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */,
+				8C392A3F3DC322F0E0031EB7 /* VoiceClipTests.swift */,
 				B351E65A19C5162446F1A9A2 /* WelcomeFlowTests.swift */,
-				A1B2C3D4E5F60718293A4B63 /* VoiceClipTests.swift */,
 				7257F46895D95B8ED53E4523 /* WriteFlowTests.swift */,
 			);
 			path = HandwrittenJournalTests;
@@ -308,7 +293,6 @@
 				CD28F6BA541DAD897935A6B5 /* SpeechRecognitionService.swift */,
 				ACED7D009F8A919086DBC977 /* StrokeArchive.swift */,
 				841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */,
-				ADECE83415E372A6C08D44C7 /* Telemetry.swift */,
 				E682A3018C64BAE977C5C193 /* VoiceFeedback.swift */,
 			);
 			path = Services;
@@ -318,6 +302,7 @@
 			isa = PBXGroup;
 			children = (
 				52D5F743769EEC5113F2C6A4 /* Info.plist */,
+				C05E7E4312E224D33ACF0E62 /* PrivacyInfo.xcprivacy */,
 				C7295C60C04E1D12EAED2DB6 /* App */,
 				C714ACFADA32C9B998B609B3 /* Models */,
 				1B8F1F3E9BEEE678E34D47E5 /* Resources */,
@@ -360,8 +345,8 @@
 				13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */,
 				5A3C13764E7D543E7627762F /* FormationHelpView.swift */,
 				14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */,
+				3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */,
 				AA678BED1B99E37DA5D78365 /* PracticeView.swift */,
-				16AE4063439B2ADA4EC734A4 /* PracticeTutorialView.swift */,
 				1F92CA13F5C622C16704F9CF /* ProfileEditorView.swift */,
 				49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */,
 				539559855DA545D4C9EF448B /* ProgressReportView.swift */,
@@ -399,7 +384,6 @@
 			buildPhases = (
 				594C4EA1E3C64B9AD8FE3725 /* Sources */,
 				6971AE634D3215159F0ED673 /* Resources */,
-				7993E03DD4027D570290E56E /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -407,7 +391,6 @@
 			);
 			name = HandwrittenJournal;
 			packageProductDependencies = (
-				7FA548CC0E3A90B47968FC20 /* FirebaseAnalyticsCore */,
 			);
 			productName = HandwrittenJournal;
 			productReference = 65F40DC177FF32F9A7070F59 /* HandwrittenJournal.app */;
@@ -431,9 +414,6 @@
 			);
 			mainGroup = 7EC017424B3EC607B28AA081;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				AACEB6C1F7A1169BA5CE6BD5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0210CAB5BD3A64D4C0283AC9 /* Products */;
 			projectDirPath = "";
@@ -453,14 +433,14 @@
 				DB1569B957F884E0BF608945 /* Andika-Bold.ttf in Resources */,
 				21EDD608FB571E4DF7D18B04 /* Assets.xcassets in Resources */,
 				7FE57D239864EF7B0D6BA657 /* ComicNeue-Bold.ttf in Resources */,
-				B51FBF335F1374246645672A /* GoogleService-Info.plist in Resources */,
+				2AD0825DD8C52CADF5D9C6C9 /* InfoPlist.xcstrings in Resources */,
 				74EDAAFBB21E2DD6B34607F2 /* Jua-Regular.ttf in Resources */,
 				6733985692851D6A2FB30EA4 /* LICENSES.md in Resources */,
+				007666FB689AA855E4EE78F4 /* Localizable.xcstrings in Resources */,
+				9900F5B88AFF010ADE9DC273 /* PrivacyInfo.xcprivacy in Resources */,
 				45EA6883E082A63E5234D6C3 /* Sniglet-ExtraBold.ttf in Resources */,
 				0B65F03D41627E0CF16F6276 /* VarelaRound-Regular.ttf in Resources */,
-				A1B2C3D4E5F60718293A4B5C /* Localizable.xcstrings in Resources */,
-				A1B2C3D4E5F60718293A4B5E /* InfoPlist.xcstrings in Resources */,
-				A1B2C3D4E5F60718293A4B60 /* Voice in Resources */,
+				D52558A232EA90CFD4EF21DC /* Voice in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,8 +475,8 @@
 				606BE3939F3E4BAD2F9298F2 /* PDFBookBuilder.swift in Sources */,
 				CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */,
 				6EAF92610859F50F548C39C2 /* PracticePoints.swift in Sources */,
+				45D77A1EA677721D4FBA2BD1 /* PracticeTutorialView.swift in Sources */,
 				25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */,
-				49167EEBF21BB3C961AF5D7B /* PracticeTutorialView.swift in Sources */,
 				C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */,
 				B8567A1D230BCBA81A66954D /* ProfilePickerView.swift in Sources */,
 				BCF37E40D06CAE7AE9945527 /* ProgressReport.swift in Sources */,
@@ -507,7 +487,6 @@
 				CCC557FF30FC7B4A9A912634 /* SpeechRecognitionService.swift in Sources */,
 				BA4FDC928E579A946B798BE5 /* StrokeArchive.swift in Sources */,
 				5B8BF4C662D2BCB01B404035 /* StrokeEraser.swift in Sources */,
-				267ED700DE49042D33CFA9F6 /* Telemetry.swift in Sources */,
 				A7DFD42C044E86217A7C9501 /* TracingCanvas.swift in Sources */,
 				C59E67BB86F195FAA5B274B5 /* TracingStroke.swift in Sources */,
 				7315B4BA1CC97C102A1E3DCB /* TracingSurface.swift in Sources */,
@@ -538,13 +517,13 @@
 				4456A50056AC82A50B1A65B7 /* PageLayoutTests.swift in Sources */,
 				CC0392E6540B6B7A7A5348F1 /* PageRenderCheck.swift in Sources */,
 				0937D44ACD0FCF36CB18E25C /* PracticePointsTests.swift in Sources */,
-				3CE3DC86A2AA7DF8C5CBF459 /* PracticeTutorialTests.swift in Sources */,
+				FDB4D95E63863421014980A2 /* PracticeSheetCentringTests.swift in Sources */,
 				F88CE53ABA735FE06824A737 /* PracticeSheetColourTests.swift in Sources */,
-				A1C3E5F7B9D1F3A5C7E9B1D3 /* PracticeSheetCentringTests.swift in Sources */,
+				48D4B1C2BF85402F9D2465DE /* PracticeTutorialTests.swift in Sources */,
 				BF494E92BF61DB8568FF2227 /* ScoringTests.swift in Sources */,
 				DD964DC723920933B23A5BED /* ScreenLayoutTests.swift in Sources */,
+				4139B073D29629B851DF5716 /* VoiceClipTests.swift in Sources */,
 				7F08EB7DE435B2CAD51C0EC4 /* WelcomeFlowTests.swift in Sources */,
-				A1B2C3D4E5F60718293A4B62 /* VoiceClipTests.swift in Sources */,
 				1DFA02342207F16C9E973FC3 /* WriteFlowTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -565,7 +544,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = NBEPYFWX3J;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandwrittenJournal/Info.plist;
@@ -574,25 +552,13 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mattvorst.education.handwrittenjournal;
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -630,7 +596,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -695,7 +661,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -755,7 +721,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = NBEPYFWX3J;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandwrittenJournal/Info.plist;
@@ -764,25 +729,13 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Handwritten Journal listens so you can say your sentences out loud. Your voice stays on this iPad.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Handwritten Journal turns what you say into words you can trace. Everything happens on this iPad.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mattvorst.education.handwrittenjournal;
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -834,25 +787,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		AACEB6C1F7A1169BA5CE6BD5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.18.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		7FA548CC0E3A90B47968FC20 /* FirebaseAnalyticsCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AACEB6C1F7A1169BA5CE6BD5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalyticsCore;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 06396E85D8A8150B716BB40F /* Project object */;
 }

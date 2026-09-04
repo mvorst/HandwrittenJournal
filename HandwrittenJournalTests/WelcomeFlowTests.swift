@@ -134,14 +134,6 @@ struct WelcomeFlowTests {
         #expect(!relaunched.voiceFeedbackDefault)
     }
 
-    @Test("The why-a-pencil page has a screen name of its own")
-    func noPencilScreen() {
-        #expect(Telemetry.Screen.welcomeNoPencil.rawValue == "welcome_no_pencil")
-        let skipped = Telemetry.Event.welcomeFinished(pencil: .skipped, voice: true).parameters
-        #expect(skipped["pencil"] as? String == "skipped")
-        #expect(skipped["voice"] as? Int == 1)
-    }
-
     @Test("Reset returns the iPad to fresh")
     func reset() {
         let defaults = freshDefaults()

@@ -29,7 +29,7 @@ struct ProfileSettingsView: View {
                         Button { showSizePicker = true } label: {
                             SettingRow(title: "Font size") { chevronValue(setup.size.label) }
                         }
-                        SettingRow(title: "Mode", subtitle: "Copy mode is coming later") {
+                        SettingRow(title: "Mode", subtitle: "Trace writing") {
                             Text("Trace").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                         }
                         SettingRow(title: "Guide lines") {
@@ -92,15 +92,10 @@ struct ProfileSettingsView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
         .task { setup = profile.setup }
-        .onAppear { Telemetry.screen(.profileSettings) }
         .onChange(of: setup) { _, setup in
             // Compared with the profile, not the previous state: the first change is the
             // load from the profile itself, which is not a choice.
-            let before = profile.setup
             profile.setup = setup
-            if before.face != setup.face || before.size != setup.size {
-                Telemetry.log(.typefaceChanged(setup: setup))
-            }
         }
         .onChange(of: profile.hapticsEnabled) { Haptics.configure(enabled: profile.hapticsEnabled) }
         .onChange(of: profile.soundEnabled) {
@@ -184,17 +179,8 @@ struct AppSettingsView: View {
                             .padding(.top, Tokens.Space.s3)
                     }
 
-                    Text("SYNC").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.top, profiles.isEmpty ? Tokens.Space.s6 : Tokens.Space.s7)
-                    SettingRow(title: "iCloud Sync", disabled: true) {
-                        Text("Coming soon").font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
-                    }
-                    Text("Everything stays on this iPad for now. Sync between devices is planned but not built.")
-                        .font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.top, Tokens.Space.s3)
-
                     Text("ABOUT").font(.hjCaption).foregroundStyle(Tokens.Colour.textSecondary)
-                        .padding(.top, Tokens.Space.s7)
+                        .padding(.top, profiles.isEmpty ? Tokens.Space.s6 : Tokens.Space.s7)
                     SettingRow(title: "Version") {
                         Text(Self.version).font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     }
@@ -213,7 +199,6 @@ struct AppSettingsView: View {
                     note("A profile PIN is a courtesy lock, not security. It keeps a brother or sister out of someone else's journal — it will not stop a determined grown-up, and nothing here is encrypted.")
                     note("Deleting a profile or resetting progress cannot be undone. Both are marked \u{201C}grown-ups only\u{201D} but the app does not check.")
                     note("The microphone feeds speech recognition on this iPad and nothing else. No audio is recorded or kept, and the words your child says never leave the iPad.")
-                    note("The app sends anonymous crash reports and usage statistics so we can fix problems and improve it \u{2014} which screens are used, how long a session lasts, which typeface is chosen. Never the words on a page, ink, names, photos or voice, and never sold. The privacy policy has the details.")
                 }
                 .padding(.horizontal, Tokens.Layout.screenMargin)
                 .padding(.bottom, Tokens.Space.s8)
@@ -223,7 +208,6 @@ struct AppSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
-        .onAppear { Telemetry.screen(.appSettings) }
         .sheet(item: $editing) { profile in
             ProfileEditorView(profile: profile, isNew: false).presentationDetents([.large])
         }

@@ -260,7 +260,6 @@ final class WriteSessionViewModel {
         formationHelp = FormationHelp(wordText: request.wordText,
                                       wrongOffsets: request.wrongOffsets,
                                       lessons: lessons)
-        Telemetry.log(.formationHelpShown(letters: lessons.count))
         Haptics.tap()
     }
 
@@ -382,9 +381,6 @@ final class WriteSessionViewModel {
         Voice.setListening(false)
         mic = speech.didReachCap ? .capped : .idle
         let heard = Self.tidy(speech.transcript)
-        Telemetry.log(.dictationEnded(seconds: Int(speech.elapsed.rounded()),
-                                      words: WritingSession.wordCount(heard),
-                                      reachedCap: speech.didReachCap))
         let firstTelling = !pageHasInk
         if let range = replacing {
             replacing = nil
@@ -528,7 +524,6 @@ final class WriteSessionViewModel {
         if tool.editsWords { tool = .pen }
         let text = Self.tidy(draft)
         guard !text.isEmpty else { return }
-        Telemetry.log(.wordsTyped(words: WritingSession.wordCount(text)))
         let firstTelling = !pageHasInk
         appendDictation(text)
         wordsLanded(firstTelling: firstTelling)
@@ -728,8 +723,6 @@ final class WriteSessionViewModel {
         lastResult = result
         applyProgress(result: result, replacing: earlier)
         save()
-        Telemetry.log(.entryFinished(result: result, setup: session.setup,
-                                     minutes: Int((Date.now.timeIntervalSince(session.startedAt) / 60).rounded())))
         return result
     }
 
@@ -759,7 +752,6 @@ final class WriteSessionViewModel {
         let earned = BadgeEngine.newlyEarned(from: snapshot, existing: profile.earnedBadgeIDs)
         newBadges = earned
         profile.earnedBadgeIDs.append(contentsOf: earned.map(\.id))
-        for badge in earned { Telemetry.log(.badgeEarned(id: badge.id)) }
     }
 
     /// Leaving the writing surface — switching to reading, the page closing — or about

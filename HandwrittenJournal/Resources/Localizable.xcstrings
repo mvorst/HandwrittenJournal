@@ -1,34 +1,66 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "": {},
-    " ": {},
-    "%@  ·  %@": {},
-    "%@  ·  %lld%%  ·  %@": {},
-    "%@ +%lld": {},
-    "%@ has been above 90%% for two weeks — %@ might be ready to try.": {},
-    "%@ letters are done for today. Orange ones earned 1 point — try them in the arrow order.": {},
-    "%@ · not written yet": {},
-    "%@'s Progress": {},
-    "%@'s Settings": {},
-    "%@, earned": {},
-    "%@, not earned yet": {},
-    "%@. %@": {},
-    "%lld days": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld day"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    " " : {
+
+    },
+    "…or tap a word above to fix it" : {
+
+    },
+    "“%@”" : {
+
+    },
+    "%@  ·  %@" : {
+
+    },
+    "%@  ·  %lld%%  ·  %@" : {
+
+    },
+    "%@ · not written yet" : {
+
+    },
+    "%@ +%lld" : {
+
+    },
+    "%@ has been above 90%% for two weeks — %@ might be ready to try." : {
+
+    },
+    "%@ letters are done for today. Orange ones earned 1 point — try them in the arrow order." : {
+
+    },
+    "%@, earned" : {
+
+    },
+    "%@, not earned yet" : {
+
+    },
+    "%@. %@" : {
+
+    },
+    "%@'s Progress" : {
+
+    },
+    "%@'s Settings" : {
+
+    },
+    "%lld days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld days"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days"
                 }
               }
             }
@@ -36,23 +68,27 @@
         }
       }
     },
-    "%lld in order +%lld": {},
-    "%lld letters +%lld": {},
-    "%lld letters were drawn in a different order — the practice page shows the way.": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld letter was drawn in a different order — the practice page shows the way."
+    "%lld in order +%lld" : {
+
+    },
+    "%lld letters +%lld" : {
+
+    },
+    "%lld letters were drawn in a different order — the practice page shows the way." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld letter was drawn in a different order — the practice page shows the way."
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld letters were drawn in a different order — the practice page shows the way."
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld letters were drawn in a different order — the practice page shows the way."
                 }
               }
             }
@@ -60,21 +96,21 @@
         }
       }
     },
-    "%lld letters were skipped.": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld letter was skipped."
+    "%lld letters were skipped." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld letter was skipped."
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld letters were skipped."
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld letters were skipped."
                 }
               }
             }
@@ -82,23 +118,27 @@
         }
       }
     },
-    "%lld of %lld": {},
-    "%lld of %lld words": {},
-    "%lld pages  ·  one per session, oldest first": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld page  ·  one per session, oldest first"
+    "%lld of %lld" : {
+
+    },
+    "%lld of %lld words" : {
+
+    },
+    "%lld pages  ·  one per session, oldest first" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld page  ·  one per session, oldest first"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld pages  ·  one per session, oldest first"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld pages  ·  one per session, oldest first"
                 }
               }
             }
@@ -106,24 +146,30 @@
         }
       }
     },
-    "%lld points, %@. Opens progress.": {},
-    "%lld practice points today": {},
-    "%lld pt": {},
-    "%lld results": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld result"
+    "%lld points, %@. Opens progress." : {
+
+    },
+    "%lld practice points today" : {
+
+    },
+    "%lld pt" : {
+
+    },
+    "%lld results" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld result"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld results"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld results"
                 }
               }
             }
@@ -131,22 +177,24 @@
         }
       }
     },
-    "%lld whole words +%lld": {},
-    "%lld words": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld word"
+    "%lld whole words +%lld" : {
+
+    },
+    "%lld words" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld word"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld words"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld words"
                 }
               }
             }
@@ -154,21 +202,21 @@
         }
       }
     },
-    "%lld words are still waiting on the page.": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld word is still waiting on the page."
+    "%lld words are still waiting on the page." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld word is still waiting on the page."
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld words are still waiting on the page."
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld words are still waiting on the page."
                 }
               }
             }
@@ -176,21 +224,21 @@
         }
       }
     },
-    "%lld words you said are still spoken — waiting on the page for next time.": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld word you said is still spoken — waiting on the page for next time."
+    "%lld words you said are still spoken — waiting on the page for next time." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld word you said is still spoken — waiting on the page for next time."
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld words you said are still spoken — waiting on the page for next time."
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld words you said are still spoken — waiting on the page for next time."
                 }
               }
             }
@@ -198,21 +246,21 @@
         }
       }
     },
-    "%lld words, not written yet": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld word, not written yet"
+    "%lld words, not written yet" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld word, not written yet"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld words, not written yet"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld words, not written yet"
                 }
               }
             }
@@ -220,24 +268,30 @@
         }
       }
     },
-    "%lld%%": {},
-    "%lld-day streak": {},
-    "+ %lld points": {},
-    "+%lld points": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "+%lld point"
+    "%lld-day streak" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "+ %lld points" : {
+
+    },
+    "+%lld points" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "+%lld point"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "+%lld points"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "+%lld points"
                 }
               }
             }
@@ -245,346 +299,1014 @@
         }
       }
     },
-    "+%lld points a letter": {},
-    "+%lld today": {},
-    "0 today": {},
-    "1 letter +%lld": {},
-    "1 whole word +%lld": {},
-    "1,000 Words": {},
-    "1-day streak": {},
-    "1–20 characters": {},
-    "5-Day Streak": {},
-    "5-entry rolling average. Marks show where the font or size changed — a dip after a change is expected, the letters just got harder.": {},
-    "A PIN keeps a sibling out — it is not security.": {},
-    "A big letter %@ to trace": {},
-    "A finger isn't handwriting. Dragging a fingertip builds none of the habits a pencil does — how to hold it, how hard to press, where the hand rests — so the app would be practising the wrong thing.": {},
-    "A grown-up agreed on %@.": {},
-    "A grown-up can let Journal use the camera in Settings. You can still choose a photo instead.": {},
-    "A grown-up needs to agree": {},
-    "A little letter %@ to trace": {},
-    "A profile PIN is a courtesy lock, not security. It keeps a brother or sister out of someone else's journal — it will not stop a determined grown-up, and nothing here is encrypted.": {},
-    "A thousand words in your own hand.": {},
-    "A tracing at 90% or better.": {},
-    "A trend needs 5 entries with one font and size.\n%@ has %lld — keep going!": {},
-    "ABOUT": {},
-    "Accuracy": {},
-    "Accuracy over time": {},
-    "Add a journal entry, or practice writing your letters.": {},
-    "Add someone": {},
-    "Add them": {},
-    "Add words:": {},
-    "All %lld words, in your own hand": {},
-    "Almost! Watch the arrows again — start where they start.": {},
-    "Almost! Watch the arrows again. Start where they start.": {},
-    "Any Apple Pencil that pairs with this iPad will do.": {},
-    "Auto": {},
-    "Auto keeps them away from the writing hand": {},
-    "Back": {},
-    "Back to my journal": {},
-    "Back to the letter": {},
-    "Back to the page": {},
-    "Badges": {},
-    "Bigger letters are easier. Move down a size when tracing gets comfortable.": {},
-    "Blue": {},
-    "By mode and font": {},
-    "Camera is turned off": {},
-    "Can we use the microphone?": {},
-    "Can we use the microphone? It allows us to write down what you tell us so you can trace the words.": {},
-    "Cancel": {},
-    "Carry on any time: open this entry from your journal and the waiting words are still there.": {},
-    "Change": {},
-    "Changing the font starts a new line on the accuracy chart — earlier sentences stay comparable.": {},
-    "Choose Photo": {},
-    "Clear search": {},
-    "Clears stars, points, badges and streaks. Journal entries are kept.\nGrown-ups only — the app does not check.": {},
-    "Close": {},
-    "Colourblind ink scheme": {},
-    "Coming soon": {},
-    "Controls in landscape": {},
-    "Copy mode has no entries yet — it is coming later.": {},
-    "Copy mode is coming later": {},
-    "Copy mode — writing on a line under the words — is coming later.": {},
-    "Crayon — doodle anywhere, it never counts": {},
-    "DANGER ZONE": {},
-    "Days journaled": {},
-    "Delete": {},
-    "Delete Profile": {},
-    "Delete everything": {},
-    "Delete this entry": {},
-    "Delete this entry?": {},
-    "Delete this profile?": {},
-    "Deleting a profile or resetting progress cannot be undone. Both are marked “grown-ups only” but the app does not check.": {},
-    "Designed for children learning to read.": {},
-    "Done": {},
-    "Doodles never count — tap the pencil to write again": {},
-    "Drag to move · pinch to zoom": {},
-    "Earned": {},
-    "Edit %@: name, photo and PIN": {},
-    "Edit Profile": {},
-    "Empty entry": {},
-    "Enter your secret PIN": {},
-    "Every Font": {},
-    "Every font here has thick strokes and open letters, so a beginner can stay inside them.": {},
-    "Every letter you wrote was finished.": {},
-    "Every profile gets its own switch: Settings › Feedback › Voice feedback.": {},
-    "Every sentence, every tracing and every recording will be gone. This cannot be undone.": {},
-    "Everything": {},
-    "Everything is rendered on this iPad — nothing is uploaded.": {},
-    "Everything stays on this iPad for now. Sync between devices is planned but not built.": {},
-    "Export": {},
-    "Extra Large": {},
-    "Extra Small": {},
-    "FEEDBACK": {},
-    "Finger tracing allowed": {},
-    "First Entry": {},
-    "Five entries in a row at 85% or better.": {},
-    "Fix a word, or add more words": {},
-    "Fix it": {},
-    "Fix the word:": {},
-    "Fix these words:": {},
-    "Font": {},
-    "Font size": {},
-    "Four digits": {},
-    "GOOD TO KNOW": {},
-    "Good %@! Try the strokes in the arrow order.": {},
-    "Good %@. Try the strokes in the arrow order.": {},
-    "Got it": {},
-    "Great writing!": {},
-    "Great writing, %@!": {},
-    "Green": {},
-    "Grown-ups only · this cannot be undone": {},
-    "Grown-ups only. The handwriting goes with it.": {},
-    "Guide lines": {},
-    "Hand the iPad to your writer. Watch the arrows, then trace the big %@ with the Apple Pencil.": {},
-    "Handwritten Journal": {},
-    "Handwritten Journal is made for children, so a parent, guardian or teacher agrees to the terms on their behalf. It takes a minute, and it only happens once.": {},
-    "Haptics": {},
-    "Hear it": {},
-    "Here's how to practice a letter. Touch it, and watch how it's written.": {},
-    "Hi! I'm your journal. I'll tell you when it's your turn to write.": {},
-    "How to trace a letter": {},
-    "I agree": {},
-    "I did it — keep writing": {},
-    "I don't have an Apple Pencil": {},
-    "I saw a bird": {},
-    "I saw a red bird": {},
-    "I stopped listening so we can start writing. The first line is ready for your pencil.": {},
-    "I'm finished": {},
-    "Include accuracy scores": {},
-    "Include the typed words": {},
-    "Keep going.": {},
-    "Keep it": {},
-    "Keep what I wrote": {},
-    "LEGAL": {},
-    "Large": {},
-    "Last 7 days": {},
-    "Last 7 days: %@": {},
-    "Left": {},
-    "Left-handed layout": {},
-    "Let's check your Apple Pencil": {},
-    "Let's practice": {},
-    "Let's practice %@!": {},
-    "Let's write": {},
-    "Lilac crayon": {},
-    "Longest streak": {},
-    "Looks like classroom printing.": {},
-    "Lovely writing.": {},
-    "Make a profile for each person who writes.\nEveryone gets their own journal, font and size.": {},
-    "Make the book": {},
-    "Medium": {},
-    "Mode": {},
-    "More faces are listed in the design but their font files are not bundled yet — see BUILD_LOG.md.": {},
-    "Move and zoom the photo": {},
-    "My Journal": {},
-    "NAME": {},
-    "NEW BADGE": {},
-    "Name, photo and PIN": {},
-    "Neat Writer": {},
-    "Never mind": {},
-    "New Entry": {},
-    "New Profile": {},
-    "Nice %@! Pick another letter.": {},
-    "Nice %@. Try another one.": {},
-    "Nice line.": {},
-    "No results": {},
-    "No thanks, stay quiet": {},
-    "Nobody is here yet": {},
-    "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.": {},
-    "Not earned yet": {},
-    "Not enough entries yet": {},
-    "Not now": {},
-    "Not yet agreed on this iPad.": {},
-    "Nothing found": {},
-    "Nothing goes in your journal until you write it.": {},
-    "Nothing said yet": {},
-    "Nothing written yet": {},
-    "Nothing written yet.": {},
-    "Nothing yet today": {},
-    "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!": {},
-    "Now watch how %@ is written…": {},
-    "OK, ask me": {},
-    "Open Settings": {},
-    "Opens in Safari": {},
-    "Outstanding work! You wrote everything you said.": {},
-    "PROFILE": {},
-    "PROFILES": {},
-    "Pencil — write over the letters": {},
-    "Perfect Week": {},
-    "Pink crayon": {},
-    "Practice Letters": {},
-    "Practice my letters": {},
-    "Privacy policy": {},
-    "Put it on the page": {},
-    "Put the crayon down": {},
-    "Remove photo": {},
-    "Rename this entry": {},
-    "Reset": {},
-    "Reset Progress": {},
-    "Reset progress?": {},
-    "Right": {},
-    "Rounded and heavy. The default.": {},
-    "Rub out a doodle — nothing else is touched": {},
-    "Rub out a letter to fix it — nothing else is lost": {},
-    "SECRET PIN": {},
-    "SYNC": {},
-    "Save": {},
-    "Saved for later": {},
-    "Say as much as you like — up to five minutes.\nYour words land right here for you to write.": {},
-    "Say it again": {},
-    "Say it again — the new words take the old ones' place.": {},
-    "Say more": {},
-    "Says whose turn it is and cheers a finished line": {},
-    "Search looks at what you said, not how you wrote it.": {},
-    "Search what you said": {},
-    "See the blue dot? That's where you start. Follow the arrows.": {},
-    "Sentence": {},
-    "Sessions written": {},
-    "Settings": {},
-    "Seven days in a row.": {},
-    "Share": {},
-    "Share as PDF": {},
-    "Sharp Shooter": {},
-    "Should the iPad talk?": {},
-    "Shows what this badge is for": {},
-    "Skip": {},
-    "Skip for now": {},
-    "Skipping lets you set up today. The letter will be back the next time the app opens, until it has seen an Apple Pencil.": {},
-    "Small": {},
-    "So far: %lld%%": {},
-    "Speech recognition is not available on this iPad.": {},
-    "Start at the blue dot and follow the arrows.": {},
-    "Start talking": {},
-    "Step %lld of %lld": {},
-    "Stop talking": {},
-    "Swaps green and red for blue and orange": {},
-    "Switch to someone else": {},
-    "Take Photo": {},
-    "Tap New Entry and tell me about your day.": {},
-    "Tap a word to fix it, or after the last word to add more": {},
-    "Tap the big microphone to begin": {},
-    "Tap the mic to say more — or a line's handle to pick it": {},
-    "Tap the microphone and start talking.": {},
-    "Tap the photo to move or zoom it": {},
-    "Tap to start talking": {},
-    "Tap when you're done talking": {},
-    "Tapping I agree accepts the terms of use and the privacy policy for you and your child.": {},
-    "Tell me a story.": {},
-    "Tell me about your day": {},
-    "Tell me about your day, %@": {},
-    "Tell me about your day.": {},
-    "Ten Entries": {},
-    "Ten entries in the journal.": {},
-    "Terms of use": {},
-    "That line looks great.": {},
-    "That was a finger. Try the Apple Pencil.": {},
-    "That's a whole lot of story!": {},
-    "That's an Apple Pencil — you're ready!": {},
-    "That's an Apple Pencil. You're ready to write!": {},
-    "That's how it's done! Next letter.": {},
-    "That's it! Now pick any letter on the sheet and trace it.": {},
-    "That's it! Pick any letter on the sheet.": {},
-    "That's the way! %@ is fixed.": {},
-    "That's the way! Next letter…": {},
-    "That's the way! You fixed it.": {},
-    "The app sends anonymous crash reports and usage statistics so we can fix problems and improve it — which screens are used, how long a session lasts, which typeface is chosen. Never the words on a page, ink, names, photos or voice, and never sold. The privacy policy has the details.": {},
-    "The microphone could not start": {},
-    "The microphone feeds speech recognition on this iPad and nothing else. No audio is recorded or kept, and the words your child says never leave the iPad.": {},
-    "The microphone is switched off": {},
-    "The page is graded stroke by stroke — where the ink went, in which direction, in what order. A fingertip is wider than the strokes it would trace, and the scores would mean nothing.": {},
-    "The red letters were written in a different order.\nWatch how %@ is written…": {},
-    "The thickest — easiest to stay inside.": {},
-    "There is no account, and what your child says and writes never leaves this iPad unless a grown-up shares a PDF. The privacy policy explains the anonymous crash reports and usage statistics.": {},
-    "This entry": {},
-    "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one.": {},
-    "This month": {},
-    "This will replace what you wrote. The words stay the same.": {},
-    "Title": {},
-    "Touch a letter and watch how it's written.": {},
-    "Touch a letter to see how it's written": {},
-    "Touch and hold a profile on the chooser to reach the same editor.": {},
-    "Touch and hold a profile to edit it": {},
-    "Trace": {},
-    "Trace an entry at 90% or better.": {},
-    "Trace it with your Apple Pencil. Green ink is on the letter, red is off.": {},
-    "Try again": {},
-    "Try every handwriting style — pick a new one in Settings.": {},
-    "Type a name": {},
-    "Type it instead": {},
-    "Type more words": {},
-    "Type what you want to write": {},
-    "Use Photo": {},
-    "Use a 4-digit PIN": {},
-    "Version": {},
-    "Very open letters, evenly rounded.": {},
-    "Voice feedback": {},
-    "Voice feedback is on. I'll tell you when it's your turn to write.": {},
-    "WRITING": {},
-    "Waiting for the pencil…": {},
-    "Want to say more about today? Open this entry from your journal and tap the mic.": {},
-    "Watch again": {},
-    "Watch how you write %@…": {},
-    "Watch the arrows, then trace the big A with the Apple Pencil.": {},
-    "Which Apple Pencil fits this iPad?": {},
-    "Who's writing today?": {},
-    "With voice feedback on, the iPad says when it's your child's turn to write, names the letter to trace on the practice sheet and cheers a finished line. It never reads the journal aloud.": {},
-    "Word": {},
-    "Words written": {},
-    "Write a thousand words in your own hand.": {},
-    "Write five days in a row.": {},
-    "Write five entries in a row at 85% or better.": {},
-    "Write it again": {},
-    "Write it all again": {},
-    "Write on this page": {},
-    "Write over the dark letters": {},
-    "Write over the dark letters with your pencil. Tap the mic below to say more.": {},
-    "Write seven days in a row.": {},
-    "Write ten entries.": {},
-    "Write this entry again?": {},
-    "Write today to start a streak": {},
-    "Write with your pencil — ABC fixes a word or adds more": {},
-    "Write your first entry.": {},
-    "Yellow crayon": {},
-    "Yes, talk to me": {},
-    "You can still type your words straight onto the page and write them.\nA grown-up can turn the microphone on in iPad Settings.": {},
-    "You earned %@! %@": {},
-    "You finished the whole thing.": {},
-    "You talk, and your words land on the page for you to write.\nThe iPad listens only while you are recording.": {},
-    "You tried every handwriting style.": {},
-    "You wrote %lld words today": {
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "You wrote %lld word today"
+    "+%lld points a letter" : {
+
+    },
+    "+%lld today" : {
+
+    },
+    "0 today" : {
+
+    },
+    "1 letter +%lld" : {
+
+    },
+    "1 whole word +%lld" : {
+
+    },
+    "1-day streak" : {
+
+    },
+    "1–20 characters" : {
+
+    },
+    "1,000 Words" : {
+
+    },
+    "5-Day Streak" : {
+
+    },
+    "5-entry rolling average. Marks show where the font or size changed — a dip after a change is expected, the letters just got harder." : {
+
+    },
+    "A big letter %@ to trace" : {
+
+    },
+    "A finger isn't handwriting. Dragging a fingertip builds none of the habits a pencil does — how to hold it, how hard to press, where the hand rests — so the app would be practising the wrong thing." : {
+
+    },
+    "A grown-up agreed on %@." : {
+
+    },
+    "A grown-up can let Journal use the camera in Settings. You can still choose a photo instead." : {
+
+    },
+    "A grown-up needs to agree" : {
+
+    },
+    "a little %@" : {
+
+    },
+    "A little letter %@ to trace" : {
+
+    },
+    "A PIN keeps a sibling out — it is not security." : {
+
+    },
+    "A profile PIN is a courtesy lock, not security. It keeps a brother or sister out of someone else's journal — it will not stop a determined grown-up, and nothing here is encrypted." : {
+
+    },
+    "A thousand words in your own hand." : {
+
+    },
+    "A tracing at 90% or better." : {
+
+    },
+    "A trend needs 5 entries with one font and size.\n%@ has %lld — keep going!" : {
+
+    },
+    "ABOUT" : {
+
+    },
+    "accuracy" : {
+
+    },
+    "Accuracy" : {
+
+    },
+    "Accuracy over time" : {
+
+    },
+    "Add a journal entry, or practice writing your letters." : {
+
+    },
+    "Add someone" : {
+
+    },
+    "Add them" : {
+
+    },
+    "Add words:" : {
+
+    },
+    "All %lld words, in your own hand" : {
+
+    },
+    "Almost! Watch the arrows again — start where they start." : {
+
+    },
+    "Almost! Watch the arrows again. Start where they start." : {
+
+    },
+    "Any Apple Pencil that pairs with this iPad will do." : {
+
+    },
+    "Auto" : {
+
+    },
+    "Auto keeps them away from the writing hand" : {
+
+    },
+    "Back" : {
+
+    },
+    "Back to my journal" : {
+
+    },
+    "Back to the letter" : {
+
+    },
+    "Back to the page" : {
+
+    },
+    "Badges" : {
+
+    },
+    "big %@" : {
+
+    },
+    "Bigger letters are easier. Move down a size when tracing gets comfortable." : {
+
+    },
+    "Blue" : {
+
+    },
+    "By mode and font" : {
+
+    },
+    "Camera is turned off" : {
+
+    },
+    "Can we use the microphone?" : {
+
+    },
+    "Can we use the microphone? It allows us to write down what you tell us so you can trace the words." : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Carry on any time: open this entry from your journal and the waiting words are still there." : {
+
+    },
+    "Change" : {
+
+    },
+    "Changing the font starts a new line on the accuracy chart — earlier sentences stay comparable." : {
+
+    },
+    "Choose Photo" : {
+
+    },
+    "Clear search" : {
+
+    },
+    "Clears stars, points, badges and streaks. Journal entries are kept.\nGrown-ups only — the app does not check." : {
+
+    },
+    "Close" : {
+
+    },
+    "Colourblind ink scheme" : {
+
+    },
+    "Controls in landscape" : {
+
+    },
+    "Crayon — doodle anywhere, it never counts" : {
+
+    },
+    "DANGER ZONE" : {
+
+    },
+    "Days journaled" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete everything" : {
+
+    },
+    "Delete Profile" : {
+
+    },
+    "Delete this entry" : {
+
+    },
+    "Delete this entry?" : {
+
+    },
+    "Delete this profile?" : {
+
+    },
+    "Deleting a profile or resetting progress cannot be undone. Both are marked “grown-ups only” but the app does not check." : {
+
+    },
+    "Designed for children learning to read." : {
+
+    },
+    "Done" : {
+
+    },
+    "Doodles never count — tap the pencil to write again" : {
+
+    },
+    "Drag to move · pinch to zoom" : {
+
+    },
+    "Earned" : {
+
+    },
+    "Edit %@: name, photo and PIN" : {
+
+    },
+    "Edit Profile" : {
+
+    },
+    "Empty entry" : {
+
+    },
+    "Enter your secret PIN" : {
+
+    },
+    "Every Font" : {
+
+    },
+    "Every font here has thick strokes and open letters, so a beginner can stay inside them." : {
+
+    },
+    "Every letter you wrote was finished." : {
+
+    },
+    "Every profile gets its own switch: Settings › Feedback › Voice feedback." : {
+
+    },
+    "Every sentence, every tracing and every recording will be gone. This cannot be undone." : {
+
+    },
+    "Everything" : {
+
+    },
+    "Everything is rendered on this iPad — nothing is uploaded." : {
+
+    },
+    "Export" : {
+
+    },
+    "Extra Large" : {
+
+    },
+    "Extra Small" : {
+
+    },
+    "FEEDBACK" : {
+
+    },
+    "Finger tracing allowed" : {
+
+    },
+    "finished +%lld" : {
+
+    },
+    "First Entry" : {
+
+    },
+    "Five entries in a row at 85% or better." : {
+
+    },
+    "Fix a word, or add more words" : {
+
+    },
+    "Fix it" : {
+
+    },
+    "Fix the word:" : {
+
+    },
+    "Fix these words:" : {
+
+    },
+    "Font" : {
+
+    },
+    "Font size" : {
+
+    },
+    "Four digits" : {
+
+    },
+    "Good %@! Try the strokes in the arrow order." : {
+
+    },
+    "Good %@. Try the strokes in the arrow order." : {
+
+    },
+    "GOOD TO KNOW" : {
+
+    },
+    "Got it" : {
+
+    },
+    "Great writing, %@!" : {
+
+    },
+    "Great writing!" : {
+
+    },
+    "Green" : {
+
+    },
+    "Grown-ups only · this cannot be undone" : {
+
+    },
+    "Grown-ups only. The handwriting goes with it." : {
+
+    },
+    "Guide lines" : {
+
+    },
+    "Hand the iPad to your writer. Watch the arrows, then trace the big %@ with the Apple Pencil." : {
+
+    },
+    "Handwritten Journal" : {
+
+    },
+    "Handwritten Journal is made for children, so a parent, guardian or teacher agrees to the terms on their behalf. It takes a minute, and it only happens once." : {
+
+    },
+    "Haptics" : {
+
+    },
+    "Hear it" : {
+
+    },
+    "Here's how to practice a letter. Touch it, and watch how it's written." : {
+
+    },
+    "Hi! I'm your journal. I'll tell you when it's your turn to write." : {
+
+    },
+    "How to trace a letter" : {
+
+    },
+    "I agree" : {
+
+    },
+    "I did it — keep writing" : {
+
+    },
+    "I don't have an Apple Pencil" : {
+
+    },
+    "I saw a bird" : {
+
+    },
+    "I saw a red bird" : {
+
+    },
+    "I stopped listening so we can start writing. The first line is ready for your pencil." : {
+
+    },
+    "I'm finished" : {
+
+    },
+    "Include accuracy scores" : {
+
+    },
+    "Include the typed words" : {
+
+    },
+    "Keep going." : {
+
+    },
+    "Keep it" : {
+
+    },
+    "Keep what I wrote" : {
+
+    },
+    "Large" : {
+
+    },
+    "Last 7 days" : {
+
+    },
+    "Last 7 days: %@" : {
+
+    },
+    "Left" : {
+
+    },
+    "Left-handed layout" : {
+
+    },
+    "LEGAL" : {
+
+    },
+    "Let's check your Apple Pencil" : {
+
+    },
+    "Let's practice" : {
+
+    },
+    "Let's practice %@!" : {
+
+    },
+    "Let's write" : {
+
+    },
+    "Lilac crayon" : {
+
+    },
+    "little %@" : {
+
+    },
+    "Longest streak" : {
+
+    },
+    "Looks like classroom printing." : {
+
+    },
+    "Lovely writing." : {
+
+    },
+    "Make a profile for each person who writes.\nEveryone gets their own journal, font and size." : {
+
+    },
+    "Make the book" : {
+
+    },
+    "Medium" : {
+
+    },
+    "Mode" : {
+
+    },
+    "More faces are listed in the design but their font files are not bundled yet — see BUILD_LOG.md." : {
+
+    },
+    "Move and zoom the photo" : {
+
+    },
+    "My Journal" : {
+
+    },
+    "NAME" : {
+
+    },
+    "Name, photo and PIN" : {
+
+    },
+    "Neat Writer" : {
+
+    },
+    "Never mind" : {
+
+    },
+    "NEW BADGE" : {
+
+    },
+    "New Entry" : {
+
+    },
+    "New Profile" : {
+
+    },
+    "Nice %@! Pick another letter." : {
+
+    },
+    "Nice %@. Try another one." : {
+
+    },
+    "Nice line." : {
+
+    },
+    "No entries yet." : {
+
+    },
+    "No results" : {
+
+    },
+    "No thanks, stay quiet" : {
+
+    },
+    "Nobody is here yet" : {
+
+    },
+    "Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size." : {
+
+    },
+    "Not earned yet" : {
+
+    },
+    "Not enough entries yet" : {
+
+    },
+    "Not now" : {
+
+    },
+    "Not yet agreed on this iPad." : {
+
+    },
+    "Nothing found" : {
+
+    },
+    "Nothing goes in your journal until you write it." : {
+
+    },
+    "Nothing said yet" : {
+
+    },
+    "Nothing written yet" : {
+
+    },
+    "Nothing written yet." : {
+
+    },
+    "Nothing yet today" : {
+
+    },
+    "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!" : {
+
+    },
+    "Now watch how %@ is written…" : {
+
+    },
+    "of %@" : {
+
+    },
+    "OK, ask me" : {
+
+    },
+    "Open Settings" : {
+
+    },
+    "Opens in Safari" : {
+
+    },
+    "Outstanding work! You wrote everything you said." : {
+
+    },
+    "Pencil — write over the letters" : {
+
+    },
+    "Perfect Week" : {
+
+    },
+    "Pink crayon" : {
+
+    },
+    "points" : {
+
+    },
+    "Practice Letters" : {
+
+    },
+    "Practice my letters" : {
+
+    },
+    "Privacy policy" : {
+
+    },
+    "PROFILE" : {
+
+    },
+    "PROFILES" : {
+
+    },
+    "Put it on the page" : {
+
+    },
+    "Put the crayon down" : {
+
+    },
+    "Remove photo" : {
+
+    },
+    "Rename this entry" : {
+
+    },
+    "Reset" : {
+
+    },
+    "Reset Progress" : {
+
+    },
+    "Reset progress?" : {
+
+    },
+    "Right" : {
+
+    },
+    "Rounded and heavy. The default." : {
+
+    },
+    "Rub out a doodle — nothing else is touched" : {
+
+    },
+    "Rub out a letter to fix it — nothing else is lost" : {
+
+    },
+    "Save" : {
+
+    },
+    "Saved for later" : {
+
+    },
+    "Say as much as you like — up to five minutes.\nYour words land right here for you to write." : {
+
+    },
+    "Say it again" : {
+
+    },
+    "Say it again — the new words take the old ones' place." : {
+
+    },
+    "Say more" : {
+
+    },
+    "Says whose turn it is and cheers a finished line" : {
+
+    },
+    "Search looks at what you said, not how you wrote it." : {
+
+    },
+    "Search what you said" : {
+
+    },
+    "SECRET PIN" : {
+
+    },
+    "See the blue dot? That's where you start. Follow the arrows." : {
+
+    },
+    "Sentence" : {
+
+    },
+    "Sessions written" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Seven days in a row." : {
+
+    },
+    "Share" : {
+
+    },
+    "Share as PDF" : {
+
+    },
+    "Sharp Shooter" : {
+
+    },
+    "Should the iPad talk?" : {
+
+    },
+    "Shows what this badge is for" : {
+
+    },
+    "Skip" : {
+
+    },
+    "Skip for now" : {
+
+    },
+    "Skipping lets you set up today. The letter will be back the next time the app opens, until it has seen an Apple Pencil." : {
+
+    },
+    "Small" : {
+
+    },
+    "So far: %lld%%" : {
+
+    },
+    "Speech recognition is not available on this iPad." : {
+
+    },
+    "Start at the blue dot and follow the arrows." : {
+
+    },
+    "Start talking" : {
+
+    },
+    "Step %lld of %lld" : {
+
+    },
+    "Stop talking" : {
+
+    },
+    "streak +%lld" : {
+
+    },
+    "Swaps green and red for blue and orange" : {
+
+    },
+    "Switch to someone else" : {
+
+    },
+    "Take Photo" : {
+
+    },
+    "Tap a word to fix it, or after the last word to add more" : {
+
+    },
+    "Tap New Entry and tell me about your day." : {
+
+    },
+    "Tap the big microphone to begin" : {
+
+    },
+    "Tap the mic to say more — or a line's handle to pick it" : {
+
+    },
+    "Tap the microphone and start talking." : {
+
+    },
+    "Tap the photo to move or zoom it" : {
+
+    },
+    "Tap to start talking" : {
+
+    },
+    "Tap when you're done talking" : {
+
+    },
+    "Tapping I agree accepts the terms of use and the privacy policy for you and your child." : {
+
+    },
+    "Tell me a story." : {
+
+    },
+    "Tell me about your day" : {
+
+    },
+    "Tell me about your day, %@" : {
+
+    },
+    "Tell me about your day." : {
+
+    },
+    "Ten Entries" : {
+
+    },
+    "Ten entries in the journal." : {
+
+    },
+    "Terms of use" : {
+
+    },
+    "That line looks great." : {
+
+    },
+    "That was a finger. Try the Apple Pencil." : {
+
+    },
+    "That's a whole lot of story!" : {
+
+    },
+    "That's an Apple Pencil — you're ready!" : {
+
+    },
+    "That's an Apple Pencil. You're ready to write!" : {
+
+    },
+    "That's how it's done! Next letter." : {
+
+    },
+    "That's it! Now pick any letter on the sheet and trace it." : {
+
+    },
+    "That's it! Pick any letter on the sheet." : {
+
+    },
+    "That's the way! %@ is fixed." : {
+
+    },
+    "That's the way! Next letter…" : {
+
+    },
+    "That's the way! You fixed it." : {
+
+    },
+    "the %@" : {
+
+    },
+    "the big %@" : {
+
+    },
+    "The microphone could not start" : {
+
+    },
+    "The microphone feeds speech recognition on this iPad and nothing else. No audio is recorded or kept, and the words your child says never leave the iPad." : {
+
+    },
+    "The microphone is switched off" : {
+
+    },
+    "The page is graded stroke by stroke — where the ink went, in which direction, in what order. A fingertip is wider than the strokes it would trace, and the scores would mean nothing." : {
+
+    },
+    "The red letters were written in a different order.\nWatch how %@ is written…" : {
+
+    },
+    "The thickest — easiest to stay inside." : {
+
+    },
+    "There is no account, and what your child says and writes never leaves this iPad unless a grown-up shares a PDF. The app has no advertising, analytics, or crash reporting." : {
+
+    },
+    "This entry" : {
+
+    },
+    "This is a handwriting app. Your child writes with a pencil in their hand, just as they do on paper — the grip, the pressure, the hand resting on the page, every letter formed stroke by stroke. That is what the app teaches and what it grades, so it doesn't start without one." : {
+
+    },
+    "This month" : {
+
+    },
+    "This will replace what you wrote. The words stay the same." : {
+
+    },
+    "Title" : {
+
+    },
+    "Touch a letter and watch how it's written." : {
+
+    },
+    "Touch a letter to see how it's written" : {
+
+    },
+    "Touch and hold a profile on the chooser to reach the same editor." : {
+
+    },
+    "Touch and hold a profile to edit it" : {
+
+    },
+    "Trace" : {
+
+    },
+    "Trace an entry at 90% or better." : {
+
+    },
+    "Trace it with your Apple Pencil. Green ink is on the letter, red is off." : {
+
+    },
+    "Trace writing" : {
+
+    },
+    "Trace writing keeps the guide beneath each stroke." : {
+
+    },
+    "Try again" : {
+
+    },
+    "Try every handwriting style — pick a new one in Settings." : {
+
+    },
+    "Type a name" : {
+
+    },
+    "Type it instead" : {
+
+    },
+    "Type more words" : {
+
+    },
+    "Type what you want to write" : {
+
+    },
+    "Use a 4-digit PIN" : {
+
+    },
+    "Use Photo" : {
+
+    },
+    "Version" : {
+
+    },
+    "Very open letters, evenly rounded." : {
+
+    },
+    "Voice feedback" : {
+
+    },
+    "Voice feedback is on. I'll tell you when it's your turn to write." : {
+
+    },
+    "Waiting for the pencil…" : {
+
+    },
+    "Want to say more about today? Open this entry from your journal and tap the mic." : {
+
+    },
+    "Watch again" : {
+
+    },
+    "Watch how you write %@…" : {
+
+    },
+    "Watch the arrows, then trace the big A with the Apple Pencil." : {
+
+    },
+    "Which Apple Pencil fits this iPad?" : {
+
+    },
+    "Who's writing today?" : {
+
+    },
+    "With voice feedback on, the iPad says when it's your child's turn to write, names the letter to trace on the practice sheet and cheers a finished line. It never reads the journal aloud." : {
+
+    },
+    "Word" : {
+
+    },
+    "Words written" : {
+
+    },
+    "Write a thousand words in your own hand." : {
+
+    },
+    "Write five days in a row." : {
+
+    },
+    "Write five entries in a row at 85% or better." : {
+
+    },
+    "Write it again" : {
+
+    },
+    "Write it all again" : {
+
+    },
+    "Write on this page" : {
+
+    },
+    "Write over the dark letters" : {
+
+    },
+    "Write over the dark letters with your pencil. Tap the mic below to say more." : {
+
+    },
+    "Write seven days in a row." : {
+
+    },
+    "Write ten entries." : {
+
+    },
+    "Write this entry again?" : {
+
+    },
+    "Write today to start a streak" : {
+
+    },
+    "Write with your pencil — ABC fixes a word or adds more" : {
+
+    },
+    "Write your first entry." : {
+
+    },
+    "WRITING" : {
+
+    },
+    "Yellow crayon" : {
+
+    },
+    "Yes, talk to me" : {
+
+    },
+    "You can still type your words straight onto the page and write them.\nA grown-up can turn the microphone on in iPad Settings." : {
+
+    },
+    "You earned %@! %@" : {
+
+    },
+    "You finished the whole thing." : {
+
+    },
+    "You talk, and your words land on the page for you to write.\nThe iPad listens only while you are recording." : {
+
+    },
+    "You tried every handwriting style." : {
+
+    },
+    "You wrote %lld words today" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "You wrote %lld word today"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "You wrote %lld words today"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "You wrote %lld words today"
                 }
               }
             }
@@ -592,34 +1314,51 @@
         }
       }
     },
-    "You wrote 1 word today": {},
-    "You wrote everything you said — nice work.": {},
-    "You wrote everything you said!": {},
-    "You wrote five days in a row.": {},
-    "You wrote your first entry.": {},
-    "You'll need an Apple Pencil": {},
-    "Your first entry starts the count.": {},
-    "Your journal is empty": {},
-    "Your turn — trace %@ just like the arrows!": {},
-    "Your turn — trace %@!": {},
-    "Your turn — write it!": {},
-    "Your turn. Trace %@.": {},
-    "Your turn. Write it!": {},
-    "Your voice stays on this iPad. It is never sent anywhere, and a grown-up can delete it.": {},
-    "Your words are waiting in the journal.": {},
-    "a little %@": {},
-    "accuracy": {},
-    "big %@": {},
-    "finished +%lld": {},
-    "iCloud Sync": {},
-    "little %@": {},
-    "of %@": {},
-    "points": {},
-    "streak +%lld": {},
-    "the %@": {},
-    "the big %@": {},
-    "“%@”": {},
-    "…or tap a word above to fix it": {}
+    "You wrote 1 word today" : {
+
+    },
+    "You wrote everything you said — nice work." : {
+
+    },
+    "You wrote everything you said!" : {
+
+    },
+    "You wrote five days in a row." : {
+
+    },
+    "You wrote your first entry." : {
+
+    },
+    "You'll need an Apple Pencil" : {
+
+    },
+    "Your first entry starts the count." : {
+
+    },
+    "Your journal is empty" : {
+
+    },
+    "Your turn — trace %@ just like the arrows!" : {
+
+    },
+    "Your turn — trace %@!" : {
+
+    },
+    "Your turn — write it!" : {
+
+    },
+    "Your turn. Trace %@." : {
+
+    },
+    "Your turn. Write it!" : {
+
+    },
+    "Your voice stays on this iPad. It is never sent anywhere, and a grown-up can delete it." : {
+
+    },
+    "Your words are waiting in the journal." : {
+
+    }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

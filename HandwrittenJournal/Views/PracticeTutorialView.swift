@@ -46,7 +46,6 @@ struct PracticeTutorialOverlay: View {
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape, close)
         .onAppear {
-            Telemetry.screen(.practiceTutorial)
             Voice.say(.practiceHowWatch)
         }
         // The arrows wait for the first line: the letter sits bare while it is said, and

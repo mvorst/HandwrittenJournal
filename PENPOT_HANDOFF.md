@@ -33,9 +33,9 @@ which the icon sheet does not have.
 
 **What the app does differently from the frames** (built the same day):
 
-- The welcome's privacy note mirrors the *published* policy's summary (no account; the
-  journal never leaves the iPad; the policy explains the anonymous crash reports and
-  usage statistics — `DESIGN_DOCUMENT.md` §10.5), not the older "no analytics" line.
+- The welcome's privacy note mirrors the *published* policy's summary: no account; the
+  journal never leaves the iPad; and no advertising, analytics, or crash reporting
+  (`DESIGN_DOCUMENT.md` §10.5).
 - The step dots are drawn by the app at the same sizes; *Back* returns to the previous
   step, and agreeing twice is harmless.
 - A finger stroke on frame 57's sheet inks (the sheet allows a finger so it can be

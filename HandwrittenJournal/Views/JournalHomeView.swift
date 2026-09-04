@@ -81,7 +81,6 @@ struct JournalHomeView: View {
         }
         .animation(Tokens.Motion.spring, value: shownBadge)
         .onAppear {
-            Telemetry.screen(.journal)
             // Once per visit from the picker, not on every return from a page (§4.12, v3.7).
             if !greeted { greeted = true; Voice.say(.home) }
         }
