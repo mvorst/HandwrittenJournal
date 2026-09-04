@@ -38,7 +38,11 @@ struct FormationHelpRequest: Hashable {
 /// its ink back into accuracy colours for fixing; deselecting a row settles it — guide
 /// fades to faint, ink turns graphite, in place. When the selected row's last letter gets
 /// ink, the next untraced row is selected automatically so the flow never needs a tap
-/// per line — the taps are for going back, skipping, or fixing.
+/// per line — the taps are for going back, skipping, or fixing. Not the instant it gets
+/// ink, though (v3.10): the row stays in hand until the pen has rested for
+/// `advancePause`, so a `t` can be crossed and an `i` dotted on the row that just
+/// filled. Ink landing on the row starts the wait again; a pen landing on the next row
+/// ends it.
 ///
 /// **The record** — what the journal, exports and counts read — is the unbroken run of
 /// fully-traced rows from the top of the page. It is derived from the ink, never set:
@@ -55,6 +59,10 @@ final class TracingCanvasView: UIView {
     var showGuideText = true { didSet { setNeedsDisplay() } }
     var colourBlind = false { didSet { redrawCommitted() } }
     var allowFinger = true
+    /// How long the pen rests after the selected row's last letter gets ink before the
+    /// next untraced row comes up (v3.10). Zero advances at pen-up, at once — the
+    /// programmatic path previews and most tests want.
+    var advancePause: TimeInterval = Tokens.Motion.advancePause
     var isEraserActive = false {
         didSet {
             eraserCentre = nil
@@ -183,6 +191,11 @@ final class TracingCanvasView: UIView {
 
     /// The row being written, if any. Ink lands here and nowhere else.
     private(set) var selectedRow: Int?
+    /// The advance waiting out `advancePause`: the selected row is full, and the next
+    /// untraced row comes up when this fires — unless the pen comes back first (v3.10).
+    private var pendingAdvance: DispatchWorkItem?
+    /// True while a full row is waiting for the pen to rest before it leaves.
+    var isWaitingToAdvance: Bool { pendingAdvance != nil }
 
     /// End of the record in characters of `text` — derived from the ink (see above).
     private(set) var recordEnd = 0
@@ -237,11 +250,17 @@ final class TracingCanvasView: UIView {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 
-    deinit { settleLink?.invalidate() }
+    deinit {
+        settleLink?.invalidate()
+        pendingAdvance?.cancel()
+    }
 
     override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
-        if newWindow == nil { stopSettleLink() }
+        if newWindow == nil {
+            stopSettleLink()
+            cancelPendingAdvance()
+        }
     }
 
     override func layoutSubviews() {
@@ -300,6 +319,7 @@ final class TracingCanvasView: UIView {
             doodles.removeAll()
             current = nil
             selectedRow = nil
+            cancelPendingAdvance()
             settling = [:]
             remediatedLetters = []
             promptedWords = []
@@ -342,6 +362,7 @@ final class TracingCanvasView: UIView {
         doodles.removeAll()
         current = nil
         selectedRow = nil
+        cancelPendingAdvance()
         settling = [:]
         pendingHelpWords = []
         coveredLetters = []
@@ -405,6 +426,7 @@ final class TracingCanvasView: UIView {
     func selectRow(_ row: Int?) {
         guard row != selectedRow else { return }
         if let row, (maskRenderer.layout.scorableByLine[row] ?? []).isEmpty { return }
+        cancelPendingAdvance()
         let previous = selectedRow
         selectedRow = row
         if let previous, rowHasAnyInk(previous) { settle(previous) }
@@ -416,12 +438,43 @@ final class TracingCanvasView: UIView {
 
     /// When the selected row's last letter gets ink, the next untraced row comes up on
     /// its own — the taps are for going back, not for going forward.
+    ///
+    /// **Not the instant it gets ink, though** (v3.10). A letter reads as inked the
+    /// moment any stroke touches it, and a letter with several parts gets its first
+    /// part first: the stem of a `t` fills the row before the crossbar exists, and
+    /// moving the selection there took the row out from under the pen — the crossbar
+    /// landed on a row that had already left, scored against nothing. So a full row
+    /// waits `advancePause` after pen-up, and every pen-down on it while it waits starts
+    /// the wait again: the row leaves only once the pen has rested. A pen landing on
+    /// the next row instead takes it at once (`rowForInk`), as does a tap on any row.
+    /// Only a pen lifting from the row starts the wait — a stroke, or the eraser; undo
+    /// and clear cancel it and leave the row in hand, tools never move the selection.
     private func maybeAdvance() {
+        cancelPendingAdvance()
         guard let row = selectedRow, rowFullyInked(row) else { return }
+        guard advancePause > 0 else { advance(from: row); return }
+        let item = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.pendingAdvance = nil
+            self.advance(from: row)
+        }
+        pendingAdvance = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + advancePause, execute: item)
+    }
+
+    /// The pen has rested: if `row` is still the one in hand, still full, and nothing is
+    /// touching the page, the next untraced row comes up.
+    private func advance(from row: Int) {
+        guard selectedRow == row, current == nil, eraserCentre == nil, rowFullyInked(row) else { return }
         let next = maskRenderer.layout.scorableByLine.keys
             .filter { $0 > row && !rowFullyInked($0) }
             .min()
         selectRow(next)
+    }
+
+    private func cancelPendingAdvance() {
+        pendingAdvance?.cancel()
+        pendingAdvance = nil
     }
 
     /// v3.2 — when a take ends, typed words land, or a page is reopened to write on, the
@@ -490,6 +543,7 @@ final class TracingCanvasView: UIView {
         doodles = restored.doodles
         current = nil
         selectedRow = nil
+        cancelPendingAdvance()
         settling = [:]
         // Restored words are already written — they never prompt for help (§8.1b).
         suppressHelpPrompts = true
@@ -580,6 +634,7 @@ final class TracingCanvasView: UIView {
         strokes.remove(at: index)
         retally()
         onInkChange?()
+        cancelPendingAdvance()      // the row is being worked on; a pen lifting from it restarts the wait
     }
 
     func clearSelected() {
@@ -596,6 +651,7 @@ final class TracingCanvasView: UIView {
         current = nil
         retally()
         onInkChange?()
+        cancelPendingAdvance()
     }
 
     private func applyErase(at point: CGPoint) {
@@ -698,6 +754,8 @@ final class TracingCanvasView: UIView {
         }
 
         if isEraserActive, drawingTouch(touch) {
+            // Rubbing out on a full row is still working on it: the row waits again.
+            if !isDoodleActive { cancelPendingAdvance() }
             eraserCentre = point
             applyErase(at: point)
             setNeedsDisplay()
@@ -711,9 +769,10 @@ final class TracingCanvasView: UIView {
             return
         }
 
-        // Ink lands on the selected row. Its band is judged generously — descenders and
-        // a child's overshoot both cross the printed band.
-        if drawingTouch(touch), let row = selectedRow, pointIsOnBand(point, row: row) {
+        // Ink lands on the selected row — or on the next one, when the selected row is
+        // full and the pen lands under it (`rowForInk`).
+        if drawingTouch(touch), let row = rowForInk(at: point) {
+            selectRow(row)      // a no-op for the row already in hand
             beginStroke(at: touch)
             return
         }
@@ -811,6 +870,24 @@ final class TracingCanvasView: UIView {
 
     private static let tapSlop: CGFloat = 12
 
+    /// The row a pen landing at `point` writes on without a move, or nil when it lands
+    /// on no such row (a tap or a moving pen then picks a row the ordinary way).
+    ///
+    /// Ink lands on the selected row, and its band is judged generously — descenders
+    /// and a child's overshoot both cross the printed band. But a row that is already
+    /// full does not claim the strip below its descent line (v3.10): the row that just
+    /// filled is still in hand while it waits out `advancePause`, and a pen landing
+    /// under it is starting the next row — the top of an `l` — not fixing a tail.
+    /// Without this the first stroke of the next line landed on the last, scored
+    /// against nothing.
+    func rowForInk(at point: CGPoint) -> Int? {
+        guard let row = selectedRow, pointIsOnBand(point, row: row) else { return nil }
+        guard rowFullyInked(row), let band = maskRenderer.layout.rect(forLine: row),
+              point.y > band.maxY,
+              !(maskRenderer.layout.scorableByLine[row + 1] ?? []).isEmpty else { return row }
+        return row + 1
+    }
+
     private func pointIsOnBand(_ point: CGPoint, row: Int) -> Bool {
         guard let band = maskRenderer.layout.rect(forLine: row) else { return false }
         let spacing = maskRenderer.layout.lineSpacing
@@ -834,6 +911,8 @@ final class TracingCanvasView: UIView {
     }
 
     private func beginStroke(at touch: UITouch, layer: TracingStroke.Layer = .ink) {
+        // Pen-down on the row in hand: a full row waits again (v3.10).
+        if layer == .ink { cancelPendingAdvance() }
         current = TracingStroke(layer: layer, crayon: UInt8(clamping: crayon))
         add(touch)
         setNeedsDisplay()
@@ -861,6 +940,7 @@ final class TracingCanvasView: UIView {
     private func endStroke() {
         let finished = current
         current = nil
+        let wasErasing = eraserCentre != nil
         eraserCentre = nil
         if let finished, !finished.isEmpty {
             if finished.isDoodle {
@@ -876,6 +956,8 @@ final class TracingCanvasView: UIView {
         }
         reportProgress()
         setNeedsDisplay()
+        // The eraser lifting from a row that is still full is a pen-up too (v3.10).
+        if wasErasing, !isDoodleActive { maybeAdvance() }
     }
 
     /// Appends ink as if drawn — attributed against the selected row exactly the way a

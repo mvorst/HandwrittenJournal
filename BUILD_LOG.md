@@ -35,9 +35,10 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · *I don't have an Apple Pencil* explains why the pencil is required before it lets anyone skip, a skip lasts one launch, and each step of the welcome settles on its own (v3.6, frame 59 drawn) | ✅ |
 | — · Every string in `Localizable.xcstrings`; the voice is 224 recorded clips bundled with the app, no system synthesiser (v3.7) | ✅ |
 | — · The voice picks up its pace: the style prompt is one constant in `lines.py`, every clip re-cut at 111 words a minute (v3.9) | ✅ |
+| — · A full line waits for the pen to rest before the next comes up, so the *t* that filled it can still be crossed; a pen landing just under it starts the next line (v3.10) | ✅ |
 
-**162 tests across 24 suites** (the run that skips `PageRenderCheck`), all passing once the
-v3.7 voice clips are in the bundle.
+**173 tests across 25 suites** (the run that skips `PageRenderCheck`; 189 in 26 with it),
+all passing once the v3.7 voice clips are in the bundle.
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -107,6 +108,36 @@ turn. Write it!* coming out short.
   again straight after *Your turn*, then Siri or Control Center's mic mute mid-take.
   `SpokenTakeTests` and `VoiceClipTests` cover the format check and the player's silence
   while listening.
+
+## v3.10 — the next line waits for the pen to rest (built)
+
+DESIGN_DOCUMENT §0.18, §4.4; WIREFRAME_SPEC §4, §11.11. Built 2026-09-03.
+
+- **The bug.** A row read as finished the moment its last letter had *any* ink, and the
+  selection moved on at that pen-up. A letter with several parts gets its first part
+  first — the stem of a *t*, the body of an *i* — so writing *first* at the end of a line
+  handed the next line over while the pen was on its way back to cross the *t*: the
+  crossbar landed on a row that had already left, attributed to nothing, and the child
+  fought the page to finish their own word.
+- **The fix.** `TracingCanvasView` keeps a full row in hand until the pen has rested for
+  `Tokens.Motion.advancePause` (1.0 s; `advancePause` on the view, zero for the
+  programmatic path). Every pen-down on the row — a stroke, the eraser — cancels the
+  wait and the next pen-up starts it again; undo and clear only cancel it, because the
+  tools never move the selection (`PageRenderCheck` asserts as much, and an undo that
+  leaves a row full — overlapping ink — must not carry the tools off to the next row).
+  A tap on any row ends it, as before. The advance itself runs only if the row is still
+  the one in hand, still full, and nothing is touching the page. The pending advance is a `DispatchWorkItem`, cancelled when the
+  selection changes, the ink is wiped, or the view leaves its window.
+- **The strip under a full row.** The selected row's band is judged generously below its
+  descent line (descenders overshoot), and with the row still in hand for a second, a
+  pencil starting the next line at the top of an *l* landed on the finished one. A full
+  row no longer claims that strip: a pen landing under it selects the next row and inks
+  it at once (`rowForInk`). A half-written row keeps the strip, because there the pen is
+  a tail being fixed. The pen-down path in `touchesBegan` now goes through `rowForInk`.
+- **Tests.** `WriteFlowTests` — the row stays in hand and leaves once the pen has rested
+  (at a 50 ms pause), ink on the full row restarts the wait, undo below full and a tap
+  elsewhere stop it, a zero pause advances at pen-up, and the routing under a full row.
+  `PageRenderCheck` sets a zero pause so its advance tests still read at pen-up.
 
 ## v3.9 — the voice picks up its pace (built)
 

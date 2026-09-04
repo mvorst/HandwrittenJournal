@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.8
+## Design Document v3.10
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,22 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.18 What Changed in v3.10
+
+**The next line waits for the pen to rest** (§4.4, built 2026-09-03).
+
+A line used to leave the child's hand the instant its last letter got any ink. A letter
+with several parts gets its first part first — the stem of a *t*, the body of an *i* — so
+a line ending in *first* handed the next line over while the pen was on its way back to
+cross the *t*, and the crossbar landed on a line that had already gone, scored against
+nothing. Now a full line stays in hand until the pen has rested for a second (the advance
+pause, `WIREFRAME_SPEC.md` §4). Ink landing on the line starts the wait again; a pen
+landing on the next line, or a tap on any line, ends it at once. The strip just under a
+full line belongs to the next line, so a pencil starting an *l* there starts the next line
+rather than adding to the last.
 
 ---
 
@@ -909,6 +925,16 @@ right-hand gutter for left-handed profiles. When the selected row's last letter 
 the next untraced row is selected on its own, and the row left behind settles: letterforms
 fade to faint grey, ink turns graphite, in place. The ordinary flow is still speak, then
 write straight down the page.
+
+**The row waits for the pen to rest before it leaves** (v3.10). The last letter reads as
+inked the moment any stroke touches it, and a *t* gets its stem before its crossbar, so a
+row that moved on at that pen-up took the word out from under the pen on its way back.
+A full row stays in hand until the pen has rested for the advance pause (1.0 s,
+`WIREFRAME_SPEC.md` §4); ink landing on it starts the wait again, and a pen landing on the
+next row — or a tap on any row — ends it at once. The strip just under a full row's
+descent line belongs to the next row, so a pencil starting an *l* there starts the next
+row rather than adding a stray mark to the last; a half-written row keeps that strip for
+its descenders.
 
 **The record is derived, never declared.** What the journal, exports and every count read
 is the unbroken run of fully-traced rows from the top of the page, recomputed from the ink

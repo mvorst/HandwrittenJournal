@@ -121,6 +121,9 @@ enum Tokens {
         static let standard: Double  = 0.30
         static let guideFade: Double = 0.50
         static let settle: Double    = 0.45
+        /// How long the pen rests after a row's last letter gets ink before the next row
+        /// comes up (v3.10, WIREFRAME_SPEC §11.11).
+        static let advancePause: Double = 1.0
         static var spring: Animation { .spring(response: 0.4, dampingFraction: 0.7) }
     }
 

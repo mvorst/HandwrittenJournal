@@ -9,6 +9,9 @@ import SwiftData
 /// the first unwritten line comes up on its own when words land; doodles are kept but
 /// never count; Back scores the page as it stands and never awards the same entry twice;
 /// and the ABC tool adds words to the end of the page.
+///
+/// v3.10 — a full line waits for the pen to rest before the next comes up, so the *t*
+/// that filled it can still be crossed; a pen landing just under it starts the next line.
 @MainActor
 struct WriteFlowTests {
 
@@ -183,6 +186,100 @@ struct WriteFlowTests {
         #expect(talking.selectedRow == nil)
         talking.isDictating = false
         #expect(talking.selectedRow == 0)
+    }
+
+    // MARK: - The next line waits for the pen to rest (v3.10)
+
+    @Test("A full row stays in hand until the pen has rested; then the next untraced row comes up")
+    func fullRowWaitsForThePenToRest() async throws {
+        let canvas = makeCanvas()
+        canvas.advancePause = 0.05
+        canvas.selectRow(0)
+        canvas.addInk(ink(row: 0, on: canvas))
+        #expect(canvas.rowFullyInked(0))
+        #expect(canvas.selectedRow == 0, "the row that just filled is still in hand — its t may need crossing")
+        #expect(canvas.isWaitingToAdvance)
+
+        try await Task.sleep(for: .milliseconds(300))
+        #expect(canvas.selectedRow == 1, "the pen rested, so the next row came up")
+        #expect(!canvas.isWaitingToAdvance)
+    }
+
+    @Test("Ink landing on the full row starts the wait again; a row undone below full stops waiting")
+    func inkOnTheFullRowRestartsTheWait() async throws {
+        let canvas = makeCanvas()
+        canvas.advancePause = 0.2
+        canvas.selectRow(0)
+        let strokes = ink(row: 0, on: canvas)
+        canvas.addInk(strokes)
+        #expect(canvas.isWaitingToAdvance)
+
+        // The crossbar, 120 ms in: still in hand, and the clock starts over.
+        try await Task.sleep(for: .milliseconds(120))
+        canvas.addInk([strokes[strokes.count - 1]])
+        #expect(canvas.selectedRow == 0 && canvas.isWaitingToAdvance)
+        try await Task.sleep(for: .milliseconds(120))
+        #expect(canvas.selectedRow == 0, "240 ms after the first pen-up, but only 120 after the last")
+        try await Task.sleep(for: .milliseconds(250))
+        #expect(canvas.selectedRow == 1)
+
+        // A row undone below full has nothing to wait for.
+        let undone = makeCanvas()
+        undone.advancePause = 0.05
+        undone.selectRow(0)
+        undone.addInk(ink(row: 0, on: undone))
+        #expect(undone.isWaitingToAdvance)
+        undone.undo()
+        #expect(!undone.rowFullyInked(0))
+        #expect(!undone.isWaitingToAdvance, "a row with a letter missing is not finished")
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(undone.selectedRow == 0)
+
+        // A tap on another row ends the wait — the child chose.
+        let tapped = makeCanvas()
+        tapped.advancePause = 0.05
+        tapped.selectRow(0)
+        tapped.addInk(ink(row: 0, on: tapped))
+        tapped.selectRow(3)
+        #expect(!tapped.isWaitingToAdvance)
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(tapped.selectedRow == 3)
+    }
+
+    @Test("With no pause the next row comes up at pen-up — the programmatic path")
+    func zeroPauseAdvancesAtOnce() {
+        let canvas = makeCanvas()
+        canvas.advancePause = 0
+        canvas.selectRow(0)
+        canvas.addInk(ink(row: 0, on: canvas))
+        #expect(canvas.selectedRow == 1)
+        #expect(!canvas.isWaitingToAdvance)
+    }
+
+    @Test("A pen landing just under a full row is starting the next row, not fixing a tail")
+    func penUnderAFullRowStartsTheNextRow() {
+        let canvas = makeCanvas()
+        canvas.selectRow(0)
+        guard let band = canvas.layout.rect(forLine: 0) else { Issue.record("no band"); return }
+        let onTheRow = CGPoint(x: band.midX, y: band.midY)
+        let crossbar = CGPoint(x: band.midX, y: band.minY - 6)       // an overshoot above the row
+        let underneath = CGPoint(x: band.midX, y: band.maxY + 6)     // the top of an l on the next row
+        let farBelow = CGPoint(x: band.midX, y: band.maxY + canvas.layout.lineSpacing)
+
+        // Half-written, the row owns everything near it — a descender's tail crosses the line.
+        canvas.addInk([ink(row: 0, on: canvas)[0]])
+        #expect(canvas.rowForInk(at: onTheRow) == 0)
+        #expect(canvas.rowForInk(at: crossbar) == 0)
+        #expect(canvas.rowForInk(at: underneath) == 0)
+        #expect(canvas.rowForInk(at: farBelow) == nil, "two rows down is nobody's without a move")
+
+        // Full and waiting, the strip under it belongs to the next row.
+        canvas.addInk(ink(row: 0, on: canvas))
+        #expect(canvas.rowFullyInked(0) && canvas.selectedRow == 0)
+        #expect(canvas.rowForInk(at: onTheRow) == 0, "the row itself is still in hand")
+        #expect(canvas.rowForInk(at: crossbar) == 0, "so the t can be crossed")
+        #expect(canvas.rowForInk(at: underneath) == 1, "the next line has started")
+        #expect(canvas.rowForInk(at: farBelow) == nil)
     }
 
     // MARK: - Doodles

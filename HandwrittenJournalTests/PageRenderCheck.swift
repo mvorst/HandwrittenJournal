@@ -47,6 +47,7 @@ struct PageRenderCheck {
         let height = MaskRenderer.contentHeight(text: text, setup: setup,
                                                 width: width - Tokens.Layout.surfaceInset * 2)
         let view = TracingCanvasView(frame: CGRect(x: 0, y: 0, width: width, height: height))
+        view.advancePause = 0     // the next row comes up at pen-up; the pause has its own tests
         view.text = text
         view.setup = setup
         view.layoutIfNeeded()

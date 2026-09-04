@@ -342,6 +342,7 @@ in landscape.
 | Standard transition | 0.30 s ease-in-out | |
 | Guide fade on reveal | 0.50 s | |
 | Line settle (guide fades, ink turns natural, in place) | 0.45 s | See §11.10 |
+| Advance pause (a full row waits for the pen to rest before the next comes up) | 1.0 s after pen-up | v3.10, see §11.11 |
 | Spring (badges, stars) | response 0.4, damping 0.7 | |
 
 ---
@@ -927,6 +928,17 @@ so. The page never asks the child to find the start.
 **Nothing needs a tap to move forward.** When the selected row's last letter gets ink, the
 next untraced row is selected automatically. The taps are for going back, skipping ahead,
 or fixing — the ordinary flow is speak, then write straight down the page.
+
+**But the row waits for the pen to rest** (v3.10). A letter reads as inked the moment any
+stroke touches it, and a letter with several parts gets its first part first — the stem
+of a *t*, the body of an *i* — so a row that moved on at that pen-up took the *t* out
+from under the pen on its way back to cross it. A full row stays in hand until the pen
+has rested for the advance pause (§4, 1.0 s after pen-up). Only a pen lifting from the
+row starts the wait — a stroke, or the eraser — and every pen-down on it starts the wait
+over; undo and clear cancel it and leave the row in hand, because tools never move the
+selection. A pen landing on the next row, or a tap on any row, ends it at once. The strip just under a full row's descent line belongs to the next row: a pencil
+starting an *l* there starts the next row rather than adding to the last. A half-written
+row keeps that strip, because there the pen is a tail being fixed.
 
 **The record is derived, never declared.** What the journal, search, exports and every
 word count read is the **unbroken run of fully-traced rows from the top of the page** —

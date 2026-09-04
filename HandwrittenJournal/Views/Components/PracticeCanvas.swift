@@ -53,7 +53,8 @@ final class PracticeController {
         inkBegins += 1
     }
 
-    fileprivate func sync() {
+    /// Internal, not file-private: `PracticeTutorialTests` drives it from its own sheet.
+    func sync() {
         guard let canvas else { return }
         phase = canvas.phase
         accuracyPercent = canvas.accuracyPercent
