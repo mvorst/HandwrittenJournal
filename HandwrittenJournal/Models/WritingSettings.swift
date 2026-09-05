@@ -3,10 +3,9 @@ import UIKit
 
 /// WIREFRAME_SPEC.md §7.2 — the curated list of traceable faces.
 ///
-/// This is not a font picker. Every face here has thick strokes, open counters and an
-/// unambiguous single-story `a`, because a beginner cannot stay inside a thin letterform
-/// and the mask renderer has nothing useful to work with. Adding a face is a product
-/// decision: vet it against `MaskRendererFontTests` first.
+/// Each offered face has its own outline-fitted formation paths. The shapes differ:
+/// Varela Round, for example, has a two-storey a. Adding a face requires paths and
+/// validation against both the mask and all-font tracing tests.
 struct JournalFace: Identifiable, Hashable, Sendable {
     let id: String
     let label: String

@@ -72,19 +72,9 @@ struct InkPersistenceTests {
         return view
     }
 
-    /// Ink that covers every letter of `row`, the way `PageRenderCheck` draws it.
+    /// Each letter's fitted formation, including separate dots and crossbars.
     private func ink(row: Int, on canvas: TracingCanvasView) -> [TracingStroke] {
-        (canvas.layout.scorableByLine[row] ?? []).map { index in
-            let box = canvas.layout.glyphBoxes[index]
-            var stroke = TracingStroke()
-            for step in 0...10 {
-                let t = CGFloat(step) / 10
-                stroke.append(StrokePoint(location: CGPoint(x: box.rect.minX + box.rect.width * t,
-                                                            y: box.rect.midY),
-                                          force: 0.6, isInside: true, letterIndex: -1))
-            }
-            return stroke
-        }
+        TestTraceFixtures.ink(row: row, on: canvas)
     }
 
     private func firstLineLength(_ canvas: TracingCanvasView) -> Int {
@@ -116,13 +106,48 @@ struct InkPersistenceTests {
         #expect(session.transcript.count == firstLineLength(canvas), "the record followed the finished row")
         #expect(!context.hasChanges)
 
-        // Undo is an ink change too. (Finishing the row advanced the selection; undo
-        // works on the selected row, so go back to it first, as a tap would.)
+        // Undo is an ink change too. Go back to this row and erase every part of its
+        // final glyph; removing a crossbar alone must not discard the inked record.
         canvas.selectRow(0)
-        canvas.undo()
-        #expect(try StrokeArchive.decode(session.strokeArchive!).count == strokes.count - 1)
+        guard let last = canvas.layout.scorableByLine[0]?.last else {
+            Issue.record("No last glyph on the first row")
+            return
+        }
+        let lastGlyphStrokeCount = TestTraceFixtures.ink(for: last, on: canvas).count
+        guard lastGlyphStrokeCount > 0 else {
+            Issue.record("No strokes for the final glyph")
+            return
+        }
+        for undone in 1...lastGlyphStrokeCount {
+            canvas.undo()
+            #expect(try StrokeArchive.decode(session.strokeArchive!).count == strokes.count - undone)
+        }
         #expect(session.transcript.isEmpty, "a row with a letter missing is no longer written")
         #expect(!context.hasChanges)
+    }
+
+    @Test("Undoing only a crossbar makes the letter incomplete while preserving its ink and record")
+    func partialLetterRemainsInTheRecord() throws {
+        let context = try makeContext()
+        let (_, model) = makeModel(in: context)
+        model.useTyped("cat")
+        let view = makeSurface(for: model)
+        let canvas = view.canvas
+        guard let session = model.session else { Issue.record("no session"); return }
+        canvas.selectRow(0)
+        canvas.addInk(ink(row: 0, on: canvas))
+        let record = session.transcript
+        let count = canvas.strokes.count
+        #expect(canvas.rowFullyInked(0))
+        #expect(!record.isEmpty)
+
+        canvas.selectRow(0)
+        canvas.undo()
+        #expect(!canvas.rowFullyInked(0))
+        #expect(canvas.rowHasAnyInk(0))
+        #expect(session.transcript == record, "the t still has its stem; the child's words stay recorded")
+        #expect(try StrokeArchive.decode(session.strokeArchive!).count == count - 1)
+        #expect(canvas.finishEntry(streak: 0).completedWords == 0)
     }
 
     // MARK: - The bug

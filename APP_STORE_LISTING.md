@@ -240,32 +240,54 @@ No voice-over, no music bed with lyrics, captions only:
 
 ## 6. App Review Information — notes to the reviewer
 
+For the Guideline 2.1 information request, paste the response below into both the App Store Connect review conversation and App Review Information → Notes. The standalone copy is in `App_Review/REVIEW_RESPONSE.md`; font-license references are in `App_Review/THIRD_PARTY_MATERIALS.md`.
+
+The device and OS below were supplied by the developer. Confirm that the attached recording shows the build selected for review. Update the recording reference for future submissions.
+
+```text
+Thank you for reviewing Handwritten Journal. Please find the requested information below.
+
+1. Demonstration recording
+
+The attached recording shows the app launching from the Home Screen, handwriting, letter practice, and settings on a physical iPad Air 11-inch (M3), running iPadOS 26.5.2.
+
+2. Purpose and audience
+
+Handwritten Journal is an iPad handwriting and journaling app designed for children aged 6–8, with setup by a parent, guardian, or teacher. Children dictate or type their own sentences, trace the letters, and keep the finished writing as a journal. Letter practice and formation feedback help them learn while preserving their own stories. Pages can be exported as PDFs. It is available to families and educators, with no organization membership required.
+
+3. Setup and main features
+
+No login, demo credentials, sample files, or activation codes are needed.
+- Launch the app, accept the terms, and choose whether to enable voice feedback. Trace the onboarding letter with an Apple Pencil and tap “Let's write.” Without a Pencil, tap “I don't have an Apple Pencil,” then “Skip for now.” The Pencil check returns on the next launch after a skip.
+- Tap “Add someone,” enter any test name, save, and select that profile. Photos and PINs are optional. Profiles are local, not online accounts.
+- Tap “New Entry.” Tap the microphone, grant microphone and speech permissions, speak a sentence, and tap the microphone again to stop. Alternatively, use “Type it instead.”
+- Trace the words with Apple Pencil or a finger (finger tracing is enabled by default). Tap “I'm finished,” then reopen the saved entry from the journal.
+- Tap “Practice my letters” to try the letter/numeral practice sheet. Profile settings provide font, size, and feedback options.
+- In an entry, open the ellipsis menu and select “Share as PDF” to preview/export a page or the journal using the system share sheet.
+- To delete a local profile and its journal, touch and hold the profile on the chooser, select “Delete Profile,” and confirm.
+
+Journal text, drawings, and profile photos are private local content. There is no public feed, online registration, messaging, or social network. There is no in-app reporting/blocking system because there is no user-to-user publishing or communication service. PDF sharing is an explicit action through the operating system. There are no paid features, subscriptions, or in-app purchases in this version.
+
+4. Services, tools, and platforms
+
+Core functionality uses Apple frameworks:
+- Speech and AVFoundation: microphone capture and on-device English speech recognition. Audio is not saved by the app.
+- SwiftData: local profiles, journal entries, and progress.
+- UIKit/CoreText: handwriting input, letter rendering, and local scoring.
+- PhotosUI/AVFoundation: optional profile photos.
+- PDFKit/UIKit: local PDF creation, preview, and system sharing.
+
+There is no backend, authentication provider, payment processor, advertising/analytics SDK, or cloud AI inference. Voice prompts were produced during development using Google Cloud Text-to-Speech (Gemini) and are bundled audio files. No user content is sent to that service. Legal and Pencil compatibility links open websites in Safari.
+
+5. Regions
+
+The app has the same features and content in all regions where distributed, with no region-specific paid content or feature restrictions. The interface and practice content are English; dictation uses US English and depends on Apple's on-device speech availability. Users can type when dictation is unavailable.
+
+6. Regulated services and third-party material
+
+This is an educational handwriting tool, not a medical, financial, or other regulated professional service. Bundled fonts—Jua, Andika, Comic Neue, Sniglet, and Varela Round—are licensed under the SIL Open Font License 1.1. Their license documents are available in the Google Fonts repository:
+https://github.com/google/fonts/tree/main/ofl
 ```
-Handwritten Journal is an offline iPad app for children aged roughly 5–8 who are learning to write. There is no account, no sign-in and no server, so no demo credentials are needed — launch it and create a profile.
-
-HOW TO SEE THE MAIN FEATURE IN 60 SECONDS
-1. On first launch a short welcome appears once: tap "I agree" to the terms and privacy policy, choose whether the iPad talks ("Yes, talk to me" or "No thanks, stay quiet"), then trace the big A with an Apple Pencil and tap "Let's write". Without a Pencil, tap "I don't have an Apple Pencil": it explains why the app needs one (this is a handwriting app), and "Skip for now" carries on; the pencil check returns at the next launch until a Pencil has traced the letter.
-2. Create a profile (a name is enough; the PIN and photo are optional).
-3. Tap New Entry, then the big microphone on the page, and say a sentence out loud.
-4. Tap the same microphone again to stop. The sentence appears on a ruled page in large letters. If you chose "Yes, talk to me", a short recorded voice says it is your turn — every voice line is a bundled audio clip; nothing is synthesised or downloaded.
-5. Trace over the letters with an Apple Pencil. Ink inside the letter is green, ink outside is red.
-6. Finish a line and the guide text under it is removed, leaving only the tracing.
-
-PLEASE TEST ON A PHYSICAL iPad WITH AN APPLE PENCIL. The app is designed for Apple Pencil. Dictation depends on the microphone and on on-device speech recognition, neither of which behaves normally in the Simulator. If the microphone is unavailable, the app falls back to a keyboard so the rest of the flow can still be reviewed.
-
-PERMISSIONS
-- Microphone and Speech Recognition: to turn what the child says into words to trace. A plain-language explainer screen is shown before the system prompt. Speech recognition runs on device (requiresOnDeviceRecognition = true).
-- Camera: only when "Take Photo" is tapped for a profile picture. The photo library alternative uses PhotosPicker and prompts for nothing.
-Refusing any permission leaves a working path: no microphone means the keyboard, no camera means the photo library or an initial-letter avatar.
-
-PRIVACY
-The child's journal — words, ink, photos, scores — is stored locally and never uploaded; the only way it leaves the device is a PDF a grown-up exports through the system share sheet. There is no account, advertising, analytics, or crash reporting.
-
-ORIENTATION AND DEVICE
-iPad only, portrait and landscape, designed for Apple Pencil: a child holds an iPad like a notebook and writes with a pencil.
-```
-
-If you list in the Kids category (§2.1), add one line naming where the parental gate sits.
 
 ---
 

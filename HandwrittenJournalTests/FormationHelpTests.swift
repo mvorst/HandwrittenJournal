@@ -13,7 +13,7 @@ struct FormationHelpTests {
     private func makeCanvas(text: String) -> TracingCanvasView {
         FontRegistry.registerBundledFonts()
         let canvas = TracingCanvasView()
-        canvas.setup = .default   // Jua — the judged face
+        canvas.setup = .default
         canvas.text = text
         let height = MaskRenderer.contentHeight(text: text, setup: .default, width: 754)
         canvas.frame = CGRect(x: 0, y: 0, width: 834, height: max(400, height))
@@ -24,18 +24,9 @@ struct FormationHelpTests {
     /// The glyph's own formation as pen strokes — a perfect trace, reordered on demand.
     private func formationInk(for glyph: Int, in canvas: TracingCanvasView,
                               reorder: ((inout [[CGPoint]]) -> Void)? = nil) -> [TracingStroke] {
-        let box = canvas.layout.glyphBoxes[glyph]
-        let fitter = FormationFitter(font: WritingSetup.default.uiFont())
-        let formation = LetterFormations.formation(for: box.character)!
-        var paths = FormationOrder.place(formation, in: fitter.formationRect(for: box)).map(\.points)
+        var paths = TestTraceFixtures.paths(for: glyph, on: canvas)
         reorder?(&paths)
-        return paths.map { path in
-            var stroke = TracingStroke()
-            for point in path {
-                stroke.append(StrokePoint(location: point, force: 0.5, isInside: true, letterIndex: -1))
-            }
-            return stroke
-        }
+        return paths.map(TestTraceFixtures.stroke)
     }
 
     @Test("Finishing a word with a wrong-order letter asks for help — once, with the right letter")
@@ -83,9 +74,12 @@ struct FormationHelpTests {
         let t = formationInk(for: 1, in: canvas)
         #expect(t.count == 2, "a t is a stem and a crossbar")
         canvas.addInk([t[0]])
-        #expect(requests.isEmpty, "the stem alone completes the word, but not the letter")
+        #expect(requests.isEmpty, "the stem alone only attempts the last letter")
+        #expect(!canvas.tally.isComplete(letter: 1))
+        #expect(!canvas.rowFullyInked(0))
 
         canvas.addInk([t[1]])
+        #expect(canvas.tally.isComplete(letter: 1))
         #expect(requests.count == 1, "the crossbar finishes the letter — now the word can ask")
         #expect(requests.first?.letters.map(\.character) == ["a"])
     }
@@ -144,11 +138,7 @@ struct FormationHelpTests {
     }
 
     private func stroke(_ path: [CGPoint]) -> TracingStroke {
-        var stroke = TracingStroke()
-        for point in path {
-            stroke.append(StrokePoint(location: point, force: 0.5, isInside: true, letterIndex: -1))
-        }
-        return stroke
+        TestTraceFixtures.stroke(path)
     }
 
     @Test("A wrong attempt in the modal resets itself at pen-up — the doomed ink never lingers")

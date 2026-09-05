@@ -96,7 +96,7 @@
         }
       }
     },
-    "%lld letters were skipped." : {
+    "%lld letters were incomplete." : {
       "localizations" : {
         "en" : {
           "variations" : {
@@ -104,13 +104,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld letter was skipped."
+                  "value" : "%lld letter was incomplete."
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld letters were skipped."
+                  "value" : "%lld letters were incomplete."
                 }
               }
             }
@@ -456,6 +456,9 @@
 
     },
     "Choose Photo" : {
+
+    },
+    "Clear letter" : {
 
     },
     "Clear search" : {

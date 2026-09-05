@@ -4,7 +4,7 @@ import CoreGraphics
 struct ScoreResult {
     let accuracy: Double            // 0…1, mean over letters in words the child started
     let letterAccuracies: [Double]
-    let unfinishedLetters: Int      // letters skipped *inside* words that were started
+    let unfinishedLetters: Int      // letters skipped or incomplete in the scored population
     let outOfOrderLetters: Int      // inked letters that took the order discount (§8.1a)
     let wordsWritten: Int
     let totalWords: Int
@@ -13,7 +13,7 @@ struct ScoreResult {
     // §8.3 (v3.5) — what the entry earned, piece by piece.
     let lettersWritten: Int         // inked letters in the record
     let letterPoints: Int           // 0, 1 or 2 per inked letter, by its accuracy
-    let completedWords: Int         // words of three letters or more with every letter inked
+    let completedWords: Int         // words of three letters or more with every letter complete
     let wordPoints: Int
     let orderedWords: Int           // completed words whose every letter followed its formation
     let orderPoints: Int
@@ -25,7 +25,9 @@ struct ScoreResult {
     var accuracyPercent: Int { Int((accuracy * 100).rounded()) }
     var everyLetterFinished: Bool { unfinishedLetters == 0 }
     var wordsRemaining: Int { max(0, totalWords - wordsWritten) }
-    var finishedEverything: Bool { totalWords > 0 && wordsWritten >= totalWords }
+    var finishedEverything: Bool {
+        totalWords > 0 && wordsWritten >= totalWords && everyLetterFinished
+    }
 
     /// Whether the pieces add up to the total. They do not for a score carried over from
     /// an earlier sitting (§8.3), and the breakdown line then has nothing honest to say.
@@ -67,7 +69,7 @@ enum ScoringEngine {
     static let letterValue = 2
     static let fullLetterAbove = 0.9
     static let halfLetterFrom = 0.5
-    /// A whole word — every letter inked — of at least this many letters (digits count,
+    /// A whole word — every letter complete — of at least this many letters (digits count,
     /// punctuation does not) earns `wordBonus`…
     static let wordBonus = 3
     static let wordMinimumLetters = 3
@@ -107,6 +109,9 @@ enum ScoringEngine {
         private(set) var alphanumeric: [Bool]
         private(set) var inside: [Int]
         private(set) var total: [Int]
+        /// Spatial measurements replace sample-count accuracy when the canvas provides
+        /// them. The count-only fallback remains for callers with no stroke geometry.
+        private(set) var geometry: [LetterTraceMetrics?]
         /// Per glyph, false when the ink took the letter's parts out of the taught
         /// order or direction (§8.1a). True by default — only a clear violation docks.
         private(set) var followedOrder: [Bool]
@@ -120,6 +125,7 @@ enum ScoringEngine {
             self.totalWords = totalWords
             inside = Array(repeating: 0, count: wordOfLetter.count)
             total  = Array(repeating: 0, count: wordOfLetter.count)
+            geometry = Array(repeating: nil, count: wordOfLetter.count)
             followedOrder = Array(repeating: true, count: wordOfLetter.count)
         }
 
@@ -127,15 +133,31 @@ enum ScoringEngine {
             self.init(wordOfLetter: Array(0..<letterCount), totalWords: letterCount)
         }
 
-        /// Whether this glyph has any ink on it — what decides when a line is finished.
+        /// Whether this glyph was attempted, including ink assigned by the spatial
+        /// scorer that was too far from a glyph to receive a legacy touch-sample index.
         func hasInk(letter index: Int) -> Bool {
-            index >= 0 && index < total.count && total[index] > 0
+            guard index >= 0, index < total.count else { return false }
+            return geometry[index]?.hasInk ?? (total[index] > 0)
         }
 
+        /// Actual shape completion, independent of the formation-order discount.
+        /// A count-only caller has no coverage evidence and retains the legacy rule.
+        func isComplete(letter index: Int) -> Bool {
+            guard hasInk(letter: index) else { return false }
+            return geometry[index]?.isComplete ?? true
+        }
+
+        /// Legacy sample aggregation. Production canvases also provide spatial metrics
+        /// using `recordGeometry`, so a tiny inside mark cannot earn full accuracy.
         mutating func record(letter index: Int, isInside: Bool) {
             guard index >= 0, index < total.count else { return }
             total[index] += 1
             if isInside { inside[index] += 1 }
+        }
+
+        mutating func recordGeometry(letter index: Int, metrics: LetterTraceMetrics) {
+            guard index >= 0, index < geometry.count else { return }
+            geometry[index] = metrics
         }
 
         /// §8.1a — the canvas judges each letter's ink against its formation and
@@ -149,17 +171,23 @@ enum ScoringEngine {
             guard index >= 0, index < total.count else { return }
             total[index] = 0
             inside[index] = 0
+            geometry[index] = nil
             followedOrder[index] = true
         }
 
         mutating func resetAll() {
-            for i in total.indices { total[i] = 0; inside[i] = 0; followedOrder[i] = true }
+            for i in total.indices {
+                total[i] = 0
+                inside[i] = 0
+                geometry[i] = nil
+                followedOrder[i] = true
+            }
         }
 
         /// Words with any ink at all.
         var startedWords: Set<Int> {
             var set: Set<Int> = []
-            for (i, count) in total.enumerated() where count > 0 {
+            for i in total.indices where hasInk(letter: i) {
                 if i < wordOfLetter.count { set.insert(wordOfLetter[i]) }
             }
             return set
@@ -175,22 +203,37 @@ enum ScoringEngine {
             return wordOfLetter.indices.filter { scorable[$0] && started.contains(wordOfLetter[$0]) }
         }
 
-        var startedCount: Int { total.filter { $0 > 0 }.count }
+        var startedCount: Int { total.indices.filter { hasInk(letter: $0) }.count }
 
-        /// Letters skipped inside words that were started.
-        var unfinishedCount: Int { scoredIndices.filter { total[$0] == 0 }.count }
+        /// Letters skipped or incomplete inside words that were started.
+        var unfinishedCount: Int { scoredIndices.filter { !isComplete(letter: $0) }.count }
 
         /// Inked letters in the scored population that took the order discount.
         var outOfOrderCount: Int {
-            scoredIndices.filter { total[$0] > 0 && !followedOrder[$0] }.count
+            scoredIndices.filter { hasInk(letter: $0) && !followedOrder[$0] }.count
         }
 
-        /// Per-letter accuracy with the order discount applied — every figure derived
-        /// from a letter's score, live or final, goes through here.
+        /// Containment and coverage are kept separate so live feedback can report how
+        /// well the pen stays in the letter while the child is still tracing it.
+        var letterContainments: [Double] {
+            total.indices.map { i in
+                guard hasInk(letter: i) else { return 0 }
+                return geometry[i]?.containment ?? Double(inside[i]) / Double(total[i])
+            }
+        }
+
+        var letterCoverages: [Double] {
+            total.indices.map { i in
+                guard hasInk(letter: i) else { return 0 }
+                return geometry[i]?.coverage ?? 1
+            }
+        }
+
+        /// Final per-letter shape accuracy, with the formation-order discount applied.
         var letterAccuracies: [Double] {
             total.indices.map { i in
-                guard total[i] > 0 else { return 0 }
-                let raw = Double(inside[i]) / Double(total[i])
+                guard hasInk(letter: i) else { return 0 }
+                let raw = geometry[i]?.accuracy ?? Double(inside[i]) / Double(total[i])
                 return followedOrder[i] ? raw : raw * ScoringEngine.orderDiscount
             }
         }
@@ -203,15 +246,18 @@ enum ScoringEngine {
             return scored.reduce(0.0) { $0 + accuracies[$1] } / Double(scored.count)
         }
 
-        /// The number shown *while writing*: only letters actually attempted.
+        /// The number shown *while writing*: containment of letters actually attempted.
         ///
         /// If the live figure applied the skip-penalty it would lurch downward every time
         /// the child moved to a new letter, which reads as being punished for progress.
+        /// Coverage is also left out until final scoring, while the trace is in progress.
         var liveAccuracy: Double {
-            let attempted = total.indices.filter { total[$0] > 0 }
+            let attempted = total.indices.filter { hasInk(letter: $0) }
             guard !attempted.isEmpty else { return 0 }
-            let accuracies = letterAccuracies
-            return attempted.reduce(0.0) { $0 + accuracies[$1] } / Double(attempted.count)
+            let containments = letterContainments
+            return attempted.reduce(0.0) { sum, index in
+                sum + containments[index] * (followedOrder[index] ? 1 : ScoringEngine.orderDiscount)
+            } / Double(attempted.count)
         }
     }
 
@@ -254,16 +300,15 @@ enum ScoringEngine {
                 written += 1
                 letterPoints += self.letterPoints(forAccuracy: accuracies[i])
                 if !tally.followedOrder[i] { outOfOrder += 1 }
-            } else {
-                unfinished += 1
             }
+            if !tally.isComplete(letter: i) { unfinished += 1 }
         }
-        // A whole word: every letter inked, three or more of them letters or digits. The
+        // A whole word: every letter complete, three or more of them letters or digits. The
         // order bonus is only ever paid on top of the word bonus — "I" and "a" earn their
         // letter's points and nothing more.
         var completed = 0, ordered = 0
         for glyphs in glyphsOfWord.values {
-            guard glyphs.allSatisfy({ tally.hasInk(letter: $0) }),
+            guard glyphs.allSatisfy({ tally.isComplete(letter: $0) }),
                   glyphs.filter({ tally.alphanumeric[$0] }).count >= wordMinimumLetters else { continue }
             completed += 1
             if glyphs.allSatisfy({ tally.followedOrder[$0] }) { ordered += 1 }
@@ -299,9 +344,9 @@ enum ScoringEngine {
 
     /// Copy shown on Reveal.
     static func finishMessage(for result: ScoreResult) -> String {
-        // The singular forms ("1 letter was skipped.") are the catalog's plural variants.
+        // The singular forms ("1 letter was incomplete.") are the catalog's plural variants.
         if result.unfinishedLetters > 0 {
-            return String(localized: "\(result.unfinishedLetters) letters were skipped.")
+            return String(localized: "\(result.unfinishedLetters) letters were incomplete.")
         }
         if result.outOfOrderLetters > 0 {
             return String(localized: "\(result.outOfOrderLetters) letters were drawn in a different order — the practice page shows the way.")

@@ -240,7 +240,7 @@ enum DemoData {
     // MARK: - A plausible child's hand
 
     /// Plausible child handwriting: every letter written along its taught formation —
-    /// the paths the practice sheet demonstrates (`LetterFormations`), in the taught order
+    /// the font-specific paths the practice sheet demonstrates, in the taught order
     /// and direction — by a hand that wobbles. A slow sideways drift along each stroke, a
     /// little jitter, a letter that comes out a touch bigger or smaller and a touch off
     /// its spot, and a short overshoot where the pen lifts. `accuracy` sets how far the
@@ -282,7 +282,7 @@ enum DemoData {
         var strokes: [TracingStroke] = []
         for (index, box) in renderer.layout.glyphBoxes.enumerated() where box.isScorable {
             if let upTo, box.charIndex >= upTo { break }
-            guard let formation = LetterFormations.formation(for: box.character) else {
+            guard let parts = fitter.placedStrokes(for: box) else {
                 if let stroke = spineStroke(box: box, index: index, renderer: renderer,
                                             hand: hand, rand: &rand) {
                     strokes.append(stroke)
@@ -290,14 +290,14 @@ enum DemoData {
                 continue
             }
             // The whole letter a touch bigger or smaller, and nudged off its spot.
-            let fitted = fitter.formationRect(for: box)
+            let fitted = fitter.inkRect(for: box)
             let grow = 1 + rand.signed(hand.grow)
-            let rect = CGRect(x: fitted.midX - fitted.width * grow / 2 + rand.signed(hand.nudge),
-                              y: fitted.midY - fitted.height * grow / 2 + rand.signed(hand.nudge),
-                              width: fitted.width * grow,
-                              height: fitted.height * grow)
-            for part in formation.strokes {
-                let path = FormationFitter.place(part, in: rect)
+            let nudgeX = rand.signed(hand.nudge), nudgeY = rand.signed(hand.nudge)
+            for part in parts {
+                let path = part.points.map { point in
+                    CGPoint(x: fitted.midX + (point.x - fitted.midX) * grow + nudgeX,
+                            y: fitted.midY + (point.y - fitted.midY) * grow + nudgeY)
+                }
                 let stroke = handStroke(along: path, isDot: part.isDot, index: index,
                                         renderer: renderer, hand: hand, rand: &rand)
                 if stroke.points.count > 1 { strokes.append(stroke) }

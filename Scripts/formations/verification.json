@@ -1,0 +1,2182 @@
+{
+  "Jua-Regular": {
+    "A": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 100
+    },
+    "B": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 125
+    },
+    "C": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9904192360220171,
+      "strokes": 1,
+      "points": 85
+    },
+    "D": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 89
+    },
+    "E": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9967658473479948,
+      "strokes": 4,
+      "points": 44
+    },
+    "F": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9968701095461658,
+      "area_coverage": 0.9857694844972199,
+      "strokes": 3,
+      "points": 31
+    },
+    "G": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9975469728601253,
+      "strokes": 2,
+      "points": 96
+    },
+    "H": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 26
+    },
+    "I": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 8
+    },
+    "J": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 50
+    },
+    "K": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 42
+    },
+    "L": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 26
+    },
+    "M": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9968916316659338,
+      "strokes": 4,
+      "points": 75
+    },
+    "N": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9973278771128857,
+      "strokes": 3,
+      "points": 77
+    },
+    "O": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 107
+    },
+    "P": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 72
+    },
+    "Q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9978547297297298,
+      "strokes": 2,
+      "points": 119
+    },
+    "R": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 77
+    },
+    "S": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 114
+    },
+    "T": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9996429748434582,
+      "strokes": 2,
+      "points": 23
+    },
+    "U": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 72
+    },
+    "V": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 48
+    },
+    "W": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 79
+    },
+    "X": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 53
+    },
+    "Y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 27
+    },
+    "Z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9879956347762823,
+      "strokes": 1,
+      "points": 47
+    },
+    "a": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 85
+    },
+    "b": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 60
+    },
+    "c": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 49
+    },
+    "d": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 63
+    },
+    "e": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 69
+    },
+    "f": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9820619475599792,
+      "strokes": 2,
+      "points": 27
+    },
+    "g": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.999955880082063,
+      "strokes": 2,
+      "points": 120
+    },
+    "h": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 53
+    },
+    "i": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 7
+    },
+    "j": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 41
+    },
+    "k": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 24
+    },
+    "l": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 15
+    },
+    "m": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.998868677905945,
+      "strokes": 3,
+      "points": 69
+    },
+    "n": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.993801652892562,
+      "area_coverage": 0.9571655703463541,
+      "strokes": 2,
+      "points": 49
+    },
+    "o": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 92
+    },
+    "p": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 60
+    },
+    "q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 57
+    },
+    "r": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9989796719252806,
+      "strokes": 2,
+      "points": 46
+    },
+    "s": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 72
+    },
+    "t": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9930715935334873,
+      "area_coverage": 0.9599617426865868,
+      "strokes": 2,
+      "points": 31
+    },
+    "u": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 86
+    },
+    "v": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 19
+    },
+    "w": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 21
+    },
+    "x": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9977201481903676,
+      "strokes": 2,
+      "points": 33
+    },
+    "y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 70
+    },
+    "z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9881097384142451,
+      "strokes": 1,
+      "points": 37
+    },
+    "0": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 102
+    },
+    "1": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 24
+    },
+    "2": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 65
+    },
+    "3": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9849587782416246,
+      "strokes": 1,
+      "points": 74
+    },
+    "4": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9984359770609968,
+      "strokes": 2,
+      "points": 51
+    },
+    "5": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9968210344969031,
+      "strokes": 2,
+      "points": 85
+    },
+    "6": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995213190320007,
+      "strokes": 1,
+      "points": 126
+    },
+    "7": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9947239394585377,
+      "strokes": 1,
+      "points": 40
+    },
+    "8": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 137
+    },
+    "9": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998013902681231,
+      "strokes": 2,
+      "points": 154
+    }
+  },
+  "Andika-Bold": {
+    "A": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.995045493056323,
+      "strokes": 3,
+      "points": 62
+    },
+    "B": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997594057321584,
+      "strokes": 2,
+      "points": 95
+    },
+    "C": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.995237479527627,
+      "strokes": 1,
+      "points": 89
+    },
+    "D": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999050843167653,
+      "strokes": 2,
+      "points": 79
+    },
+    "E": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998290208594551,
+      "strokes": 4,
+      "points": 16
+    },
+    "F": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997237696238663,
+      "strokes": 3,
+      "points": 10
+    },
+    "G": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9996156481342223,
+      "strokes": 2,
+      "points": 89
+    },
+    "H": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995554457890837,
+      "strokes": 3,
+      "points": 13
+    },
+    "I": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 20
+    },
+    "J": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9974454108630861,
+      "strokes": 1,
+      "points": 39
+    },
+    "K": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9794606147325714,
+      "strokes": 3,
+      "points": 42
+    },
+    "L": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997472407110961,
+      "strokes": 1,
+      "points": 6
+    },
+    "M": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.996306331482449,
+      "strokes": 4,
+      "points": 160
+    },
+    "N": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.993505129897402,
+      "strokes": 3,
+      "points": 48
+    },
+    "O": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 124
+    },
+    "P": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997688173078776,
+      "strokes": 2,
+      "points": 56
+    },
+    "Q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9987153362275184,
+      "strokes": 2,
+      "points": 136
+    },
+    "R": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9920815567595294,
+      "strokes": 3,
+      "points": 71
+    },
+    "S": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9965654515650613,
+      "strokes": 1,
+      "points": 101
+    },
+    "T": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9991632435721892,
+      "strokes": 2,
+      "points": 12
+    },
+    "U": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998579747195001,
+      "strokes": 1,
+      "points": 61
+    },
+    "V": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9933894477520017,
+      "strokes": 1,
+      "points": 41
+    },
+    "W": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.996524169563192,
+      "strokes": 1,
+      "points": 189
+    },
+    "X": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9724759757978408,
+      "strokes": 2,
+      "points": 102
+    },
+    "Y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9823646990360043,
+      "strokes": 2,
+      "points": 38
+    },
+    "Z": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9918144611186903,
+      "area_coverage": 0.9861433736643302,
+      "strokes": 1,
+      "points": 48
+    },
+    "a": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.995749901415239,
+      "strokes": 2,
+      "points": 82
+    },
+    "b": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9981724201587595,
+      "strokes": 2,
+      "points": 75
+    },
+    "c": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9937996711427789,
+      "strokes": 1,
+      "points": 62
+    },
+    "d": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9950738916256158,
+      "area_coverage": 0.997169998377706,
+      "strokes": 2,
+      "points": 86
+    },
+    "e": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9983491224951109,
+      "strokes": 1,
+      "points": 100
+    },
+    "f": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.972074009184784,
+      "strokes": 2,
+      "points": 23
+    },
+    "g": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9980530204259018,
+      "strokes": 2,
+      "points": 116
+    },
+    "h": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9981532599821158,
+      "strokes": 2,
+      "points": 45
+    },
+    "i": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995468962392388,
+      "strokes": 2,
+      "points": 7
+    },
+    "j": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.998650806762487,
+      "strokes": 2,
+      "points": 30
+    },
+    "k": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9726940487561776,
+      "strokes": 3,
+      "points": 18
+    },
+    "l": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995769285009166,
+      "strokes": 1,
+      "points": 6
+    },
+    "m": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9964271213966708,
+      "strokes": 3,
+      "points": 74
+    },
+    "n": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9965812800664209,
+      "strokes": 2,
+      "points": 46
+    },
+    "o": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 89
+    },
+    "p": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9969840506235429,
+      "strokes": 2,
+      "points": 94
+    },
+    "q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9978894128384546,
+      "strokes": 2,
+      "points": 87
+    },
+    "r": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9954262253754457,
+      "strokes": 2,
+      "points": 36
+    },
+    "s": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9968812589413448,
+      "strokes": 1,
+      "points": 81
+    },
+    "t": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9537421882008194,
+      "strokes": 2,
+      "points": 20
+    },
+    "u": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9963647081941442,
+      "strokes": 2,
+      "points": 47
+    },
+    "v": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.987025530407907,
+      "strokes": 1,
+      "points": 43
+    },
+    "w": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.994176310795222,
+      "strokes": 1,
+      "points": 144
+    },
+    "x": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9585408648403894,
+      "strokes": 2,
+      "points": 29
+    },
+    "y": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9965457685664939,
+      "area_coverage": 0.9660638797557539,
+      "strokes": 2,
+      "points": 70
+    },
+    "z": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9906890130353817,
+      "area_coverage": 0.9834170406252786,
+      "strokes": 2,
+      "points": 31
+    },
+    "0": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 112
+    },
+    "1": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9973474130962005,
+      "strokes": 2,
+      "points": 23
+    },
+    "2": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9983974358974359,
+      "area_coverage": 0.9811638293740695,
+      "strokes": 1,
+      "points": 62
+    },
+    "3": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9908675799086758,
+      "area_coverage": 0.9629276761517616,
+      "strokes": 1,
+      "points": 100
+    },
+    "4": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9971134876959817,
+      "strokes": 2,
+      "points": 37
+    },
+    "5": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9936993699369937,
+      "strokes": 2,
+      "points": 65
+    },
+    "6": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9986160933772784,
+      "strokes": 1,
+      "points": 138
+    },
+    "7": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9931503226488946,
+      "strokes": 1,
+      "points": 41
+    },
+    "8": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 147
+    },
+    "9": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.998325051644241,
+      "strokes": 2,
+      "points": 135
+    }
+  },
+  "VarelaRound-Regular": {
+    "A": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 91
+    },
+    "B": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 94
+    },
+    "C": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 83
+    },
+    "D": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 65
+    },
+    "E": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 4,
+      "points": 34
+    },
+    "F": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9919097362140046,
+      "strokes": 3,
+      "points": 16
+    },
+    "G": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 102
+    },
+    "H": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 9
+    },
+    "I": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 4
+    },
+    "J": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 41
+    },
+    "K": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.999459807073955,
+      "strokes": 3,
+      "points": 31
+    },
+    "L": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 15
+    },
+    "M": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 4,
+      "points": 152
+    },
+    "N": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9983374559020316,
+      "strokes": 3,
+      "points": 62
+    },
+    "O": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 95
+    },
+    "P": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 58
+    },
+    "Q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 112
+    },
+    "R": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 69
+    },
+    "S": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 124
+    },
+    "T": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 8
+    },
+    "U": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 46
+    },
+    "V": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 94
+    },
+    "W": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 81
+    },
+    "X": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 30
+    },
+    "Y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 35
+    },
+    "Z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997911063529781,
+      "strokes": 1,
+      "points": 37
+    },
+    "a": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995204699394593,
+      "strokes": 2,
+      "points": 87
+    },
+    "b": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998753800907233,
+      "strokes": 2,
+      "points": 90
+    },
+    "c": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 62
+    },
+    "d": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998006131146724,
+      "strokes": 2,
+      "points": 88
+    },
+    "e": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 87
+    },
+    "f": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 28
+    },
+    "g": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995292305058632,
+      "strokes": 2,
+      "points": 124
+    },
+    "h": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998547904626376,
+      "strokes": 2,
+      "points": 37
+    },
+    "i": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 5
+    },
+    "j": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9823728813559321,
+      "strokes": 2,
+      "points": 24
+    },
+    "k": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997631734754292,
+      "strokes": 3,
+      "points": 22
+    },
+    "l": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 4
+    },
+    "m": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9990714538379908,
+      "strokes": 3,
+      "points": 73
+    },
+    "n": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997940762604249,
+      "strokes": 2,
+      "points": 37
+    },
+    "o": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 79
+    },
+    "p": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997522176520145,
+      "strokes": 2,
+      "points": 85
+    },
+    "q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998017986770061,
+      "strokes": 2,
+      "points": 87
+    },
+    "r": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9990258158792011,
+      "strokes": 2,
+      "points": 23
+    },
+    "s": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 75
+    },
+    "t": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9390180634815828,
+      "strokes": 2,
+      "points": 25
+    },
+    "u": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998610869942698,
+      "strokes": 2,
+      "points": 44
+    },
+    "v": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 70
+    },
+    "w": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.998584433651429,
+      "strokes": 1,
+      "points": 79
+    },
+    "x": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 33
+    },
+    "y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 94
+    },
+    "z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9992236024844721,
+      "strokes": 1,
+      "points": 24
+    },
+    "0": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 108
+    },
+    "1": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 29
+    },
+    "2": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 64
+    },
+    "3": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.999723657667118,
+      "strokes": 1,
+      "points": 82
+    },
+    "4": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9965480688211791,
+      "strokes": 2,
+      "points": 35
+    },
+    "5": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 109
+    },
+    "6": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997492820349182,
+      "strokes": 1,
+      "points": 123
+    },
+    "7": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 25
+    },
+    "8": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 149
+    },
+    "9": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997945908935296,
+      "strokes": 2,
+      "points": 136
+    }
+  },
+  "Sniglet-ExtraBold": {
+    "A": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9933131132190693,
+      "strokes": 3,
+      "points": 97
+    },
+    "B": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9978385846071571,
+      "strokes": 2,
+      "points": 132
+    },
+    "C": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 70
+    },
+    "D": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 91
+    },
+    "E": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9744875635286594,
+      "strokes": 4,
+      "points": 86
+    },
+    "F": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9777365491651205,
+      "area_coverage": 0.9999869940692956,
+      "strokes": 3,
+      "points": 69
+    },
+    "G": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9933578913213598,
+      "strokes": 2,
+      "points": 100
+    },
+    "H": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 41
+    },
+    "I": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 38
+    },
+    "J": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997581893216404,
+      "strokes": 1,
+      "points": 39
+    },
+    "K": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 43
+    },
+    "L": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 45
+    },
+    "M": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9884965720978462,
+      "strokes": 4,
+      "points": 80
+    },
+    "N": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9906687402799378,
+      "area_coverage": 0.9904620069945282,
+      "strokes": 3,
+      "points": 86
+    },
+    "O": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 125
+    },
+    "P": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 103
+    },
+    "Q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 107
+    },
+    "R": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999894550362747,
+      "strokes": 3,
+      "points": 103
+    },
+    "S": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.8973966309341501,
+      "area_coverage": 0.9878941788505634,
+      "strokes": 1,
+      "points": 40
+    },
+    "T": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 27
+    },
+    "U": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 64
+    },
+    "V": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9891657950041743,
+      "strokes": 1,
+      "points": 61
+    },
+    "W": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9824316011482805,
+      "strokes": 1,
+      "points": 29
+    },
+    "X": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 39
+    },
+    "Y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 30
+    },
+    "Z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9943621676203298,
+      "strokes": 1,
+      "points": 45
+    },
+    "a": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9917314798067234,
+      "strokes": 2,
+      "points": 73
+    },
+    "b": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 95
+    },
+    "c": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 62
+    },
+    "d": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999895733411186,
+      "strokes": 2,
+      "points": 71
+    },
+    "e": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9779816513761468,
+      "area_coverage": 0.9595454545454546,
+      "strokes": 1,
+      "points": 70
+    },
+    "f": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9457625678144964,
+      "strokes": 2,
+      "points": 56
+    },
+    "g": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 111
+    },
+    "h": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9987035436473639,
+      "strokes": 2,
+      "points": 59
+    },
+    "i": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9996280838051159,
+      "strokes": 2,
+      "points": 4
+    },
+    "j": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9965639826084658,
+      "strokes": 2,
+      "points": 47
+    },
+    "k": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 33
+    },
+    "l": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 28
+    },
+    "m": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9922691143073429,
+      "strokes": 3,
+      "points": 60
+    },
+    "n": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9975095555821913,
+      "strokes": 2,
+      "points": 49
+    },
+    "o": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 88
+    },
+    "p": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998345448328352,
+      "strokes": 2,
+      "points": 114
+    },
+    "q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9990358718547939,
+      "strokes": 2,
+      "points": 88
+    },
+    "r": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9899535053332118,
+      "strokes": 2,
+      "points": 22
+    },
+    "s": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9833733635533304,
+      "strokes": 1,
+      "points": 47
+    },
+    "t": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 43
+    },
+    "u": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 69
+    },
+    "v": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9983635262735857,
+      "strokes": 1,
+      "points": 47
+    },
+    "w": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9820655815908136,
+      "strokes": 1,
+      "points": 43
+    },
+    "x": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 23
+    },
+    "y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997757149087284,
+      "strokes": 2,
+      "points": 70
+    },
+    "z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9837556546771693,
+      "strokes": 1,
+      "points": 33
+    },
+    "0": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 78
+    },
+    "1": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999811651253461,
+      "strokes": 1,
+      "points": 42
+    },
+    "2": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9917586011424585,
+      "strokes": 1,
+      "points": 66
+    },
+    "3": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9891107078039928,
+      "area_coverage": 0.970655138011307,
+      "strokes": 1,
+      "points": 59
+    },
+    "4": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9957271697518031,
+      "strokes": 2,
+      "points": 84
+    },
+    "5": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9936075063787758,
+      "strokes": 2,
+      "points": 70
+    },
+    "6": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999007303410622,
+      "strokes": 1,
+      "points": 108
+    },
+    "7": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 64
+    },
+    "8": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9991934264253668,
+      "strokes": 1,
+      "points": 120
+    },
+    "9": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9982498298445682,
+      "strokes": 2,
+      "points": 112
+    }
+  },
+  "ComicNeue-Bold": {
+    "A": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9989093768229893,
+      "strokes": 3,
+      "points": 115
+    },
+    "B": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 107
+    },
+    "C": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9750979612698052,
+      "strokes": 1,
+      "points": 78
+    },
+    "D": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 74
+    },
+    "E": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 4,
+      "points": 26
+    },
+    "F": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 15
+    },
+    "G": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.989937106918239,
+      "area_coverage": 0.9757727475231771,
+      "strokes": 2,
+      "points": 100
+    },
+    "H": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 42
+    },
+    "I": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 11
+    },
+    "J": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9849026083440049,
+      "strokes": 1,
+      "points": 44
+    },
+    "K": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 32
+    },
+    "L": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 26
+    },
+    "M": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997358122946354,
+      "strokes": 4,
+      "points": 168
+    },
+    "N": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9983862855226758,
+      "strokes": 3,
+      "points": 59
+    },
+    "O": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 90
+    },
+    "P": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 74
+    },
+    "Q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 129
+    },
+    "R": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 76
+    },
+    "S": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 98
+    },
+    "T": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 5
+    },
+    "U": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 68
+    },
+    "V": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 46
+    },
+    "W": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 64
+    },
+    "X": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 37
+    },
+    "Y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999681711121013,
+      "strokes": 2,
+      "points": 53
+    },
+    "Z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9944832745038453,
+      "strokes": 1,
+      "points": 38
+    },
+    "a": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 68
+    },
+    "b": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9995856124647771,
+      "strokes": 2,
+      "points": 94
+    },
+    "c": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999578503688092,
+      "strokes": 1,
+      "points": 53
+    },
+    "d": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997253954305799,
+      "strokes": 2,
+      "points": 78
+    },
+    "e": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 99
+    },
+    "f": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 22
+    },
+    "g": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.999612693955605,
+      "strokes": 2,
+      "points": 91
+    },
+    "h": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9990421169216033,
+      "strokes": 2,
+      "points": 63
+    },
+    "i": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 10
+    },
+    "j": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9973821989528796,
+      "strokes": 2,
+      "points": 29
+    },
+    "k": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 3,
+      "points": 42
+    },
+    "l": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 3
+    },
+    "m": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9988862654252239,
+      "strokes": 3,
+      "points": 87
+    },
+    "n": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9985361203785661,
+      "strokes": 2,
+      "points": 57
+    },
+    "o": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 74
+    },
+    "p": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9998881369204095,
+      "strokes": 2,
+      "points": 72
+    },
+    "q": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9999140967270853,
+      "strokes": 2,
+      "points": 79
+    },
+    "r": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9978572521810112,
+      "strokes": 2,
+      "points": 36
+    },
+    "s": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 72
+    },
+    "t": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 4
+    },
+    "u": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9997490949496398,
+      "strokes": 2,
+      "points": 66
+    },
+    "v": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 48
+    },
+    "w": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 29
+    },
+    "x": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 24
+    },
+    "y": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 50
+    },
+    "z": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9829164337618781,
+      "strokes": 1,
+      "points": 22
+    },
+    "0": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 87
+    },
+    "1": {
+      "inside": 1.0,
+      "skeleton_coverage": 0.9886104783599089,
+      "area_coverage": 0.9715483924019406,
+      "strokes": 2,
+      "points": 20
+    },
+    "2": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 62
+    },
+    "3": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9438563781800685,
+      "strokes": 1,
+      "points": 68
+    },
+    "4": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.997709616515522,
+      "strokes": 2,
+      "points": 66
+    },
+    "5": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.9929117553360943,
+      "strokes": 2,
+      "points": 104
+    },
+    "6": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 107
+    },
+    "7": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 0.999921439233247,
+      "strokes": 1,
+      "points": 17
+    },
+    "8": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 1,
+      "points": 123
+    },
+    "9": {
+      "inside": 1.0,
+      "skeleton_coverage": 1.0,
+      "area_coverage": 1.0,
+      "strokes": 2,
+      "points": 120
+    }
+  }
+}

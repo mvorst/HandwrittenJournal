@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Frame 49 — letter practice. A worksheet, not a journal page: touch a letter to watch
-/// how it is written, trace it, move on. Nothing here is saved or graded — but a letter
+/// how it is written, trace it, move on. Practice ink is temporary, but a letter
 /// that flips green earns points (§8.3, v3.1), the one thing the sheet keeps. A first
 /// visit opens *How to trace a letter* over the sheet (frame 60, v3.8); the ? in the
 /// toolbar brings it back.
@@ -16,11 +16,10 @@ struct PracticeView: View {
     /// letter's replay and goes when another letter is chosen or the pen is back down.
     @State private var awardedChar: Character?
 
-    /// Jua only — the stroke-order guides are hand-fitted to its letterforms (§4.11).
-    /// Only the face matters here: the sheet computes its own size, filling the screen
+    /// Practice the same face used for writing. The sheet computes its own size, filling the screen
     /// with the largest type at which the widest row still fits.
     private var setup: WritingSetup {
-        WritingSetup(face: .face(id: "jua"), size: .default, mode: .trace)
+        WritingSetup(face: profile.setup.face, size: .default, mode: .trace)
     }
 
     var body: some View {
@@ -56,6 +55,7 @@ struct PracticeView: View {
                     .disabled(!controller.hasInk)
                 Button { controller.clear() } label: { Image(systemName: "trash") }
                     .disabled(!controller.hasInk)
+                    .accessibilityLabel("Clear letter")
             }
         }
         // Frame 60 — over the sheet and its chrome, in the family of the PIN pad. Owed
@@ -63,12 +63,14 @@ struct PracticeView: View {
         // sheet is there beneath the card.
         .fullScreenCover(isPresented: $showingTutorial) {
             PracticeTutorialOverlay(allowFinger: profile.allowFingerTracing,
-                                    colourBlind: profile.colorBlindMode) { finishTutorial() }
+                                    colourBlind: profile.colorBlindMode,
+                                    face: setup.face) { finishTutorial() }
                 .presentationBackground(.clear)
         }
         .task {
             guard !profile.practiceTutorialSeen else { return }
             try? await Task.sleep(for: .milliseconds(450))
+            guard !Task.isCancelled else { return }
             showTutorial()
         }
         // §8.3 — the moment a letter flips green is the moment it earns. The ledger says

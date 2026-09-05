@@ -135,8 +135,9 @@ final class TracingCanvasView: UIView {
     private(set) var doodles: [TracingStroke] = []
     private(set) var tally = ScoringEngine.Tally(letterCount: 0)
     private let maskRenderer = MaskRenderer()
-    /// §8.1a — judges each letter's ink against its taught formation. nil for every
-    /// face the formations are not fitted to, where no order discount applies.
+    private var geometryScorer: TraceGeometryScorer?
+    /// §8.1a — Jua's existing order assessment. All faces have fitted paths, but the
+    /// other faces have no pedagogical order penalty.
     private var orderJudge: FormationOrderJudge?
     private var judgeSetup: WritingSetup?
 
@@ -347,6 +348,7 @@ final class TracingCanvasView: UIView {
         let scale: CGFloat = pixels > 40_000_000 ? 1 : min(2, UIScreen.main.scale)
         maskRenderer.generate(text: text, setup: setup, canvasSize: bounds.size,
                               screenScale: scale, layoutOnly: layoutOnly)
+        geometryScorer = TraceGeometryScorer(setup: setup, renderer: maskRenderer)
         lineOfGlyph = maskRenderer.layout.glyphBoxes.map(\.lineIndex)
         // The judge survives re-layouts — its caches self-invalidate per glyph — but a
         // setup change means a new face or size, and a fresh fit.
@@ -366,6 +368,8 @@ final class TracingCanvasView: UIView {
         settling = [:]
         pendingHelpWords = []
         coveredLetters = []
+        geometryScorer = nil
+        tally = ScoringEngine.Tally(letterCount: 0)
         builtForText = ""
         recordEnd = 0
         stopSettleLink()
@@ -400,16 +404,17 @@ final class TracingCanvasView: UIView {
 
     func rowFullyInked(_ row: Int) -> Bool {
         guard let indices = maskRenderer.layout.scorableByLine[row], !indices.isEmpty else { return false }
-        return indices.allSatisfy { tally.hasInk(letter: $0) }
+        return indices.allSatisfy { tally.isComplete(letter: $0) }
     }
 
     private func inkedRows() -> [Int] {
         maskRenderer.layout.scorableByLine.keys.filter { rowHasAnyInk($0) }
     }
 
-    /// The row of a stroke — where its first point landed.
+    /// Use the scorer's ownership, including an outside tail left after erasing its
+    /// in-letter head. Scored ink must remain reachable by undo, clear and the eraser.
     private func row(of stroke: TracingStroke) -> Int? {
-        stroke.points.first.flatMap { lineOf($0) }
+        geometryScorer?.row(for: stroke) ?? stroke.points.first.flatMap { lineOf($0) }
     }
 
     private func lineOf(_ point: StrokePoint) -> Int? {
@@ -436,17 +441,10 @@ final class TracingCanvasView: UIView {
         if let row { onSelectRow?(row) }
     }
 
-    /// When the selected row's last letter gets ink, the next untraced row comes up on
-    /// its own — the taps are for going back, not for going forward.
-    ///
-    /// **Not the instant it gets ink, though** (v3.10). A letter reads as inked the
-    /// moment any stroke touches it, and a letter with several parts gets its first
-    /// part first: the stem of a `t` fills the row before the crossbar exists, and
-    /// moving the selection there took the row out from under the pen — the crossbar
-    /// landed on a row that had already left, scored against nothing. So a full row
-    /// waits `advancePause` after pen-up, and every pen-down on it while it waits starts
-    /// the wait again: the row leaves only once the pen has rested. A pen landing on
-    /// the next row instead takes it at once (`rowForInk`), as does a tap on any row.
+    /// Every letter must meet containment and coverage before the row advances.
+    /// A missing crossbar or dot keeps the row in hand. A complete row still waits
+    /// `advancePause` after pen-up, and another pen-down restarts that rest period.
+    /// A pen landing on the next row takes it at once, as does a tap on any row.
     /// Only a pen lifting from the row starts the wait — a stroke, or the eraser; undo
     /// and clear cancel it and leave the row in hand, tools never move the selection.
     private func maybeAdvance() {
@@ -573,11 +571,14 @@ final class TracingCanvasView: UIView {
                     if stored < 0 { continue }
                     if boxes.indices.contains(stored), boxes[stored].isScorable,
                        boxes[stored].rect.insetBy(dx: -24, dy: -24).contains(point.location) {
+                        strokes[s].points[p].isInside = geometryScorer?.isInside(
+                            point: point.location, glyph: stored) ?? false
                         continue
                     }
                 }
                 strokes[s].points[p].letterIndex = maskRenderer.glyphIndex(at: point.location) ?? -1
-                strokes[s].points[p].isInside = maskRenderer.isInsideLetter(point: point.location, tolerance: 2)
+                strokes[s].points[p].isInside = geometryScorer?.isInside(
+                    point: point.location, glyph: strokes[s].points[p].letterIndex) ?? false
             }
         }
     }
@@ -669,7 +670,8 @@ final class TracingCanvasView: UIView {
         guard !mine.isEmpty else { return }
         let others = strokes.filter { self.row(of: $0) != row }
         let result = StrokeEraser.erase(at: point, from: mine)
-        guard result.strokes.count != mine.count || !result.touchedLetters.isEmpty else { return }
+        guard result.strokes.count != mine.count || result.strokes.pointCount != mine.pointCount
+                || !result.touchedLetters.isEmpty else { return }
         strokes = others + result.strokes
         retally()
         onInkChange?()
@@ -932,14 +934,19 @@ final class TracingCanvasView: UIView {
         // Ink scores only against the selected row — a stray wobble two rows down must
         // not put ink on a word the child has not reached.
         let letter = maskRenderer.glyphIndex(at: location, onLine: selectedRow) ?? -1
-        let inside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
+        let inside = geometryScorer?.isInside(point: location, glyph: letter) ?? false
         current?.append(StrokePoint(location: location, force: force, isInside: inside, letterIndex: letter))
-        if letter >= 0 { tally.record(letter: letter, isInside: inside) }
     }
 
     private func endStroke() {
-        let finished = current
+        var finished = current
         current = nil
+        // A deliberate dot is part of i/j and punctuation, and must survive pen-up.
+        if finished?.points.count == 1, finished?.isDoodle == false {
+            var point = finished!.points[0]
+            point.location.x += 0.5
+            finished?.append(point)
+        }
         let wasErasing = eraserCentre != nil
         eraserCentre = nil
         if let finished, !finished.isEmpty {
@@ -967,7 +974,13 @@ final class TracingCanvasView: UIView {
             for i in stroke.points.indices {
                 let location = stroke.points[i].location
                 stroke.points[i].letterIndex = maskRenderer.glyphIndex(at: location, onLine: selectedRow) ?? -1
-                stroke.points[i].isInside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
+                stroke.points[i].isInside = geometryScorer?.isInside(
+                    point: location, glyph: stroke.points[i].letterIndex) ?? false
+            }
+            if stroke.points.count == 1 {
+                var point = stroke.points[0]
+                point.location.x += 0.5
+                stroke.append(point)
             }
             if !stroke.isEmpty { strokes.append(stroke) }
         }
@@ -1014,6 +1027,11 @@ final class TracingCanvasView: UIView {
                 fresh.record(letter: point.letterIndex, isInside: point.isInside)
             }
         }
+        let geometry = geometryScorer?.evaluate(strokes: strokes) ?? [:]
+        for (letter, metrics) in geometry {
+            fresh.recordGeometry(letter: letter, metrics: metrics)
+        }
+        coveredLetters = Set(geometry.filter { $0.value.isComplete }.map(\.key))
         applyFormationOrder(to: &fresh, boxes: boxes)
         tally = fresh
         detectFormationHelp(boxes: boxes, penUpOn: word)
@@ -1027,19 +1045,15 @@ final class TracingCanvasView: UIView {
     /// order, or against their taught direction) take the order discount. The judge
     /// caches per-letter verdicts, so only letters whose ink changed are re-judged.
     /// A letter the child remediated in the help modal (§8.1b) is not re-docked. The
-    /// same reading says which letters are fully covered — every part of their
-    /// formation visited — which is what the help prompt waits for.
+    /// shape scorer independently supplies the covered letters used to time help.
     private func applyFormationOrder(to tally: inout ScoringEngine.Tally,
                                      boxes: [MaskRenderer.GlyphBox]) {
-        coveredLetters = []
         guard let judge = orderJudge else { return }
         for (letter, penPaths) in FormationOrderJudge.penPathsByLetter(in: strokes) {
             guard boxes.indices.contains(letter), boxes[letter].isScorable else { continue }
             let signature = FormationOrderJudge.signature(of: penPaths, box: boxes[letter])
             let analysis = judge.analysis(penPaths: penPaths, glyph: letter,
                                           box: boxes[letter], signature: signature)
-            // No formation (punctuation): nothing to cover, nothing to dock.
-            if analysis?.coveredAllStrokes != false { coveredLetters.insert(letter) }
             if analysis?.followed == false, !remediatedLetters.contains(letter) {
                 tally.markOrder(letter: letter, followed: false)
             }
@@ -1129,8 +1143,9 @@ final class TracingCanvasView: UIView {
         return boxes[glyph].charIndex
     }
 
-    /// The record is the unbroken run of fully-traced rows from the top of the page —
-    /// derived from the ink, and re-derived identically from a restored archive.
+    /// The persisted record is the unbroken run of rows with ink on every letter.
+    /// Keep attempted writing even if incomplete; geometry gates scores and automatic
+    /// advancement, never whether the child's partial writing can be saved.
     private func recomputeRecord() {
         var end = 0
         for row in 0..<maskRenderer.layout.lineCount {

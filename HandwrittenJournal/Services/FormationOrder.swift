@@ -84,10 +84,9 @@ enum FormationOrder {
         /// False when the ink clearly took the parts out of the taught order or drew a
         /// part against its taught direction (§8.1a).
         let followed: Bool
-        /// Whether every stroke of the formation received a genuine visit — the whole
-        /// letter was traced, not just begun. The remediation modal (§8.1b) requires
-        /// this before it counts a trace as complete, and the page waits for it before
-        /// it interrupts a word.
+        /// Whether every stroke received a substantial visit during order analysis.
+        /// This legacy heuristic can include retracing; geometric completion must use
+        /// TraceGeometryScorer's distinct coverage instead.
         let coveredAllStrokes: Bool
     }
 
@@ -188,7 +187,7 @@ enum FormationOrder {
             let stroke = formation[visit.stroke]
             if stroke.isDot { return true }
             return visit.travel >= max(tolerance * 0.5, stroke.length * 0.2)
-                && visit.progress >= stroke.length * 0.4
+                && visit.progress >= stroke.length * 0.5
         }
         let coveredAll = Set(kept.map(\.stroke)).count == formation.count
 
@@ -494,14 +493,14 @@ final class FormationOrderJudge {
     /// letter returns its cached analysis.
     func analysis(penPaths: [[CGPoint]], glyph index: Int,
                   box: MaskRenderer.GlyphBox, signature: Int) -> FormationOrder.Analysis? {
-        guard let formation = LetterFormations.formation(for: box.character) else { return nil }
         if let cached = verdicts[index], cached.signature == signature { return cached.analysis }
 
         let strokes: [FormationOrder.PlacedStroke]
         if let cached = placed[index], cached.character == box.character, cached.rect == box.rect {
             strokes = cached.strokes
         } else {
-            strokes = FormationOrder.place(formation, in: fitter.formationRect(for: box))
+            guard let fitted = fitter.placedStrokes(for: box) else { return nil }
+            strokes = fitted.map { FormationOrder.PlacedStroke(points: $0.points) }
             placed[index] = (box.character, box.rect, strokes)
         }
         let analysis = FormationOrder.analyze(penPaths: penPaths, formation: strokes,
@@ -515,9 +514,10 @@ final class FormationOrderJudge {
     /// a neighbouring letter break a run — their travel is the neighbour's story.
     nonisolated static func penPathsByLetter(in strokes: [TracingStroke]) -> [Int: [[CGPoint]]] {
         var paths: [Int: [[CGPoint]]] = [:]
-        for stroke in strokes {
+        for stroke in strokes where !stroke.isDoodle {
             var run = Int.min
-            for point in stroke.points where point.letterIndex >= 0 {
+            for point in stroke.points {
+                guard point.letterIndex >= 0 else { run = Int.min; continue }
                 let letter = point.letterIndex
                 if letter != run {
                     paths[letter, default: []].append([])

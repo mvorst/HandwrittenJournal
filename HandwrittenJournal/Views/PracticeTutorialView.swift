@@ -14,6 +14,7 @@ import SwiftUI
 struct PracticeTutorialOverlay: View {
     let allowFinger: Bool
     let colourBlind: Bool
+    var face: JournalFace = .default
     let onClose: () -> Void
 
     @State private var controller = PracticeController()
@@ -169,10 +170,9 @@ struct PracticeTutorialOverlay: View {
         }
     }
 
-    /// Jua only — the one face the formations are fitted to (§4.11). The sheet's own
-    /// good-ink bar, not the modal's full-formation one: the tutorial teaches the sheet.
+    /// The tutorial demonstrates the same font and coverage rule as the practice sheet.
     private var sheet: some View {
-        PracticeSurface(setup: WritingSetup(face: .face(id: "jua"), size: .default, mode: .trace),
+        PracticeSurface(setup: WritingSetup(face: face, size: .default, mode: .trace),
                         allowFinger: allowFinger,
                         colourBlind: colourBlind,
                         sheetText: Self.letter,

@@ -160,8 +160,7 @@ struct FormationOrderTests {
             Issue.record("no judge for Jua"); return
         }
         let fitter = FormationFitter(font: setup.uiFont())
-        let placed = FormationOrder.place(LetterFormations.formation(for: "a")!,
-                                          in: fitter.formationRect(for: a))
+        let placed = fitter.placedStrokes(for: a)!
         let circle = placed[0].points, line = placed[1].points
 
         #expect(judge.followedFormation(penPaths: [circle, line], glyph: 0,

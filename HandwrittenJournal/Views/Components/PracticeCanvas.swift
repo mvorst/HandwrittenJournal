@@ -7,7 +7,7 @@ enum PracticePhase: Equatable {
     case idle                    // nothing chosen yet
     case watching(Character)     // the demo is playing
     case yourTurn(Character)     // demo done (or skipped) — trace it
-    case traced(Character)       // enough good ink landed on the letter
+    case traced(Character)       // the letter meets containment and coverage
 }
 
 /// Bridges the UIKit sheet to SwiftUI without leaking the view outward.
@@ -113,6 +113,7 @@ struct PracticeSurface: UIViewRepresentable {
     }
 
     func updateUIView(_ view: PracticeScrollView, context: Context) {
+        view.canvas.setup = setup
         view.canvas.allowFinger = allowFinger
         view.canvas.colourBlind = colourBlind
         view.canvas.completed = completed
@@ -174,15 +175,24 @@ final class PracticeScrollView: UIScrollView {
 final class PracticeCanvasView: UIView {
 
     var text = "" { didSet { if text != oldValue { fittedForWidth = 0; rebuild() } } }
-    var setup = WritingSetup.default { didSet { if setup != oldValue { fittedForWidth = 0; rebuild() } } }
+    var setup = WritingSetup.default {
+        didSet {
+            if setup != oldValue {
+                fittedForWidth = 0
+                rebuild()
+                // Each face fits at a different size and can change the full sheet's
+                // height. Re-measure the scroll wrapper even when its bounds stay put.
+                superview?.setNeedsLayout()
+            }
+        }
+    }
     var allowFinger = true
     var colourBlind = false
     /// §8.1b — the remediation modal's sheet holds one letter: select it and play its
     /// demo the moment the sheet is built, with no touch needed.
     var autoSelectSoleGlyph = false
-    /// §8.1b — completion means the whole letter, correctly: `.traced` requires the
-    /// formation followed in order *and* every one of its strokes covered, not just
-    /// enough good ink. Off for the practice sheet, on for the remediation modal.
+    /// All sheets require geometric coverage. Remediation additionally requires the
+    /// demonstrated order and direction before it can finish.
     var requireFullFormation = false
     /// §8.1b — rows centre in the sheet rather than starting at its left edge. Set
     /// before the sheet is first laid out; the modal's one letter is otherwise pinned
@@ -201,6 +211,7 @@ final class PracticeCanvasView: UIView {
     private(set) var phase: PracticePhase = .idle
 
     private let maskRenderer = MaskRenderer()
+    private var geometryScorer: TraceGeometryScorer?
     private lazy var fitter = FormationFitter(font: sheetSetup.uiFont())
     /// §8.1a — the sheet teaches the same rule the journal grades, so its live %
     /// takes the same order discount.
@@ -311,6 +322,8 @@ final class PracticeCanvasView: UIView {
 
     private func rebuild() {
         guard bounds.width > 0, bounds.height > 0, !text.isEmpty else { return }
+        activeTouch = nil
+        pendingTap = nil
         builtForSize = bounds.size
         ensureFit(width: bounds.width)
         fitter = FormationFitter(font: sheetSetup.uiFont())
@@ -319,6 +332,7 @@ final class PracticeCanvasView: UIView {
         let scale: CGFloat = pixels > 40_000_000 ? 1 : min(2, UIScreen.main.scale)
         maskRenderer.generate(text: text, setup: sheetSetup, canvasSize: bounds.size, screenScale: scale,
                               alignment: centred ? .center : .left)
+        geometryScorer = TraceGeometryScorer(setup: sheetSetup, renderer: maskRenderer)
         // Geometry moved under everything; selection and ink are void.
         clearDemo()
         strokes = []
@@ -351,21 +365,15 @@ final class PracticeCanvasView: UIView {
     /// programmatic counterpart of following the demo, used by tests.
     func formationPaths(forGlyph index: Int) -> [[CGPoint]] {
         guard maskRenderer.layout.glyphBoxes.indices.contains(index),
-              let formation = LetterFormations.formation(for: maskRenderer.layout.glyphBoxes[index].character)
+              let strokes = fitter.placedStrokes(for: maskRenderer.layout.glyphBoxes[index])
         else { return [] }
-        let rect = fitter.formationRect(for: maskRenderer.layout.glyphBoxes[index])
-        return FormationOrder.place(formation, in: rect).map(\.points)
+        return strokes.map(\.points)
     }
 
     /// Where the letter's first stroke begins, in canvas space — the point the blue dot
     /// marks (v3.8). Nil for a character with no formation.
     func startPoint(forGlyph index: Int) -> CGPoint? {
-        guard maskRenderer.layout.glyphBoxes.indices.contains(index),
-              let formation = LetterFormations.formation(for: maskRenderer.layout.glyphBoxes[index].character),
-              let first = formation.strokes.first
-        else { return nil }
-        let rect = fitter.formationRect(for: maskRenderer.layout.glyphBoxes[index])
-        return FormationFitter.place(first, in: rect).first
+        formationPaths(forGlyph: index).first?.first
     }
 
     /// Whether the blue dot is on the sheet — for the tests.
@@ -377,8 +385,9 @@ final class PracticeCanvasView: UIView {
         for var stroke in new {
             for i in stroke.points.indices {
                 let location = stroke.points[i].location
-                stroke.points[i].letterIndex = maskRenderer.glyphIndex(at: location, onLine: selectedBox?.lineIndex) ?? -1
-                stroke.points[i].isInside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
+                stroke.points[i].letterIndex = selectedGlyph ?? -1
+                stroke.points[i].isInside = geometryScorer?.isInside(
+                    point: location, glyph: selectedGlyph ?? -1) ?? false
             }
             if stroke.points.count == 1 {
                 var copy = stroke.points[0]
@@ -410,15 +419,11 @@ final class PracticeCanvasView: UIView {
     private(set) var attemptFailures = 0
 
     var accuracyPercent: Int {
-        var inside = 0, total = 0
-        for stroke in strokes {
-            for p in stroke.points { total += 1; if p.isInside { inside += 1 } }
-        }
-        if let current {
-            for p in current.points { total += 1; if p.isInside { inside += 1 } }
-        }
-        guard total > 0 else { return 0 }
-        let raw = Double(inside) / Double(total)
+        guard let index = selectedGlyph, let geometryScorer else { return 0 }
+        // During writing, the number describes neatness. Completion independently
+        // waits for the distinct parts of the letter to be covered.
+        let raw = geometryScorer.evaluate(strokes: strokes + (current.map { [$0] } ?? []),
+                                          targetGlyph: index).containment
         let discounted = followedOrder ? raw : raw * ScoringEngine.orderDiscount
         return Int((discounted * 100).rounded())
     }
@@ -428,7 +433,9 @@ final class PracticeCanvasView: UIView {
     private func refreshOrderVerdict() {
         let was = followedOrder
         followedOrder = true
-        formationComplete = false
+        formationComplete = selectedGlyph.map {
+            geometryScorer?.evaluate(strokes: strokes, targetGlyph: $0).isComplete ?? false
+        } ?? false
         guard let judge = orderJudge, let index = selectedGlyph, let box = selectedBox,
               !strokes.isEmpty else { return }
         let penPaths = FormationOrderJudge.penPathsByLetter(in: strokes)[index] ?? []
@@ -437,7 +444,6 @@ final class PracticeCanvasView: UIView {
         guard let analysis = judge.analysis(penPaths: penPaths, glyph: index,
                                             box: box, signature: signature) else { return }
         followedOrder = analysis.followed
-        formationComplete = analysis.coveredAllStrokes
         if was, !followedOrder { attemptFailures += 1 }
     }
 
@@ -455,13 +461,14 @@ final class PracticeCanvasView: UIView {
             strokes = []
             current = nil
             followedOrder = true
+            formationComplete = false
             selectedGlyph = index
         }
         clearDemo()
         guard let box = selectedBox else { return }
-        if playDemo, let formation = LetterFormations.formation(for: box.character) {
-            buildDemo(formation, for: box, animated: !UIAccessibility.isReduceMotionEnabled)
+        if playDemo, let strokes = fitter.placedStrokes(for: box) {
             setPhase(.watching(box.character))
+            buildDemo(strokes, for: box, animated: !UIAccessibility.isReduceMotionEnabled)
         } else {
             // No demo — but the dot still says where the letter begins (v3.8).
             showStartDot(for: index, appearAt: CACurrentMediaTime(),
@@ -482,6 +489,7 @@ final class PracticeCanvasView: UIView {
         strokes = []
         current = nil
         followedOrder = true
+        formationComplete = false
         if let box = selectedBox {
             // A traced letter hid its dot; wiped, the letter is to be begun again.
             if let index = selectedGlyph, startDotLayers.isEmpty {
@@ -588,12 +596,10 @@ final class PracticeCanvasView: UIView {
         activeTouch = nil
         if let pending = pendingTap {
             pendingTap = nil
-            // §8.1b — on the sole-letter sheet, once tracing has begun a finger tap is
-            // how the dot of an i gets inked (the pencil already dots by tapping). The
-            // full formation is required there, so a tap that only ever replayed the
-            // demo would lock a finger tracer out of every dotted letter for good;
-            // replays live on the modal's own button instead.
-            if autoSelectSoleGlyph, hasInk, pending.canDraw, acceptsInk,
+            // Once tracing has begun, a finger tap on the selected letter inks a dot
+            // (the pencil already dots by tapping). Every sheet requires the whole
+            // letter, so dotted letters must be possible with either input method.
+            if hasInk, pending.canDraw, acceptsInk,
                maskRenderer.glyphIndex(at: pending.point, slack: 10) == selectedGlyph {
                 current = TracingStroke()
                 onInkBegan?(active.type)
@@ -607,6 +613,9 @@ final class PracticeCanvasView: UIView {
                 select(glyph: hit, playDemo: true)
             }
             return
+        }
+        if current != nil {
+            for touch in event?.coalescedTouches(for: active) ?? [active] { add(touch) }
         }
         endStroke()
     }
@@ -630,9 +639,8 @@ final class PracticeCanvasView: UIView {
 
     private func append(location: CGPoint, force: CGFloat) {
         guard current != nil else { return }
-        let line = selectedBox?.lineIndex
-        let letter = maskRenderer.glyphIndex(at: location, onLine: line) ?? -1
-        let inside = maskRenderer.isInsideLetter(point: location, tolerance: 2)
+        let letter = selectedGlyph ?? -1
+        let inside = geometryScorer?.isInside(point: location, glyph: letter) ?? false
         current?.append(StrokePoint(location: location, force: force, isInside: inside, letterIndex: letter))
     }
 
@@ -651,15 +659,11 @@ final class PracticeCanvasView: UIView {
         setNeedsDisplay()
     }
 
-    /// Enough good ink on the selected letter counts as traced — a nudge, not a grade.
-    ///
-    /// The measure is **distance, not samples**: ink travelled inside the letter against
-    /// the formation's own path length. A fast confident trace produces far fewer touch
-    /// samples than a slow careful one and deserves the same credit.
+    /// Journal and practice share the same geometric completion rule. Retracing a
+    /// small area earns no additional coverage; every important part must be reached.
     private func refreshCompletion() {
         refreshOrderVerdict()
         guard let index = selectedGlyph, let box = selectedBox else { onStateChange?(); return }
-        if case .traced = phase { onStateChange?(); return }
 
         // §8.1b — a wrong-order verdict is sticky: the order and direction of first
         // visits are made and no further ink can unmake them. When the whole formation
@@ -671,47 +675,19 @@ final class PracticeCanvasView: UIView {
             return
         }
 
-        var goodTravel: CGFloat = 0
-        var inside = 0, total = 0
-        for stroke in strokes {
-            for i in stroke.points.indices {
-                let p = stroke.points[i]
-                total += 1
-                if p.isInside { inside += 1 }
-                guard i > 0 else { continue }
-                let a = stroke.points[i - 1]
-                if p.isInside, p.letterIndex == index || a.letterIndex == index {
-                    goodTravel += hypot(p.location.x - a.location.x, p.location.y - a.location.y)
-                }
-            }
-        }
-        if total > 0, goodTravel >= formationLength(for: box) * 0.5,
-           Double(inside) / Double(total) >= 0.5,
-           !requireFullFormation || (followedOrder && formationComplete) {
+        if formationComplete, !requireFullFormation || followedOrder {
+            if case .traced = phase { onStateChange?(); return }
             Haptics.success()
             hideStartDot()
             setPhase(.traced(box.character))
         } else {
-            onStateChange?()
-        }
-    }
-
-    /// What tracing this letter is worth in pen-travel, from its own formation.
-    private func formationLength(for box: MaskRenderer.GlyphBox) -> CGFloat {
-        guard let formation = LetterFormations.formation(for: box.character) else {
-            // No formation: fall back to a loop around the letter's ink.
-            let rect = fitter.inkRect(for: box)
-            return (rect.width + rect.height) * 1.5
-        }
-        let inkRect = fitter.formationRect(for: box)
-        var length: CGFloat = 0
-        for stroke in formation.strokes {
-            let points = FormationFitter.place(stroke, in: inkRect)
-            for i in 1..<max(1, points.count) {
-                length += hypot(points[i].x - points[i-1].x, points[i].y - points[i-1].y)
+            if case .traced = phase {
+                showStartDot(for: index, appearAt: CACurrentMediaTime(), animated: false)
+                setPhase(.yourTurn(box.character))
+            } else {
+                onStateChange?()
             }
         }
-        return max(length, 1)
     }
 
     // MARK: - Drawing
@@ -832,9 +808,8 @@ final class PracticeCanvasView: UIView {
     /// The formation drawn stroke by stroke: each path draws itself at a followable
     /// pace with an arrowhead at its end. When the show is over the arrowheads leave
     /// and the thin lines stay — order is carried by the animation alone.
-    /// (`fitter.formationRect` puts the guide down the middle of the letter's stroke.)
-    private func buildDemo(_ formation: LetterFormation, for box: MaskRenderer.GlyphBox, animated: Bool) {
-        let inkRect = fitter.formationRect(for: box)
+    /// The placed font-specific paths are also the coverage scorer's targets.
+    private func buildDemo(_ strokes: [FormationStroke], for box: MaskRenderer.GlyphBox, animated: Bool) {
         let scale = sheetSetup.size.size / 72
         // A thin inner line, not a fat marker — the guide runs down the middle of the
         // letter and must leave room for the child's ink around it.
@@ -851,8 +826,8 @@ final class PracticeCanvasView: UIView {
             start += animated ? 0.35 : 0
         }
 
-        for stroke in formation.strokes {
-            let points = FormationFitter.place(stroke, in: inkRect)
+        for stroke in strokes {
+            let points = stroke.points
             guard let first = points.first else { continue }
 
             if stroke.isDot {
@@ -918,7 +893,6 @@ final class PracticeCanvasView: UIView {
         } else {
             for layer in demoLayers { staticize(layer) }
             setPhase(.yourTurn(box.character))
-            // Phase is set again by the caller for the un-animated path; harmless.
         }
     }
 

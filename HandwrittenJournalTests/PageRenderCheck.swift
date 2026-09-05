@@ -15,26 +15,24 @@ struct PageRenderCheck {
     nonisolated static var page: String { record + "\n" + spoken }
 
     /// Ink that follows the letterforms closely enough to score well, with a little drift.
-    private func ink(over boxes: [MaskRenderer.GlyphBox]) -> [TracingStroke] {
+    private func ink(over indices: [Int], on view: TracingCanvasView) -> [TracingStroke] {
         var seed: UInt64 = 42
         func jitter(_ scale: CGFloat) -> CGFloat {
             seed = seed &* 6364136223846793005 &+ 1442695040888963407
             return (CGFloat((seed >> 33) % 1000) / 1000 - 0.5) * scale
         }
-        return boxes.filter(\.isScorable).map { box in
-            var stroke = TracingStroke()
-            for step in 0...10 {
-                let t = CGFloat(step) / 10
-                let point = CGPoint(x: box.rect.minX + box.rect.width * t + jitter(box.rect.width * 0.3),
-                                    y: box.rect.midY + jitter(box.rect.height * 0.55))
-                stroke.append(StrokePoint(location: point, force: 0.6, isInside: true, letterIndex: -1))
+        return indices.flatMap { TestTraceFixtures.ink(for: $0, on: view) }.map { original in
+            var stroke = original
+            for index in stroke.points.indices {
+                stroke.points[index].location.x += jitter(view.setup.size.size * 0.008)
+                stroke.points[index].location.y += jitter(view.setup.size.size * 0.008)
             }
             return stroke
         }
     }
 
     private func rowInk(_ view: TracingCanvasView, _ row: Int) -> [TracingStroke] {
-        ink(over: (view.layout.scorableByLine[row] ?? []).map { view.layout.glyphBoxes[$0] })
+        ink(over: view.layout.scorableByLine[row] ?? [], on: view)
     }
 
     /// A page with the first `tracedRows` rows fully inked, restored the way a resumed
@@ -52,8 +50,10 @@ struct PageRenderCheck {
         view.setup = setup
         view.layoutIfNeeded()
         if tracedRows > 0 {
-            let boxes = view.layout.glyphBoxes.filter { $0.lineIndex < tracedRows }
-            view.restore(ink(over: boxes))
+            let indices = view.layout.glyphBoxes.indices.filter {
+                view.layout.glyphBoxes[$0].isScorable && view.layout.glyphBoxes[$0].lineIndex < tracedRows
+            }
+            view.restore(ink(over: indices, on: view))
         }
         return view
     }
@@ -194,8 +194,8 @@ struct PageRenderCheck {
         // Half-trace row 1, then finish: its skipped letters cost; rows 2+ do not.
         view.selectRow(1)
         let indices = view.layout.scorableByLine[1] ?? []
-        let half = indices.prefix(indices.count / 2).map { view.layout.glyphBoxes[$0] }
-        view.addInk(ink(over: half))
+        let half = Array(indices.prefix(indices.count / 2))
+        view.addInk(ink(over: half, on: view))
 
         let result = view.finishEntry(streak: 0)
         #expect(view.selectedRow == nil, "finishing settles the page")

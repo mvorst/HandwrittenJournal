@@ -251,7 +251,7 @@ struct PerLetterScoringTests {
         #expect(result.totalPoints == 0, "no record, no points — not even bonuses")
     }
 
-    @Test("Finish message names skipped letters, and celebrates a finished page")
+    @Test("Finish message names incomplete letters, and celebrates a finished page")
     func finishMessage() {
         var whole = ScoringEngine.Tally(wordOfLetter: [0, 0], totalWords: 1)
         whole.record(letter: 0, isInside: true); whole.record(letter: 1, isInside: true)
@@ -261,6 +261,168 @@ struct PerLetterScoringTests {
         var skipped = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
         skipped.record(letter: 0, isInside: true)
         #expect(ScoringEngine.finishMessage(for: ScoringEngine.score(tally: skipped, streak: 0))
-                    .contains("2 letters were skipped"))
+                    .contains("2 letters were incomplete"))
+    }
+}
+
+/// Spatial accuracy measures the drawn path and the distinct letter parts reached.
+/// The older tests above intentionally exercise count-only aggregation without geometry.
+struct SpatialTallyScoringTests {
+
+    @Test("Tiny inside marks attempt a word without completing it or earning letter points")
+    func tinyMarksCannotCompleteWord() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
+        let tiny = LetterTraceMetrics(containment: 1, coverage: 0.01, isComplete: false)
+        for index in 0..<3 {
+            tally.record(letter: index, isInside: true)
+            tally.recordGeometry(letter: index, metrics: tiny)
+        }
+
+        let result = ScoringEngine.score(tally: tally, streak: 0)
+        #expect(tally.startedCount == 3)
+        #expect(tally.unfinishedCount == 3)
+        #expect(tally.hasInk(letter: 0))
+        #expect(!tally.isComplete(letter: 0))
+        #expect(tally.liveAccuracy == 1)
+        #expect(abs(result.accuracy - tiny.accuracy) < 0.0001)
+        #expect(result.lettersWritten == 3)
+        #expect(result.unfinishedLetters == 3)
+        #expect(!result.finishedEverything)
+        #expect(result.letterPoints == 0)
+        #expect(result.completedWords == 0)
+        #expect(result.wordPoints == 0)
+        #expect(result.orderPoints == 0)
+        #expect(result.stars == 0)
+        #expect(result.sessionBonus == ScoringEngine.sessionBonus,
+                "Shape completion must not change the existing reward for ending a session")
+        #expect(ScoringEngine.finishMessage(for: result).contains("3 letters were incomplete"))
+    }
+
+    @Test("Live feedback uses containment while final accuracy also measures coverage")
+    func liveFeedbackDoesNotPenalizeWorkInProgress() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0], totalWords: 1)
+        let partial = LetterTraceMetrics(containment: 0.8, coverage: 0.4, isComplete: false)
+        tally.recordGeometry(letter: 0, metrics: partial)
+
+        #expect(tally.letterContainments == [0.8, 0])
+        #expect(tally.letterCoverages == [0.4, 0])
+        #expect(tally.liveAccuracy == 0.8)
+        #expect(abs(tally.finalAccuracy - partial.accuracy / 2) < 0.0001)
+        #expect(tally.unfinishedCount == 2)
+
+        tally.markOrder(letter: 0, followed: false)
+        #expect(abs(tally.liveAccuracy - 0.8 * ScoringEngine.orderDiscount) < 0.0001)
+        #expect(abs(tally.letterAccuracies[0] - partial.accuracy * ScoringEngine.orderDiscount) < 0.0001)
+    }
+
+    @Test("Geometry can assign outside ink without inventing legacy sample counts")
+    func geometryOnlyAttemptsAndEmptyResults() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 1], totalWords: 2)
+        tally.recordGeometry(letter: 0,
+                             metrics: LetterTraceMetrics(containment: 0, coverage: 0, isComplete: false))
+        tally.recordGeometry(letter: 1, metrics: .empty)
+        tally.recordGeometry(letter: 2, metrics: .empty)
+
+        #expect(tally.total == [0, 0, 0])
+        #expect(tally.inside == [0, 0, 0])
+        #expect(tally.hasInk(letter: 0))
+        #expect(!tally.hasInk(letter: 1))
+        #expect(tally.startedCount == 1)
+        #expect(tally.startedWords == Set([0]))
+        #expect(tally.scoredIndices == [0, 1])
+        #expect(tally.unfinishedCount == 2)
+        let result = ScoringEngine.score(tally: tally, streak: 0)
+        #expect(result.lettersWritten == 1)
+        #expect(result.wordsWritten == 1)
+        #expect(result.accuracy == 0)
+    }
+
+    @Test("A complete letter keeps its completion even when its formation order is wrong")
+    func shapeCompletionAndOrderAreIndependent() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
+        for index in 0..<3 {
+            tally.recordGeometry(letter: index,
+                                 metrics: LetterTraceMetrics(containment: 1, coverage: 1, isComplete: true))
+        }
+        tally.markOrder(letter: 1, followed: false)
+
+        let result = ScoringEngine.score(tally: tally, streak: 0)
+        #expect(tally.isComplete(letter: 1))
+        #expect(result.unfinishedLetters == 0)
+        #expect(result.finishedEverything)
+        #expect(result.letterAccuracies == [1, ScoringEngine.orderDiscount, 1])
+        #expect(result.letterPoints == 5)
+        #expect(result.completedWords == 1)
+        #expect(result.wordPoints == ScoringEngine.wordBonus)
+        #expect(result.orderedWords == 0)
+        #expect(result.orderPoints == 0)
+        #expect(result.outOfOrderLetters == 1)
+    }
+
+    @Test("Missing a required part cannot earn full letter points or a word bonus")
+    func incompleteEssentialPartBlocksFullCredit() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 0], totalWords: 1)
+        for index in 0..<3 {
+            tally.recordGeometry(letter: index,
+                                 metrics: LetterTraceMetrics(containment: 1, coverage: 1, isComplete: true))
+        }
+        tally.recordGeometry(letter: 1,
+                             metrics: LetterTraceMetrics(containment: 1, coverage: 0.99, isComplete: false))
+        let result = ScoringEngine.score(tally: tally, streak: 0)
+        #expect(result.letterAccuracies[1] < ScoringEngine.fullLetterAbove)
+        #expect(result.letterPoints == 5)
+        #expect(result.unfinishedLetters == 1)
+        #expect(result.completedWords == 0)
+        #expect(!result.finishedEverything)
+    }
+
+    @Test("Erasing resets geometry, attempts and formation-order verdicts")
+    func resetsClearSpatialMetrics() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0], totalWords: 1)
+        for index in 0..<2 {
+            tally.record(letter: index, isInside: true)
+            tally.recordGeometry(letter: index,
+                                 metrics: LetterTraceMetrics(containment: 0.8, coverage: 0.4, isComplete: false))
+            tally.markOrder(letter: index, followed: false)
+        }
+        tally.reset(letter: 0)
+        #expect(tally.geometry[0] == nil)
+        #expect(!tally.hasInk(letter: 0))
+        #expect(!tally.isComplete(letter: 0))
+        #expect(tally.followedOrder[0])
+        #expect(tally.letterAccuracies[0] == 0)
+        #expect(tally.hasInk(letter: 1))
+
+        tally.resetAll()
+        #expect(tally.geometry.allSatisfy { $0 == nil })
+        #expect(tally.total == [0, 0])
+        #expect(tally.inside == [0, 0])
+        #expect(tally.followedOrder == [true, true])
+        #expect(tally.startedWords.isEmpty)
+        #expect(tally.liveAccuracy == 0)
+        #expect(tally.finalAccuracy == 0)
+
+        // Callers without spatial inputs still receive the documented legacy fallback.
+        tally.record(letter: 0, isInside: true)
+        #expect(tally.isComplete(letter: 0))
+        #expect(tally.letterAccuracies[0] == 1)
+    }
+
+    @Test("Spatial metrics preserve the committed record as the scored population")
+    func geometryDoesNotChangeCommittedPopulation() {
+        var tally = ScoringEngine.Tally(wordOfLetter: [0, 0, 1], totalWords: 2)
+        tally.recordGeometry(letter: 0,
+                             metrics: LetterTraceMetrics(containment: 1, coverage: 1, isComplete: true))
+        let partial = LetterTraceMetrics(containment: 1, coverage: 0.25, isComplete: false)
+        tally.recordGeometry(letter: 1, metrics: partial)
+        tally.recordGeometry(letter: 2,
+                             metrics: LetterTraceMetrics(containment: 0, coverage: 0, isComplete: false))
+
+        let result = ScoringEngine.score(tally: tally, committed: [true, true, false], totalWords: 2, streak: 0)
+        #expect(result.wordsWritten == 1)
+        #expect(result.wordsRemaining == 1)
+        #expect(result.lettersWritten == 2)
+        #expect(result.unfinishedLetters == 1)
+        #expect(abs(result.accuracy - (1 + partial.accuracy) / 2) < 0.0001)
     }
 }

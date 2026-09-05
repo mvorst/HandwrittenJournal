@@ -35,17 +35,7 @@ struct WriteFlowTests {
 
     /// Ink that covers every letter of `row`.
     private func ink(row: Int, on canvas: TracingCanvasView) -> [TracingStroke] {
-        (canvas.layout.scorableByLine[row] ?? []).map { index in
-            let box = canvas.layout.glyphBoxes[index]
-            var stroke = TracingStroke()
-            for step in 0...10 {
-                let t = CGFloat(step) / 10
-                stroke.append(StrokePoint(location: CGPoint(x: box.rect.minX + box.rect.width * t,
-                                                            y: box.rect.midY),
-                                          force: 0.6, isInside: true, letterIndex: -1))
-            }
-            return stroke
-        }
+        TestTraceFixtures.ink(row: row, on: canvas)
     }
 
     /// A squiggle right across the letters of `row` — where a doodle would do the most
@@ -189,6 +179,62 @@ struct WriteFlowTests {
     }
 
     // MARK: - The next line waits for the pen to rest (v3.10)
+
+    @Test("Tiny inside marks on every letter neither advance the row nor complete a word")
+    func tinyMarksLeaveTheRowUnfinished() {
+        let canvas = makeCanvas("cat\ncat")
+        canvas.advancePause = 0
+        canvas.selectRow(0)
+        let marks = (canvas.layout.scorableByLine[0] ?? []).compactMap { index -> TracingStroke? in
+            guard let start = TestTraceFixtures.paths(for: index, on: canvas).first?.first else {
+                Issue.record("No formation for glyph \(index)")
+                return nil
+            }
+            return TestTraceFixtures.stroke([start, CGPoint(x: start.x + 0.5, y: start.y)])
+        }
+        canvas.addInk(marks)
+
+        #expect(canvas.tally.startedCount == 3)
+        #expect(canvas.rowHasAnyInk(0))
+        #expect(!canvas.rowFullyInked(0))
+        #expect(canvas.selectedRow == 0)
+        #expect(!canvas.isWaitingToAdvance)
+        let result = canvas.finishEntry(streak: 0)
+        #expect(result.unfinishedLetters == 3)
+        #expect(result.completedWords == 0)
+        #expect(result.wordPoints == 0)
+        #expect(result.letterPoints == 0)
+        #expect(!result.finishedEverything)
+    }
+
+    @Test("A missing crossbar keeps the row and word incomplete until the crossbar lands")
+    func missingCrossbarBlocksCompletion() {
+        let canvas = makeCanvas("cat\ncat")
+        canvas.advancePause = 0
+        canvas.selectRow(0)
+        let indices = canvas.layout.scorableByLine[0] ?? []
+        guard let last = indices.last, canvas.layout.glyphBoxes[last].character == "t" else {
+            Issue.record("Expected cat on the first row")
+            return
+        }
+        let t = TestTraceFixtures.ink(for: last, on: canvas)
+        guard t.count == 2 else {
+            Issue.record("A t should have its stem and crossbar")
+            return
+        }
+        canvas.addInk(indices.dropLast().flatMap { TestTraceFixtures.ink(for: $0, on: canvas) } + [t[0]])
+        #expect(canvas.tally.hasInk(letter: last))
+        #expect(!canvas.tally.isComplete(letter: last))
+        #expect(!canvas.rowFullyInked(0))
+        #expect(canvas.selectedRow == 0)
+        #expect(!canvas.isWaitingToAdvance)
+        #expect(ScoringEngine.score(tally: canvas.tally, streak: 0).completedWords == 0)
+
+        canvas.addInk([t[1]])
+        #expect(canvas.rowFullyInked(0))
+        #expect(canvas.selectedRow == 1)
+        #expect(ScoringEngine.score(tally: canvas.tally, streak: 0).completedWords == 1)
+    }
 
     @Test("A full row stays in hand until the pen has rested; then the next untraced row comes up")
     func fullRowWaitsForThePenToRest() async throws {

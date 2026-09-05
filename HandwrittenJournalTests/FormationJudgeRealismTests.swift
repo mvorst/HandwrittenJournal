@@ -40,10 +40,10 @@ struct FormationJudgeRealismTests {
         let page = renderer.generate(text: text, setup: setup,
                                      canvasSize: CGSize(width: 834, height: height),
                                      screenScale: 2, layoutOnly: true)
-        guard let box = page.glyphBoxes.first(where: \.isScorable),
-              let formation = LetterFormations.formation(for: character) else { return nil }
+        guard let box = page.glyphBoxes.first(where: \.isScorable) else { return nil }
         let fitter = FormationFitter(font: setup.uiFont())
-        return Glyph(box: box, formation: FormationOrder.place(formation, in: fitter.formationRect(for: box)))
+        guard let strokes = fitter.placedStrokes(for: box) else { return nil }
+        return Glyph(box: box, formation: strokes.map { FormationOrder.PlacedStroke(points: $0.points) })
     }
 
     private var tolerance: CGFloat { max(12, WritingSetup.default.size.size * 0.22) }

@@ -124,6 +124,11 @@ final class MaskRenderer {
     private(set) var height = 0
     private(set) var scale: CGFloat = 1
     private(set) var layout = Layout.empty
+    /// The exact outlines from the laid-out CoreText runs, one per advance box. Keeping
+    /// these separate prevents ink on the next letter from passing this letter's test.
+    private var glyphPaths: [Int: CGPath] = [:]
+
+    func glyphPath(for index: Int) -> CGPath? { glyphPaths[index] }
     /// Kept so the visible guide is drawn from the *same* frame the mask came from —
     /// they cannot drift apart.
     private var ctFrame: CTFrame?
@@ -148,6 +153,7 @@ final class MaskRenderer {
         guard width > 0, height > 0, !text.isEmpty else {
             pixelData = []
             layout = .empty
+            glyphPaths = [:]
             guideCaches = [:]
             return layout
         }
@@ -168,6 +174,9 @@ final class MaskRenderer {
                               frameRect: frameRect,
                               topPadding: topPadding,
                               lineSpacing: Self.lineAdvance(for: setup))
+        glyphPaths = Self.measureGlyphPaths(frame: ctFrame, text: text,
+                                           canvasHeight: canvasSize.height,
+                                           frameRect: frameRect, topPadding: topPadding)
 
         guideSource = GuideSource(text: text, setup: setup, frameRect: frameRect,
                                   canvasHeight: canvasSize.height, alignment: alignment)
@@ -242,6 +251,47 @@ final class MaskRenderer {
     }
 
     // MARK: - Per-glyph measurement
+
+    private static func measureGlyphPaths(frame: CTFrame, text: String,
+                                          canvasHeight: CGFloat, frameRect: CGRect,
+                                          topPadding: CGFloat) -> [Int: CGPath] {
+        let lines = CTFrameGetLines(frame) as! [CTLine]
+        var origins = [CGPoint](repeating: .zero, count: lines.count)
+        CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), &origins)
+        let characterIndices = utf16ToCharacterIndex(text)
+        var measured: [(character: Int, path: CGPath?)] = []
+        for (lineIndex, line) in lines.enumerated() {
+            let baseline = canvasHeight - origins[lineIndex].y + topPadding
+            let lineX = frameRect.minX + origins[lineIndex].x
+            for run in CTLineGetGlyphRuns(line) as! [CTRun] {
+                let count = CTRunGetGlyphCount(run)
+                guard count > 0 else { continue }
+                let attributes = CTRunGetAttributes(run) as NSDictionary
+                guard let rawFont = attributes[kCTFontAttributeName] else { continue }
+                let font = rawFont as! CTFont
+                var glyphs = [CGGlyph](repeating: 0, count: count)
+                var positions = [CGPoint](repeating: .zero, count: count)
+                var advances = [CGSize](repeating: .zero, count: count)
+                var indices = [CFIndex](repeating: 0, count: count)
+                CTRunGetGlyphs(run, CFRangeMake(0, 0), &glyphs)
+                CTRunGetPositions(run, CFRangeMake(0, 0), &positions)
+                CTRunGetAdvances(run, CFRangeMake(0, 0), &advances)
+                CTRunGetStringIndices(run, CFRangeMake(0, 0), &indices)
+                for i in 0..<count where advances[i].width > 0 {
+                    guard let character = characterIndices[indices[i]] else { continue }
+                    var transform = CGAffineTransform(a: 1, b: 0, c: 0, d: -1,
+                                                     tx: lineX + positions[i].x,
+                                                     ty: baseline - positions[i].y)
+                    let path = CTFontCreatePathForGlyph(font, glyphs[i], &transform)
+                    measured.append((character, path))
+                }
+            }
+        }
+        measured.sort { $0.character < $1.character }
+        return Dictionary(uniqueKeysWithValues: measured.enumerated().compactMap { index, item in
+            item.path.map { (index, $0) }
+        })
+    }
 
     private static func measure(frame ctFrame: CTFrame,
                                 text: String,

@@ -1235,7 +1235,7 @@ actions are not gated, and the microphone feeds speech recognition and nothing e
 ```
 
 A worksheet, not a journal page. The full alphabet in capital–lowercase pairs plus the
-digits, ruled like the writing page, rendered in **Jua at a size the sheet computes for
+digits, ruled like the writing page, rendered in **the profile's font at a size the sheet computes for
 itself** — the largest type at which the widest row still fits the screen, so the letters
 fill the page edge to edge on any iPad.
 
@@ -1257,13 +1257,13 @@ spectator. The footer says *Watch how you write big G…* until the demo hands o
 touch inks immediately, from the exact point it lands — no tap-slop dead zone, no
 scroll-view touch delay, and a pencil arriving after a resting palm takes the stroke
 over from it. A pencil tap on the letter in hand leaves a dot, which is how the dot of
-an i gets traced. Finger taps replay the demo; finger strokes buffer their first samples
+an i gets traced. Finger taps replay the demo before tracing begins and can add a dot
+to the selected letter once it has ink; finger strokes buffer their first samples
 through the tap-detection phase so their ink also begins at first contact. The
-child traces with the live green/red ink of the writing page. Enough good ink — measured
-as **pen-travel inside the letter against the formation's own length**, so a fast
-confident trace earns the same credit as a slow careful one — flips the cell green with a
+child traces with the live green/red ink of the writing page. **Containment plus distinct
+path coverage**, including each essential part, flips the cell green with a
 success haptic: *"Nice G! Pick another letter."* Touching the next letter clears the
-last one and shows it; touching the same letter replays its demo.
+last one and shows it.
 
 **The blue dot** (v3.8). Choosing a letter puts a blue dot (`action`, with a paper-white
 halo, a little wider than the sheet's guide line) exactly where its first stroke begins —
@@ -1306,14 +1306,12 @@ play again for that letter, so it is shown the right way before it is tried agai
 single point stands and stays in the footer through the replay; the sheet is not a
 dead-end — any other letter can be chosen instead.
 
-**Why Jua only:** the stroke-order guides are hand-authored per letterform
-(`LetterFormations.swift`, 62 characters × 1–4 strokes, in glyph-ink-box coordinates,
-fitted to the glyph's real outline via CoreText at render time and inset by half of
-Jua's stroke width, so the guide runs down the middle of the stroke rather than along
-its edge). Single- versus
-double-story letters and differing hooks make one data set dishonest across faces;
-locking the sheet to the default face keeps every arrow truthful. Reduce Motion skips
-the animation and shows the numbered guide immediately.
+**Font-specific guides:** practice and its tutorial use the profile's selected font.
+`LetterFormations.swift` supplies separate outline-fitted paths for all 62 letters and
+digits in each of the five bundled fonts. Single- versus double-storey letters, serifs
+and differing hooks receive their own routes; one scaled template is not reused across
+faces. See [Trace scoring](TRACE_SCORING.md) and the generation/verification tools in
+`Scripts/formations`. Reduce Motion shows the guide immediately and enables tracing.
 
 ### 4.12 Voice feedback *(v3.4, v3.7)*
 
@@ -1637,31 +1635,29 @@ user-switchable. Thumbnails are always `.natural`.
 
 ## 7. Tracing Engine (ported)
 
-Carried over from TraceRight essentially as-is.
+The visible guide and scoring geometry share the same CoreText layout.
 
 1. **Mask generation** — `MaskRenderer` lays the transcript out with `CTFramesetter` in the
    profile's **face at the profile's size**, draws it white-on-black into an 8-bit
    grayscale `CGContext` at screen scale, and keeps the raw pixel buffer.
 2. **Guide rendering** — `GuideTextView` draws the *same* attributed string, so the mask and
    the visible guide cannot drift.
-3. **Stroke colouring** — each sampled point is tested against the mask; `inside` is stored
+3. **Stroke colouring** — each sampled point is tested against its own glyph outline; `inside` is stored
    per point and drives both live colour and any later re-render.
-4. **Scoring** — see §8.1. The mask is built **per glyph**, so every letter is scored
-   independently and an untouched letter scores zero. Coverage as a separate metric is
-   retired; per-letter grading already catches the child who traces one perfect letter.
+4. **Scoring** — see §8.1. Every letter is scored independently using containment in its
+   own glyph and unique coverage of its formation paths. An untouched letter scores
+   zero; a tiny inside mark cannot complete a letter.
 
-**What per-glyph masks require.** `CTLine` exposes glyph runs and per-glyph bounding boxes;
-render each glyph into its own mask region and keep an index from character position to
-region. This is the one substantive change to the ported engine, and it is worth doing
-properly — it is also what makes "which letters does this child struggle with" answerable
-later.
+**Per-glyph geometry.** `MaskRenderer` extracts each glyph's actual path from its
+CoreText run and indexes it alongside the advance boxes. This keeps the guide and
+containment checks aligned and prevents a neighboring glyph supplying inside credit.
 
 ### 7.1 What the font setting changes
 
-The mask is generated from the chosen face. **A face must be vetted before it goes on the
-list**: thin strokes give the child almost no tolerance, and a two-story `a` teaches a
-letterform they are not being taught at school. `WIREFRAME_SPEC.md` §7.2 holds the current
-list and the reason each face is on it. Adding one is a product decision, not a preference.
+The mask and formation paths come from the chosen face. All five bundled fonts have
+their own routes, including Varela Round's two-storey `a` and the serif `I` in Andika
+and Comic Neue. **A face must be vetted before it goes on the list**: adding one requires
+readable guides, fitted paths, and containment/coverage checks at the supported sizes.
 
 ### 7.2 What the size setting changes
 
@@ -1720,9 +1716,16 @@ Progress already breaks down by mode.
 
 ### 8.1 Accuracy is per letter
 
+**Current implementation:** containment and unique path coverage are measured separately
+by the shared journal/practice scorer. See [Trace scoring](TRACE_SCORING.md) for the
+algorithm, thresholds, font-specific paths and persistence rules. A touched letter is
+an attempt; completing it requires its shape and essential parts to be covered.
+
 ```
-letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
-                    (0 if the child never touched glyph i)
+containment(i)    = inside pen-path length / total pen-path length
+coverage(i)       = distinct covered target length / total target length
+letterAccuracy(i) = harmonicMean(containment(i), coverage(i))
+                    (0 if untouched; capped at 89% if incomplete)
 
 entryAccuracy     = mean(letterAccuracy) over every scored glyph, spaces excluded
 ```
@@ -1744,8 +1747,8 @@ progress        = wordsWritten / totalWords     — inked words over everything 
 
 | | Denominator |
 |---|---|
-| **Live** — shown while writing as *"So far: NN%"* | Only letters actually attempted |
-| **Final** — computed at Done | Every letter in every word that was started |
+| **Live** — shown while writing as *"So far: NN%"* | Containment over letters actually attempted |
+| **Final** — computed at Done | Combined containment and coverage over every letter on an inked row |
 
 If the live figure applied the skip-penalty it would lurch downward each time the child
 moved to a new letter, which reads as being punished for progress. The page reports
@@ -1753,7 +1756,7 @@ moved to a new letter, which reads as being punished for progress. The page repo
 they did.
 
 The end of the session states the outcome plainly: *"You wrote the whole thing"*, or
-*"2 letters were skipped"*, or how many words are still waiting.
+*"2 letters were incomplete"*, or how many words are still waiting.
 
 ### 8.1a The order discount
 
@@ -1763,7 +1766,7 @@ demonstrates (§4.11) — and a letter that clearly took the wrong path keeps on
 of its score:
 
 ```
-letterAccuracy(i) = pointsInsideGlyph(i) / pointsAttemptedOnGlyph(i)
+letterAccuracy(i) = shapeAccuracy(i)
                     × 0.8 if the ink did not follow the formation
 ```
 
@@ -1790,11 +1793,11 @@ design:
   different reason.
 - **No formation, no judgment.** Punctuation has no taught order and is never docked.
 
-**Jua only.** The formations are hand-fitted to Jua and the practice sheet demonstrates
-them in Jua (§4.11), so only Jua entries take the discount — the app does not grade an
-order it has never shown. The other faces score as §8.1 alone. If per-face formations
-are ever authored, the gate (`FormationOrderJudge.honestFaceID`) is where the decision
-lives.
+**Jua order discount only.** All five fonts have outline-fitted paths for demonstration
+and geometric coverage. The existing Jua stroke-order assessment remains the only
+enabled order penalty; geometry-derived routes in the other faces have not established
+a validated teaching order. Their shape scores use §8.1. The gate remains
+`FormationOrderJudge.honestFaceID`.
 
 The judgment runs at pen-up, never mid-stroke, and re-runs when ink changes — undo,
 eraser, clear, or a restored archive (stroke order is chronological in the archive by
@@ -1817,14 +1820,14 @@ parts, producing "backwards" verdicts for letters drawn exactly as taught. So:
 - **Direction is the net motion of a part's first visit**, not its opening travel: a pen
   that runs up a stem to begin it from the top and then draws it down has drawn it down.
 - **A genuine visit covers a substantial share of the part** — enough travel and at
-  least 40% of its length — so a landing beside a junction is not a visit to the wrong
+  least 50% of its length — so a landing beside a junction is not a visit to the wrong
   part.
 - **A tap is a dot** when an *i* or *j* has one near enough to be meant.
 
 `FormationJudgeRealismTests` traces every character on real Jua geometry with a
-wobbling, mis-landing pen, forty times each, and requires no false docks — steady hand
-or shaky — while still requiring every backwards and every out-of-order trace to be
-caught.
+wobbling, mis-landing pen, forty times each, and requires no false docks for the
+ordinary-hand traces and at most two per letter for the shaky-hand traces, while
+still requiring every backwards and every out-of-order trace to be caught.
 
 ### 8.1b The remediation modal
 
@@ -1862,11 +1865,10 @@ the whole page — chrome included:
   synchronous act; the modal only says *"Almost!"* over it. (This is the one deliberate
   exception to "the app never dead-ends" — the demo replays forever, the bar is one
   letter, and the lesson is the point.)
-- **A finger can dot an i here.** On the practice sheet a finger tap always replays the
-  demo, and the dot of an i is a pencil-only nicety — harmless there, because the
-  sheet's green flip never requires the dot. The modal requires the whole formation,
-  so on its sole-letter sheet a finger tap on the letter *once tracing has begun* inks
-  the dot instead; replays live on the *Watch again* button.
+- **A finger can dot an i.** Both the practice sheet and modal require the dot.
+  Once tracing has begun, a finger tap on the selected letter inks a dot. Before
+  tracing begins, a tap replays the demonstration; the modal also provides the
+  *Watch again* button.
 - **Success corrects that letter only.** Its discount is lifted for the life of the
   entry; the modal closes; the live figure rises. The remediation is recorded on the
   session (`remediatedCharIndices`, by character position — glyph indices are not
@@ -1909,7 +1911,7 @@ letterPoints(i) = 2   if letterAccuracy(i) > 90%
                   0   otherwise                      (the §8.1a discount is already in it)
 
 points = Σ letterPoints(i) over every inked letter in the record
-       + 3 × whole words          — every letter inked, three letters or more
+       + 3 × whole words          — every letter complete, three letters or more
        + 3 × whole words whose every letter followed its formation (§8.1a)
        + stars × 10
        + min(currentStreak, 5) × 5
@@ -1920,7 +1922,7 @@ Worked example: *"I saw a red bird"* traced perfectly, every letter the way it i
 on a five-day streak — 12 letters × 2 + 3 whole words × 3 + 3 in order × 3 + 3 stars × 10
 + 25 + 30 = **127**. A typical 25-word entry lands near 400. There is no ceiling.
 
-**What makes a whole word.** Every scorable glyph of the word has ink, and at least three
+**What makes a whole word.** Every scorable glyph of the word is geometrically complete, and at least three
 of them are letters or digits — punctuation is traced and scored like any glyph, but *an.*
 is not a three-letter word. *I* and *a* earn their letter's points and nothing more: the
 order bonus is only ever paid on top of the word bonus. A letter the child re-traced in the
