@@ -47,6 +47,18 @@ final class UserProfile {
     /// §4.11 (v3.8) — *How to trace a letter* has been shown on this profile's first
     /// visit to the practice sheet (frame 60). The ? in the sheet's toolbar shows it again.
     var practiceTutorialSeen: Bool = false
+    /// §4.3 (v3.11) — how far this profile is through Journal Home's first-visit tour
+    /// (`HomeTutorialStep`): *Tap Practice my letters*, then *Now tap New Entry*, then
+    /// done. Owed from the first visit; a tap on the tile in hand, or *Skip*, moves it on.
+    var homeTutorialStepRaw: Int = HomeTutorialStep.practice.rawValue
+    /// §4.11 (v3.11) — the sheet's first tap has been shown on this profile's first
+    /// visit to the practice sheet (frame 63): the spotlight on the big A, until it is
+    /// tapped or skipped.
+    var practiceFirstTapSeen: Bool = false
+    /// §4.4 (v3.11) — the first entry's spotlight on the microphone has been shown on
+    /// this profile's first new entry (frame 64), until the microphone is tapped or it
+    /// is skipped.
+    var writeFirstTapSeen: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \WritingSession.author)
     var sessions: [WritingSession]?
@@ -69,6 +81,12 @@ final class UserProfile {
     var railSide: RailSide {
         get { RailSide(rawValue: railSideRaw) ?? .auto }
         set { railSideRaw = newValue.rawValue }
+    }
+
+    /// The tour's step (v3.11). A value no build knows reads as done — never a nag.
+    var homeTutorialStep: HomeTutorialStep {
+        get { HomeTutorialStep(rawValue: homeTutorialStepRaw) ?? .done }
+        set { homeTutorialStepRaw = newValue.rawValue }
     }
 
     /// The landscape rail's side for this profile: the setting, with Auto resolved by

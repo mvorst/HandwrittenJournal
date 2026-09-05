@@ -36,9 +36,10 @@ Bundle id: `com.mattvorst.education.handwrittenjournal`.
 | — · Every string in `Localizable.xcstrings`; the voice is 224 recorded clips bundled with the app, no system synthesiser (v3.7) | ✅ |
 | — · The voice picks up its pace: the style prompt is one constant in `lines.py`, every clip re-cut at 111 words a minute (v3.9) | ✅ |
 | — · A full line waits for the pen to rest before the next comes up, so the *t* that filled it can still be crossed; a pen landing just under it starts the next line (v3.10) | ✅ |
+| — · Journal Home's first visit is shown round: the tile in hand spotlit, a speech bubble, a finger tapping *Practice my letters*, then *New Entry* (v3.11) | ✅ |
 
-**173 tests across 25 suites** (the run that skips `PageRenderCheck`; 189 in 26 with it),
-all passing once the v3.7 voice clips are in the bundle.
+**220 tests across 31 suites** (the run that skips `PageRenderCheck`; 236 in 32 with it),
+all passing once the voice clips are in the bundle (230 since v3.11).
 Verified on the iPad Pro 11-inch simulator: profile picker, journal home (empty and
 populated, both with and without an unfinished entry), the writing page, journal list,
 progress. `PageRenderCheck` renders the page offscreen and, with `HJ_RENDER_DIR` set,
@@ -64,6 +65,7 @@ HandwrittenJournal/
   Views/       ProfilePickerView · ProfileEditorView · FontSizePickers · JournalHomeView
                JournalListView · EntryDetailView · WriteSessionView (+Writing)
                SettingsViews · ProgressReportView · ExportView
+               WelcomeView · PracticeView · PracticeTutorialView (frame 60) · HomeTutorialView (frames 61/62)
     Components/ TracingCanvas · TracingSurface (scrolling page) · LevelMeter · DesignSystem
 ```
 
@@ -108,6 +110,85 @@ turn. Write it!* coming out short.
   again straight after *Your turn*, then Siri or Control Center's mic mute mid-take.
   `SpokenTakeTests` and `VoiceClipTests` cover the format check and the player's silence
   while listening.
+
+## v3.11 — the first visit is shown round (built)
+
+DESIGN_DOCUMENT §0.19, §4.3, §4.12. Built 2026-09-05.
+
+- **The tour.** `Views/HomeTutorialView.swift`: `HomeTutorialOverlay` — the scrim with the
+  tile cut out of it (`CutOutShape`, filled even-odd and used as the content shape, so a
+  tap in the hole reaches the tile beneath and a tap on the scrim says the line again),
+  the `action` rim, the bubble on `SpeechBubbleShape`, and `TutorialFinger` —
+  `HomeTutorialPlacement` (pure: the hole, the bubble's frame and tail and where the
+  finger lands, for a tile rect and a screen size — under the tile in portrait, beside it
+  in landscape when the journal column has 280 pt to spare, never past the screen margin)
+  and `HomeTutorialStep` (`practice` → `newEntry` → `done`; `advanced(byTapping:)` moves
+  on only for the tile in hand; `cue`, `text`, `greeting`).
+- **Where the tiles are.** The deck's tiles carry `anchorPreference`s (`HomeTileAnchorKey`,
+  keyed by `HomeTile`); `JournalHomeView` reads them with `overlayPreferenceValue` on the
+  root content inside the `NavigationStack`, in a full-screen `GeometryReader`
+  (`ignoresSafeArea`), so the overlay follows the tile through a rotation and goes with
+  the root when the sheet is pushed.
+- **The finger.** `hand.point.up.left.fill` in `text-primary` with the outline variant in
+  `paper-raised` over it, 72 pt, in a `PhaseAnimator` — away (48/56 pt lower right) →
+  arrive → press (0.9 × about the tip, a 44 pt `action` ring fading in) → lift (the ring
+  spreading to 1.8 × and fading) — about 2.5 s a cycle. Where the tip sits in the symbol's
+  box was measured from the rendered glyph (`TutorialFinger.tipInBox`). Under Reduce
+  Motion the hand rests on the tile with the ring round its tip.
+- **State.** `UserProfile.homeTutorialStepRaw` (default 0 = practice owed; a value no build
+  knows reads as done). `showTutorialIfOwed` runs from `.task` on the first appearance and
+  from `onChange(of: practicing)` on the way back from the sheet, 600 ms after either and
+  only if nothing else is up; `tapped(_:)` advances and stores the step *before* the screen
+  opens; *Skip* stores `done`. The greeting (`Voice.say(.home)`) is said only once the step
+  is done (`HomeTutorialStep.greeting`).
+- **Voice.** Two cues, `homeHowPractice` / `homeHowNewEntry` (clips `home-how-practice`,
+  `home-how-new-entry`); the manifest is 230 lines. The gcloud session had lapsed
+  (*Reauthentication failed*), so these two were cut through the AI Studio key on
+  `gemini-2.5-flash-preview-tts` (`TTS=gemini MODEL=gemini-2.5-flash-preview-tts
+  Scripts/voice/build-clips.sh`) — the same Leda, both 1.00 on `verify-clips.py`. To put
+  them on the same footing as the set: `gcloud auth login`, delete the two files, then
+  `TTS=cloud Scripts/voice/build-clips.sh`.
+- **The spotlight, shared.** `Views/TourOverlay.swift` now holds `TourOverlay` (the
+  scrim with the hole, the rim, the bubble, the finger — a `line` and a `holeRadius` in,
+  the Home step no longer baked in), `TourPlacement`, `CutOutShape`, `SpeechBubbleShape`
+  and `TutorialFinger`; `HomeTutorialView.swift` keeps the Home step and its anchors.
+- **The sheet's first tap** (frame 63). `PracticeView`: the surface carries a
+  `PracticeSheetAnchorKey` anchor; `PracticeController.frame(of:)` returns a character's
+  first glyph box in the surface's space (`canvas.convert(box.rect, to: superview)`, nil
+  until laid out); `overlayPreferenceValue` puts `TourOverlay` over the sheet with the A's
+  cell as the target and a `radius-chip` + 8 hole — inside the pushed view, so the bar
+  above stays live. `showTourIfOwed` runs 600 ms after `.task` (a profile that has had the
+  card) or after `finishTutorial` (the card just closed), only while the phase is idle;
+  the first phase change ends it (`finishTour`); `sheetLayoutTick` re-reads the A after a
+  rotation. `UserProfile.practiceFirstTapSeen`; cue `practiceHowTapA`, clip
+  `practice-how-tap-a` (cut the same way as the Home pair; 231 in the manifest).
+- **The first entry's tap** (frame 64). `EntryPageView`: the stage microphone's 176 pt
+  circle carries an `EntryMicAnchorKey` anchor (nil while listening); the overlay sits on
+  the page's root `ZStack` with a circular hole (`mic.width / 2 + holeInset`) and the
+  bubble showing `Voice.Cue.startTalking.text` — no new clip, the page's invitation is
+  the narration. `showTourIfOwed` is called beside `model.inviteToTalk()` as the stage
+  appears (300 ms later, on an empty page with the mic idle); `onChange(of: model.mic)`
+  and `onChange(of: model.stage)` end it when the tap starts the take or brings the
+  explainer up. `UserProfile.writeFirstTapSeen`.
+- **Harness.** `-screen home-tutorial` opens Home with the tour owed *and* the sheet's
+  lessons and the first entry's tap unseen — the whole first visit. `-screen
+  practice-tutorial` owes the card and the first tap; `-screen practice-tap` the first
+  tap alone; `-screen write-tap` a new entry with the microphone's spotlight owed. The
+  seeded Milo has had all of them; Ada, with nothing yet, owes all of them, so picking
+  her on the seeded chooser is the first visit as a real new profile gets it. The
+  `-screen` switch now runs once per Home (`harnessApplied`) rather than again on every
+  return from a pushed screen.
+- **Tests.** `HomeTutorialTests` (6): the steps and what advances them; the lines, the clip
+  ids and the greeting rule; portrait, landscape and narrow-screen placement; the cut-out
+  and the bubble's clamped tail. `TourTests` (3): the sheet's first tap is owed and named;
+  the spotlight finds the big A on a laid-out sheet, in the surface's space, and places
+  the bubble under it at the margin; the first entry's tap is owed and the microphone's
+  hole is a circle under a centred bubble, beside it in landscape. `VoiceClipTests` counts
+  29 fixed clips.
+- **Frames 61 and 62 are drawn** on `03 · Journal` (x 3736 and 4670): frame 9 cloned, the
+  scrim a Boolean difference with the tile's hole, the bubble one path, the finger the
+  traced SF Symbol; `hand.point.up.left` joined the Foundations icon sheet
+  (`WIREFRAME_SPEC.md` §13.9, `PENPOT_HANDOFF.md` §1.-5).
 
 ## v3.10 — the next line waits for the pen to rest (built)
 
@@ -734,6 +815,13 @@ xcrun simctl launch <device> com.mattvorst.education.handwrittenjournal \
   -seed YES -screen trace     # start | trace | journal | progress | settings | write | practice
                               # | practice-tutorial — v3.8: the sheet with *How to trace a
                               # letter* owed, as on a profile's first visit
+                              # | practice-tap — v3.11: the sheet with its first tap owed (the
+                              # spotlight on the big A), the card already seen
+                              # | write-tap — v3.11: a new entry with the first entry's spotlight
+                              # on the microphone owed
+                              # | home-tutorial — v3.11: Home with the first-visit tour owed
+                              # (*Tap Practice my letters*, then *New Entry*) and the sheet's
+                              # lesson unseen behind it — the whole first visit
                               # | welcome — v3.4: reset the welcome and open it on a fresh iPad;
                               # every other seeded or -screen launch settles it first
   -orientation landscape      # v3.3 — start in landscape (portrait is the default)

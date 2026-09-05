@@ -81,6 +81,14 @@ enum Voice {
         case practiceHowStart
         case practiceHowTrace
         case practiceHowDone
+        /// Journal Home's first visit (§4.3 frames 61/62, v3.11) — the tour of the two
+        /// tiles, one line a step: the finger on *Practice my letters*, then, back from
+        /// the sheet, on *New Entry*.
+        case homeHowPractice
+        case homeHowNewEntry
+        /// The practice sheet's first tap (§4.11 frame 63, v3.11) — the spotlight on the
+        /// big A, as it appears.
+        case practiceHowTapA
 
         var text: String {
             switch self {
@@ -147,6 +155,12 @@ enum Voice {
                 return String(localized: "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!")
             case .practiceHowDone:
                 return String(localized: "That's it! Now pick any letter on the sheet and trace it.")
+            case .homeHowPractice:
+                return String(localized: "Let's start with your letters. Tap Practice my letters.")
+            case .homeHowNewEntry:
+                return String(localized: "Now let's write in your journal. Tap New Entry and tell me about your day.")
+            case .practiceHowTapA:
+                return String(localized: "Tap the big A and watch how it's written.")
             }
         }
 
@@ -180,6 +194,9 @@ enum Voice {
             case .practiceHowStart:                  return "practice-how-start"
             case .practiceHowTrace:                  return "practice-how-trace"
             case .practiceHowDone:                   return "practice-how-done"
+            case .homeHowPractice:                   return "home-how-practice"
+            case .homeHowNewEntry:                   return "home-how-new-entry"
+            case .practiceHowTapA:                   return "practice-how-tap-a"
             }
         }
 
@@ -190,7 +207,8 @@ enum Voice {
             cues += [.entryFinished(finishedEverything: true), .entryFinished(finishedEverything: false),
                      .helpNext, .helpFixed, .helpAgain, .voiceOn, .whyPencil, .nobodyHere, .home]
             cues += Voice.newEntryLines.indices.map(Cue.newEntry) + [.startTalking, .micPermission]
-            cues += [.practiceHowWatch, .practiceHowStart, .practiceHowTrace, .practiceHowDone]
+            cues += [.practiceHowWatch, .practiceHowStart, .practiceHowTrace, .practiceHowDone,
+                     .homeHowPractice, .homeHowNewEntry, .practiceHowTapA]
             for badge in BadgeEngine.all { cues += [.badgeEarned(badge.id), .badgeHint(badge.id)] }
             for char in Voice.characters {
                 cues += [.practiceYourTurn(char),

@@ -37,6 +37,8 @@ struct EntryPageView: View {
     @FocusState var typing: Bool
     /// The stop button's ring while a take runs from the stage (v3.2).
     @State var stagePulse = false
+    /// Frame 64 — the first entry's spotlight on the microphone is up (v3.11).
+    @State var showingTour = false
 
     @State private var strokes: [TracingStroke] = []
     @State private var showExport = false
@@ -76,8 +78,35 @@ struct EntryPageView: View {
                 case .writing:                  mode == .edit ? AnyView(writingStage(layout)) : AnyView(readingStage(layout))
                 }
             }
+            // Frame 64 — the first entry's spotlight (v3.11): the tour's overlay over the
+            // whole page, the microphone cut out of its scrim, the finger tapping it, while
+            // the page's own invitation is said.
+            .overlayPreferenceValue(EntryMicAnchorKey.self) { anchor in
+                GeometryReader { over in
+                    if showingTour, let anchor {
+                        let mic = over[anchor]
+                        TourOverlay(line: Voice.Cue.startTalking.text,
+                                    target: mic,
+                                    size: over.size,
+                                    holeRadius: mic.width / 2 + TourPlacement.holeInset,
+                                    onSkip: skipTour,
+                                    onRepeat: { Voice.say(.startTalking) })
+                            .transition(.opacity)
+                    }
+                }
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: Tokens.Motion.standard), value: showingTour)
+            }
         }
         .task { await model.prepare() }
+        // The tap the spotlight asked for starts the take — or brings the microphone
+        // explainer up first — and either ends the tour (v3.11).
+        .onChange(of: model.mic) { _, mic in
+            if showingTour, mic != .idle { finishTour() }
+        }
+        .onChange(of: model.stage) { _, stage in
+            if showingTour, stage != .writing { finishTour() }
+        }
         .task(id: mode) { if mode == .view { await loadStrokes() } }
         // The service stops itself at the five-minute cap; the page needs to notice.
         .onChange(of: model.speech.isRecording) { _, recording in
@@ -115,6 +144,31 @@ struct EntryPageView: View {
     var pageDate: String { model.session?.displayDate ?? today }
 
     func dismissSession() { dismiss() }
+
+    // MARK: - The first entry's tap (frame 64, v3.11)
+
+    /// The spotlight on the microphone, if this profile still owes its first entry's
+    /// tap: as the narration begins on the empty page, with nothing listening yet.
+    func showTourIfOwed() {
+        guard !profile.writeFirstTapSeen, !showingTour, model.pageText.isEmpty, model.mic == .idle else { return }
+        Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !showingTour, !profile.writeFirstTapSeen, model.pageText.isEmpty, model.mic == .idle else { return }
+            showingTour = true
+        }
+    }
+
+    /// The microphone was tapped, or the tour skipped: the page is the child's.
+    func finishTour() {
+        profile.writeFirstTapSeen = true
+        showingTour = false
+    }
+
+    func skipTour() {
+        Haptics.tap()
+        Voice.stop()
+        finishTour()
+    }
 
     // MARK: - Switching
 
@@ -477,4 +531,14 @@ private struct FocusOnAppear: ViewModifier {
 
 extension View {
     func focusedOnAppear() -> some View { modifier(FocusOnAppear()) }
+}
+
+/// Where the stage microphone is, reported up so the first entry's spotlight can find
+/// it (frame 64, v3.11). Nothing while the take is running — the stop button is not a
+/// thing to be shown.
+struct EntryMicAnchorKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? { nil }
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
 }

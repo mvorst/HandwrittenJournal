@@ -1,6 +1,6 @@
 # Handwritten Journal
 
-## Design Document v3.10
+## Design Document v3.11
 
 An iPad journal for a child who is learning to write. The child talks about their day, the
 app transcribes it, and the words appear on a ruled page for them to write over. Each line
@@ -10,6 +10,37 @@ child's own hand.
 
 Companion: `WIREFRAME_SPEC.md` v2.6 (measurements, tokens, frame inventory).
 Build notes: `PENPOT_HANDOFF.md`.
+
+---
+
+## 0.19 What Changed in v3.11
+
+**The first visit is shown round** (§4.3, §4.12, built 2026-09-05).
+
+A new profile's Journal Home used to greet the child with a line and leave them to it.
+Now the screen shows them its two tiles, one at a time, the way a grown-up sitting beside
+them would — frames 61 and 62. Everything but the tile in hand goes under the scrim, a
+speech bubble beside the tile says what to do, the same words are said aloud, and a
+finger taps the tile, over and over, until the child's does. *Practice my letters* comes
+first — the sheet has its own lesson waiting behind it (frame 60) — and, back from the
+sheet, *Now let's write in your journal. Tap New Entry and tell me about your day.* A tap
+on the tile in hand is the only thing that moves the tour on: the other tile, the header
+and the journal are under the scrim, a tap on the scrim says the line again, and *Skip*
+in the bubble ends the tour for good. How far a profile has got is kept on the profile
+(`UserProfile.homeTutorialStep`: practice → new entry → done), so a child who puts the
+iPad down on the practice sheet is shown *New Entry* the next time Home appears, and
+each sibling gets the tour once. The greeting — *Add a journal entry, or practice
+writing your letters.* — waits until the tour is done.
+
+The same spotlight points the way twice more, once each per profile. On the practice
+sheet's first visit — once *How to trace a letter* has gone, if it was owed — the big A is
+cut out of the scrim, the finger taps it and the bubble says *Tap the big A and watch how
+it's written.* (frame 63); the tap is the sheet's own, its arrows draw, and the sheet takes
+over. On the first new entry the microphone is cut out as the page's own invitation
+begins — *Tell me about your day… Tap the microphone and start talking.* — with the bubble
+showing that second line and the finger on the microphone (frame 64); the tap starts the
+take, or brings the microphone explainer up, and either ends the tour. Three new clips:
+231.
 
 ---
 
@@ -814,6 +845,24 @@ gone from this screen (an entry's ⋯ menu still reaches *Share as PDF*, includi
 journal), and search is a plain field directly above the entries it filters. There is no
 second journal screen: the main screen *is* the journal and the list is never truncated.
 
+**The first visit is shown round** — frames 61 and 62 (v3.11). A new profile's first
+Home shows the child its two tiles, one at a time. Everything but the tile in hand goes
+under the `overlay-scrim`, cut out round the tile with 8 pt of air and a 3 pt `action`
+rim; a speech bubble — `paper-raised`, `radius-card`, `shadow-modal`, its tail on the
+tile's centre; under the tile in portrait, beside it in the journal column in landscape —
+carries the line, which is said aloud as the bubble appears (§4.12); and a finger — the
+pointing-hand symbol, dark with a paper-white rim — comes in from the lower right,
+presses the tile as a ring spreads from its tip, lifts and comes back, about every two
+and a half seconds, until the child's finger does the same (under Reduce Motion it rests
+on the tile with the ring round its tip). *Practice my letters* first: *Let's start with
+your letters. Tap Practice my letters.* — the sheet's own lesson (frame 60) opens behind
+the tap. Back from the sheet, after a beat, the second: *Now let's write in your journal.
+Tap New Entry and tell me about your day.* Only a tap on the tile in hand moves the tour
+on; a tap on the scrim says the line again; *Skip* in the bubble ends it. The tour's step
+lives on the profile (§5.1), so a child who stops on the practice sheet is shown *New
+Entry* the next time Home appears, and each sibling gets the tour once. Until it is done
+the greeting is not said — the tour's line is the greeting.
+
 **Tapping a badge opens its card** (v3.2): a centred sheet on the scrim, in the family of
 the PIN pad — the badge at tile size, its name, *Earned* or *Not earned yet*, and one line
 saying what earned it or what will (§8.5). It closes on its *Got it* button, its ✕, or a
@@ -855,6 +904,15 @@ and the writing share one surface.
 │ 🎤  So far: 88%  [███░░] 15 of 48 ⌄ [I'm finished]│  ← say-more mic
 └──────────────────────────────────────┘
 ```
+
+**The first entry's tap** — frame 64 (v3.11). A profile's first new entry gets the tour's
+spotlight (§4.3) on the microphone as the page's invitation begins: the 176 pt button is
+cut out of the scrim as a circle, the bubble under it shows *Tap the microphone and start
+talking.* while the voice says the invitation and then those words, and the finger taps
+the microphone until the child's does. The tap is the page's own — it starts the take, or
+brings the microphone explainer up first — and either ends the tour; a tap on the scrim
+says the line again; *Skip* ends it. Owed once per profile
+(`UserProfile.writeFirstTapSeen`).
 
 **Speak** — there is one microphone (v3.2). On an empty page it stands big and low on the
 page, near the child's hands, with the invitation above it; tapped, it turns red in the
@@ -1290,6 +1348,15 @@ resting beside the card while the pencil traces must not end the lesson. Owed on
 profile, on the first visit, after the push has landed; the **?** in the toolbar brings
 it back any time. Nothing traced in the card earns points.
 
+**The first tap** — frame 63 (v3.11). With the card gone, a first visit gets the tour's
+spotlight (§4.3): the big A — the sheet's first letter — is cut out of the scrim with a
+tight rim, the bubble under it says *Tap the big A and watch how it's written.* as the
+voice does, and the finger taps the A until the child's does. The tap is the sheet's own:
+the A is chosen, its arrows draw, *Your turn. Trace the big A* follows, and the tour is
+over. The bar above stays live, a tap on the scrim says the line again, and *Skip* ends
+it. Owed once per profile (`UserProfile.practiceFirstTapSeen`), after the card on a
+first visit, and on its own for a profile that has already had the card.
+
 **Sandbox rules:** no ink is saved, nothing is graded, and nothing here touches the
 streak or the badges — but a letter that flips green **earns points** (§8.3, v3.1): two
 in the arrow order, one otherwise, each letter once a day. The award replaces the footer
@@ -1335,9 +1402,11 @@ would. Cues, not narration:
 | The profile picker is empty (v3.7) | *Nobody is here yet. Make a profile for each person who writes. Everyone gets their own journal, font and size.* — if the welcome chose a voice; there is no profile switch yet | `nobody-here` |
 | Journal Home appears from the picker (v3.7) | *Add a journal entry, or practice writing your letters.* — once per visit, not on every return from a page | `home` |
 | *Voice feedback* switched on in Settings (v3.7) | *Voice feedback is on. I'll tell you when it's your turn to write.* | `voice-on` |
-| A new entry opens on the empty page (v3.7) | *Tell me about your day.* or *Tell me a story.* — alternating — then *Tap the microphone and start talking.* Once per entry | `new-entry-0…1` · `start-talking` |
+| A new entry opens on the empty page (v3.7) | *Tell me about your day.* or *Tell me a story.* — alternating — then *Tap the microphone and start talking.* Once per entry. On a profile's first entry the spotlight on the microphone shows that second line as it is said (§4.4 frame 64, v3.11); a tap on its scrim says it again | `new-entry-0…1` · `start-talking` |
 | The microphone explainer (§4.2 frame 40, v3.7) | *Can we use the microphone? It allows us to write down what you tell us so you can trace the words.* | `mic-permission` |
 | *How to trace a letter* (§4.11 frame 60, v3.8) | As it appears, over the bare letter: *Here's how to practice a letter. Touch it, and watch how it's written.* — as the dot lands and the arrows draw (the demo waits for the first line): *See the blue dot? That's where you start. Follow the arrows.* — when the demo hands over: *Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!* — when the letter is traced: *That's it! Now pick any letter on the sheet and trace it.* | `practice-how-watch` · `practice-how-start` · `practice-how-trace` · `practice-how-done` |
+| Journal Home's first visit (§4.3 frames 61/62, v3.11) | As the bubble appears, in place of the greeting: *Let's start with your letters. Tap Practice my letters.* — and, back from the sheet: *Now let's write in your journal. Tap New Entry and tell me about your day.* A tap on the scrim says the line again | `home-how-practice` · `home-how-new-entry` |
+| The practice sheet's first tap (§4.11 frame 63, v3.11) | As the spotlight lands on the big A, once the card has gone: *Tap the big A and watch how it's written.* | `practice-how-tap-a` |
 
 Letters are named *big G*, *little g*, *the 7* — 62 characters, three clips each, so
 the practice sheet and the modal never stitch a sentence together from pieces. A cue
@@ -1420,6 +1489,11 @@ enum WritingMode: Int, Codable { case trace = 0, copy = 1 }
     var guideLinesEnabled: Bool = true
     var allowFingerTracing: Bool = false
     var colorBlindMode: Bool = false
+    var railSideRaw: Int = RailSide.auto.rawValue   // v3.3: the landscape rail's side (§13.6)
+    var practiceTutorialSeen: Bool = false         // v3.8: *How to trace a letter* shown (§4.11)
+    var homeTutorialStepRaw: Int = 0               // v3.11: the first-visit tour — practice → new entry → done (§4.3)
+    var practiceFirstTapSeen: Bool = false         // v3.11: the sheet's first tap — the spotlight on the big A (§4.11)
+    var writeFirstTapSeen: Bool = false            // v3.11: the first entry's tap — the spotlight on the microphone (§4.4)
 
     @Relationship(deleteRule: .cascade, inverse: \WritingSession.author)
     var sessions: [WritingSession]?

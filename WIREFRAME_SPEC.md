@@ -278,7 +278,7 @@ One Penpot file: **`Wireframes`**.
 | `00 · Foundations` | Color tokens, type scale, spacing ruler, elevation samples, icon sheet |
 | `01 · Components` | Every component in §10, one per board, with all variants |
 | `02 · Profiles` | Frames 1–6, 51, and the welcome — 55–58 (v3.4) |
-| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54 |
+| `03 · Journal` | Frames 9, 10, 12, 15, 18, 19, 43, 54, 61, 62 |
 | `04 · Write` | Frames 20–22, 24–27, 29, 30, 40–50, 52, 53 |
 | `05 · Progress & Settings` | Frames 31–34, 38, 39 |
 | `99 · Scratch` | Anything in progress; never referenced by development |
@@ -1052,6 +1052,8 @@ that it never scrolls (a sheet in a scroll view would scroll under a finger, not
 | 19 | Export preview — one entry | Scope selector, one PDF page, "1 page · one per session, oldest first", the on-device line, both option toggles |
 | 43 | Export preview — the whole journal | The book: 38 pages, fanned stack, options. No size estimate — the app does not compute one. Reached from an entry's ⋯ → *Share as PDF* → **Everything**. Journal Home's export button — and the defect where it opened `ExportView` with no session — went in v3.1; the entry menu is the only route |
 | 54 | Journal Home — badge detail | `Sheet / Badge` over frame 9 for *5-Day Streak* (earned: "You wrote five days in a row."). The *not earned yet* state — *Ten Entries*, "Write ten entries." — is drawn beside it as a component state on `01 · Components` §10.8 (v3.2) |
+| 61 | Journal Home — the first visit, *Practice my letters* | v3.11, §13.9. Frame 9 under the `overlay-scrim` with the practice tile cut out (8 pt of air, a 3 pt `action` rim), a speech bubble under it — "Let's start with your letters. Tap Practice my letters." in `headline`, `Button / Text` "Skip" in `text-secondary` — and the pointing hand on the tile, mid-press, a 44 pt `action` ring at its tip. Drawn on `03 · Journal` at x 3736 (`PENPOT_HANDOFF.md` §1.-5) |
+| 62 | Journal Home — the first visit, *New Entry* | v3.11, §13.9. The same over the New Entry tile, back from the practice sheet: "Now let's write in your journal. Tap New Entry and tell me about your day." Drawn on `03 · Journal` at x 4670 |
 
 ### `04 · Write`
 
@@ -1081,6 +1083,8 @@ finished* as the one finish control in the footer.
 | 47 | Write — colourblind ink | §16 variant: `ink-inside-cb` / `ink-outside-cb` |
 | 48 | Write — left-handed layout | §16 variant, built in v3.2: `isLeftHanded` mirrors the handle gutter to the right so a resting left hand never covers it. Nothing else moves — the toolbar, the footer and the writing are frame 25's |
 | 60 | Practice — how to trace a letter | v3.8, §13.8. `Sheet`-family card over frame 49: "How to trace a letter", three numbered steps that light up in turn, a 320 × 400 one-letter sheet (little *a*, the blue dot at the start of its bowl, the arrows, live ink), `Button / Text` "↺ Watch again" · "Skip" — `Button / Primary` "✓ Let's practice" once the letter is traced — and the ✕. Opens on a profile's first visit and from the **?** in frame 49's toolbar. Drawn on `04 · Write` beside frame 50 |
+| 63 | Practice — the first tap | v3.11, §13.9. Frame 49 under the `overlay-scrim` with the big A's cell cut out (8 pt of air, `radius-chip` + 8, a 3 pt `action` rim), the speech bubble under it — "Tap the big A and watch how it's written." in `headline`, "Skip" — and the pointing hand on the A, mid-press, the 44 pt `action` ring at its tip. The toolbar stays live. Opens once per profile, after frame 60's card if that was owed |
+| 64 | Write — the first entry's tap | v3.11, §13.9. Frame 20 under the `overlay-scrim` with the 176 pt microphone cut out as a circle (8 pt of air, a 3 pt `action` rim), the speech bubble under it — "Tap the microphone and start talking." — and the pointing hand on the microphone, as the page's invitation is said. The whole page, toolbar included, is under the scrim; Skip ends it. Opens once per profile |
 | 49 | Practice Letters | The alphabet worksheet reached from Journal Home. A **?** leads the trailing toolbar group (v3.8), the letter in hand carries a blue start dot where its first stroke begins, and no ink lands until its arrows have finished — a pencil on a new letter plays the demo, it does not skip it. Jua only, sized so the widest row fits; the toolbar carries the "+18 today" points pill leading and undo + clear trailing; the footer carries the prompt and, once there is ink, the accuracy — replaced by "+2 points" in `success` when the letter flips green (§8.3, v3.1). Letters that earned today stay in `success` (2 points) or `star-on` (1 point) — `ink-inside-cb` / `ink-outside-cb` in the colour-blind scheme — except the letter in hand, which keeps `guide-text`; the idle footer carries a `caption` legend. Nothing is saved or graded; only the points are kept |
 | 52 | Write — doodling with the crayon | The crayon in hand: a sun, a heart and a flower in the three §5.6 accents, in their own layer under the handwriting at 85% multiply; the three swatches sit in the footer where the readout usually is, with "Doodles never count — tap the pencil to write again" |
 | 53 | Write — adding words with the keyboard | The **ABC** tool with nothing picked: the *Add words* field in the footer, keyboard up. Typed words join the spoken tier on their own paragraph |
@@ -1344,6 +1348,41 @@ Frame 49 gains a **?** (`questionmark.circle`) leading its trailing toolbar grou
 letter in hand shows the blue dot from the moment it is chosen until it is traced — the
 demo's arrows draw out from it, and it breathes slowly the whole time. Both are drawn
 (`PENPOT_HANDOFF.md` §1.-4).
+
+### 13.9 The first visit (v3.11) — frames 61 and 62
+
+Frame 9 under the `overlay-scrim`, with one tile cut out of it, a speech bubble and a
+finger. Nothing here is a card in the PIN pad's family: the scrim has a hole, the tile
+under the hole is the live button, and the bubble is the only chrome. The same overlay
+serves landscape frame 09 — there the deck is a column, so the bubble sits beside the
+tile in the journal column with its tail on the left.
+
+| Frames 61 / 62 — the first visit | x | y | Size |
+|---|---|---|---|
+| The hole: the tile with 8 pt of air, `radius-card` + 8, a 3 pt `action` rim | 518 (61) · 16 (62) | 128 | 300 × 144 (61) · 502 × 144 (62) |
+| The bubble — `paper-raised`, `radius-card`, `shadow-modal`; a 28 × 14 tail on the top edge, centred on the tile (pulled inside the corner radius when the tile is nearer the edge than that); 24 pt padding, 12 under the button | 410 (61) · 67 (62) | 292 | 400 wide, its own height |
+| — the line, `headline` `text-primary` | | | |
+| — `Button / Text` "Skip", `text-secondary`, trailing | | | h 44 |
+| The finger — `hand.point.up.left.fill` in `text-primary` under `hand.point.up.left` in `paper-raised`, 72 pt, its tip at 62% of the tile's width and 6 pt under its centre line; a 44 pt `action` ring at the tip while it presses | tip 702 (61) · 325 (62) | tip 206 | 74 × 82 |
+
+Portrait: the bubble sits 20 pt under the hole, centred on the tile and stopped at the
+24 pt margin. Landscape: 20 pt to the right of the hole, centred on the tile's centre
+line and kept inside the top and bottom margins, the tail on its left edge — unless
+fewer than 280 pt are left beside the tile, when it goes under it as in portrait. The
+finger comes in from 48 pt right of and 56 pt below its tip, presses (0.9 ×, the ring
+fading in), lifts (the ring spreading to 1.8 × and fading) and goes back, about every
+2.5 s; under Reduce Motion it rests on the tile with the ring round the tip. Everything
+else on the screen is under the scrim and inert; a tap on the scrim says the line again.
+Both frames are drawn on `03 · Journal`, and `hand.point.up.left` is on the Foundations icon
+sheet (`PENPOT_HANDOFF.md` §1.-5).
+
+**Frames 63 and 64 — the same spotlight on the practice sheet and the empty page.** The
+overlay is the one above with a different target and hole: on frame 63 the big A's glyph
+cell (x 40, y 100, about 106 × 166 at the sheet's size — the sheet lays this out), the hole
+at `radius-chip` + 8, the bubble under it stopped at the left margin with its tail on the
+A; on frame 64 the 176 pt microphone at (329, 759), the hole a circle of 192 with a 3 pt
+`action` rim, the bubble centred under it at y 971, the tail on the microphone. Neither
+frame's chrome changes. Both are drawn on `04 · Write` (`PENPOT_HANDOFF.md` §1.-5).
 
 ## 14. Sample Content
 

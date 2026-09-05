@@ -166,7 +166,10 @@ extension EntryPageView {
                 Text("Tell me about your day, \(profile.name)")
                     .font(.hjTitle1).foregroundStyle(Tokens.Colour.textPrimary)
                     .multilineTextAlignment(.center)
-                    .onAppear { model.inviteToTalk() }
+                    .onAppear {
+                        model.inviteToTalk()
+                        showTourIfOwed()
+                    }
                 Text("Say as much as you like — up to five minutes.\nYour words land right here for you to write.")
                     .font(.hjBody).foregroundStyle(Tokens.Colour.textSecondary)
                     .multilineTextAlignment(.center)
@@ -217,6 +220,7 @@ extension EntryPageView {
                 Circle().fill(listening ? Tokens.Colour.danger : Tokens.Colour.action)
                     .frame(width: 176, height: 176)
                     .hjShadow(Tokens.Elevation.raised)
+                    .anchorPreference(key: EntryMicAnchorKey.self, value: .bounds) { listening ? nil : $0 }
                 if listening {
                     RoundedRectangle(cornerRadius: 12).fill(Tokens.Colour.textOnAction)
                         .frame(width: 56, height: 56)

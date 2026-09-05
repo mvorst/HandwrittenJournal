@@ -12,7 +12,7 @@ struct VoiceClipTests {
     func clipsAreBundled() {
         let cues = Voice.Cue.all
         #expect(Voice.characters.count == 62)
-        #expect(cues.count == 26 + BadgeEngine.all.count * 2 + 62 * 3)
+        #expect(cues.count == 29 + BadgeEngine.all.count * 2 + 62 * 3)
         // One line naming every clip still owed, rather than one failure per clip: the
         // set is cut in quota-sized runs, and this is the list a run has to finish.
         let missing = cues.filter { ClipSpeaker.url(for: $0) == nil }.map(\.clipID)

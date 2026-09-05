@@ -156,6 +156,24 @@
     "where": "Practice, frame 60 — the tutorial's letter is traced"
   },
   {
+    "id": "home-how-practice",
+    "text": "Let's start with your letters. Tap Practice my letters.",
+    "say": "Let's start with your letters. Tap Practice my letters.",
+    "where": "Journal Home, frame 61 — a profile's first visit: the finger on *Practice my letters*"
+  },
+  {
+    "id": "home-how-new-entry",
+    "text": "Now let's write in your journal. Tap New Entry and tell me about your day.",
+    "say": "Now let's write in your journal. Tap New Entry and tell me about your day.",
+    "where": "Journal Home, frame 62 — back from the practice sheet: the finger on *New Entry*"
+  },
+  {
+    "id": "practice-how-tap-a",
+    "text": "Tap the big A and watch how it's written.",
+    "say": "Tap the big A and watch how it's written.",
+    "where": "Practice, frame 63 — a profile's first sheet: the finger on the big A (after the frame 60 card, if it was owed)"
+  },
+  {
     "id": "badge-first_entry-earned",
     "text": "You earned First Entry! You wrote your first entry.",
     "say": "You earned First Entry! You wrote your first entry.",

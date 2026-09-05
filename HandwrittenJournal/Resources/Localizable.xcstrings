@@ -716,6 +716,9 @@
     "Let's practice %@!" : {
 
     },
+    "Let's start with your letters. Tap Practice my letters." : {
+
+    },
     "Let's write" : {
 
     },
@@ -828,6 +831,9 @@
 
     },
     "Nothing yet today" : {
+
+    },
+    "Now let's write in your journal. Tap New Entry and tell me about your day." : {
 
     },
     "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!" : {
@@ -1017,6 +1023,9 @@
 
     },
     "Tap New Entry and tell me about your day." : {
+
+    },
+    "Tap the big A and watch how it's written." : {
 
     },
     "Tap the big microphone to begin" : {

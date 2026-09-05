@@ -50,6 +50,9 @@ FIXED = [
     ("practice-how-start", "See the blue dot? That's where you start. Follow the arrows.", "Practice, frame 60 — the dot lands and the arrows draw (the demo waits for the first line)"),
     ("practice-how-trace", "Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it!", "Practice, frame 60 — the tutorial's demo hands over"),
     ("practice-how-done", "That's it! Now pick any letter on the sheet and trace it.", "Practice, frame 60 — the tutorial's letter is traced"),
+    ("home-how-practice", "Let's start with your letters. Tap Practice my letters.", "Journal Home, frame 61 — a profile's first visit: the finger on *Practice my letters*"),
+    ("home-how-new-entry", "Now let's write in your journal. Tap New Entry and tell me about your day.", "Journal Home, frame 62 — back from the practice sheet: the finger on *New Entry*"),
+    ("practice-how-tap-a", "Tap the big A and watch how it's written.", "Practice, frame 63 — a profile's first sheet: the finger on the big A (after the frame 60 card, if it was owed)"),
 ]
 
 # (badge id, name, what earned it, what will) — mirrors BadgeEngine.all

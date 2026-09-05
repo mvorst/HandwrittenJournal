@@ -66,6 +66,16 @@ final class PracticeController {
 
     func undo() { canvas?.undo() }
     func clear() { canvas?.clearInk() }
+
+    /// Where a character sits on the sheet — the first of it, in the surface's own
+    /// coordinate space — for the tour that points at the big A (frame 63, v3.11). Nil
+    /// until the sheet has laid out, or for a character the sheet does not have.
+    func frame(of character: Character) -> CGRect? {
+        guard let canvas,
+              let box = canvas.layout.glyphBoxes.first(where: { $0.character == character }),
+              box.rect.width > 0 else { return nil }
+        return canvas.convert(box.rect, to: canvas.superview)
+    }
     /// §8.1b — wipe the ink and play the arrows again after a wrong-order attempt.
     func startOverWithDemo() { canvas?.startOverWithDemo() }
 }

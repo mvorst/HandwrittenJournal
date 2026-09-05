@@ -8,7 +8,48 @@ revised for v2.7 on 2026-09-01 (frames 7, 11 and 13 removed to match the code),
 for v2.8 on 2026-09-01 (the style-guide palette — see §1.1 below), swept against the
 app for v3.1/v3.2 on 2026-09-02 (§1.-1 — the exploration pages promoted and deleted), and
 given a landscape page the same day (§1.-2), and the welcome frames the same day
-again (§1.-3), and swept against the app for v3.5–v3.10 on 2026-09-04 (§1.-4).
+again (§1.-3), swept against the app for v3.5–v3.10 on 2026-09-04 (§1.-4), and given the
+first-visit frames on 2026-09-05 (§1.-5).
+
+## 1.-5 The first visit *(drawn 2026-09-05, v3.11)*
+
+Two frames on `03 · Journal`, continuing the top row after 54: **`61 — Journal Home — the
+first visit, Practice my letters`** (x 3736) and **`62 — Journal Home — the first visit,
+New Entry`** (x 4670). Each is frame 9 cloned with the overlay drawn over it the way the
+app composes it (`WIREFRAME_SPEC.md` §13.9):
+
+- **The scrim with the tile cut out** is one Boolean — the full-frame `#000000` 40%
+  rectangle *minus* a 28-radius rounded rectangle 8 pt outside the tile
+  (`createBoolean('difference', [scrim, hole])`) — so the tile beneath shows through
+  untouched, as on the iPad, rather than a copy of the tile sitting on the scrim. A 3 pt
+  `action` rim, inner-aligned, traces the hole.
+- **The bubble** is one path — the rounded card with the tail on its top edge, from an SVG
+  path with `A` arcs for the corners — in `paper-raised` under the `shadow-modal` cut-paper
+  shadow (0 / 6 / 0 at 18%), with the line in the `headline` typography and *Skip* in
+  `button-sm` `text-secondary`, grouped as `Bubble / Speech`. Frame 61's card is 158 tall
+  (two lines), frame 62's 186 (three) — the app sizes it to the words the same way.
+- **The finger** is the real symbol: `hand.point.up.left.fill` rendered at 72 pt, its alpha
+  traced (a throwaway marching-squares pass over an 8× bitmap, simplified to 63 points)
+  and imported as a path in a 72 × 78 box, filled `text-primary` with a 2 pt `paper-raised`
+  outer stroke for the rim and a soft shadow (0 / 3 / blur 4 at 30%). The box sits so the
+  fingertip is at 62% of the tile's width, 6 pt under its centre line; the 44 pt `action`
+  ring at the tip is the press. Named `Finger · hand.point.up.left`.
+- **Annotations** in the usual bottom-of-frame style (Nunito 15, `action`, 786 wide at
+  y 1150), as fixed-height boxes — auto-height texts made from the plugin never laid out
+  this session.
+
+**New in the library.** `hand.point.up.left` joins the Foundations icon sheet at (399, 2708),
+beside `questionmark.circle` — 27 icons now. It is the traced silhouette scaled to 32 pt,
+in ink, the way the other filled symbols are drawn.
+
+**Two more, the same day, on `04 · Write`** — the spotlight's other two targets
+(`WIREFRAME_SPEC.md` §13.9): **`63 — Practice — the first tap`** (x 1868, y 6470) is frame
+49 cloned with the big A's cell cut out of the scrim (72 × 128 at (32, 182), `radius-chip`
++ 8, the 3 pt `action` rim), the bubble under it at the left margin with its tail on the
+A, and the finger on the A; **`64 — Write — the first entry's tap`** (x 2802, y 6470) is
+frame 20 cloned with the 176 pt microphone cut out as a circle (192 across at (321, 692)),
+the bubble centred under it and the finger on the microphone. Same construction as 61/62;
+each keeps its screen's chrome and carries a fresh annotation.
 
 ## 1.-4 The v3.5 – v3.10 sweep *(2026-09-04)*
 
@@ -64,6 +105,7 @@ iCloud row — worth a pass when that work is committed.
 canonical example — *"I saw a red bird"*, perfectly, on a five-day streak, 24 + 9 + 9 + 30
 + 25 + 30 = 127. Redrawing those two frames means a new sample entry, not a new number, so
 it was left for a decision rather than guessed at.
+
 
 ## 1.-3 The welcome and a voice *(drawn and built 2026-09-02, v3.4)*
 

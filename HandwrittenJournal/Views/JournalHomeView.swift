@@ -27,6 +27,13 @@ struct JournalHomeView: View {
     @State private var query = ""
     /// The badge whose card is open (§4.3, v3.2).
     @State private var shownBadge: BadgeDefinition?
+    /// The first-visit tour's step on screen, or nil while nothing is shown (v3.11).
+    @State private var tutorialStep: HomeTutorialStep?
+    #if DEBUG
+    /// The harness's `-screen` has been applied — once, not again on every return from
+    /// a pushed screen.
+    @State private var harnessApplied = false
+    #endif
 
     /// Newest first. `orderedSessions` already sorts by `startedAt` descending.
     private var entries: [WritingSession] {
@@ -53,6 +60,21 @@ struct JournalHomeView: View {
                 .padding(.horizontal, Tokens.Layout.screenMargin)
             }
             .background(Tokens.Colour.paper)
+            // The first-visit tour (frames 61 and 62, v3.11): over the whole screen, the
+            // tile in hand cut out of its scrim, following the tile wherever the layout
+            // puts it.
+            .overlayPreferenceValue(HomeTileAnchorKey.self) { anchors in
+                GeometryReader { geo in
+                    if let step = tutorialStep, let tile = step.tile, let anchor = anchors[tile] {
+                        TourOverlay(line: step.text, target: geo[anchor], size: geo.size,
+                                    onSkip: skipTutorial,
+                                    onRepeat: { if let cue = step.cue { Voice.say(cue) } })
+                            .transition(.opacity)
+                    }
+                }
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: Tokens.Motion.standard), value: tutorialStep)
+            }
             // Nothing lives in the bar (v3.1) — the pushed practice sheet keeps its own.
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $practicing) { PracticeView(profile: profile) }
@@ -82,24 +104,91 @@ struct JournalHomeView: View {
         .animation(Tokens.Motion.spring, value: shownBadge)
         .onAppear {
             // Once per visit from the picker, not on every return from a page (§4.12, v3.7).
-            if !greeted { greeted = true; Voice.say(.home) }
+            // A first visit hears the tour's line instead of the greeting (v3.11).
+            if !greeted {
+                greeted = true
+                if let cue = profile.homeTutorialStep.greeting { Voice.say(cue) }
+            }
         }
         .task {
             #if DEBUG
-            switch DemoData.screen {
-            case "trace":    opened = profile.orderedSessions.first
-            case "progress": showProgress = true
-            case "settings": showSettings = true
-            case "write":    writing = true
-            case "practice": practicing = true
-            // v3.8 — the sheet with *How to trace a letter* owed, as on a first visit.
-            case "practice-tutorial":
-                profile.practiceTutorialSeen = false
-                practicing = true
-            default: break
+            if !harnessApplied {
+                harnessApplied = true
+                switch DemoData.screen {
+                case "trace":    opened = profile.orderedSessions.first
+                case "progress": showProgress = true
+                case "settings": showSettings = true
+                case "write":    writing = true
+                case "practice": practicing = true
+                // v3.8 — the sheet as on a first visit: *How to trace a letter* owed, and
+                // (v3.11) the first tap on the big A behind it.
+                case "practice-tutorial":
+                    profile.practiceTutorialSeen = false
+                    profile.practiceFirstTapSeen = false
+                    practicing = true
+                // v3.11 — the sheet with only its first tap owed (the lesson card seen).
+                case "practice-tap":
+                    profile.practiceFirstTapSeen = false
+                    practicing = true
+                // v3.11 — a new entry with the first entry's spotlight on the microphone owed.
+                case "write-tap":
+                    profile.writeFirstTapSeen = false
+                    writing = true
+                // v3.11 — the first visit, tour and all: Home with *Tap Practice my
+                // letters* owed, and the sheet's own lessons waiting behind it.
+                case "home-tutorial":
+                    profile.homeTutorialStep = .practice
+                    profile.practiceTutorialSeen = false
+                    profile.practiceFirstTapSeen = false
+                    profile.writeFirstTapSeen = false
+                default: break
+                }
             }
             #endif
+            await showTutorialIfOwed()
         }
+        // Back from the practice sheet with the second step owed (v3.11).
+        .onChange(of: practicing) { _, pushed in
+            if !pushed { Task { await showTutorialIfOwed() } }
+        }
+    }
+
+    // MARK: - The first visit (§4.3, v3.11)
+
+    /// The tour, if this profile still owes a step — after a beat, so the screen has
+    /// landed: on the first visit, and again on the way back from the practice sheet.
+    private func showTutorialIfOwed() async {
+        let step = profile.homeTutorialStep
+        guard step != .done, tutorialStep == nil else { return }
+        try? await Task.sleep(for: .milliseconds(600))
+        guard !Task.isCancelled, tutorialStep == nil, !practicing, !writing,
+              profile.homeTutorialStep == step else { return }
+        tutorialStep = step
+        if let cue = step.cue { Voice.say(cue) }
+    }
+
+    /// A tile was tapped. During the tour only the tile in hand is reachable, and
+    /// tapping it moves the tour on before the screen opens.
+    private func tapped(_ tile: HomeTile) {
+        if let step = tutorialStep {
+            let next = step.advanced(byTapping: tile)
+            if next != step {
+                profile.homeTutorialStep = next
+                tutorialStep = nil
+            }
+        }
+        switch tile {
+        case .newEntry: writing = true
+        case .practice: practicing = true
+        }
+    }
+
+    /// *Skip*: the tour is over for this profile, however far it got.
+    private func skipTutorial() {
+        Haptics.tap()
+        Voice.stop()
+        profile.homeTutorialStep = .done
+        tutorialStep = nil
     }
 
     // MARK: - Dashboard
@@ -176,12 +265,14 @@ struct JournalHomeView: View {
             ActionTile(style: .primary,
                        title: "New Entry",
                        subtitle: "Tell me about your day",
-                       systemImage: "pencil.line") { writing = true }
+                       systemImage: "pencil.line") { tapped(.newEntry) }
+                .anchorPreference(key: HomeTileAnchorKey.self, value: .bounds) { [.newEntry: $0] }
             ActionTile(style: .secondary,
                        title: "Practice my letters",
                        systemImage: "textformat.abc",
-                       chip: "+\(PracticePoints.full) points a letter") { practicing = true }
+                       chip: "+\(PracticePoints.full) points a letter") { tapped(.practice) }
                 .frame(width: layout.isLandscape ? nil : 284)
+                .anchorPreference(key: HomeTileAnchorKey.self, value: .bounds) { [.practice: $0] }
         }
         .padding(.top, Tokens.Space.s5)
     }

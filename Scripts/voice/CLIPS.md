@@ -9,7 +9,7 @@ silent.
 This file is generated — edit `lines.py`, not this. Lower-case letters are spelled in
 capitals in the spoken text so the voice says the letter, not the article.
 
-## The moments (26 clips)
+## The moments (29 clips)
 
 | Clip | Where it plays | Transcript | Size |
 |---|---|---|---|
@@ -39,6 +39,9 @@ capitals in the spoken text so the voice says the letter, not the article.
 | [`practice-how-start.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-start.m4a) | Practice, frame 60 — the dot lands and the arrows draw (the demo waits for the first line) | See the blue dot? That's where you start. Follow the arrows. | 33 KB |
 | [`practice-how-trace.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-trace.m4a) | Practice, frame 60 — the tutorial's demo hands over | Now trace the letter with your pencil. Green ink is on the letter, red ink is off. Try it! | 57 KB |
 | [`practice-how-done.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-done.m4a) | Practice, frame 60 — the tutorial's letter is traced | That's it! Now pick any letter on the sheet and trace it. | 37 KB |
+| [`home-how-practice.m4a`](../../HandwrittenJournal/Resources/Voice/home-how-practice.m4a) | Journal Home, frame 61 — a profile's first visit: the finger on *Practice my letters* | Let's start with your letters. Tap Practice my letters. | 28 KB |
+| [`home-how-new-entry.m4a`](../../HandwrittenJournal/Resources/Voice/home-how-new-entry.m4a) | Journal Home, frame 62 — back from the practice sheet: the finger on *New Entry* | Now let's write in your journal. Tap New Entry and tell me about your day. | 37 KB |
+| [`practice-how-tap-a.m4a`](../../HandwrittenJournal/Resources/Voice/practice-how-tap-a.m4a) | Practice, frame 63 — a profile's first sheet: the finger on the big A (after the frame 60 card, if it was owed) | Tap the big A and watch how it's written. | 19 KB |
 
 ## The badges (8 badges × 2 = 16 clips)
 

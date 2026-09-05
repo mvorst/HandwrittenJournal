@@ -4,7 +4,8 @@ import SwiftUI
 /// how it is written, trace it, move on. Practice ink is temporary, but a letter
 /// that flips green earns points (§8.3, v3.1), the one thing the sheet keeps. A first
 /// visit opens *How to trace a letter* over the sheet (frame 60, v3.8); the ? in the
-/// toolbar brings it back.
+/// toolbar brings it back. Once the card has gone, the first visit's spotlight points at
+/// the big A until it is tapped (frame 63, v3.11).
 struct PracticeView: View {
     let profile: UserProfile
     @State private var controller = PracticeController()
@@ -12,6 +13,11 @@ struct PracticeView: View {
     @State private var lastAward = 0
     /// Frame 60 — the tutorial card is up.
     @State private var showingTutorial = false
+    /// Frame 63 — the spotlight on the big A is up (v3.11).
+    @State private var showingTour = false
+    /// Bumped after the sheet has re-laid out for a new size, so the spotlight finds
+    /// the A where it now is.
+    @State private var sheetLayoutTick = 0
     /// The letter the award in the footer belongs to — it stays up through that
     /// letter's replay and goes when another letter is chosen or the pen is back down.
     @State private var awardedChar: Character?
@@ -39,11 +45,38 @@ struct PracticeView: View {
                                 controller: controller)
                     .frame(width: layout.isLandscape ? layout.pageWidth : nil)
                     .frame(maxHeight: .infinity)
+                    .anchorPreference(key: PracticeSheetAnchorKey.self, value: .bounds) { $0 }
                 if !layout.isLandscape { footer }
                 if layout.railOnRight { rail(layout) }
             }
+            .onChange(of: layout.isLandscape) { _, _ in
+                Task {
+                    try? await Task.sleep(for: .milliseconds(150))
+                    sheetLayoutTick += 1
+                }
+            }
         }
         .background(Tokens.Colour.paper)
+        // Frame 63 — the first visit's spotlight on the big A (v3.11): the tour's overlay
+        // over the sheet, the A cut out of its scrim, the finger tapping it. The bar above
+        // stays live — Back is always a way out.
+        .overlayPreferenceValue(PracticeSheetAnchorKey.self) { anchor in
+            GeometryReader { geo in
+                let _ = sheetLayoutTick
+                if showingTour, let anchor, let letter = controller.frame(of: Self.tourLetter) {
+                    let sheet = geo[anchor]
+                    TourOverlay(line: Voice.Cue.practiceHowTapA.text,
+                                target: letter.offsetBy(dx: sheet.minX, dy: sheet.minY),
+                                size: geo.size,
+                                holeRadius: Tokens.Radius.chip + TourPlacement.holeInset,
+                                onSkip: skipTour,
+                                onRepeat: { Voice.say(.practiceHowTapA) })
+                        .transition(.opacity)
+                }
+            }
+            .ignoresSafeArea()
+            .animation(.easeInOut(duration: Tokens.Motion.standard), value: showingTour)
+        }
         .navigationTitle("Practice Letters")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -68,7 +101,7 @@ struct PracticeView: View {
                 .presentationBackground(.clear)
         }
         .task {
-            guard !profile.practiceTutorialSeen else { return }
+            guard !profile.practiceTutorialSeen else { await showTourIfOwed(); return }
             try? await Task.sleep(for: .milliseconds(450))
             guard !Task.isCancelled else { return }
             showTutorial()
@@ -76,6 +109,8 @@ struct PracticeView: View {
         // §8.3 — the moment a letter flips green is the moment it earns. The ledger says
         // no to a letter that has already earned as much today, so retracing is free.
         .onChange(of: controller.phase) { before, phase in
+            // The spotlight's tap landed: the sheet took the letter, the tour is done.
+            if showingTour, phase != .idle { finishTour() }
             switch phase {
             case .traced(let char):
                 let followed = controller.followedOrder
@@ -118,10 +153,40 @@ struct PracticeView: View {
         showingTutorial = true
     }
 
-    /// Seen, however it closed — *Skip* included. The ? brings it back on request.
+    /// Seen, however it closed — *Skip* included. The ? brings it back on request. With
+    /// the card gone, the first visit's spotlight has its turn.
     private func finishTutorial() {
         profile.practiceTutorialSeen = true
         showingTutorial = false
+        Task { await showTourIfOwed() }
+    }
+
+    // MARK: - The first tap (frame 63, v3.11)
+
+    /// The letter the spotlight points at: the sheet's first, the big A.
+    static let tourLetter: Character = "A"
+
+    /// The spotlight, if this profile still owes its first tap — after a beat, so the
+    /// sheet has landed (or the card has gone), and only while nothing is chosen.
+    private func showTourIfOwed() async {
+        guard !profile.practiceFirstTapSeen, !showingTour else { return }
+        try? await Task.sleep(for: .milliseconds(600))
+        guard !Task.isCancelled, !showingTutorial, !showingTour, !profile.practiceFirstTapSeen,
+              controller.phase == .idle else { return }
+        showingTour = true
+        Voice.say(.practiceHowTapA)
+    }
+
+    /// The A was tapped: the sheet has it, the arrows are drawing, the tour is over.
+    private func finishTour() {
+        profile.practiceFirstTapSeen = true
+        showingTour = false
+    }
+
+    private func skipTour() {
+        Haptics.tap()
+        Voice.stop()
+        finishTour()
     }
 
     private var footer: some View {
@@ -236,5 +301,14 @@ struct PracticeView: View {
                 ? String(localized: "Nice \(Voice.letterName(char))! Pick another letter.")
                 : String(localized: "Good \(Voice.letterName(char))! Try the strokes in the arrow order.")
         }
+    }
+}
+
+/// Where the sheet is on the screen, reported up so the spotlight can find a letter on
+/// it (frame 63, v3.11).
+struct PracticeSheetAnchorKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? { nil }
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
     }
 }

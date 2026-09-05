@@ -31,9 +31,13 @@
 		4456A50056AC82A50B1A65B7 /* PageLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE140C69BF7D77A3F8CB0AA /* PageLayoutTests.swift */; };
 		44CCE18F8EF830451A8C58C7 /* LetterFormations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FC8914863613ACF75C8F46 /* LetterFormations.swift */; };
 		45D77A1EA677721D4FBA2BD1 /* PracticeTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */; };
+		5F01E96F2EA31C55267F4BE4 /* TourOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD7F5F9F5F33B7B8D549C2B /* TourOverlay.swift */; };
+		270126E8EACDEA7AF4B8BAC1 /* HomeTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28847E2B5BFD24218D281269 /* HomeTutorialView.swift */; };
 		45EA6883E082A63E5234D6C3 /* Sniglet-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2CBF113C5783409CA3D671EF /* Sniglet-ExtraBold.ttf */; };
 		488D66AEF358B5968EDA3D9D /* TestTraceFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE4AED0EBEC997F94CB1B4C /* TestTraceFixtures.swift */; };
 		48D4B1C2BF85402F9D2465DE /* PracticeTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */; };
+		C190A70896ECAD97EE86FE6A /* TourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6ED5AFF6411B74AADBF05F /* TourTests.swift */; };
+		1DDBCA6B68081A4645078169 /* HomeTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58641F6A90A1B18ACD5A3F3D /* HomeTutorialTests.swift */; };
 		5B8BF4C662D2BCB01B404035 /* StrokeEraser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E5691A7BBC2AB77A4F536 /* StrokeEraser.swift */; };
 		606BE3939F3E4BAD2F9298F2 /* PDFBookBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932FCC7677040CEB62719752 /* PDFBookBuilder.swift */; };
 		6733985692851D6A2FB30EA4 /* LICENSES.md in Resources */ = {isa = PBXBuildFile; fileRef = 376D4EEB2D8D809E08A27F93 /* LICENSES.md */; };
@@ -120,6 +124,8 @@
 		376D4EEB2D8D809E08A27F93 /* LICENSES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSES.md; sourceTree = "<group>"; };
 		386960ADE27E37CB4F95DBDF /* InkPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkPersistenceTests.swift; sourceTree = "<group>"; };
 		3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialView.swift; sourceTree = "<group>"; };
+		3FD7F5F9F5F33B7B8D549C2B /* TourOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourOverlay.swift; sourceTree = "<group>"; };
+		28847E2B5BFD24218D281269 /* HomeTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTutorialView.swift; sourceTree = "<group>"; };
 		39D0DFCEF0B3883D9F0C888C /* TracingSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracingSurface.swift; sourceTree = "<group>"; };
 		405D1A5808155268A721682C /* TraceCanvasCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceCanvasCoverageTests.swift; sourceTree = "<group>"; };
 		4244C9C0C04BFEE66577EDE9 /* TraceGeometryScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceGeometryScorer.swift; sourceTree = "<group>"; };
@@ -148,6 +154,8 @@
 		78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSheetColourTests.swift; sourceTree = "<group>"; };
 		7A261CBBF85543DB8C88828B /* MaskRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskRendererTests.swift; sourceTree = "<group>"; };
 		7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTutorialTests.swift; sourceTree = "<group>"; };
+		2D6ED5AFF6411B74AADBF05F /* TourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourTests.swift; sourceTree = "<group>"; };
+		58641F6A90A1B18ACD5A3F3D /* HomeTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTutorialTests.swift; sourceTree = "<group>"; };
 		7C3B5C9695E14E2D82CA4667 /* LineStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineStateTests.swift; sourceTree = "<group>"; };
 		7E2DC18A0F1D004D4E2AEFD7 /* FormationOrderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormationOrderTests.swift; sourceTree = "<group>"; };
 		83203735DA55F589A277AF90 /* ArchiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveTests.swift; sourceTree = "<group>"; };
@@ -255,6 +263,8 @@
 				17E9325F88BEB376D743E2BF /* PracticeSheetCentringTests.swift */,
 				78E8DED06952C44487FE81E0 /* PracticeSheetColourTests.swift */,
 				7AB679DE5A2807E0846E603F /* PracticeTutorialTests.swift */,
+				2D6ED5AFF6411B74AADBF05F /* TourTests.swift */,
+				58641F6A90A1B18ACD5A3F3D /* HomeTutorialTests.swift */,
 				6C7479E7EE0014A22E896B2E /* ScoringTests.swift */,
 				BBA204C1A3D1A85A749BC7C4 /* ScreenLayoutTests.swift */,
 				FFE4AED0EBEC997F94CB1B4C /* TestTraceFixtures.swift */,
@@ -359,6 +369,7 @@
 				D556A107FFF646240E5A9E99 /* ExportView.swift */,
 				13E635BF3EE6D61F9E8DAB97 /* FontSizePickers.swift */,
 				5A3C13764E7D543E7627762F /* FormationHelpView.swift */,
+				28847E2B5BFD24218D281269 /* HomeTutorialView.swift */,
 				14A2743B04FD0F3FF5B3AF4A /* JournalHomeView.swift */,
 				3905AFAB49A804F2D3389BC0 /* PracticeTutorialView.swift */,
 				AA678BED1B99E37DA5D78365 /* PracticeView.swift */,
@@ -366,6 +377,7 @@
 				49F14F07457DC0A60A36FCAD /* ProfilePickerView.swift */,
 				539559855DA545D4C9EF448B /* ProgressReportView.swift */,
 				73C88AFDA0126B8062E8265A /* SettingsViews.swift */,
+				3FD7F5F9F5F33B7B8D549C2B /* TourOverlay.swift */,
 				07B6FBE77081F6FCF53CDDD1 /* WelcomeView.swift */,
 				404AAE370715717B1F5AC95F /* Components */,
 			);
@@ -491,6 +503,8 @@
 				CB16B6A6182F8DE8FAB6FB14 /* PracticeCanvas.swift in Sources */,
 				6EAF92610859F50F548C39C2 /* PracticePoints.swift in Sources */,
 				45D77A1EA677721D4FBA2BD1 /* PracticeTutorialView.swift in Sources */,
+				5F01E96F2EA31C55267F4BE4 /* TourOverlay.swift in Sources */,
+				270126E8EACDEA7AF4B8BAC1 /* HomeTutorialView.swift in Sources */,
 				25E7CFD3ADF3860364D837A4 /* PracticeView.swift in Sources */,
 				C2002652434C8A4136322744 /* ProfileEditorView.swift in Sources */,
 				B8567A1D230BCBA81A66954D /* ProfilePickerView.swift in Sources */,
@@ -536,6 +550,8 @@
 				FDB4D95E63863421014980A2 /* PracticeSheetCentringTests.swift in Sources */,
 				F88CE53ABA735FE06824A737 /* PracticeSheetColourTests.swift in Sources */,
 				48D4B1C2BF85402F9D2465DE /* PracticeTutorialTests.swift in Sources */,
+				C190A70896ECAD97EE86FE6A /* TourTests.swift in Sources */,
+				1DDBCA6B68081A4645078169 /* HomeTutorialTests.swift in Sources */,
 				BF494E92BF61DB8568FF2227 /* ScoringTests.swift in Sources */,
 				DD964DC723920933B23A5BED /* ScreenLayoutTests.swift in Sources */,
 				488D66AEF358B5968EDA3D9D /* TestTraceFixtures.swift in Sources */,

@@ -85,9 +85,14 @@ enum DemoData {
         for letter in "de" {
             milo.practiceLedger[PracticePoints.ledgerKey(day: today, character: letter)] = PracticePoints.partial
         }
-        // A sheet that has been used has had its tutorial (v3.8); `-screen
-        // practice-tutorial` asks for it back.
+        // A sheet that has been used has had its tutorial (v3.8), and a journal with
+        // entries in it has been shown round (v3.11); `-screen practice-tutorial` and
+        // `-screen home-tutorial` ask for them back. Ada, with nothing yet, still owes
+        // both — pick her on the seeded chooser for the first visit as it is.
         milo.practiceTutorialSeen = true
+        milo.practiceFirstTapSeen = true
+        milo.writeFirstTapSeen = true
+        milo.homeTutorialStep = .done
         context.insert(milo)
 
         let ada = UserProfile(name: "Ada")
